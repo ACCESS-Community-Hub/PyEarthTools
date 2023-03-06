@@ -6,7 +6,6 @@ from dset.training.data.indexes.data_interface import Data_Interface as DataInte
 from dset.training.data.indexes.indexes import (
     AsNumpy,
     CombineDataIndex,
-    PatchingDataIndex,
-    PatchingUpdate,
+    PatchingDataIndex
 )
 from dset.training.data.indexes.patching import Tesselator

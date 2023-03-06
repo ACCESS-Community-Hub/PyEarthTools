@@ -196,8 +196,8 @@ class Tesselator:
             padding=self.padding,
             **kwargs,
         )
-        if update or self._layout is None:
-            self._layout = layout
+
+        self._layout = layout
 
         return patches
 

@@ -20,7 +20,9 @@ class FillNa(DataOperation):
     def __init__(
         self,
         iterator: DataIterator,
-        value: int = 0,
+        nan: float = np.nan,
+        posinf: float = None,
+        neginf: float = None,
         apply_iterator: bool = True,
         apply_get: bool = True,
     ) -> None:
@@ -31,19 +33,28 @@ class FillNa(DataOperation):
         ----------
         iterator
             Underlying Iterator
-        value, optional
-            Value to fill Nan with, by default 0
+        nan, optional
+            Value to fill Nan with, by default NaN
+            If no value is passed then NaN values will not be replaced
+        posinf, optional
+            Value to be used to fill positive infinity values, by default None
+            If no value is passed then positive infinity values will be replaced with a very large number.
+        neginf, optional
+           Value to be used to fill negative infinity values, by default None
+            If no value is passed then negative infinity values will be replaced with a very small (or negative) number.
         apply_iterator, optional
             Whether to apply on __iter__, by default True
         apply_get, optional
             Whether to apply on __getitem__, by default True
         """
         super().__init__(iterator)
-        self.value = value
+        self.nan = nan
+        self.posinf = posinf
+        self.neginf = neginf
         self.apply_iterator = apply_iterator
         self.apply_get = apply_get
 
-        self.__doc__ = f"Fill nan's with {value}"
+        self.__doc__ = f"Fill nan's with {nan}"
         if apply_iterator & apply_get:
             self.__doc__ += " on both iteration and get"
         elif apply_iterator ^ apply_get:
@@ -51,8 +62,8 @@ class FillNa(DataOperation):
 
     def _apply_fill(self, data):
         if isinstance(data, tuple):
-            return tuple(map(lambda x: np.nan_to_num(x, self.value), data))
-        return np.nan_to_num(data, self.value)
+            return tuple(map(self._apply_fill, data))
+        return np.nan_to_num(data, self.nan, posinf=self.posinf, neginf=self.neginf)
 
     def __iter__(self):
         for data in self.iterator:

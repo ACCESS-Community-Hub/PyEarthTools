@@ -194,7 +194,9 @@ class DataOperation(DataIterator):
     def __repr__(self):
         string = "DataIterator with the following Operations:"
         operations = self._formatted_name()
-        operations = "\n".join(["\t* " + oper for oper in operations.split("\n")])
+        operations = operations.split("\n")
+        operations.reverse()
+        operations = "\n".join(["\t* " + oper for oper in operations])
         return f"{string}\n{operations}"
 
 class DataIterationOperator(DataOperation):

@@ -1,6 +1,5 @@
 import importlib
 
-import click
 import yaml
 
 from dset.training import data
@@ -27,7 +26,7 @@ def get_callable(module: str):
         return getattr(get_callable(".".join(module[:-1])), module[-1])
 
 
-def load_from_yaml(yaml_file: str):
+def load_from_yaml(yaml_file: str, **kwargs):
     """
     Load and create trainer from Yaml Config
     """
@@ -51,61 +50,15 @@ def load_from_yaml(yaml_file: str):
         model = get_callable('dset.training.models.networks.' + model_name)
 
     model = model(**config["model"])
+    trainer_config = config["trainer"]
+    trainer_config.update(**kwargs)
 
     return DSETTrainerWrapper(
         model,
         config["trainer"].pop("root_dir"),
         train_data,
         valid_data,
-        **config["trainer"]
+        **trainer_config
     )
 
 
-@click.group(name="Trainer From Yaml")
-def entry_point():
-    pass
-
-
-@entry_point.command(name="fit")
-@click.argument(
-    "yaml_file",
-    type=click.Path(
-        exists=True, file_okay=True, dir_okay=False, readable=True, resolve_path=True
-    ),
-)
-def fit(yaml_file):
-    """
-    From Yaml Config Fit Model
-    """
-    trainer = load_from_yaml(yaml_file)
-    trainer.fit()
-
-
-@entry_point.command(name="predict")
-@click.argument(
-    "yaml_file",
-    type=click.Path(
-        exists=True, file_okay=True, dir_okay=False, readable=True, resolve_path=True
-    ),
-)
-@click.argument(
-    "checkpoint",
-    type=click.Path(
-        exists=True, file_okay=True, dir_okay=False, readable=True, resolve_path=True
-    ),
-)
-@click.argument("index", type=str)
-@click.argument("save_file", type=click.Path())
-def predict(yaml_file, checkpoint, index, save_file):
-    """
-    Using Yaml Config & Checkpoint, predict at index
-    """
-    trainer = load_from_yaml(yaml_file)
-    trainer.load(checkpoint)
-
-    predictions = trainer.predict(index, undo=True)
-    predictions[-1].to_netcdf(save_file)
-
-
-if __name__ == "__main__":
-    entry_point()

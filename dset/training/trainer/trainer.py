@@ -7,10 +7,11 @@ import pytorch_lightning as pl
 import xarray as xr
 from torch.utils.data import DataLoader, IterableDataset
 
+from dset.training.trainer.template import DSETTrainer
 from dset.training.data.templates import DataIterator
 
 
-class DSETTrainerWrapper:
+class DSETTrainerWrapper(DSETTrainer):
     def __init__(
         self,
         model,

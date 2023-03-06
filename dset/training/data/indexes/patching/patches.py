@@ -78,7 +78,7 @@ def organise_patches(
             chosen_factor = patch_factors[factor_choice]
         except IndexError as exc:
             raise ValueError(
-                f"Factor Choice '{factor_choice}' out of bounds of {patch_factors}" from exc
+                f"Factor Choice '{factor_choice}' out of bounds of {patch_factors}"
             )
     else:
         raise ValueError(f"{type(factor_choice)} invalid for factor_choice")

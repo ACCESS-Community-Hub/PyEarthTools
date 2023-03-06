@@ -1,6 +1,7 @@
 import copy
 import functools
 from datetime import datetime, timedelta
+import importlib
 from typing import Iterable, Union
 
 import xarray as xr
@@ -10,6 +11,25 @@ from dset.data.time import dset_datetime
 from dset.data.transform import default, normalisation
 
 from dset.training.data.templates import DataInterface, SequentialIterator
+
+def get_callable(module: str):
+    """
+    Provide dynamic import capability
+
+    Parameters
+    ----------
+        module
+            String of path the module, either module or specific function/class
+
+    Returns
+    -------
+        Specified module or function
+    """
+    try:
+        return importlib.import_module(module)
+    except ModuleNotFoundError:
+        module = module.split(".")
+        return getattr(get_callable(".".join(module[:-1])), module[-1])
 
 
 @SequentialIterator
@@ -22,6 +42,7 @@ class Data_Interface(DataInterface):
         samples: Union[tuple[int], int] = 1,
         sample_interval: int = 0,
         sample_interval_unit: str = "minutes",
+        catch: Union[tuple[Exception], Exception] = None,
     ) -> None:
         """
         An extension of DataIndexes designed for ML Training,
@@ -106,6 +127,18 @@ class Data_Interface(DataInterface):
         self.sample_interval = sample_interval
         self.sample_interval_unit = sample_interval_unit
 
+        if catch:
+            if not isinstance(catch, (tuple, list)):
+                catch = (catch,)
+            catch = list(catch)
+
+            for i, err in enumerate(catch):
+                if isinstance(err, str):
+                    catch[i] = get_callable(err)
+        else:
+            catch = []
+        self._error_to_catch = tuple(catch)
+
     def set_iterable(
         self,
         start: Union[str, datetime, dset_datetime],
@@ -150,7 +183,7 @@ class Data_Interface(DataInterface):
 
         interval = timedelta(**{self.sample_interval_unit: self.sample_interval})
 
-        new_time = [(time_value + interval * i).datetime64() for i in interval]
+        new_time = [(time_value + interval * i).datetime64() for i in range(time_size)]
         return dataset.assign_coords(time=new_time)
 
     def _retrieve_from_index(
@@ -239,10 +272,14 @@ class Data_Interface(DataInterface):
                 f"Iterator not set for {self.__class__.__name__}. Run .set_iterable()"
             )
 
-        steps = (self._end - self._start) / self._interval
+        steps = (self._end - self._start) // self._interval
+
         for step in range(int(steps)):
-            current_time = self._start + self._interval * step
-            yield self._retrieve_at_time(current_time)
+            try:
+                current_time = self._start + self._interval * step
+                yield self._retrieve_at_time(current_time)
+            except self._error_to_catch:
+                pass
 
     def __getitem__(self, idx):
         if isinstance(idx, int):
@@ -335,7 +372,7 @@ class Data_Interface(DataInterface):
         """
         return self.unnormalise(*args, **kwargs)
 
-
+    @property
     def _unnormalise(self) -> tuple[Transform]:
         """
         Get unnormalisation transforms.

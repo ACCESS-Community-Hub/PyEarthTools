@@ -37,7 +37,7 @@ class Catch(DataIterationOperator):
     """
 
     def __init__(
-        self, iterator: DataIterator, error: Union[tuple[Exception], Exception]
+        self, iterator: DataIterator, error: Union[tuple[Exception], Exception], verbose = False, 
     ) -> None:
         """
         Catch Errors in iteration and continue
@@ -60,14 +60,19 @@ class Catch(DataIterationOperator):
                 error[i] = get_callable(err)
 
         self._error_to_catch = tuple(error)
-
+        self.verbose = verbose
         self.__doc__ = f"Catch Errors: {self._error_to_catch}"
 
     def __iter__(self):
+        iterator = self.iterator.__iter__()
         while True:
             try:
-                yield next(self.iterator.__iter__())
+                yield next(iterator)
             except StopIteration:
+                print('Stop Iteration')
                 break
             except self._error_to_catch as excep:
-                logger.warn(f"In iteration an exception was caught. {excep}")
+                print('Error', excep)
+                if self.verbose:
+                   logger.info(f"In iteration an exception was caught. {excep}")
+                continue

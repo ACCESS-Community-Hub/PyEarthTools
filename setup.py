@@ -8,7 +8,10 @@ setup(
     author_email="harrison.cook@bom.gov.au",
     url="www.bom.gov.au",
     packages=["dset"],
+    install_requires=[
+        'torch', 'einops', 'pytorch-lightning'
+    ],
     entry_points={
-        "console_scripts": ["training=dset.training.trainer.from_yaml:entry_point"]
+        "console_scripts": ["training=dset.training.trainer.commands:entry_point"]
     },
 )
