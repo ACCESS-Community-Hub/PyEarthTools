@@ -26,9 +26,21 @@ def get_callable(module: str):
         return getattr(get_callable(".".join(module[:-1])), module[-1])
 
 
-def load_from_yaml(yaml_file: str, **kwargs):
+def load_from_yaml(yaml_file: str, **kwargs) -> DSETTrainerWrapper:
     """
     Load and create trainer from Yaml Config
+
+    Parameters
+    ----------
+        yaml_file
+            Path to yaml config
+
+        **kwargs
+            All passed into trainer config
+
+    Returns
+    -------
+        DSETTrainerWrapper
     """
     with open(yaml_file, 'r') as file:
         config = yaml.safe_load(file)

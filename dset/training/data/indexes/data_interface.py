@@ -172,6 +172,25 @@ class Data_Interface(DataInterface):
         dataset: Union[tuple[xr.Dataset], xr.Dataset],
         time_value: Union[dset_datetime, datetime],
     ):
+        """
+        Rebuild time dimension of given dataset, using known sample interval.
+
+        Should be used after a destructive process in an iterator above, 
+        that cannot restore the time dimension. 
+        
+        If 'time' dimension is not present, return dataset unchanged.
+
+        Parameters
+        ----------
+        dataset
+            Dataset to rebuild
+        time_value
+            First timestep to use and thus iterate from
+
+        Returns
+        -------
+            Dataset with time dimension rebuilt
+        """''
         if isinstance(dataset, tuple):
             return tuple(map(self.rebuild_time, dataset))
 

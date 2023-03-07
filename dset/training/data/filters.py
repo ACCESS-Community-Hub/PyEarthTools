@@ -15,7 +15,6 @@ from dset.training.data.templates import (
 class DropNan(DataIterationOperator):
     """
     Drop any data with nans when iterating.
-    Can work on xarray Datasets/DataArrays
     """
     def _check(self, data : Union[xr.Dataset, np.array]):
         if isinstance(data, (xr.Dataset, xr.DataArray)):
@@ -36,7 +35,6 @@ class DropNan(DataIterationOperator):
 class DropAllNan(DataIterationOperator):
     """
     Drop data if it is all nans when iterating.
-    Can work on xarray Datasets/DataArrays
     """
     def _check(self, data : Union[xr.Dataset, np.array]):
         if isinstance(data, (xr.Dataset, xr.DataArray)):
@@ -58,7 +56,7 @@ class DropAllNan(DataIterationOperator):
 @SequentialIterator
 class DropValue(DataIterationOperator):
     """
-    Drop Data containing a value abover a percentage
+    Drop Data containing a value above a percentage
     """
 
     def __init__(self, iterator: DataIterator, value: float, percentage: float) -> None:

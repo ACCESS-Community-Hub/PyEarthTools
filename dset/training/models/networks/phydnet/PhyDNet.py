@@ -227,4 +227,6 @@ class PhyDNet(pl.LightningModule):
             predictions.append(output_image.squeeze(1))
 
         predictions = torch.stack(predictions, 1)
+        if len(predictions.shape) == 4:
+            predictions = predictions.unsqueeze(2)
         return inp, predictions

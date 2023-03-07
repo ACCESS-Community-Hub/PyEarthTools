@@ -4,6 +4,7 @@ from typing import Union
 
 import numpy as np
 import pytorch_lightning as pl
+import torch
 import xarray as xr
 from torch.utils.data import DataLoader, IterableDataset
 
@@ -67,7 +68,7 @@ class DSETTrainerWrapper(DSETTrainer):
         checkpoint_callback = pl.callbacks.ModelCheckpoint(
             save_top_k=10,
             monitor="train/loss",
-            #dirpath=Path(path) / 'Checkpoints',
+            dirpath=Path(path) / 'Checkpoints',
             mode="min",
             filename="{epoch:02d}",
             every_n_train_steps=1000,
@@ -96,10 +97,24 @@ class DSETTrainerWrapper(DSETTrainer):
             **kwargs
         )
 
-    def load(self, file: str):
+    def load(self, file: str, only_state: bool = False):
         """
         Load model from checkpoint file
         """
+        if only_state:
+            state = torch.load(file)
+            if 'state_dict' in state:
+                state = state['state_dict']
+                new_state = {}
+                for key, variable in state.items():
+                    if 'model' in key:
+                        new_state[key.replace('model.', '')] = variable
+                    else:
+                        new_state[key] = variable
+                state = new_state
+
+            self.model.model.load_state_dict(state)
+            return
         self.model = self.model.load_from_checkpoint(file)
 
     def predict(
@@ -108,11 +123,12 @@ class DSETTrainerWrapper(DSETTrainer):
         undo: bool = False,
         data_iterator: DataIterator = None,
         **kwargs
-    ) -> Union[np.array, xr.Dataset]:
+    ) -> Union[tuple[np.array], tuple[xr.Dataset]]:
         """
         Pytorch Lightning Prediction Override
 
-        Uses dset.training DataIterator to get data
+        Uses dset.training DataIterator to get data at given index.
+        Can automatically try to rebuild the xarray Dataset.
 
         Parameters
         ----------
@@ -125,7 +141,7 @@ class DSETTrainerWrapper(DSETTrainer):
 
         Returns
         -------
-            Either xarray datasets or np arrays
+            Either xarray datasets or np arrays of input data, predicted data
 
         """
         data_source = data_iterator or self.train_iterator
@@ -148,11 +164,15 @@ class DSETTrainerWrapper(DSETTrainer):
                 zip(*self.trainer.predict(model=self.model, dataloaders=fake_data)),
             )
         )
-
         if undo:
             fixed_predictions = list(data_source.undo(prediction))
+
+            if 'Coordinate 1' in fixed_predictions[1]:
+                fixed_predictions[1] = fixed_predictions[1].rename({'Coordinate 1': 'time'})
+
             fixed_predictions[1] = data_source.rebuild_time(
                 fixed_predictions[-1], index
             )
+
             return tuple(fixed_predictions)
         return prediction
