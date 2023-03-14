@@ -4,13 +4,18 @@ from datetime import datetime, timedelta
 import importlib
 from typing import Iterable, Union
 
+import builtins
+
 import xarray as xr
+
+import dset.data
 from dset.data import FunctionTransform, Transform, TransformCollection
 from dset.data.default import DataIndex, OperatorIndex
-from dset.data.time import dset_datetime
-from dset.data.transform import default, normalisation
+from dset.data.time import dset_datetime, time_delta
+from dset.data.transform import normalisation
 
 from dset.training.data.templates import DataInterface, SequentialIterator
+
 
 def get_callable(module: str):
     """
@@ -26,6 +31,10 @@ def get_callable(module: str):
         Specified module or function
     """
     try:
+        return getattr(builtins, module)
+    except:
+        pass
+    try:
         return importlib.import_module(module)
     except ModuleNotFoundError:
         module = module.split(".")
@@ -40,13 +49,14 @@ class Data_Interface(DataInterface):
         normalisation_params: dict = None,
         transforms: Union[list[TransformCollection], TransformCollection] = None,
         samples: Union[tuple[int], int] = 1,
-        sample_interval: int = 0,
-        sample_interval_unit: str = "minutes",
+        sample_interval: Union[int, tuple] = 0,
         catch: Union[tuple[Exception], Exception] = None,
+        region: str = None,
+        **kwargs,
     ) -> None:
         """
         An extension of DataIndexes designed for ML Training,
-        Using the provided data_index/s allows iteration between bound 
+        Using the provided data_index/s allows iteration between bound
         automatically applying a normalisation and other transforms.
 
         Also allows for multiple samples to be returned.
@@ -56,13 +66,12 @@ class Data_Interface(DataInterface):
         data_index
             DataIndex/s to use to retrieve data
         normalisation_params, optional
-            Parameters for transform.normalise, as well as which method. 
+            Parameters for transform.normalise, as well as which method.
                 If not given, no normalisation, by default None
             Params:
                 start - start date for search
                 end - end date for search
                 interval - interval between searches
-                interval_unit - unit of above
                 cache_dir - Where to save Data used
                 function - Function to use with functional normalisation
 
@@ -78,8 +87,8 @@ class Data_Interface(DataInterface):
             by default 1
         sample_interval, optional
             Interval between samples, by default 0
-        sample_interval_unit, optional
-            Unit of Above, by default "minutes"
+        **kwargs, optional
+            All passed to data retrieval functions
 
         Raises
         ------
@@ -94,16 +103,7 @@ class Data_Interface(DataInterface):
         self.data_index = data_index
 
         self.normalisation_params = normalisation_params
-
-        self.transforms = TransformCollection()
-
-        if transforms:
-            if transforms == "default":
-                transforms = default.get_default_transforms()
-            if isinstance(transforms, Iterable) and "default" in transforms:
-                transforms.remove("transforms")
-                transforms = TransformCollection(transforms)
-                transforms += default.get_default_transforms()
+        self.retrieval_kwargs = kwargs
 
         if (
             isinstance(transforms, list)
@@ -118,14 +118,18 @@ class Data_Interface(DataInterface):
         else:
             self.transforms = [TransformCollection(transforms)] * len(data_index)
 
+        if region:
+            region_transform = dset.data.transform.region(region)
+            for i in range(len(self.transforms)):
+                self.transforms[i] += region_transform
+
         if isinstance(samples, int) and samples > 1 and sample_interval == 0:
             raise ValueError(f"If 'samples' > 1, 'sample_interval' cannot be 0")
         if isinstance(samples, list):
             samples = tuple(samples)
 
         self.samples = samples
-        self.sample_interval = sample_interval
-        self.sample_interval_unit = sample_interval_unit
+        self.sample_interval = time_delta(sample_interval)
 
         if catch:
             if not isinstance(catch, (tuple, list)):
@@ -143,8 +147,7 @@ class Data_Interface(DataInterface):
         self,
         start: Union[str, datetime, dset_datetime],
         end: Union[str, datetime, dset_datetime],
-        interval: int,
-        interval_unit: str = "minutes",
+        interval: Union[int, tuple],
     ):
         """
         Set iteration range for MLDataIndex
@@ -157,11 +160,11 @@ class Data_Interface(DataInterface):
             End date of iteration
         interval
             Interval between samples
-        interval_unit, optional
-            Unit of above, by default "minutes"
+            Use pandas.to_timedelta notation, (10, 'minute')
+
         """
 
-        self._interval = timedelta(**{interval_unit: interval})
+        self._interval = time_delta(interval)
         self._start = dset_datetime(start)
         self._end = dset_datetime(end)
 
@@ -190,7 +193,7 @@ class Data_Interface(DataInterface):
         Returns
         -------
             Dataset with time dimension rebuilt
-        """''
+        """ ""
         if isinstance(dataset, tuple):
             return tuple(map(self.rebuild_time, dataset))
 
@@ -200,9 +203,10 @@ class Data_Interface(DataInterface):
         time_size = len(dataset["time"])
         time_value = dset_datetime(time_value)
 
-        interval = timedelta(**{self.sample_interval_unit: self.sample_interval})
-
-        new_time = [(time_value + interval * i).datetime64() for i in range(time_size)]
+        new_time = [
+            (time_value + self.sample_interval * i).datetime64()
+            for i in range(time_size)
+        ]
         return dataset.assign_coords(time=new_time)
 
     def _retrieve_from_index(
@@ -215,15 +219,12 @@ class Data_Interface(DataInterface):
         At given index retrieve given time with samples
         """
 
-        interval = (
-            timedelta(**{self.sample_interval_unit: self.sample_interval})
-            if isinstance(self.sample_interval, int)
-            else self.sample_interval
-        )
         timestep = dset_datetime(timestep)
 
         if self.samples == 1:
-            data = data_index.single(timestep, transform=transforms)
+            data = data_index.single(
+                timestep, transform=transforms, **self.retrieval_kwargs
+            )
             return (data,) if not isinstance(data, tuple) else data
 
         elif (
@@ -231,30 +232,36 @@ class Data_Interface(DataInterface):
             and self.samples > 1
             and isinstance(data_index, OperatorIndex)
         ):
-            data = data_index.series(
+            data = data_index.safe_series(
                 timestep,
-                timestep + interval * (self.samples - 1),
-                interval,
+                timestep + self.sample_interval * (self.samples - 1),
+                self.sample_interval,
                 transforms=transforms,
-                chunks="auto",
+                chunks=self.retrieval_kwargs.pop("chunks", "auto"),
+                verbose=self.retrieval_kwargs.pop("verbose", False),
+                **self.retrieval_kwargs,
             )
             return (data,) if not isinstance(data, tuple) else data
 
         elif isinstance(self.samples, tuple):
-            if isinstance(data_index, OperatorIndex):
-                data_prior = data_index.series(
-                    timestep - interval * (self.samples[0] - 1),
+            if isinstance(data_index, OperatorIndex) or True:
+                data_prior = data_index.safe_series(
+                    timestep - self.sample_interval * (self.samples[0] - 1),
                     timestep,
-                    interval,
+                    self.sample_interval,
                     transforms=transforms,
-                    chunks="auto",
+                    chunks=self.retrieval_kwargs.pop("chunks", "auto"),
+                    verbose=self.retrieval_kwargs.pop("verbose", False),
+                    **self.retrieval_kwargs,
                 )
-                data_next = data_index.series(
-                    timestep + interval,
-                    timestep + interval * self.samples[1],
-                    interval,
+                data_next = data_index.safe_series(
+                    timestep + self.sample_interval,
+                    timestep + self.sample_interval * self.samples[1],
+                    self.sample_interval,
                     transforms=transforms,
-                    chunks="auto",
+                    chunks=self.retrieval_kwargs.pop("chunks", "auto"),
+                    verbose=self.retrieval_kwargs.pop("verbose", False),
+                    **self.retrieval_kwargs,
                 )
                 return data_prior, data_next
             else:

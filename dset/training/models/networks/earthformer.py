@@ -5,22 +5,14 @@ import numpy as np
 import pytorch_lightning as pl
 import torch
 from einops import rearrange
-from pytorch_lightning import Trainer
-from pytorch_lightning import loggers as pl_loggers
-from pytorch_lightning import seed_everything
-from pytorch_lightning.callbacks import (
-    Callback,
-    DeviceStatsMonitor,
-    LearningRateMonitor,
-    ModelCheckpoint,
-)
-from pytorch_lightning.callbacks.early_stopping import EarlyStopping
+
 from torch import nn
-from torch.nn import functional as F
 from torch.optim.lr_scheduler import CosineAnnealingLR, LambdaLR
 
 from dset.training.models.architectures import CuboidTransformerModel
 from dset.training.modules.optim import SequentialLR, warmup_lambda
+
+from dset.training.models.utils import get_loss
 
 DEFAULT_OPTIMISER = {
     "total_batch_size": 64,
@@ -98,7 +90,7 @@ class EarthFormer(pl.LightningModule):
 
         self.model = CuboidTransformerModel(**extra_params, **model_params)
 
-        self.loss_obj = getattr(torch.nn, loss_function)(**loss_kwargs)
+        self.loss_obj = get_loss(loss_function, **loss_kwargs)
         self.in_len = model_params["input_shape"][0]
         self.out_len = model_params["target_shape"][0]
 
@@ -277,7 +269,7 @@ class EarthFormer(pl.LightningModule):
         tar
             shape = (N, out_len+NINO_WINDOW_T-1)
         """
-        inp, tar = batch
+        inp, tar = map(lambda x: x.to(dtype=torch.float), batch)
 
         pred_seq = self.model(inp)
         loss = self.loss_obj(pred_seq, tar)
@@ -289,7 +281,6 @@ class EarthFormer(pl.LightningModule):
         return loss
 
     def validation_step(self, batch, batch_idx, dataloader_idx=0):
-
         pred_seq, loss, in_seq, target_seq, nino_target = self.forward(batch)
 
         self.log("valid/loss", loss, on_step=True, on_epoch=False)

@@ -400,7 +400,6 @@ def PhyDNet(
     num_channels=1,
     activation="sigmoid",
 ):
-
     # NOTE Changed input_shape as imgsize is 4x original (was 16,16)
     imgsize = img_size
     phycell = PhyCell(

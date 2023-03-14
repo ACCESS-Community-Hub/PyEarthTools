@@ -9,7 +9,7 @@ from typing import Iterable, Union
 import numpy as np
 import xarray as xr
 
-from dset.training.data.indexes import patching
+from dset.training.data.interfaces import patching
 
 
 def tuple_difference(tuple_1, tuple_2):
@@ -71,6 +71,9 @@ class Tesselator:
         self.padding = padding
 
         self._coords = None
+        self._dims = None
+        self._attrs = {}
+
         self.out_name = out_name
         self._set_coords(coord_template)
         self._initial_shape = None
@@ -91,7 +94,7 @@ class Tesselator:
                 self._dims.remove("time")
                 self._dims.append("time")
             self._coords = {}
-            self._attrs = data.attrs
+            self._attrs['global'] = data.attrs
 
             for dim in self._dims:
                 self._coords[dim] = data[dim].values
@@ -105,6 +108,9 @@ class Tesselator:
 
                 self._dims = ["Variables"] + self._dims
                 self._coords["Variables"] = self._variables
+
+                for var in self._variables:
+                    self._attrs[var] = data[var].attrs
 
             else:
                 self._initial_shape = data.shape
@@ -287,7 +293,6 @@ class Tesselator:
         if "Variables" in coords:
             variables = coords.pop("Variables")
             data_vars = {}
-            # coords.pop('time')
 
             if "time" in coords:
                 coords["time"] = np.atleast_1d(coords["time"])
@@ -298,8 +303,13 @@ class Tesselator:
             ds = xr.Dataset(
                 data_vars=data_vars,
                 coords=coords,
-                attrs=attrs,
+                attrs=attrs.pop('global', {}),
             )
+
+            for var in ds.data_vars:
+                if var in self._attrs:
+                    ds[var].attrs = self._attrs[var]
+
             return ds
 
         else:

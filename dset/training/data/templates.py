@@ -1,7 +1,7 @@
 import functools
 import importlib
 from abc import abstractmethod
-from typing import Union
+from typing import Callable, Union
 
 import yaml
 from torch.utils.data import IterableDataset
@@ -44,7 +44,9 @@ def SequentialIterator(func):
 
         def add_iterator(iterator: DataIterator):
             return func(iterator, *args, **kwargs)
+
         return add_iterator
+
     return wrapper
 
 
@@ -88,8 +90,10 @@ def from_dict(data_specifications: Union[str, dict]) -> "DataIterator":
     TypeError
         If imported class cannot be understood
     """
+    data_specifications = dict(**data_specifications)
+    
     if isinstance(data_specifications, str):
-        with open(data_specifications, 'r') as file:
+        with open(data_specifications, "r") as file:
             data_specifications = yaml.safe_load(file)
         if "data" in data_specifications:
             data_specifications = data_specifications["data"]
@@ -111,6 +115,16 @@ def from_dict(data_specifications: Union[str, dict]) -> "DataIterator":
                 pass
             if data_iter:
                 break
+        if not data_iter:
+            raise ValueError(f"Unable to load {data_iter_name!r}")
+
+        if not callable(data_iter):
+            if hasattr(data_iter, data_iter_name.split(".")[-1]):
+                data_iter = getattr(data_iter, data_iter_name.split(".")[-1])
+            else:
+                raise TypeError(
+                    f"{data_iter_name!r} is a {type(data_iter)}, must be callable"
+                )
 
         # TODO Add checking back
         # Wasnt working
@@ -137,8 +151,9 @@ class DataIterator(IterableDataset):
     Must implement __iter__, __getitem__ & undo
     """
 
-    def __init__(self) -> None:
+    def __init__(self, iterator: 'DataIterator') -> None:
         super().__init__()
+        self.iterator = iterator
 
     @abstractmethod
     def __iter__(self):
@@ -148,47 +163,27 @@ class DataIterator(IterableDataset):
     def __getitem__(self, idx):
         raise NotImplementedError
 
+    def __call__(self, idx):
+        return self.__getitem__(idx)
+
     @abstractmethod
     def undo(self, data, *args, **kwargs):
         raise NotImplementedError
-
-
-class DataOperation(DataIterator):
-    def __init__(self, iterator: DataIterator) -> None:
-        """
-        Run Operations on Data as it is being used.
-
-        Parameters
-        ----------
-        iterator
-            Underlying iterator to use
-        """
-        super().__init__()
-        # functools.update_wrapper(self, iterator)
-        self.iterator = iterator
 
     def __getattr__(self, key):
         if key == "iterator":
             raise AttributeError(f"{self.__class__} has no attribute {key}")
         return getattr(self.iterator, key)
 
-    def undo(self, data, *args, **kwargs):
-        return self.iterator.undo(data, *args, **kwargs)
-
-    def __getitem__(self, idx):
-        raise NotImplementedError(
-            "Using base DataOperation implements no __getitem__ operation, must use a child class."
-        )
-
-    def __iter__(self):
-        raise NotImplementedError(
-            "Using base DataOperation implements no __iter__ operation, must use a child class."
-        )
-
     def _formatted_name(self):
+        """
+        Get formatted name of DataIterator.
+
+        Adds formatted_name of underlying iterator to this.
+        """
         padding = lambda name, length_: name + "".join([" "] * (length_ - len(name)))
         desc = self.__doc__ or "No Docstring"
-        desc = desc.replace("\n", "").replace("\t", "").strip()
+        desc = desc.strip().split("\n")[0].replace("\t", "")
         return f"{padding(self.__class__.__name__, 30)}{desc}\n{self.iterator._formatted_name()}"
 
     def __repr__(self):
@@ -199,6 +194,51 @@ class DataOperation(DataIterator):
         operations = "\n".join(["\t* " + oper for oper in operations])
         return f"{string}\n{operations}"
 
-class DataIterationOperator(DataOperation):
+
+
+class DataOperation(DataIterator):
+    def __init__(self, iterator: DataIterator, apply_func: Callable, undo_func: Callable, *, apply_iterator: bool = True, apply_get: bool = True) -> None:
+        """
+        Run Operations on Data as it is being used.
+
+        Parameters
+        ----------
+        iterator
+            Underlying iterator to use
+        """
+        super().__init__(iterator)
+        # functools.update_wrapper(self, iterator)
+        self.apply_func = apply_func
+        self.undo_func = undo_func
+
+        self.apply_iterator = apply_iterator
+        self.apply_get = apply_get
+
+    def undo(self, data, *args, **kwargs):
+        if not self.undo_func is None:
+            return self.iterator.undo(self.undo_func(data))
+        return self.iterator.undo(data, *args, **kwargs)
+
+    def __iter__(self):
+        for data in self.iterator:
+            if self.apply_iterator:
+                yield self.apply_func(data)
+            else:
+                yield data
+
+    def __getitem__(self, idx):
+        if self.apply_get:
+            return self.apply_func(self.iterator[idx])
+        return self.iterator[idx]
+
+
+class DataIterationOperator(DataIterator):
+    def __iter__(self):
+        raise NotImplementedError(f"Iteration Operator must be defined in child")
+
     def __getitem__(self, idx):
         return self.iterator[idx]
+        
+    def undo(self, data, *args, **kwargs):
+        return self.iterator.undo(data, *args, **kwargs)
+

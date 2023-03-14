@@ -7,8 +7,8 @@ from typing import Iterable, Union
 
 import numpy as np
 
-from dset.training.data.indexes.patching import DEFAULT_FORMAT_SUBSET
-from dset.training.data.indexes.patching.reorder import move_to_end, reorder
+from dset.training.data.interfaces.patching import DEFAULT_FORMAT_SUBSET
+from dset.training.data.interfaces.patching.reorder import move_to_end, reorder
 
 
 def cut_center(data: np.ndarray, size: Union[int, tuple[int, int]]) -> np.ndarray:

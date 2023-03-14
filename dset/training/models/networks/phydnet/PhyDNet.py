@@ -11,7 +11,7 @@ import torch.nn as nn
 
 from dset.training.models.architectures import PhyDNet as PhyDNetArch
 from dset.training.models.networks.phydnet.constrain_moments import K2M
-from dset.training.modules.loss import extremes
+from dset.training.models.utils import get_loss
 
 
 class PhyDNet(pl.LightningModule):
@@ -32,11 +32,7 @@ class PhyDNet(pl.LightningModule):
         self.save_hyperparameters()
 
         self.model = PhyDNetArch(**model_params).to(dtype=torch.float)
-
-        if loss_function == "extreme":
-            self.loss_obj = extremes.ExtremeLoss(**loss_kwargs)
-        else:
-            self.loss_obj = getattr(torch.nn, loss_function)(**loss_kwargs)
+        self.loss_obj = get_loss(loss_function, **loss_kwargs)
 
         self.optimiser = optimiser
         self.lr = float(lr)
@@ -66,7 +62,6 @@ class PhyDNet(pl.LightningModule):
         return self.model(x, first_timestep)
 
     def training_step(self, batch, batch_idx):
-
         difference_flag = False
         if len(batch) == 3:
             difference_flag = True

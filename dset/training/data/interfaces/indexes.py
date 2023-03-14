@@ -7,9 +7,8 @@ import numpy as np
 import xarray as xr
 
 from dset.training.data.templates import DataIterator, SequentialIterator
-from dset.training.data.indexes.data_interface import DataInterface, Data_Interface
-from dset.training.data.indexes.patching import Tesselator
-
+from dset.training.data.interfaces.data_interface import DataInterface, Data_Interface
+from dset.training.data.interfaces.patching import Tesselator
 
 
 @SequentialIterator
@@ -37,8 +36,7 @@ class PatchingDataIndex(DataIterator):
         padding, optional
             Padding method to use. Must be of np.pad, by default 'constant'
         """
-        super().__init__()
-        self.data_interface = data_interface
+        super().__init__(data_interface)
         self.kernel_size = kernel_size
         self.stride_size = stride_size
         self.padding = padding
@@ -94,6 +92,7 @@ class PatchingDataIndex(DataIterator):
         """
         Apply Tesselators on Datasets
         """
+
         if isinstance(datasets, (xr.Dataset, xr.DataArray)):
             for patch in self._get_tesselators(1)[0].patch(datasets):
                 yield (patch,)
@@ -105,20 +104,20 @@ class PatchingDataIndex(DataIterator):
             ):
                 yield patches
         else:
-            raise NotImplementedError(f"What is {type(datasets)}")
+            raise NotImplementedError(f"Cannot apply tesselation to {type(datasets)!r}")
 
     def __getattr__(self, key):
-        return getattr(self.data_interface, key)
+        return getattr(self.iterator, key)
 
     def __iter__(self) -> tuple[np.ndarray]:
-        for datasets in self.data_interface:
+        for datasets in self.iterator:
             for i in self.__apply_tesselators(datasets):
                 if len(i) == 1:
                     yield i[0]
                 yield i
 
     def __getitem__(self, idx: str):
-        datasets = self.data_interface[idx]
+        datasets = self.iterator[idx]
         patches = self.__apply_tesselators(datasets)
 
         result = tuple(map(np.array, zip(*patches)))
@@ -170,31 +169,32 @@ class PatchingDataIndex(DataIterator):
         else:
             raise NotImplementedError(f"What is {type(data)}")
 
-        return self.data_interface.undo(datasets, override_index=data_index)
+        return self.iterator.undo(datasets, override_index=data_index)
 
     def _formatted_name(self):
         padding = lambda name, length_: name + "".join([" "] * (length_ - len(name)))
         desc = f"Kernel_size {self.kernel_size}. Stride_size {self.stride_size or self.kernel_size}"
         desc = desc.replace("\n", "").replace("\t", "").strip()
-        return f"{padding(self.__class__.__name__, 30)}{desc}\n{self.data_interface._formatted_name()}"
+        return f"{padding(self.__class__.__name__, 30)}{desc}\n{self.iterator._formatted_name()}"
 
     def __repr__(self):
         string = "DataIterator with the following Operations:"
         operations = self._formatted_name()
-        operations = "\n".join(["\t* " + oper for oper in operations.split("\n")])
+        operations = operations.split("\n")
+        operations.reverse()
+        operations = "\n".join(["\t* " + oper for oper in operations])
         return f"{string}\n{operations}"
 
     def __copy__(self):
         return PatchingDataIndex(
-            self.data_interface, self.kernel_size, self.stride_size, self.padding
+            self.iterator, self.kernel_size, self.stride_size, self.padding
         )
 
 
 @SequentialIterator
 class AsNumpy(DataIterator):
     def __init__(self, data_interface: DataInterface) -> None:
-        self.data_interface = data_interface
-
+        super().__init__(data_interface)
         self._records = []
 
     def _distill_dataset(self, dataset: xr.Dataset):
@@ -272,27 +272,27 @@ class AsNumpy(DataIterator):
             return datasets
 
     def __getattr__(self, key):
-        return getattr(self.data_interface, key)
+        return getattr(self.iterator, key)
 
     def __iter__(self) -> tuple[np.ndarray]:
-        for datasets in self.data_interface:
+        for datasets in self.iterator:
             self._set_records(datasets)
             yield self._convert_xarray_to_numpy(datasets)
 
     def __getitem__(self, idx: str):
-        datasets = self.data_interface[idx]
+        datasets = self.iterator[idx]
         return self._convert_xarray_to_numpy(datasets)
 
     def undo(
         self, data: Union[np.ndarray, tuple[np.ndarray]]
     ) -> Union[xr.Dataset, tuple[xr.Dataset]]:
-        return self.data_interface.undo(self._convert_numpy_to_xarray(data))
+        return self.iterator.undo(self._convert_numpy_to_xarray(data))
 
     def _formated_name(self):
         padding = lambda name, length_: name + "".join([" "] * (length_ - len(name)))
         desc = f"Convert to numpy arrays"
         desc = desc.replace("\n", "").replace("\t", "").strip()
-        return f"{padding(self.__class__.__name__, 20)}{desc}\n{self.data_interface._formatted_name()}"
+        return f"{padding(self.__class__.__name__, 20)}{desc}\n{self.iterator._formatted_name()}"
 
     def __repr__(self):
         string = "DataIterator with the following Operations:"
@@ -348,7 +348,7 @@ class CombineDataIndex(DataIterator):
         raise ValueError
 
     def undo(self, data, iterator_index: int, *args, **kwargs):
-        return self.data_iterators[iterator_index].undo(data,*args, **kwargs)
+        return self.data_iterators[iterator_index].undo(data, *args, **kwargs)
 
     def _formated_name(self):
         padding = lambda name, length_: name + "".join([" "] * (length_ - len(name)))

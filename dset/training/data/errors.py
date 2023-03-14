@@ -8,7 +8,8 @@ from dset.training.data.templates import (
     SequentialIterator,
 )
 
-logger = logging.getLogger('DSET_Training')
+logger = logging.getLogger("DSET_Training")
+
 
 def get_callable(module: str):
     """
@@ -37,7 +38,10 @@ class Catch(DataIterationOperator):
     """
 
     def __init__(
-        self, iterator: DataIterator, error: Union[tuple[Exception], Exception], verbose = False, 
+        self,
+        iterator: DataIterator,
+        error: Union[tuple[Exception], Exception],
+        verbose=False,
     ) -> None:
         """
         Catch Errors in iteration and continue
@@ -69,10 +73,10 @@ class Catch(DataIterationOperator):
             try:
                 yield next(iterator)
             except StopIteration:
-                print('Stop Iteration')
+                print("Stop Iteration")
                 break
             except self._error_to_catch as excep:
-                print('Error', excep)
+                print("Error", excep)
                 if self.verbose:
-                   logger.info(f"In iteration an exception was caught. {excep}")
+                    logger.info(f"In iteration an exception was caught. {excep}")
                 continue

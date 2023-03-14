@@ -2,6 +2,7 @@ from typing import Union
 
 import einops
 import numpy as np
+from scipy import interpolate
 
 from dset.training.data.templates import (
     DataIterationOperator,
@@ -23,8 +24,7 @@ class FillNa(DataOperation):
         nan: float = np.nan,
         posinf: float = None,
         neginf: float = None,
-        apply_iterator: bool = True,
-        apply_get: bool = True,
+        **kwargs,
     ) -> None:
         """
         Fill Nan's with Value
@@ -42,41 +42,76 @@ class FillNa(DataOperation):
         neginf, optional
            Value to be used to fill negative infinity values, by default None
             If no value is passed then negative infinity values will be replaced with a very small (or negative) number.
-        apply_iterator, optional
-            Whether to apply on __iter__, by default True
-        apply_get, optional
-            Whether to apply on __getitem__, by default True
         """
-        super().__init__(iterator)
         self.nan = nan
         self.posinf = posinf
         self.neginf = neginf
-        self.apply_iterator = apply_iterator
-        self.apply_get = apply_get
+        super().__init__(iterator, self._apply_fill, None, **kwargs)
 
         self.__doc__ = f"Fill nan's with {nan}"
-        if apply_iterator & apply_get:
+        if self.apply_iterator & self.apply_get:
             self.__doc__ += " on both iteration and get"
-        elif apply_iterator ^ apply_get:
-            self.__doc__ += f" on {'iteration' if apply_iterator else 'getitem'}"
+        elif self.apply_iterator ^ self.apply_get:
+            self.__doc__ += f" on {'iteration' if self.apply_iterator else 'getitem'}"
 
     def _apply_fill(self, data):
         if isinstance(data, tuple):
             return tuple(map(self._apply_fill, data))
         return np.nan_to_num(data, self.nan, posinf=self.posinf, neginf=self.neginf)
 
-    def __iter__(self):
-        for data in self.iterator:
-            if self.apply_iterator:
-                yield self._apply_fill(data)
-            else:
-                yield data
+# @SequentialIterator
+# class InterpNan(DataOperation):
+#     def __init__(
+#         self,
+#         iterator: DataIterator,
+#         method: str = "linear",
+#         **kwargs,
+#     ) -> None:
+#         """
+#         Interpolate nan's in data using scipy.interpolate
 
-    def __getitem__(self, idx):
-        if self.apply_get:
-            return self._apply_fill(self.iterator[idx])
-        return self.iterator[idx]
+#         Parameters
+#         ----------
+#         data
+#             Data containing nan's to interpolate
+#         method, optional
+#             Method of interpolation to use, by default 'linear'
 
+#         Returns
+#         -------
+#             Interpolated Data
+#         """
+#         self.method = method
+#         super().__init__(iterator, self._apply_interpolation, None, **kwargs)
+
+#     def _apply_interpolation(self, data):
+#         if isinstance(data, tuple):
+#             return tuple(map(self._apply_interpolation, data))
+
+#         if len(data.shape) > 2:
+#             indi_data = []
+#             for channel in data:
+#                 indi_data.append(self._apply_interpolation(channel))
+#             return np.array(indi_data)
+
+#         size = data.shape[-2:]
+#         grid_x, grid_y = np.mgrid[
+#             0 : size[0] : complex(size[0]), 0 : size[1] : complex(size[1])
+#         ]
+
+#         isnan = np.isnan(data)
+
+#         points = np.array(np.where(~isnan)).T
+#         points_to_interp = (grid_x, grid_y)
+#         values = data[~isnan]
+
+#         if points.size == 0:
+#             return data
+
+#         data = interpolate.griddata(
+#             points, values, points_to_interp, method=self.method
+#         )
+#         return data
 
 @SequentialIterator
 class Rearrange(DataOperation):
@@ -84,11 +119,18 @@ class Rearrange(DataOperation):
     Rearrange Data
     """
 
-    def __init__(self, iterator: DataIterator, rearrange: str, *rearrange_args) -> None:
+    def __init__(
+        self,
+        iterator: DataIterator,
+        rearrange: str,
+        skip: bool = False,
+        *rearrange_args,
+        **kwargs,
+    ) -> None:
         """
         Using Einops rearrange, rearrange data.
 
-        NOTE: This will occur on each iteration, and on __getitem__, 
+        NOTE: This will occur on each iteration, and on __getitem__,
             so it is best to leave patches out if using PatchingDataIndex.
 
         Parameters
@@ -97,20 +139,20 @@ class Rearrange(DataOperation):
             Iterator to use
         rearrange
             String entry to einops.rearrange
+        skip
+            Whether to skip data that cannot be rearranged
         *rearrange_args
             All to be passed to einops.rearrange
 
         """
-        super().__init__(iterator)
+        super().__init__(iterator, self._apply_rearrange, self._undo_rearrange, **kwargs)
         self.rearrange = rearrange
         self.rearrange_args = rearrange_args
 
+        self.skip = skip
         self.__doc__ = f"Rearrange Data according to {rearrange}"
 
-    def __getitem__(self, idx):
-        return self._apply_rearrange(self.iterator[idx], self.rearrange)
-
-    def _apply_rearrange(
+    def __rearrange(
         self, data: Union[tuple[np.array], np.array], rearrange: str, catch=True
     ):
         """
@@ -130,17 +172,36 @@ class Rearrange(DataOperation):
 
         except einops.EinopsError as excep:
             if not catch:
+                if self.skip:
+                    return data
                 raise excep
             rearrange = "->".join(["p " + side for side in rearrange.split("->")])
-            return self._apply_rearrange(data, rearrange, catch=False)
+            return self.__rearrange(data, rearrange, catch=False)
 
-    def __iter__(self):
-        for data in self.iterator:
-            yield self._apply_rearrange(data, self.rearrange)
+    def _apply_rearrange(self, data):
+        return self.__rearrange(data, self.rearrange)
 
-    def undo(self, data, *args, **kwargs):
+    def _undo_rearrange(self, data):
         reversed_rearrange = self.rearrange.split("->")
         reversed_rearrange.reverse()
-        data = self._apply_rearrange(data, "->".join(reversed_rearrange))
+        return self.__rearrange(data, "->".join(reversed_rearrange))
 
-        return super().undo(data, *args, **kwargs)
+@SequentialIterator
+class Squish(DataOperation):
+    """
+    Squish One Dimensional axis at 'axis' location
+    """
+
+    def __init__(self, iterator: DataIterator, axis: int, **kwargs) -> None:
+        super().__init__(iterator, self._apply_squish, self._apply_expand, **kwargs)
+        self.axis = axis
+
+    def _apply_squish(self, data):
+        if isinstance(data, tuple):
+            return tuple(map(self._apply_squish, data))
+        return np.squeeze(data, self.axis)
+
+    def _apply_expand(self, data):
+        if isinstance(data, tuple):
+            return tuple(map(self._apply_squish, data))
+        return np.expand_dims(data, self.axis)

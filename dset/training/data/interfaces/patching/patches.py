@@ -9,13 +9,13 @@ import numpy as np
 import xarray as xr
 from sklearn.feature_extraction import image
 
-from dset.training.data.indexes.patching import (
+from dset.training.data.interfaces.patching import (
     DEFAULT_FORMAT_PATCH,
     DEFAULT_FORMAT_PATCH_AFTER,
     DEFAULT_FORMAT_PATCH_ORGANISE,
 )
-from dset.training.data.indexes.patching.reorder import reorder
-from dset.training.data.indexes.patching.subset import cut_center
+from dset.training.data.interfaces.patching.reorder import reorder
+from dset.training.data.interfaces.patching.subset import cut_center
 
 
 def factors(value: int) -> list[list[int, int]]:
@@ -51,11 +51,11 @@ def organise_patches(
         patches: Array of patches to organise
             Assumed to be of shape (Patches, ..., Width, Height)
             ... used as wildcard
-        axis_format: Format of array, must be fully defined. 
+        axis_format: Format of array, must be fully defined.
             Defaults to DEFAULT_FORMAT_PATCH_ORGANISE.
-        factor_choice: Either int to choice factor pair, or tuple of factor pair. 
+        factor_choice: Either int to choice factor pair, or tuple of factor pair.
             Defaults to -1.
-        invert: Whether to invert factor pair before reshaping. 
+        invert: Whether to invert factor pair before reshaping.
             Defaults to False.
 
     Raises:
@@ -154,7 +154,9 @@ def rejoin_patches(
             )
 
         full_data = (
-            rowbuild if full_data is None else np.concatenate((full_data, rowbuild), axis=-2)
+            rowbuild
+            if full_data is None
+            else np.concatenate((full_data, rowbuild), axis=-2)
         )
 
     axis_format = axis_format.replace("P", "")

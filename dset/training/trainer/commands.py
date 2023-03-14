@@ -1,8 +1,8 @@
-
 import click
 
 from dset.training.data.context import PatchingUpdate
 from dset.training.trainer.yaml import load_from_yaml
+
 
 @click.group(name="Trainer From Yaml")
 def entry_point():
@@ -40,7 +40,7 @@ def fit(yaml_file):
 @click.argument("index", type=str)
 @click.argument("save_file", type=click.Path())
 @click.option("--stride_size", type=int)
-def predict(yaml_file, checkpoint, index, save_file, stride_size = None):
+def predict(yaml_file, checkpoint, index, save_file, stride_size=None):
     """
     Using Yaml Config & Checkpoint, predict at index
     """

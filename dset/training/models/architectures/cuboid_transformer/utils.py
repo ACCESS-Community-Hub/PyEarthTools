@@ -204,7 +204,6 @@ def apply_initialization(
     m, linear_mode="0", conv_mode="0", norm_mode="0", embed_mode="0"
 ):
     if isinstance(m, nn.Linear):
-
         if linear_mode in ("0",):
             nn.init.kaiming_normal_(m.weight, mode="fan_in", nonlinearity="linear")
         elif linear_mode in ("1",):

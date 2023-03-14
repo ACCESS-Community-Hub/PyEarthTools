@@ -71,6 +71,7 @@ for p in [1, 2, 4, 8, 10]:
             f"video_swin_{p}x{m}", functools.partial(self_video_swin, P=p, M=m)
         )
 
+
 # our proposals
 def self_spatial_lg_v1(input_shape, M=4):
     T, H, W, _ = input_shape

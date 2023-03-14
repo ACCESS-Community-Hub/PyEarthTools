@@ -1,6 +1,4 @@
-
-
-from typing import Union
+from typing import Any, Union
 from dset.training.trainer.template import DSETTrainer
 
 
@@ -53,3 +51,42 @@ class PatchingUpdate:
         self.iterator.update_patching(*self._patching_initial)
         self.iterator._tesselators = self._saved_tesselators
 
+
+class ChangeValue:
+    """
+    Context Manager to change attribute of object and revert after
+    """
+
+    def __init__(self, object: Any, key: str, value: Any):
+        """
+        Update Attribute
+
+        Parameters
+        ----------
+        object
+            Object to update
+        key
+            Attribute Name
+        value
+            Value to update key to
+
+        Raises
+        ------
+        AttributeError
+            If object has no attribute key
+        """
+        if not hasattr(object, key):
+            raise AttributeError(f"{type(object)!r} has no attribute {key!r}")
+
+        self.object = object
+        self.key = key
+        self.value = value
+
+        self.original_value = getattr(object, key)
+
+    def __enter__(self):
+        setattr(self.object, self.key, self.value)
+        return self.object
+
+    def __exit__(self, *args):
+        setattr(self.object, self.key, self.original_value)

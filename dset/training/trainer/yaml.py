@@ -1,6 +1,8 @@
+from pathlib import Path
 import importlib
 
 import yaml
+import copy
 
 from dset.training import data
 from dset.training.trainer.trainer import DSETTrainerWrapper
@@ -42,9 +44,20 @@ def load_from_yaml(yaml_file: str, **kwargs) -> DSETTrainerWrapper:
     -------
         DSETTrainerWrapper
     """
-    with open(yaml_file, 'r') as file:
-        config = yaml.safe_load(file)
-    data_iterator = lambda: data.from_dict(config["data"]["Source"])
+    with open(yaml_file, "r") as file:
+        config = dict(yaml.safe_load(file))
+        
+    if not 'order' in config["data"]["Source"]:
+        config["data"]["Source"].update(order = list(config["data"]["Source"].keys()))
+
+    data_iterator = lambda: data.from_dict(dict(config["data"]["Source"]))
+
+    config["trainer"].update(**kwargs)
+
+    if "root_dir" in config["trainer"]:
+        Path(config["trainer"]["root_dir"]).mkdir(exist_ok=True, parents=True)
+        with open(Path(config["trainer"]["root_dir"]) / "config.yaml", "w") as file:
+            yaml.dump(config, file)
 
     train_data = data_iterator()
     train_data.set_iterable(**config["data"]["Ranges"]["train_data"])
@@ -59,18 +72,16 @@ def load_from_yaml(yaml_file: str, **kwargs) -> DSETTrainerWrapper:
     try:
         model = get_callable(model_name)
     except (AttributeError, ModuleNotFoundError):
-        model = get_callable('dset.training.models.networks.' + model_name)
+        model = get_callable("dset.training.models.networks." + model_name)
 
     model = model(**config["model"])
-    trainer_config = config["trainer"]
-    trainer_config.update(**kwargs)
+
+
 
     return DSETTrainerWrapper(
         model,
-        config["trainer"].pop("root_dir"),
+        config["trainer"].pop("root_dir", None),
         train_data,
         valid_data,
-        **trainer_config
+        **config["trainer"]
     )
-
-

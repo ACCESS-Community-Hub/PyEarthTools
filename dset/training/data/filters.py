@@ -10,13 +10,13 @@ from dset.training.data.templates import (
     SequentialIterator,
 )
 
-
 @SequentialIterator
 class DropNan(DataIterationOperator):
     """
     Drop any data with nans when iterating.
     """
-    def _check(self, data : Union[xr.Dataset, np.array]):
+
+    def _check(self, data: Union[xr.Dataset, np.array]):
         if isinstance(data, (xr.Dataset, xr.DataArray)):
             return np.array(list(np.isnan(data).values())).any()
         return np.isnan(data).any()
@@ -31,12 +31,14 @@ class DropNan(DataIterationOperator):
                     continue
             yield data
 
+
 @SequentialIterator
 class DropAllNan(DataIterationOperator):
     """
     Drop data if it is all nans when iterating.
     """
-    def _check(self, data : Union[xr.Dataset, np.array]):
+
+    def _check(self, data: Union[xr.Dataset, np.array]):
         if isinstance(data, (xr.Dataset, xr.DataArray)):
             return np.array(list(np.isnan(data).values())).all()
         return np.isnan(data).all()
@@ -50,7 +52,6 @@ class DropAllNan(DataIterationOperator):
                 if self._check(data):
                     continue
             yield data
-
 
 
 @SequentialIterator
