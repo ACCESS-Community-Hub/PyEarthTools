@@ -1,7 +1,7 @@
 import click
 
 from dset.training.data.context import PatchingUpdate
-from dset.training.trainer.yaml import load_from_yaml
+from dset.training.trainer.yaml import from_yaml
 
 
 @click.group(name="Trainer From Yaml")
@@ -20,7 +20,7 @@ def fit(yaml_file):
     """
     From Yaml Config Fit Model
     """
-    trainer = load_from_yaml(yaml_file)
+    trainer = from_yaml(yaml_file)
     trainer.fit()
 
 
@@ -44,7 +44,7 @@ def predict(yaml_file, checkpoint, index, save_file, stride_size=None):
     """
     Using Yaml Config & Checkpoint, predict at index
     """
-    trainer = load_from_yaml(yaml_file)
+    trainer = from_yaml(yaml_file)
     trainer.load(checkpoint)
 
     with PatchingUpdate(trainer, stride_size=stride_size):

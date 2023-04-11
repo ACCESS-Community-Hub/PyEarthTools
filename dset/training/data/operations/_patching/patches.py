@@ -9,13 +9,13 @@ import numpy as np
 import xarray as xr
 from sklearn.feature_extraction import image
 
-from dset.training.data.interfaces.patching import (
+from . import (
     DEFAULT_FORMAT_PATCH,
     DEFAULT_FORMAT_PATCH_AFTER,
     DEFAULT_FORMAT_PATCH_ORGANISE,
 )
-from dset.training.data.interfaces.patching.reorder import reorder
-from dset.training.data.interfaces.patching.subset import cut_center
+from .reorder import reorder
+from .subset import cut_center
 
 
 def factors(value: int) -> list[list[int, int]]:

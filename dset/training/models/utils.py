@@ -21,6 +21,8 @@ def get_callable(module: str):
     except ModuleNotFoundError:
         module = module.split(".")
         return getattr(get_callable(".".join(module[:-1])), module[-1])
+    except ValueError as e:
+        raise ModuleNotFoundError('End of module definition reached')  
     
 def get_loss(loss_function: str, **loss_kwargs):
     """

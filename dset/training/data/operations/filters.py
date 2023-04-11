@@ -22,7 +22,7 @@ class DropNan(DataIterationOperator):
         return np.isnan(data).any()
 
     def __iter__(self):
-        for data in self.iterator:
+        for data in self.index:
             if isinstance(data, tuple):
                 if any(tuple(map(self._check, data))):
                     continue
@@ -44,7 +44,7 @@ class DropAllNan(DataIterationOperator):
         return np.isnan(data).all()
 
     def __iter__(self):
-        for data in self.iterator:
+        for data in self.index:
             if isinstance(data, tuple):
                 if all(tuple(map(self._check, data))):
                     continue
@@ -57,7 +57,7 @@ class DropAllNan(DataIterationOperator):
 @SequentialIterator
 class DropValue(DataIterationOperator):
     """
-    Drop Data containing a value above a percentage
+    Drop Data containing a value above a percentage when iterating.
     """
 
     def __init__(self, iterator: DataIterator, value: float, percentage: float) -> None:
@@ -85,7 +85,7 @@ class DropValue(DataIterationOperator):
         self.__doc__ = f"Drop data containing more than {percentage}% of {value}"
 
     def __iter__(self):
-        for data in self.iterator:
+        for data in self.index:
             if isinstance(data, tuple):
                 if all(self.function(d) for d in data):
                     continue

@@ -97,10 +97,8 @@ def signal_data(
 ):
     iterators = [iterator]
 
-    while hasattr(iterator, "iterator") and isinstance(
-        getattr(iterator, "iterator"), (DataInterface, DataIterator)
-    ):
-        iterator = iterator.iterator
+    while hasattr(iterator, "index"):
+        iterator = iterator.index
         iterators.append(iterator)
     iterators.reverse()
 

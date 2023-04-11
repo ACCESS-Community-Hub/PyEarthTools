@@ -9,7 +9,7 @@ from typing import Iterable, Union
 import numpy as np
 import xarray as xr
 
-from dset.training.data.interfaces import patching
+from dset.training.data.operations import _patching
 
 
 def tuple_difference(tuple_1, tuple_2):
@@ -175,7 +175,6 @@ class Tesselator:
         self,
         input_data: xr.Dataset,
         data_format: str = None,
-        update: bool = False,
         **kwargs,
     ) -> np.ndarray:
         """
@@ -194,7 +193,7 @@ class Tesselator:
         """
         self._set_coords(input_data)
 
-        patches, layout = patching.patches.make_patches(
+        patches, layout = _patching.patches.make_patches(
             input_data,
             self.kernel_size,
             self.stride,
@@ -241,13 +240,13 @@ class Tesselator:
         all_patches = []
         for input_patch in input_data:
             all_patches.append(
-                patching.reorder.reorder(input_patch, data_format, "TCHW")
+                _patching.reorder.reorder(input_patch, data_format, "TCHW")
             )
 
         all_patches = np.array(all_patches)
 
-        full_prediction = patching.patches.rejoin_patches(
-            patching.patches.organise_patches(all_patches, factor_choice=self._layout),
+        full_prediction = _patching.patches.rejoin_patches(
+            _patching.patches.organise_patches(all_patches, factor_choice=self._layout),
             size=self.stride or self.kernel_size,
         )
 
@@ -276,7 +275,7 @@ class Tesselator:
                     coords[override_key] = override_value
 
         if self.padding is not None:
-            full_prediction = patching.subset.center(
+            full_prediction = _patching.subset.center(
                 full_prediction, self._initial_shape[-2:]
             )
             dims, coords, full_prediction = self._organise_coords(

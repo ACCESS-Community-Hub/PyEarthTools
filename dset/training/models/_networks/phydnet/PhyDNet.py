@@ -10,7 +10,7 @@ import torch
 import torch.nn as nn
 
 from dset.training.models.architectures import PhyDNet as PhyDNetArch
-from dset.training.models.networks.phydnet.constrain_moments import K2M
+from dset.training.models._networks.phydnet.constrain_moments import K2M
 from dset.training.models.utils import get_loss
 
 

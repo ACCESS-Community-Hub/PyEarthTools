@@ -48,7 +48,7 @@ def _make_plot(ax, data: Any, array_indexes: list[int] = None, **plot_kwargs):
 
 def plot(
     dataIterator: DataIterator,
-    index: str = None,
+    index: str,
     *,
     timeout: int = 20,
     array_indexes: tuple[int] = None,
@@ -66,5 +66,5 @@ def plot(
         axes[i] = _make_plot(axes[i], [d for d in data][0], array_indexes, **plot_kwargs)
         axes[i].set_title(iterator_retrieval._get_iterator_name(iterator))
 
-    fig.tight_layout(pad=5.0)
+    #fig.tight_layout(pad=5.0)
     return fig

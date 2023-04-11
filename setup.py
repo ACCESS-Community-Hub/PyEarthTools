@@ -12,6 +12,6 @@ setup(
         'torch', 'einops', 'pytorch-lightning'
     ],
     entry_points={
-        "console_scripts": ["training=dset.training.trainer.commands:entry_point"]
+        "console_scripts": ["dset_training=dset.training.trainer.commands:entry_point"]
     },
 )

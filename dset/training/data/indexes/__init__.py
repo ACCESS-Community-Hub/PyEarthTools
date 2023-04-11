@@ -1,2 +1,3 @@
-from dset.training.data.interfaces import *
-from dset.training.data.indexes.general import GeneralIndexer
+from dset.training.data.indexes.interpolate import InterpolationIndex
+from dset.training.data.indexes.coordinate import CoordinateIndex
+from dset.training.data.indexes.cache import CachingIndex

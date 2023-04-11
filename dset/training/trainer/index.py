@@ -9,7 +9,7 @@ from dset.data import OperatorIndex, DataIndex
 from dset.data.transform import apply, Transform, TransformCollection
 
 from dset.training.data.context import PatchingUpdate
-from dset.training.trainer import load_from_yaml, DSETTrainerWrapper
+from dset.training.trainer import from_yaml, DSETTrainerWrapper
 from dset.training.trainer.template import DSETTrainer
 
 
@@ -47,6 +47,11 @@ class MLDataIndex(DataIndex):
                 self.trainer.train_iterator[query_time]
             )
         return input_data
+    
+    @property
+    def iterator(self):
+        with PatchingUpdate(self.trainer, stride_size=self.stride_override):
+            return self.trainer.train_iterator
 
     @staticmethod
     def from_yaml(
@@ -71,7 +76,7 @@ class MLDataIndex(DataIndex):
             All passed to trainer.load_from_yaml
         """
         trainer: DSETTrainerWrapper
-        trainer = load_from_yaml(
+        trainer = from_yaml(
             yaml_config,
             strategy=kwargs.pop("strategy", "dp"),
             logger=kwargs.pop("logger", False),
@@ -88,3 +93,5 @@ class MLDataIndex(DataIndex):
     
 
         return MLDataIndex(trainer, stride_override)
+
+    

@@ -5,6 +5,7 @@ import yaml
 import copy
 
 from dset.training import data
+from dset.training.models import networks
 from dset.training.trainer.trainer import DSETTrainerWrapper
 
 
@@ -26,9 +27,10 @@ def get_callable(module: str):
     except ModuleNotFoundError:
         module = module.split(".")
         return getattr(get_callable(".".join(module[:-1])), module[-1])
+    except ValueError as e:
+        raise ModuleNotFoundError('End of module definition reached')  
 
-
-def load_from_yaml(yaml_file: str, **kwargs) -> DSETTrainerWrapper:
+def from_yaml(yaml_file: str, **kwargs) -> DSETTrainerWrapper:
     """
     Load and create trainer from Yaml Config
 
@@ -72,11 +74,12 @@ def load_from_yaml(yaml_file: str, **kwargs) -> DSETTrainerWrapper:
     try:
         model = get_callable(model_name)
     except (AttributeError, ModuleNotFoundError):
-        model = get_callable("dset.training.models.networks." + model_name)
+        if hasattr(networks, model_name):
+            model = getattr(networks, model_name)
+        else:
+            model = get_callable("dset.training.models.networks." + model_name)
 
     model = model(**config["model"])
-
-
 
     return DSETTrainerWrapper(
         model,

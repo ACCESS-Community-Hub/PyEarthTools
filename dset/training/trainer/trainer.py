@@ -57,7 +57,7 @@ class DSETTrainerWrapper(DSETTrainer):
         self.train_iterator = train_data
         if not isinstance(train_data, DataLoader):
             self.train_data = DataLoader(
-                train_data, batch_size=batch_size, num_workers=num_workers
+                train_data, batch_size=batch_size, num_workers=num_workers, pin_memory=True
             )
         else:
             self.train_data = train_data
@@ -67,7 +67,7 @@ class DSETTrainerWrapper(DSETTrainer):
         if valid_data:
             if not isinstance(valid_data, DataLoader):
                 self.valid_data = DataLoader(
-                    valid_data, batch_size=batch_size, num_workers=num_workers
+                    valid_data, batch_size=batch_size, num_workers=num_workers, pin_memory=True
                 )
             else:
                 self.valid_data = valid_data
@@ -216,3 +216,25 @@ class DSETTrainerWrapper(DSETTrainer):
 
             return tuple(fixed_predictions)
         return prediction
+
+
+    def data(self, index, undo = False):
+        """
+        Get data which is fed into model
+
+        Parameters
+        ----------
+        index
+            Index to retrieve at
+        undo, optional
+            Whether to undo data transforms, by default False
+
+        Returns
+        -------
+            np.array or xarray.Dataset
+        """
+        data = self.train_iterator[index]
+
+        if undo:
+            data = self.train_iterator.undo(data)
+        return data

@@ -4,42 +4,28 @@ from abc import abstractmethod
 from typing import Callable, Union
 
 import yaml
+import inspect
+from datetime import datetime
+
 from torch.utils.data import IterableDataset
 
 
 from dset.data.default import DataIndex, OperatorIndex
-
-
-def get_callable(module: str) -> "DataIterator":
-    """
-    Provide dynamic import capability
-
-
-    Parameters
-    ----------
-        module
-            String of path the module, either module or specific function/class
-
-    Returns
-    -------
-        Specified module or function
-    """
-    try:
-        return importlib.import_module(module)
-    except ModuleNotFoundError:
-        module = module.split(".")
-        return getattr(get_callable(".".join(module[:-1])), module[-1])
-
+from dset.data.time import dset_datetime, time_delta
+from dset.training.data.utils import get_indexes, get_callable
 
 def SequentialIterator(func):
     """
     Decorator to allow Iterator's to not be fully specified,
-    such that the first element of a (DataIterator,DataInterface) is missing.
+    such that the first element of a (DataIterator, DataInterface, DataIndex, OperatorIndex) is missing.
     """
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        if args and isinstance(args[0], (DataIterator, DataInterface, DataIndex)):
+        if args and isinstance(args[0], (DataIterator, DataInterface, DataIndex, OperatorIndex)):
+            return func(*args, **kwargs)
+
+        if list(inspect.signature(func).parameters)[0] in kwargs.keys():
             return func(*args, **kwargs)
 
         def add_iterator(iterator: DataIterator):
@@ -79,7 +65,7 @@ def from_dict(data_specifications: Union[str, dict]) -> "DataIterator":
     Parameters
     ----------
     data_specifications
-        Dictionary containg Data Specifications
+        Dictionary containg Data Specifications. Can also be path to yaml file
 
     Returns
     -------
@@ -90,7 +76,6 @@ def from_dict(data_specifications: Union[str, dict]) -> "DataIterator":
     TypeError
         If imported class cannot be understood
     """
-    data_specifications = dict(**data_specifications)
     
     if isinstance(data_specifications, str):
         with open(data_specifications, "r") as file:
@@ -98,116 +83,235 @@ def from_dict(data_specifications: Union[str, dict]) -> "DataIterator":
         if "data" in data_specifications:
             data_specifications = data_specifications["data"]
 
+    data_specifications = dict(**data_specifications)
+
     if "order" in data_specifications:
         order = data_specifications.pop("order")
     else:
         order = list(data_specifications.keys())
 
-    data_list = []
-    for data_iter_name in order:
-        data_iter_name = str(data_iter_name)
-
-        data_iter = None
-        for alterations in ["", "dset.training.data.", "dset.data."]:
-            try:
-                data_iter = get_callable(alterations + data_iter_name)
-            except (ModuleNotFoundError, ImportError, AttributeError, ValueError):
-                pass
-            if data_iter:
-                break
-        if not data_iter:
-            raise ValueError(f"Unable to load {data_iter_name!r}")
-
-        if not callable(data_iter):
-            if hasattr(data_iter, data_iter_name.split(".")[-1]):
-                data_iter = getattr(data_iter, data_iter_name.split(".")[-1])
-            else:
-                raise TypeError(
-                    f"{data_iter_name!r} is a {type(data_iter)}, must be callable"
-                )
-
-        # TODO Add checking back
-        # Wasnt working
-        # if not isinstance(data_iter, (DataInterface, DataIterator, DataIndex, OperatorIndex)):
-        #    raise TypeError(f"{data_iter_name!r} gave {data_iter!r} which cannot be used with DataIterators.")
-
-        data_list.append(data_iter(**data_specifications[data_iter_name]))
+    data_list = get_indexes(data_specifications, order)
     return Sequential(*data_list)
 
-
-class DataInterface:
+class DataStep(IterableDataset):
     """
-    Interface with dset.data
+    A step between the dset.data.DataIndex's and the training pipeline
     """
+    def __init__(self, index: Union['DataStep', 'DataIterator']) -> None:
+        self.index = index
 
-    def __init__(self) -> None:
-        raise NotImplementedError()
+    def __getitem__(self, idx):
+        return self.index[idx]
 
-
-class DataIterator(IterableDataset):
-    """
-    Provide an interface between a DataInterface and what is required for ML Training.
-
-    Must implement __iter__, __getitem__ & undo
-    """
-
-    def __init__(self, iterator: 'DataIterator') -> None:
-        super().__init__()
-        self.iterator = iterator
-
+    def undo(self, data, *args, **kwargs):
+        if hasattr(self.index, 'undo'):
+            return self.index.undo(data, *args, **kwargs)
+        return data
+        
     @abstractmethod
     def __iter__(self):
-        raise NotImplementedError
+        raise NotImplementedError("Data step does not implement '__iter__', child must.")
 
-    @abstractmethod
-    def __getitem__(self, idx):
-        raise NotImplementedError
+    def __getattr__(self, key):
+        if key == "index":
+            raise AttributeError(f"{self.__class__} has no attribute {key}")
+        return getattr(self.index, key)
 
     def __call__(self, idx):
         return self.__getitem__(idx)
 
-    @abstractmethod
-    def undo(self, data, *args, **kwargs):
-        raise NotImplementedError
-
-    def __getattr__(self, key):
-        if key == "iterator":
-            raise AttributeError(f"{self.__class__} has no attribute {key}")
-        return getattr(self.iterator, key)
-
-    def _formatted_name(self):
-        """
-        Get formatted name of DataIterator.
-
-        Adds formatted_name of underlying iterator to this.
-        """
-        padding = lambda name, length_: name + "".join([" "] * (length_ - len(name)))
-        desc = self.__doc__ or "No Docstring"
-        desc = desc.strip().split("\n")[0].replace("\t", "")
-        return f"{padding(self.__class__.__name__, 30)}{desc}\n{self.iterator._formatted_name()}"
-
     def __repr__(self):
-        string = "DataIterator with the following Operations:"
+        string = "Data Pipeline with the following:"
         operations = self._formatted_name()
         operations = operations.split("\n")
         operations.reverse()
         operations = "\n".join(["\t* " + oper for oper in operations])
         return f"{string}\n{operations}"
 
+    def _formatted_name(self, desc: str = None):
+        padding = lambda name, length_: name + "".join([" "] * (length_ - len(name)))
+        desc = desc or self.__doc__ or "No Docstring"
+        desc = desc.replace("\n", "").replace("\t", "").strip()
+        formatted = f"{padding(self.__class__.__name__, 30)}{desc}"
+
+        if hasattr(self.index, '_formatted_name'):
+            formatted += f"\n{self.index._formatted_name()}"
+        return formatted
 
 
-class DataOperation(DataIterator):
-    def __init__(self, iterator: DataIterator, apply_func: Callable, undo_func: Callable, *, apply_iterator: bool = True, apply_get: bool = True) -> None:
+class TrainingOperatorIndex(OperatorIndex):
+    """
+    DSET Training Version of dset.data.OperatorIndex
+    """
+    def __init__(self, index: Union[list['TrainingOperatorIndex'], 'TrainingOperatorIndex'], *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        if isinstance(index, dict):
+            index = get_indexes(index)
+        if not isinstance(index, (list, tuple)):
+            index = [index]
+        self.index = index
+
+    def __getattr__(self, key):
+        if key == "index":
+            raise AttributeError(f"{self.__class__} has no attribute {key}")
+        return getattr(self.index, key)
+
+
+    def __repr__(self):
+        string = "Training Index: \n"
+        operations = self._formatted_name()
+        operations = operations.split("\n")
+        operations.reverse()
+        operations = "\n".join(["\t* " + oper for oper in operations])
+        return f"{string}\n{operations}"
+
+    def _formatted_name(self, desc: str = None):
+        padding = lambda name, length_: name + "".join([" "] * (length_ - len(name)))
+        desc = desc or self.__doc__ or "No Docstring"
+        desc = desc.replace("\n", "").replace("\t", "").strip()
+        formatted = f"{padding(self.__class__.__name__, 30)}{desc}"
+
+        if hasattr(self.index, '_formatted_name'):
+            formatted += f"\n{self.index._formatted_name()}"
+        return formatted
+
+
+#@SequentialIterator
+class DataInterface(OperatorIndex):
+    """
+    A step between the dset.data.DataIndex's and the training pipeline
+    """
+    def __init__(self, index: OperatorIndex) -> None:
+        super().__init__()
+        self.index = index
+
+    def get(self, querytime: Union[str, dset_datetime]):
+        return self.index[querytime]
+
+    def __getitem__(self, idx):
+        return self.get(idx)
+
+    def undo(self, data):
+        return data
+
+    def _formatted_name(self, desc: str = None):
+        padding = lambda name, length_: name + "".join([" "] * (length_ - len(name)))
+        desc = desc or self.__doc__ or "No Docstring"
+        desc = desc.replace("\n", "").replace("\t", "").strip()
+        formatted = f"{padding(self.__class__.__name__, 30)}{desc}"
+
+        if hasattr(self.index, '_formatted_name'):
+            formatted += f"\n{self.index._formatted_name()}"
+        return formatted
+
+
+
+#@SequentialIterator
+class DataIterator(DataStep):
+    """
+    Provide a way to iterator over data, and catch known errors.
+
+    A child of this class must end the indexes & interfaces section of the data loader.
+    """
+
+    def __init__(self, index: Union[DataInterface, OperatorIndex, DataIndex], catch: Union[tuple[Exception], Exception] = None) -> None:
+        
+        super().__init__(index)
+        
+        if catch:
+            catch = [catch ]if not isinstance(catch, (tuple, list)) else catch
+            
+            for i, err in enumerate(catch):
+                if isinstance(err, str):
+                    catch[i] = get_callable(err)
+        else:
+            catch = []
+        self._error_to_catch = tuple(catch)
+
+    def __getattr__(self, key):
+        if key == "index":
+            raise AttributeError(f"{self.__class__} has no attribute {key}")
+        return getattr(self.index, key)
+
+    def set_iterable(
+        self,
+        start: Union[str, datetime, dset_datetime],
+        end: Union[str, datetime, dset_datetime],
+        interval: Union[int, tuple],
+    ):
+        """
+        Set iteration range for DataInterface
+
+        Parameters
+        ----------
+        start
+            Start date of iteration
+        end
+            End date of iteration
+        interval
+            Interval between samples
+            Use pandas.to_timedelta notation, (10, 'minute')
+
+        """
+
+        self._interval = time_delta(interval)
+        self._start = dset_datetime(start)
+        self._end = dset_datetime(end)
+
+        self._iterator_ready = True
+
+    def __getitem__(self, idx):
+        return self.index[idx]
+
+    def __iter__(self):
+        if not hasattr(self, "_start"):
+            raise RuntimeError(
+                f"Iterator not set for {self.__class__.__name__}. Run .set_iterable()"
+            )
+
+        steps = (self._end - self._start) // self._interval
+
+        for step in range(int(steps)):
+            try:
+                current_time = self._start + self._interval * step
+                yield self[current_time]
+            except self._error_to_catch:
+                pass
+    
+    # def _formatted_name(self):
+    #     desc = f"DataIterator for {self.index.__class__.__name__!r}"
+    #     formatted = super()._formatted_name(desc)
+    #     return formatted
+        
+class BaseDataOperation(DataStep):
+    """
+    Provide a way to change the data between a DataInterface and an ML Model.
+
+    Must implement __iter__, __getitem__ & undo
+    """
+
+    def __init__(self, index: Union['DataOperation', DataIterator]) -> None:
+        self.index = index
+
+    def __getattr__(self, key):
+        if key == "index":
+            raise AttributeError(f"{self.__class__} has no attribute {key}")
+        return getattr(self.index, key)
+
+
+class DataOperation(DataStep):
+    def __init__(self, index: DataStep, apply_func: Callable, undo_func: Callable, *, apply_iterator: bool = True, apply_get: bool = True) -> None:
         """
         Run Operations on Data as it is being used.
 
         Parameters
         ----------
-        iterator
-            Underlying iterator to use
+        index
+            Underlying index to use
         """
-        super().__init__(iterator)
-        # functools.update_wrapper(self, iterator)
+        super().__init__(index)
+
         self.apply_func = apply_func
         self.undo_func = undo_func
 
@@ -216,11 +320,11 @@ class DataOperation(DataIterator):
 
     def undo(self, data, *args, **kwargs):
         if not self.undo_func is None:
-            return self.iterator.undo(self.undo_func(data))
-        return self.iterator.undo(data, *args, **kwargs)
+            return self.index.undo(self.undo_func(data))
+        return self.index.undo(data, *args, **kwargs)
 
     def __iter__(self):
-        for data in self.iterator:
+        for data in self.index:
             if self.apply_iterator:
                 yield self.apply_func(data)
             else:
@@ -228,17 +332,20 @@ class DataOperation(DataIterator):
 
     def __getitem__(self, idx):
         if self.apply_get:
-            return self.apply_func(self.iterator[idx])
-        return self.iterator[idx]
+            return self.apply_func(self.index[idx])
+        return self.index[idx]
 
 
-class DataIterationOperator(DataIterator):
+class DataIterationOperator(DataStep):
+    """
+    A data method to only be applied when iterating.
+    """
     def __iter__(self):
         raise NotImplementedError(f"Iteration Operator must be defined in child")
 
     def __getitem__(self, idx):
-        return self.iterator[idx]
+        return self.index[idx]
         
     def undo(self, data, *args, **kwargs):
-        return self.iterator.undo(data, *args, **kwargs)
+        return self.index.undo(data, *args, **kwargs)
 
