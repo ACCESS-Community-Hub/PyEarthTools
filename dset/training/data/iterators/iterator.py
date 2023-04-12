@@ -14,3 +14,7 @@ class Iterator(DataIterator):
     """Provide Date Based iteration"""
     def __init__(self, index: DataStep, catch: Union[tuple[Exception], Exception] = None) -> None:
         super().__init__(index, catch)
+
+    @property
+    def ignore_sanity(self):
+        return True

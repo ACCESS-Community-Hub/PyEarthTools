@@ -2,6 +2,7 @@ import functools
 import multiprocessing
 import signal
 
+from dset.data import DataNotFoundError
 from dset.training.data import DataOperation, DataIterator, DataInterface
 
 
@@ -79,19 +80,18 @@ def timeout_handler(num, stack):
 
 
 def _get_signal_data(iterator, num_samples: int = 2, index: int = None):
-
-    samples = []
+    samples = None
     if index:
-        yield iterator[index]
-        return
+        return iterator[index]
+
     for i, data in enumerate(iterator):
         if i > num_samples:
             break
-        samples.append(data)
+        samples = data
 
-    yield samples
+    return samples
 
-#@functools.lru_cache(2)
+@functools.lru_cache(2)
 def signal_data(
     iterator: DataIterator, idx: str = None, num_samples: int = 1, timeout: int = 30
 ):
@@ -99,6 +99,15 @@ def signal_data(
 
     while hasattr(iterator, "index"):
         iterator = iterator.index
+        if hasattr(iterator, 'ignore_sanity') and iterator.ignore_sanity:
+            continue
+
+        if isinstance(iterator, list):
+            for item in iterator:
+                iterators.append(item)
+            iterator = iterator[0]
+            continue
+        
         iterators.append(iterator)
     iterators.reverse()
 
@@ -113,4 +122,9 @@ def signal_data(
         except TimeoutException:
             timeouts += 1
             data_samples[iter] = f"Data took longer than {timeout} seconds to get."
+        except (DataNotFoundError, RuntimeError):
+            if idx is None:
+                data_samples[iter] = 'Iterator likely not set, Cannot retrieve data.'
+            else:
+                data_samples[iter] = f"Unable to find data at {idx!r}"
     return data_samples

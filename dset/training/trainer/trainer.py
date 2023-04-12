@@ -11,6 +11,7 @@ from torch.utils.data import DataLoader, IterableDataset
 
 from dset.training.trainer.template import DSETTrainer
 from dset.training.data.templates import DataIterator
+from dset.training.data.loaders import PytorchIterable#, DALILoader
 
 
 class DSETTrainerWrapper(DSETTrainer):

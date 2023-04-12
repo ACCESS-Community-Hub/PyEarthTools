@@ -1,9 +1,9 @@
 
 from typing import Any, Union
 import xarray as xr
+import numpy as np
 import datetime
 
-import importlib
 
 import dset.data
 from dset.data import archive, transform, TransformCollection, dset_datetime
@@ -33,33 +33,27 @@ class CoordinateIndex(TrainingOperatorIndex):
         """
         super().__init__(index)
 
-        if len(self.index) > 1:
-            raise RuntimeError(f"Only one index can be provided. Not {len(self.index)}")
-
         coordinates = [coordinates] if isinstance(coordinates, str) else coordinates
 
         self.coordinates = coordinates
         
     def get(self, query_time):
-        data = self.index[0][query_time]
+        data = self.index[query_time]
         dims = data.dims
 
         for coord in self.coordinates:
             if coord in data:
                 new_dims = {}
                 for key in (key for key in dims.keys() if key not in [coord]):
-                    new_dims[key] = data[key].values
-                data[f"var_{coord}"] = data[coord].expand_dims(new_dims)
+                    new_dims[key] = np.atleast_1d(data[key].values)
+                
+                axis = [list(dims).index(key) for key in new_dims.keys()]
+                data[f"var_{coord}"] = data[coord].expand_dims(new_dims,axis=axis)
             else:
                 raise KeyError(f"{coord} not found in dataset, which has coords: {list(data.coords)}")
         return data
 
     def _formatted_name(self):
-        padding = lambda name, length_: name + "".join([" "] * (length_ - len(name)))
         desc = f"Coordinate Adding Index. Adding {self.coordinates}"
-        desc = desc.replace("\n", "").replace("\t", "").strip()
-        formatted = f"{padding(self.__class__.__name__, 30)}{desc}"
+        return super()._formatted_name(desc)
 
-        if hasattr(self.index[0], '_formatted_name'):
-            formatted += f"\n{self.index[0]._formatted_name()}"
-        return formatted

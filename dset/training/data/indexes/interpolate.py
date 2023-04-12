@@ -19,7 +19,7 @@ class InterpolationIndex(TrainingOperatorIndex):
     """
     def __init__(self, 
         indexes: Union[list,dict, OperatorIndex],
-        sample_interval: tuple[int, tuple[int]],
+        sample_interval: tuple[int, tuple[int]] = None,
         transforms : Union[list, dict] = TransformCollection(),
         interpolation: Any = None, 
         interpolation_method: str = 'linear'
@@ -53,7 +53,7 @@ class InterpolationIndex(TrainingOperatorIndex):
 
         base_transform = TransformCollection(transforms) 
         
-        super().__init__(indexes, base_transform, sample_interval)
+        super().__init__(indexes, base_transform, sample_interval, allow_multiple_index=True)
 
 
     def get(self, query_time):
@@ -77,8 +77,7 @@ class InterpolationIndex(TrainingOperatorIndex):
                     #new_data['time'] = data[-1]['time']
             data.append(new_data)
         
-        ds = xr.merge(data, combine_attrs = 'drop_conflicts')
-        ds = ds.assign_coords(time = [dset_datetime(query_time).datetime64()])
+        ds = xr.merge(data)
         return ds
 
     def __repr__(self):

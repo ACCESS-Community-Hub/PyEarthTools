@@ -56,9 +56,9 @@ class NormaliseInterface(DataInterface):
         Get normalisation transforms
         """
 
-        params = dict(self.normalisation_params)
-        method = params.pop("method", 'None')
-        default = params.pop("default", 'None')
+        params = dict(**self.normalisation_params)
+        method = params.get("method", 'None')
+        default = params.get("default", 'None')
 
         return normalisation.normalise(self.index, **params)(method, default)
 
@@ -96,14 +96,14 @@ class NormaliseInterface(DataInterface):
         Get unnormalisation transforms.
         """
 
-        params = dict(self.normalisation_params)
-        method = params.pop("method", 'None')
-        default = params.pop("default", 'None')
+        params = dict(**self.normalisation_params)
+        method = params.get("method", 'None')
+        default = params.get("default", 'None')
 
         return normalisation.unnormalise(self.index, **params)(method, default)
 
     @property
     def __doc__(self):
-        return f"Normalising with method: {self.normalisation_params.pop('method', 'None')}"
+        return f"Normalising with method: {self.normalisation_params.get('method', 'None')} and default: {self.normalisation_params.get('default', 'None')}"
 
 

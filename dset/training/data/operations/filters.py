@@ -40,7 +40,13 @@ class DropAllNan(DataIterationOperator):
 
     def _check(self, data: Union[xr.Dataset, np.array]):
         if isinstance(data, (xr.Dataset, xr.DataArray)):
-            return np.array(list(np.isnan(data).values())).all()
+            data = np.isnan(data).all()
+            if hasattr(data, 'to_array'):
+                data = data.to_array()
+            return data.values.all()
+        
+        elif isinstance(data, xr.DataArray):
+            return np.isnan(data).all().values.all()
         return np.isnan(data).all()
 
     def __iter__(self):

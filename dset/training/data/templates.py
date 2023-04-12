@@ -1,5 +1,4 @@
 import functools
-import importlib
 from abc import abstractmethod
 from typing import Callable, Union
 
@@ -7,7 +6,6 @@ import yaml
 import inspect
 from datetime import datetime
 
-from torch.utils.data import IterableDataset
 
 
 from dset.data.default import DataIndex, OperatorIndex
@@ -93,7 +91,7 @@ def from_dict(data_specifications: Union[str, dict]) -> "DataIterator":
     data_list = get_indexes(data_specifications, order)
     return Sequential(*data_list)
 
-class DataStep(IterableDataset):
+class DataStep():
     """
     A step between the dset.data.DataIndex's and the training pipeline
     """
@@ -137,26 +135,36 @@ class DataStep(IterableDataset):
         if hasattr(self.index, '_formatted_name'):
             formatted += f"\n{self.index._formatted_name()}"
         return formatted
-
+        
+    @property
+    def ignore_sanity(self):
+        return False
 
 class TrainingOperatorIndex(OperatorIndex):
     """
     DSET Training Version of dset.data.OperatorIndex
     """
-    def __init__(self, index: Union[list['TrainingOperatorIndex'], 'TrainingOperatorIndex'], *args, **kwargs) -> None:
+    def __init__(self, index: Union[list['TrainingOperatorIndex'], 'TrainingOperatorIndex'], *args, allow_multiple_index: bool = False, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         if isinstance(index, dict):
             index = get_indexes(index)
-        if not isinstance(index, (list, tuple)):
-            index = [index]
+        if not allow_multiple_index and isinstance(index, (list, tuple)):
+            index = index[0]
         self.index = index
 
     def __getattr__(self, key):
         if key == "index":
             raise AttributeError(f"{self.__class__} has no attribute {key}")
-        return getattr(self.index, key)
+        index = self.index
+        if isinstance(self.index, (list, tuple)):
+            index = self.index[0]
+        return getattr(index, key)
 
+    def undo(self, data, *args, **kwargs):
+        if hasattr(self.index, 'undo'):
+            return self.index.undo(data, *args, **kwargs)
+        return data
 
     def __repr__(self):
         string = "Training Index: \n"
@@ -205,7 +213,9 @@ class DataInterface(OperatorIndex):
             formatted += f"\n{self.index._formatted_name()}"
         return formatted
 
-
+    @property
+    def ignore_sanity(self):
+        return False
 
 #@SequentialIterator
 class DataIterator(DataStep):

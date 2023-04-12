@@ -9,7 +9,7 @@ import xarray as xr
 from dset.training.data.templates import BaseDataOperation, SequentialIterator, DataInterface
 from ._patching import Tesselator
 
-from dset.data.default import DataIndex
+from dset.data import DataIndex, Collection
 
 
 @SequentialIterator
@@ -102,7 +102,7 @@ class PatchingDataIndex(BaseDataOperation):
             for patch in self._get_tesselators(1)[0].patch(datasets):
                 yield (patch,)
 
-        elif isinstance(datasets, (list, tuple)):
+        elif isinstance(datasets, (list, tuple, Collection)):
             tesselators = self._get_tesselators(len(datasets))
             for patches in zip(
                 *(tesselators[i].patch(datasets[i]) for i in range(len(datasets)))
