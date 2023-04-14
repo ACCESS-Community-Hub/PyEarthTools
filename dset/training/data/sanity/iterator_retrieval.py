@@ -109,6 +109,7 @@ def signal_data(
             continue
         
         iterators.append(iterator)
+        
     iterators.reverse()
 
     data_samples = {}

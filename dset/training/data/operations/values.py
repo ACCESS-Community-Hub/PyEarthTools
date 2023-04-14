@@ -2,6 +2,7 @@
 from typing import Union
 
 import numpy as np
+import xarray as xr
 
 from dset.training.data.templates import (
     DataIterationOperator,
@@ -55,6 +56,8 @@ class FillNa(DataOperation):
     def _apply_fill(self, data):
         if isinstance(data, tuple):
             return tuple(map(self._apply_fill, data))
+        if isinstance(data, (xr.Dataset, xr.DataArray)):
+            data = data.fillna(self.nan)
         return np.nan_to_num(data, self.nan, posinf=self.posinf, neginf=self.neginf)
 
 # @SequentialIterator

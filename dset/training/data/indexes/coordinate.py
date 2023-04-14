@@ -5,11 +5,8 @@ import numpy as np
 import datetime
 
 
-import dset.data
-from dset.data import archive, transform, TransformCollection, dset_datetime
 from dset.data.default import OperatorIndex
 
-from dset.training.data.utils import get_transforms
 from dset.training.data.templates import SequentialIterator, TrainingOperatorIndex
 
 @SequentialIterator

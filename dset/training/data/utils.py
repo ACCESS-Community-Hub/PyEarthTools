@@ -9,9 +9,6 @@ import builtins
 import re
 
 import dset.data
-from dset.data import archive, transform, TransformCollection, dset_datetime
-from dset.data.default import OperatorIndex
-
 
 def get_callable(module: str):
     """
@@ -62,17 +59,20 @@ def get_indexes(sources: dict, order : list = None):
         except:
             pass
         
+        errors = []
+
         if not data_index:
-            for alterations in ["__main__.", "","dset.training.data.", "dset.data.", "dset.training.data.operations."]:
+            for alterations in ["__main__.", "","dset.training.data.", "dset.data.", "dset.training.data.operations.",""]:
                 try:
                     data_index = get_callable(alterations + index)
-                except (ModuleNotFoundError, ImportError, AttributeError, ValueError):
+                except (ModuleNotFoundError, ImportError, AttributeError, ValueError) as e:
+                    errors.append(e)
                     pass
                 if data_index:
                     break
                 
         if not data_index:
-            raise ValueError(f"Unable to load {index!r}")
+            raise ValueError(f"Unable to load {index!r}.\nDue to {errors}")
 
         if not callable(data_index):
             if hasattr(data_index, index.split(".")[-1]):

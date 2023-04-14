@@ -11,7 +11,7 @@ import xarray as xr
 import dset.data
 from dset.data import FunctionTransform, Transform, TransformCollection
 from dset.data.default import DataIndex, OperatorIndex
-from dset.data.time import dset_datetime, time_delta
+from dset.data.time import DSETDatetime, time_delta
 
 from dset.training.data.templates import DataIterator, SequentialIterator
 
@@ -105,7 +105,7 @@ class TemporalInterface(DataIterator):
     def rebuild_time(
         self,
         dataset: Union[tuple[xr.Dataset], xr.Dataset],
-        time_value: Union[dset_datetime, datetime],
+        time_value: Union[DSETDatetime, datetime],
     ):
         """
         Rebuild time dimension of given dataset, using known sample interval.
@@ -133,7 +133,7 @@ class TemporalInterface(DataIterator):
             return dataset
 
         time_size = len(dataset["time"])
-        time_value = dset_datetime(time_value)
+        time_value = DSETDatetime(time_value)
 
         new_time = [
             (time_value + self.sample_interval * i).datetime64()
@@ -143,7 +143,7 @@ class TemporalInterface(DataIterator):
 
     def _retrieve_from_index(
         self,
-        timestep: Union[str, datetime, dset_datetime],
+        timestep: Union[str, datetime, DSETDatetime],
         index: Union[DataIndex, OperatorIndex],
         transforms: TransformCollection,
     ) -> tuple:
@@ -151,7 +151,7 @@ class TemporalInterface(DataIterator):
         At given index retrieve given time with samples
         """
 
-        timestep = dset_datetime(timestep)
+        timestep = DSETDatetime(timestep)
 
         if self.samples == 1:
             data = index.single(
@@ -202,7 +202,7 @@ class TemporalInterface(DataIterator):
         else:
             raise NotImplementedError()
 
-    # def _retrieve_at_time(self, timestep: Union[str, datetime, dset_datetime]):
+    # def _retrieve_at_time(self, timestep: Union[str, datetime, DSETDatetime]):
     #     """
     #     Retrieve Data from all DataIndexes at given time
     #     """
@@ -226,8 +226,8 @@ class TemporalInterface(DataIterator):
     def __getitem__(self, idx):
         if isinstance(idx, int):
             return self.index[idx]
-        elif isinstance(idx, (str, dset_datetime, datetime)):
-            return self._retrieve_from_index(dset_datetime(idx), self.index, self.transforms)
+        elif isinstance(idx, (str, DSETDatetime, datetime)):
+            return self._retrieve_from_index(DSETDatetime(idx), self.index, self.transforms)
         elif isinstance(idx, tuple):
             next_idx = idx[1:]
             if len(next_idx) == 1:

@@ -81,39 +81,50 @@ class Tesselator:
 
     def _set_coords(self, data: Union[xr.DataArray, xr.Dataset]):
         """
-        From a xr DataArray or Dataset, save coordinates and dims for stitching
+        From an xr DataArray or Dataset, save coordinates and dims for stitching
 
         Parameters
         ----------
         data
             Template data to get coords and dims from
         """
-        if isinstance(data, (xr.DataArray, xr.Dataset)):
-            self._dims = list(data.coords)
-            if "time" in self._dims:
-                self._dims.remove("time")
-                self._dims.append("time")
-            self._coords = {}
-            self._attrs['global'] = data.attrs
+        if not isinstance(data, (xr.DataArray, xr.Dataset)):
+            return
 
-            for dim in self._dims:
-                self._coords[dim] = data[dim].values
+        self._attrs['global'] = data.attrs
 
-            if isinstance(data, xr.Dataset):
-                self._variables = list(data.data_vars)
-                self._initial_shape = (
-                    len(self._variables),
-                    *data[self._variables[0]].shape,
-                )
+        if isinstance(data, xr.Dataset):
+            self._variables = list(data.data_vars)
+            self._initial_shape = (
+                len(self._variables),
+                *data[self._variables[0]].shape,
+            )
 
-                self._dims = ["Variables"] + self._dims
-                self._coords["Variables"] = self._variables
+            for var in self._variables:
+                self._attrs[var] = data[var].attrs
 
-                for var in self._variables:
-                    self._attrs[var] = data[var].attrs
+        elif isinstance(data, xr.DataArray):
+            self._initial_shape = data.shape
+        
+        self._coords = {}
+        self._dims = [None] * (len(data.coords) + 1)
+            
+        use_shape = list(self._initial_shape)
+        for coord in data.coords:
+            size = len(data[coord])
+            self._dims[use_shape.index(size)] = coord
 
-            else:
-                self._initial_shape = data.shape
+            use_shape[use_shape.index(size)] = 1e10
+
+        while None in self._dims:
+            self._dims.remove(None)
+
+        for dim in self._dims:
+            self._coords[dim] = data[dim].values
+        
+        if isinstance(data, xr.Dataset):
+            self._dims = ["Variables"] + self._dims
+            self._coords["Variables"] = self._variables
 
     def _get_coords(self) -> tuple[list, dict]:
         """
@@ -191,6 +202,7 @@ class Tesselator:
         ------
             Each Patch as np.ndarray, size defined in __init__
         """
+
         self._set_coords(input_data)
 
         patches, layout = _patching.patches.make_patches(
@@ -278,9 +290,9 @@ class Tesselator:
             full_prediction = _patching.subset.center(
                 full_prediction, self._initial_shape[-2:]
             )
-            dims, coords, full_prediction = self._organise_coords(
-                dims, coords, full_prediction
-            )
+            #dims, coords, full_prediction = self._organise_coords(
+            #    dims, coords, full_prediction
+            #)
         else:
             coords[dims[-1]] = coords[dims[-1]][
                 offset[0] : offset[0] + full_prediction.shape[-1]

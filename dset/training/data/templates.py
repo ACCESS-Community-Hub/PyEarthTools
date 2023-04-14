@@ -9,7 +9,7 @@ from datetime import datetime
 
 
 from dset.data.default import DataIndex, OperatorIndex
-from dset.data.time import dset_datetime, time_delta
+from dset.data.time import DSETDatetime, time_delta
 from dset.training.data.utils import get_indexes, get_callable
 
 def SequentialIterator(func):
@@ -194,7 +194,7 @@ class DataInterface(OperatorIndex):
         super().__init__()
         self.index = index
 
-    def get(self, querytime: Union[str, dset_datetime]):
+    def get(self, querytime: Union[str, DSETDatetime]):
         return self.index[querytime]
 
     def __getitem__(self, idx):
@@ -246,8 +246,8 @@ class DataIterator(DataStep):
 
     def set_iterable(
         self,
-        start: Union[str, datetime, dset_datetime],
-        end: Union[str, datetime, dset_datetime],
+        start: Union[str, datetime, DSETDatetime],
+        end: Union[str, datetime, DSETDatetime],
         interval: Union[int, tuple],
     ):
         """
@@ -266,8 +266,8 @@ class DataIterator(DataStep):
         """
 
         self._interval = time_delta(interval)
-        self._start = dset_datetime(start)
-        self._end = dset_datetime(end)
+        self._start = DSETDatetime(start)
+        self._end = DSETDatetime(end)
 
         self._iterator_ready = True
 

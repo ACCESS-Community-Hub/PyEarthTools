@@ -1,12 +1,9 @@
 
 from typing import Any, Union
 import xarray as xr
-import datetime
-
-import importlib
 
 import dset.data
-from dset.data import archive, transform, TransformCollection, dset_datetime
+from dset.data import archive, transform, TransformCollection, DSETDatetime
 from dset.data.default import OperatorIndex
 
 from dset.training.data.utils import get_transforms
@@ -51,32 +48,31 @@ class InterpolationIndex(TrainingOperatorIndex):
         if isinstance(transforms, dict):
             transforms = get_transforms(transforms)
 
-        base_transform = TransformCollection(transforms) 
+        base_transforms = TransformCollection(transforms) 
         
-        super().__init__(indexes, base_transform, sample_interval, allow_multiple_index=True)
+        super().__init__(indexes, base_transforms, sample_interval, allow_multiple_index=True)
 
 
-    def get(self, query_time):
+    def get(self, query_time, **kwargs):
         data = []
-        for index in self.index:
 
-            new_data = index(query_time, transforms = self.base_transforms)
+        for index in self.index:
+            new_data = index(query_time, transforms = self.base_transforms, **kwargs)
             if data:
                 interp = transform.interpolation(self.interpolation or data[-1], method = self.interpolation_method, drop_coords = 'time')
                 if 'time' in new_data.indexes:
-                    new_data = new_data.sel(time = dset_datetime(query_time).datetime64())
+                    new_data = new_data.sel(time = DSETDatetime(query_time).datetime64())
                     new_data = interp(new_data)
                 elif 'time' not in new_data:
                     try:
-                        new_data = new_data.assign_coords(time = data[-1].time) #[dset_datetime(query_time).datetime64()]
+                        new_data = new_data.assign_coords(time = data[-1].time) #[DSETDatetime(query_time).datetime64()]
                     except ValueError:
-                        new_data = new_data.assign_coords(time = [dset_datetime(query_time).datetime64()])
+                        new_data = new_data.assign_coords(time = [DSETDatetime(query_time).datetime64()])
                     new_data = interp(new_data)
                 else:
                     pass
                     #new_data['time'] = data[-1]['time']
             data.append(new_data)
-        
         ds = xr.merge(data)
         return ds
 
@@ -88,7 +84,7 @@ class InterpolationIndex(TrainingOperatorIndex):
 
     def _formatted_name(self):
         padding = lambda name, length_: name + "".join([" "] * (length_ - len(name)))
-        desc = f"General Index for {[index.__class__.__name__ for index in self.index]!r}. {self.interpolation_method} interpolating all together"
+        desc = f"Interpolation Index for {[index.__class__.__name__ for index in self.index]!r}. {self.interpolation_method} interpolating all together"
         desc = desc.replace("\n", "").replace("\t", "").strip()
         formatted = f"{padding(self.__class__.__name__, 30)}{desc}"
 

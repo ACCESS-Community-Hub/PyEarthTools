@@ -1,7 +1,6 @@
 import re
 from typing import Union
 
-import einops
 import numpy as np
 
 import dset.data

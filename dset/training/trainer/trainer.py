@@ -86,10 +86,13 @@ class DSETTrainerWrapper(DSETTrainer):
         )
         callbacks = kwargs.pop("callbacks", [])
         callbacks.append(checkpoint_callback)
+        
+        logger = pl.loggers.CSVLogger(path, name="csv_logs")
 
         self.trainer = pl.Trainer(
-            default_root_dir=kwargs.pop("default_root_dir", path),
+            default_root_dir=path,
             callbacks=callbacks,
+            logger = logger,
             **kwargs,
         )
 

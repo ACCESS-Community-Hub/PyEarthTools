@@ -1,6 +1,6 @@
 import functools
 import math
-from typing import Any
+from typing import Any, Union
 import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
@@ -19,12 +19,13 @@ def _reduce_size(data, array_indexes: tuple[int]):
 
 
 def _make_plot(ax, data: Any, array_indexes: list[int] = None, new_index = True, **plot_kwargs):
+    if array_indexes is None:
+        array_indexes = []
+        
     if isinstance(array_indexes, tuple):
         array_indexes = list(array_indexes)
     elif not isinstance(array_indexes, list):
         array_indexes = [array_indexes]
-    if array_indexes is None:
-        array_indexes = []
 
     if new_index:
         array_indexes = [*array_indexes, *([0] * 20)]
@@ -64,7 +65,7 @@ def plot(
     index: str = None,
     *,
     timeout: int = 20,
-    array_indexes: list[int] = None,
+    array_indexes: Union[dict[str, list[int]], list[list[int]]] = None,
     fig_kwargs: dict = {'figsize': (25,20)},
     layout_kwargs: dict = {'pad': 5},
     **plot_kwargs
@@ -85,6 +86,7 @@ def plot(
         Time allowed for data to be retrieved, by default 20
     array_indexes, optional
         Indexes to be passed to flattening function, 
+        Can be list, where position refers to index, or dict where key == name
         Each element corresponds to an individual step, by default None
     fig_kwargs, optional
         Other kwargs for fig creation, by default {'figsize': (25,20)}
@@ -107,12 +109,21 @@ def plot(
 
     if not array_indexes:
         array_indexes = [[0]] * len(result.keys())
-    array_indexes = [*array_indexes, *([[0]] * (len(result.keys())-len(array_indexes)))]
+    if isinstance(array_indexes, list):
+        array_indexes = [*array_indexes, *([[0]] * (len(result.keys())-len(array_indexes)))]
 
     for i, (iterator, data) in enumerate(result.items()):
+        name = iterator_retrieval._get_iterator_name(iterator)
+        if isinstance(array_indexes, list):
+            indexes = array_indexes[i]
+        elif isinstance(array_indexes, dict) and name in array_indexes:
+            indexes = array_indexes[name]
+        else:
+            indexes = None
+
         coords = (i // size, i % size)
-        axes[coords[0], coords[1]], info = _make_plot(axes[coords[0], coords[1]], data, array_indexes[i], **plot_kwargs)
-        axes[coords[0], coords[1]].set_title(f"{iterator_retrieval._get_iterator_name(iterator)}.\n{info}")
+        axes[coords[0], coords[1]], info = _make_plot(axes[coords[0], coords[1]], data, indexes, **plot_kwargs)
+        axes[coords[0], coords[1]].set_title(f"{name}.\n{info}")
     
     while i < (size * size)-1:
         i += 1

@@ -7,9 +7,6 @@ from pathlib import Path
 
 from dset.data.patterns import PatternIndex
 from dset.data import CachingIndex as dataCachingIndex
-from dset.data.default import OperatorIndex
-
-from dset.training.data.templates import DataStep
 
 from dset.training.data.utils import get_transforms
 from dset.training.data.templates import SequentialIterator, TrainingOperatorIndex
