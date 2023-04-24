@@ -1,0 +1,7 @@
+metnet.MetNet: MetNet
+phydnet.PhyDNet: PhyDNet
+climax.ClimaX: ClimaX
+earthformer.EarthFormer: EarthFormer
+
+# dset.training.models._networks.EarthFormer: EarthFormer
+# dset.training.models._networks.PhyDNet: PhyDNet

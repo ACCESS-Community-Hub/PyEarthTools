@@ -7,7 +7,8 @@ setup(
     author="Harrison Cook",
     author_email="harrison.cook@bom.gov.au",
     url="www.bom.gov.au",
-    packages=["dset"],
+    #packages=["dset"],
+    package_dir={'':'src'},
     install_requires=[
         'torch', 'einops', 'pytorch-lightning'
     ],
