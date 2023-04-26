@@ -1,8 +1,8 @@
-# DSET Training
+# EDIT Training
 
-Using `dset.data` this package aims to significantly speed up ML model investigations and experimentations. 
+Using `edit.data` this package aims to significantly speed up ML model investigations and experimentations. 
 
-Using `dset.data.DataIndex` a data source can be specified and through `dset.training.data` a data pipeline can be built to normalise, reshape, and filter incoming training data.
+Using `edit.data.DataIndex` a data source can be specified and through `edit.training.data` a data pipeline can be built to normalise, reshape, and filter incoming training data.
 
 Afterwhich a model can be specified and using [Pytorch Lightning](https://pytorch-lightning.readthedocs.io/en/stable/) trained on any system with as many GPU's as needed.
 
@@ -14,15 +14,15 @@ This repo can be cloned and installed, or loaded as a module on GADI.
 ``` shell
 module use /g/data/kd24/modulefiles/
 
-module load dset
+module load edit
 #or
-module load dset/training
+module load edit/training
 ```
 
 ## Dependencies
-`dset.training` has a number of dependencies.
+`edit.training` has a number of dependencies.
 
-- `dset.data`
+- `edit.data`
 - [Torch](https://pytorch.org/)
 - [Pytorch Lightning](https://pytorch-lightning.readthedocs.io/en/stable/) 
 - [einops](https://github.com/arogozhnikov/einops) 
@@ -30,7 +30,7 @@ module load dset/training
 
 
 ## Command Line
-`dset.training` includes a command line interface for user convenience, `training`
+`edit.training` includes a command line interface for user convenience, `training`
 ```shell
 > training
 Usage: training [OPTIONS] COMMAND [ARGS]...

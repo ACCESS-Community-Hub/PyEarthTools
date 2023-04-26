@@ -1,18 +1,16 @@
 from distutils.core import setup
 
 setup(
-    name="dset-training",
+    name="edit-training",
     version="0.1",
-    description="DSET Machine Learning Training",
+    description="EDIT Machine Learning Training",
     author="Harrison Cook",
     author_email="harrison.cook@bom.gov.au",
     url="www.bom.gov.au",
-    #packages=["dset"],
-    package_dir={'':'src'},
-    install_requires=[
-        'torch', 'einops', 'pytorch-lightning'
-    ],
+    # packages=["edit"],
+    package_dir={"": "src"},
+    install_requires=["torch", "einops", "pytorch-lightning"],
     entry_points={
-        "console_scripts": ["dset_training=dset.training.trainer.commands:entry_point"]
+        "console_scripts": ["edit_training=edit.training.trainer.commands:entry_point"]
     },
 )
