@@ -90,6 +90,11 @@ class Rearrange(DataOperation):
 class Squish(DataOperation):
     """
     Squish One Dimensional axis at 'axis' location
+
+    !!! Warning
+        If use this with PatchingDataIndex, as patch dim only exists on __getitem__ calls, axis indexing may be off.
+        Either use negative indexing, or two squish operators, one for __getitem__ with apply_iterator = False, 
+        and one for __iter__ with apply_get = False
     """
 
     def __init__(self, index: DataIterator, axis: int, **kwargs) -> None:
@@ -99,14 +104,19 @@ class Squish(DataOperation):
     @property
     def __doc__(self):
         return f"""
-        Squish One Dimensional axis at '{self.axis}' location
+        Squish One Dimensional on axis {self.axis!r}'
         """
 
     def _apply_squish(self, data):
         if isinstance(data, tuple):
             return tuple(map(self._apply_squish, data))
-        return np.squeeze(data, self.axis)
-
+        try:
+            data = np.squeeze(data, self.axis)
+        except ValueError as e:
+            e.args = (*e.args, f"Shape {data.shape}")
+            raise e
+        return data
+    
     def _apply_expand(self, data):
         if isinstance(data, tuple):
             return tuple(map(self._apply_expand, data))
@@ -126,13 +136,18 @@ class Expand(DataOperation):
     @property
     def __doc__(self):
         return f"""
-        Expand One Dimensional axis at '{self.axis}' location
+        Expand One Dimensional on axis {self.axis!r}'
         """
 
     def _apply_squish(self, data):
         if isinstance(data, tuple):
             return tuple(map(self._apply_squish, data))
-        return np.squeeze(data, self.axis)
+        try:
+            data = np.squeeze(data, self.axis)
+        except ValueError as e:
+            e.args = (*e.args, f"Shape {data.shape}")
+            raise e
+        return data
 
     def _apply_expand(self, data):
         if isinstance(data, tuple):

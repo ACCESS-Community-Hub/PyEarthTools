@@ -45,6 +45,9 @@ class EDITTrainerWrapper(EDITTrainer):
         valid_data, optional
             Validation data to use, can either be DataIterator, or pytorch DataLoader,
             by default None
+
+        **kwargs, optional   
+            All passed to trainer __init__, will intercept 'logger' to update from str if given
         """
         self.model = model
 
