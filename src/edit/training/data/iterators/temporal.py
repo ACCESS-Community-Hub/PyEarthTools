@@ -102,6 +102,7 @@ class TemporalInterface(DataIterator):
         self.samples = samples
         self.sample_interval = time_delta(sample_interval)
 
+
     def rebuild_time(
         self,
         dataset: tuple[xr.Dataset] | xr.Dataset,
@@ -134,7 +135,6 @@ class TemporalInterface(DataIterator):
 
         time_size = len(dataset["time"])
         time_value = EDITDatetime(time_value)
-
         new_time = [
             (time_value + self.sample_interval * (i + 1)).datetime64()
             for i in range(time_size)

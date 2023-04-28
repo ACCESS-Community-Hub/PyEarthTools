@@ -14,7 +14,6 @@ from torch.utils.data import DataLoader, IterableDataset
 
 from edit.training.trainer.template import EDITTrainer
 from edit.training.data.templates import DataIterator
-from edit.training.data.loaders import PytorchIterable  # , DALILoader
 
 
 class EDITTrainerWrapper(EDITTrainer):
@@ -40,6 +39,8 @@ class EDITTrainerWrapper(EDITTrainer):
         ----------
         model
             Model to use
+        path
+            
         train_data
             Training data to use, can either be DataIterator, or pytorch DataLoader
         valid_data, optional

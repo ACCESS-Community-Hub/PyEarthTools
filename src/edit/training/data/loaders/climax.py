@@ -1,0 +1,36 @@
+from typing import Union
+import torch
+
+from edit.training.data.templates import DataStep, DataIterator
+from edit.training.data.sequential import SequentialIterator
+from edit.training.data.loaders.pytorch import PytorchIterable
+from torch.utils.data import IterableDataset
+
+
+@SequentialIterator
+class ClimaXDataLoader(DataStep, IterableDataset):
+    """
+    Connect Data Pipeline with PyTorch IterableDataset for use with ClimaX
+    """
+
+    def __init__(self, index: DataStep | DataIterator) -> None:
+        super().__init__(index=index)
+
+    def _find_time(self):
+        if not hasattr(self.index, 'sample_interval'):
+            raise RuntimeError(f"Not using a known TemporalIterator")
+
+        #if isinstance(data, tuple)
+        
+        return torch.Tensor([1])
+
+    def __getitem__(self, idx):
+        return (*self.index[idx],self._find_time())
+
+    def __iter__(self):
+        for i in self.index:
+            yield (*i,self._find_time())
+
+    @property
+    def ignore_sanity(self):
+        return True

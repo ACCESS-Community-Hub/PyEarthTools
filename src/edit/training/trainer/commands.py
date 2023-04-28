@@ -42,38 +42,50 @@ def fit(yaml_file: str | click.Path, resume: bool):
         exists=True, file_okay=True, dir_okay=False, readable=True, resolve_path=True
     ),
 )
-@click.argument(
-    "checkpoint",
+@click.argument("index", type=str)
+@click.argument("save_file", type=click.Path())
+@click.option(
+    "--checkpoint",
     type=click.Path(
         exists=True, file_okay=True, dir_okay=False, readable=True, resolve_path=True
     ),
+    default = None
 )
-@click.argument("index", type=str)
-@click.argument("save_file", type=click.Path())
-@click.option("--stride_size", type=int)
+@click.option("--stride_size", type=int, default = None)
+@click.option("--recurrence", type=int, default = None)
 def predict(
     yaml_file: str | click.Path,
-    checkpoint: str | click.Path,
     index: str,
     save_file: str | click.Path,
+    checkpoint: str | click.Path = None,
     stride_size: int = None,
+    recurrence: int = None,
 ):
     """Using Yaml Config & Checkpoint, predict at index
 
     Args:
         yaml_file (str | click.Path): Path to taml config
-        checkpoint (str | click.Path): Path to model checkpoint
         index (str): Index to predict at
         save_file (str | click.Path): Where to save prediction
+        checkpoint (str | click.Path, optional): Path to model checkpoint
         stride_size (int, optional): Update to stride size. Defaults to None.
+        recurrence (int, optional): Times to recur. Defaults to None.
     """
     trainer = from_yaml(yaml_file)
-    trainer.load(checkpoint)
+
+    resume = True
+    if checkpoint is not None:
+        trainer.load(checkpoint)
+        resume = False
+    
 
     with PatchingUpdate(trainer, stride_size=stride_size):
-        predictions = trainer.predict(index, undo=True)
-    predictions[-1].to_netcdf(save_file)
+        if not recurrence:
+            predictions = trainer.predict(index, resume = resume, undo=True)[-1]
+        else:
+            predictions = trainer.predict_recurrent(index, undo=True, resume = resume, recurrence=recurrence)
 
+    predictions.to_netcdf(save_file)
 
 if __name__ == "__main__":
     entry_point()
