@@ -117,7 +117,7 @@ class EDITTrainerWrapper(EDITTrainer):
                 kwargs["logger"] = pl.loggers.CSVLogger(path, name="csv_logs")
                 self.log_path = self.log_path / "csv_logs"
 
-        kwargs['limit_val_batches'] = kwargs.pop('limit_val_batches', 0.1)
+        kwargs['limit_val_batches'] = kwargs.pop('limit_val_batches', 10)
 
         self.trainer = pl.Trainer(
             default_root_dir=path,
