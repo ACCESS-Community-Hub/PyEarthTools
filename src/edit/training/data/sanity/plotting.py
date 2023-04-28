@@ -39,7 +39,7 @@ def _make_plot(
         ax, shape = _make_plot(
             ax, data[array_indexes.pop()], array_indexes, new_index=False, **plot_kwargs
         )
-        return ax, (len(data), *shape)
+        return ax, (f"{len(data)}", *shape)
 
     if isinstance(data, xr.Dataset):
         data_var = list(data.data_vars)[array_indexes.pop()]
@@ -74,6 +74,7 @@ def plot(
     array_indexes: dict[str, list[int]] | list[list[int]] = None,
     fig_kwargs: dict = {"figsize": (25, 20)},
     layout_kwargs: dict = {"pad": 5},
+    text_location: list[int, int] = [0.8, 0.3],
     **plot_kwargs,
 ):
     """
@@ -98,6 +99,8 @@ def plot(
         Other kwargs for fig creation, by default {'figsize': (25,20)}
     layout_kwargs, optional
         Kwargs to be passed to plt.tight_layout, by default {'pad': 5}
+    text_location, optional
+        Location of info text, by default [0.8, 0.3]
 
     Returns
     -------
@@ -139,5 +142,7 @@ def plot(
         i += 1
         coords = (i // size, i % size)
         fig.delaxes(axes[coords[0], coords[1]])
+
+    plt.figtext(*text_location,"\"int\" refers to tuples of data", fontsize = 'large')
 
     return fig

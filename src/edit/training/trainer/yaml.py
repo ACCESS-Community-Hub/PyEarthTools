@@ -3,6 +3,7 @@ import importlib
 
 import yaml
 import copy
+# import torch
 
 from edit.training import data
 from edit.training.models import networks
@@ -54,6 +55,9 @@ def from_yaml(yaml_file: str, **kwargs) -> EDITTrainerWrapper:
         config["data"]["Source"].update(order=list(config["data"]["Source"].keys()))
 
     data_iterator = lambda: data.from_dict(dict(config["data"]["Source"]))
+
+    # if 'accelerator' in kwargs and kwargs['accelerator'] == 'auto':
+    #     kwargs['accelerator'] = 'gpu' if torch.cuda.is_available() else 'cpu'
 
     config["trainer"].update(**kwargs)
 

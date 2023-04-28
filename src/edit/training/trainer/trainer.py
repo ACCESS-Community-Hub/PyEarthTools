@@ -4,9 +4,12 @@ from pathlib import Path
 from typing import Union
 
 import numpy as np
+import pandas as pd
 import pytorch_lightning as pl
 import torch
 import xarray as xr
+import matplotlib.pyplot as plt
+
 from torch.utils.data import DataLoader, IterableDataset
 
 from edit.training.trainer.template import EDITTrainer
@@ -80,6 +83,7 @@ class EDITTrainerWrapper(EDITTrainer):
                 self.valid_data = valid_data
 
         path = kwargs.pop("default_root_dir", path)
+        self.path = path
         self.checkpoint_path = (Path(path) / "Checkpoints").resolve()
 
         checkpoint_callback = pl.callbacks.ModelCheckpoint(
@@ -93,12 +97,24 @@ class EDITTrainerWrapper(EDITTrainer):
         callbacks = kwargs.pop("callbacks", [])
         callbacks.append(checkpoint_callback)
 
-        logger = pl.loggers.CSVLogger(path, name="csv_logs")
+        self.log_path = Path(path)
+        self.logger = None
+
+        if 'logger' not in kwargs:
+            kwargs['logger'] = 'csv'
+
+        if 'logger' in kwargs and isinstance(kwargs['logger'], str):
+            self.logger = str(kwargs.pop('logger')).lower()
+            if self.logger == 'tensorboard':
+                kwargs['logger'] = pl.loggers.TensorBoardLogger(path, name= kwargs.pop('name', None))
+
+            elif self.logger == 'csv':
+                kwargs['logger'] = pl.loggers.CSVLogger(path, name="csv_logs")
+                self.log_path = self.log_path /'csv_logs'
 
         self.trainer = pl.Trainer(
             default_root_dir=path,
             callbacks=callbacks,
-            logger=logger,
             **kwargs,
         )
 
@@ -107,7 +123,7 @@ class EDITTrainerWrapper(EDITTrainer):
             raise AttributeError(f"{self!r} has no attribute {key!r}")
         return getattr(self.trainer, key)
 
-    def fit(self, resume: bool = False, *args, **kwargs):
+    def fit(self, resume: bool = True, *args, **kwargs):
         """
         Using Pytorch Lightning .fit to train model, auto fills model and dataloaders
 
@@ -172,6 +188,10 @@ class EDITTrainerWrapper(EDITTrainer):
 
         Uses edit.training DataIterator to get data at given index.
         Can automatically try to rebuild the xarray Dataset.
+
+        !!! Warning
+            If number of patches is not divisible by the `batch_size`, issues may arise.
+            Solution: batch_size = 1
 
         Parameters
         ----------
@@ -251,3 +271,80 @@ class EDITTrainerWrapper(EDITTrainer):
         if undo:
             data = self.train_iterator.undo(data)
         return data
+
+    def _find_latest_path(self, path: str | Path, file: bool = True) -> Path:
+        """Find latest file or folder inside a given folder
+
+        Args:
+            path (str | Path): 
+                Folder to search in
+            file (bool, optional): 
+                Take only files. Defaults to True.
+
+        Returns:
+            (Path): 
+                Path of latest file or folder
+        """        
+        latest_item = None
+        latest_time = -1
+        for item in Path(path).iterdir():
+            if file:
+                time = max(os.stat(item))
+            else:
+                if item.is_file() and not file:
+                    continue
+                time = max(os.stat(file).st_mtime for file in item.iterdir())
+            if time > latest_time:
+                latest_time = time
+                latest_item = item
+        return latest_item
+
+
+    def __flatten_metrics(self, data: pd.DataFrame):
+        return data
+
+    def graph(self, x: str = 'step', y: str = 'train/loss', path: str | Path = None) -> plt.Axes:
+        """Create Plots of metrics file
+
+        Args:
+            x (str, optional): 
+                X axis column. Defaults to step.
+            y (str, optional): 
+                Y axis column. Defaults to train/loss.
+            path (str | Path, optional):
+                Override for path to search in. Defaults to None
+
+        Raises:
+            FileNotFoundError: 
+                If metrics file/s could not be found
+
+        Returns:
+            (plt.Axes): 
+                Matplotlib Axes of metrics plot
+        """        
+        if self.logger == 'tensorboard':
+            raise KeyError(f"Model was logged with TensorBoard, run `tensorboard --logdir [dir]` in cmd to view")
+
+        metrics = None
+        for folder in Path(path or self.log_path).iterdir():
+            if folder.is_file():
+                continue
+
+            csv_file = Path(folder) / 'metrics.csv'
+            if not csv_file.exists():
+                continue
+
+            if metrics is None:
+                metrics = pd.read_csv(csv_file)
+            else:
+                metrics = pd.concat([metrics, pd.read_csv(csv_file)])
+            
+        if metrics is None:
+            raise FileNotFoundError(f"No metrics.csv files could be found at {self.log_path}")
+        
+        metrics = self.__flatten_metrics(metrics)
+        ax = metrics.sort_values(x).plot(y=y, x=x)
+        ax.set_xlabel(x)
+        ax.set_ylabel(y)
+
+        return ax

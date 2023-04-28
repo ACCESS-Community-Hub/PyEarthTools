@@ -95,6 +95,12 @@ class Squish(DataOperation):
     def __init__(self, index: DataIterator, axis: int, **kwargs) -> None:
         super().__init__(index, self._apply_squish, self._apply_expand, **kwargs)
         self.axis = axis
+    
+    @property
+    def __doc__(self):
+        return f"""
+        Squish One Dimensional axis at '{self.axis}' location
+        """
 
     def _apply_squish(self, data):
         if isinstance(data, tuple):
@@ -103,7 +109,7 @@ class Squish(DataOperation):
 
     def _apply_expand(self, data):
         if isinstance(data, tuple):
-            return tuple(map(self._apply_squish, data))
+            return tuple(map(self._apply_expand, data))
         return np.expand_dims(data, self.axis)
 
 
@@ -117,6 +123,12 @@ class Expand(DataOperation):
         super().__init__(index, self._apply_expand, self._apply_squish, **kwargs)
         self.axis = axis
 
+    @property
+    def __doc__(self):
+        return f"""
+        Expand One Dimensional axis at '{self.axis}' location
+        """
+
     def _apply_squish(self, data):
         if isinstance(data, tuple):
             return tuple(map(self._apply_squish, data))
@@ -124,5 +136,5 @@ class Expand(DataOperation):
 
     def _apply_expand(self, data):
         if isinstance(data, tuple):
-            return tuple(map(self._apply_squish, data))
+            return tuple(map(self._apply_expand, data))
         return np.expand_dims(data, self.axis)
