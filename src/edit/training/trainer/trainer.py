@@ -118,7 +118,7 @@ class EDITTrainerWrapper(EDITTrainer):
                 self.log_path = self.log_path / "csv_logs"
 
         kwargs['limit_val_batches'] = kwargs.pop('limit_val_batches', 0.1)
-        
+
         self.trainer = pl.Trainer(
             default_root_dir=path,
             callbacks=callbacks,
@@ -275,7 +275,30 @@ class EDITTrainerWrapper(EDITTrainer):
         resume: bool = True,
         **kwargs,
     ):
+        """Uses [predict][edit.training.trainer.trainer.predict] to predict timesteps and then feed back through recurrently.
 
+        
+        Uses edit.training DataIterator to get data at given start index.
+        Can automatically try to rebuild the xarray Dataset.
+
+        !!! Warning
+            If number of patches is not divisible by the `batch_size`, issues may arise.
+            Solution: batch_size = 1
+
+        Args:
+            start_index (str): 
+                Starting Index of Prediction
+            recurrence (int): 
+                Number of times to recur
+            data_iterator (DataIterator, optional): 
+                Override for initial data retrieval. Defaults to None.
+            resume (bool, optional): 
+                Resume from checkpoint. Defaults to True.
+
+        Returns:
+            (xr.Dataset): 
+                Combined Predictions
+        """        
         data_source = data_iterator or self.valid_iterator or self.train_iterator
         data = list(data_source[start_index])
 

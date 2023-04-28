@@ -120,7 +120,7 @@ class ForceNormalised(DataOperation):
     Force Data to be within 0 & 1
     """
     def __init__(self, index) -> None:
-        super().__init__(index, apply_func=self._mask)
+        super().__init__(index, apply_func=self._mask, undo_func=None)
 
         self._force_min_0 = MaskValue(index, 0, '<', 0)
         self._force_max_1 = MaskValue(index, 1, '>', 1)
