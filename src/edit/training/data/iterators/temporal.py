@@ -136,7 +136,7 @@ class TemporalInterface(DataIterator):
         time_value = EDITDatetime(time_value)
 
         new_time = [
-            (time_value + self.sample_interval * i).datetime64()
+            (time_value + self.sample_interval * (i + 1)).datetime64()
             for i in range(time_size)
         ]
         return dataset.assign_coords(time=new_time)
@@ -240,3 +240,11 @@ class TemporalInterface(DataIterator):
     def _formatted_name(self):
         desc = f"Data Interface for {self.index.__class__.__name__!r}. Providing {self.samples!r} samples"
         return super()._formatted_name(desc)
+
+    def apply(self, data):
+        if isinstance(data, tuple):
+            return tuple(map(self.apply, data))
+
+        if hasattr(self.index, "apply"):
+            data = self.index.apply(data)
+        return data

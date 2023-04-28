@@ -17,22 +17,17 @@ class DataStep:
     A step between the edit.data.DataIndex's and the training pipeline
     """
 
-    def __init__(self, index: "DataStep | DataIterator") -> None:
+    def __init__(
+        self,
+        index,
+    ):
         self.index = index
 
     def __getitem__(self, idx):
-        return self.index[idx]
+        raise NotImplementedError()
 
-    def undo(self, data, *args, **kwargs):
-        if hasattr(self.index, "undo"):
-            return self.index.undo(data, *args, **kwargs)
-        return data
-
-    @abstractmethod
     def __iter__(self):
-        raise NotImplementedError(
-            "Data step does not implement '__iter__', child must."
-        )
+        raise NotImplementedError()
 
     def __getattr__(self, key):
         if key == "index":
@@ -40,7 +35,10 @@ class DataStep:
         return getattr(self.index, key)
 
     def __call__(self, idx):
-        return self.__getitem__(idx)
+        if isinstance(idx, str | EDITDatetime):
+            return self.__getitem__(idx)
+        else:
+            return self.apply(idx)
 
     def __repr__(self):
         string = "Data Pipeline with the following:"
@@ -63,6 +61,80 @@ class DataStep:
     @property
     def ignore_sanity(self):
         return False
+
+
+class DataOperation(DataStep):
+    def __init__(
+        self,
+        index,
+        apply_func: Callable,
+        undo_func: Callable,
+        *,
+        apply_iterator: bool = True,
+        apply_get: bool = True,
+    ) -> None:
+        """
+        Run Operations on Data as it is being used.
+
+        Parameters
+        ----------
+        index
+            Underlying index to use
+        """
+
+        super().__init__(index)
+
+        self.apply_func = apply_func
+        self.undo_func = undo_func
+
+        self.apply_iterator = apply_iterator
+        self.apply_get = apply_get
+
+    def undo(self, data):
+        """Undo transforms and edits the Data Pipeline has done
+
+        Args:
+            data (xr.Dataset | xr.DataArray | np.ndarray):
+                Data from this pipeline to undo changes from
+
+        Returns:
+            (xr.Dataset | xr.DataArray | np.ndarray):
+                Result of `.undo` from the Pipeline
+        """
+        if self.undo_func is not None:
+            data = self.undo_func(data)
+        if hasattr(self.index, "undo"):
+            data = self.index.undo(data)
+        return data
+
+    def apply(self, data):
+        """Apply DataPipeline to given Data
+
+        Args:
+            data (xr.Dataset | xr.DataArray | np.ndarray):
+                Data to apply pipeline to
+
+        Returns:
+            (xr.Dataset | xr.DataArray | np.ndarray):
+                Result of Data Pipeline steps
+        """
+        if hasattr(self.index, "apply"):
+            data = self.index.apply(data)
+        if self.apply_func is not None:
+            data = self.apply_func(data)
+        return data
+
+    def __iter__(self):
+        for data in self.index:
+            if self.apply_iterator and self.apply_func:
+                yield self.apply_func(data)
+            else:
+                yield data
+
+    def __getitem__(self, idx):
+        if self.apply_get and self.apply_func:
+            return self.apply_func(self.index[idx])
+        return self.index[idx]
 
 
 class TrainingOperatorIndex(OperatorIndex):
@@ -109,7 +181,7 @@ class TrainingOperatorIndex(OperatorIndex):
     def _formatted_name(self, desc: str = None):
         padding = lambda name, length_: name + "".join([" "] * (length_ - len(name)))
         desc = desc or self.__doc__ or "No Docstring"
-        desc = desc.replace("\n", "").replace("\t", "").strip()
+        desc = desc.replace("\t", "").strip()
         formatted = f"{padding(self.__class__.__name__, 30)}{desc}"
 
         if hasattr(self.index, "_formatted_name"):
@@ -117,24 +189,16 @@ class TrainingOperatorIndex(OperatorIndex):
         return formatted
 
 
-# @SequentialIterator
-class DataInterface(OperatorIndex):
+class DataInterface(DataOperation, OperatorIndex):
     """
-    A step between the edit.data.DataIndex's and the training pipeline
+    A step between the edit.data.DataIndex's and the training pipeline `DataOperation`
     """
 
-    def __init__(self, index: OperatorIndex) -> None:
-        super().__init__()
-        self.index = index
+    def __init__(self, index: OperatorIndex, **datastep_kwargs) -> None:
+        super().__init__(index=index, **datastep_kwargs)
 
     def get(self, querytime: str | EDITDatetime):
         return self.index[querytime]
-
-    def __getitem__(self, idx):
-        return self.get(idx)
-
-    def undo(self, data):
-        return data
 
     def _formatted_name(self, desc: str = None):
         padding = lambda name, length_: name + "".join([" "] * (length_ - len(name)))
@@ -176,10 +240,8 @@ class DataIterator(DataStep):
             catch = []
         self._error_to_catch = tuple(catch)
 
-    def __getattr__(self, key):
-        if key == "index":
-            raise AttributeError(f"{self.__class__} has no attribute {key}")
-        return getattr(self.index, key)
+    def __getitem__(self, idx: str):
+        return self.index[idx]
 
     def set_iterable(
         self,
@@ -208,9 +270,6 @@ class DataIterator(DataStep):
 
         self._iterator_ready = True
 
-    def __getitem__(self, idx):
-        return self.index[idx]
-
     def __iter__(self):
         if not hasattr(self, "_start"):
             raise RuntimeError(
@@ -226,82 +285,79 @@ class DataIterator(DataStep):
             except self._error_to_catch:
                 pass
 
-    # def _formatted_name(self):
-    #     desc = f"DataIterator for {self.index.__class__.__name__!r}"
-    #     formatted = super()._formatted_name(desc)
-    #     return formatted
+
+# class BaseDataOperation(DataStep):
+#     """
+#     Provide a way to change the data between a DataInterface and an ML Model.
+
+#     Must implement __iter__, __getitem__ & undo
+#     """
+
+#     def __init__(self, index: "DataOperation | DataIterator") -> None:
+#         self.index = index
+
+#     def __getattr__(self, key):
+#         if key == "index":
+#             raise AttributeError(f"{self.__class__} has no attribute {key}")
+#         return getattr(self.index, key)
 
 
-class BaseDataOperation(DataStep):
-    """
-    Provide a way to change the data between a DataInterface and an ML Model.
+# class DataOperation(DataStep):
+#     def __init__(
+#         self,
+#         index: DataStep,
+#         apply_func: Callable,
+#         undo_func: Callable,
+#         *,
+#         apply_iterator: bool = True,
+#         apply_get: bool = True,
+#     ) -> None:
+#         """
+#         Run Operations on Data as it is being used.
 
-    Must implement __iter__, __getitem__ & undo
-    """
+#         Parameters
+#         ----------
+#         index
+#             Underlying index to use
+#         """
+#         super().__init__(index)
 
-    def __init__(self, index: "DataOperation | DataIterator") -> None:
-        self.index = index
+#         self.apply_func = apply_func
+#         self.undo_func = undo_func
 
-    def __getattr__(self, key):
-        if key == "index":
-            raise AttributeError(f"{self.__class__} has no attribute {key}")
-        return getattr(self.index, key)
+#         self.apply_iterator = apply_iterator
+#         self.apply_get = apply_get
 
+#     def undo(self, data, *args, **kwargs):
+#         if not self.undo_func is None:
+#             return self.index.undo(self.undo_func(data))
+#         return self.index.undo(data, *args, **kwargs)
 
-class DataOperation(DataStep):
-    def __init__(
-        self,
-        index: DataStep,
-        apply_func: Callable,
-        undo_func: Callable,
-        *,
-        apply_iterator: bool = True,
-        apply_get: bool = True,
-    ) -> None:
-        """
-        Run Operations on Data as it is being used.
+#     def _apply(self, data):
+#         return self.apply_func(data)
 
-        Parameters
-        ----------
-        index
-            Underlying index to use
-        """
-        super().__init__(index)
+#     def __iter__(self):
+#         for data in self.index:
+#             if self.apply_iterator:
+#                 yield self.apply_func(data)
+#             else:
+#                 yield data
 
-        self.apply_func = apply_func
-        self.undo_func = undo_func
-
-        self.apply_iterator = apply_iterator
-        self.apply_get = apply_get
-
-    def undo(self, data, *args, **kwargs):
-        if not self.undo_func is None:
-            return self.index.undo(self.undo_func(data))
-        return self.index.undo(data, *args, **kwargs)
-
-    def __iter__(self):
-        for data in self.index:
-            if self.apply_iterator:
-                yield self.apply_func(data)
-            else:
-                yield data
-
-    def __getitem__(self, idx):
-        if self.apply_get:
-            return self.apply_func(self.index[idx])
-        return self.index[idx]
+#     def __getitem__(self, idx):
+#         if self.apply_get:
+#             return self.apply_func(self.index[idx])
+#         return self.index[idx]
 
 
-class DataIterationOperator(DataStep):
+class DataIterationOperator(DataOperation):
     """
     A data method to only be applied when iterating.
     """
 
+    def __init__(self, index) -> None:
+        super().__init__(
+            index, apply_func=None, undo_func=None, apply_iterator=True, apply_get=False
+        )
+
     def __iter__(self):
-        raise NotImplementedError(f"Iteration Operator must be defined in child")
-
-    def __getitem__(self, idx):
-        return self.index[idx]
-
-    def undo(self, data, *args, **kwargs):
-        return self.index.undo(data, *args, **kwargs)
+        raise NotImplementedError(f"Filter must define Iterator")

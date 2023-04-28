@@ -3,7 +3,7 @@ import multiprocessing
 import signal
 
 from edit.data import DataNotFoundError
-from edit.training.data import DataOperation, DataIterator, DataInterface
+from edit.training.data import DataIterator, DataStep
 
 
 def _get_iterator_name(iterator: DataIterator):
@@ -95,7 +95,7 @@ def _get_signal_data(iterator, num_samples: int = 2, index: int = None):
 
 # @functools.lru_cache(2)
 def signal_data(
-    iterator: DataIterator, idx: str = None, num_samples: int = 1, timeout: int = 30
+    iterator: DataStep, idx: str = None, num_samples: int = 1, timeout: int = 30
 ):
     iterators = [iterator]
 

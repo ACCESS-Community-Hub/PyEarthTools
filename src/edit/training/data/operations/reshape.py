@@ -5,8 +5,8 @@ import numpy as np
 from scipy import interpolate
 
 from edit.training.data.templates import (
-    DataIterationOperator,
     DataIterator,
+    DataStep,
     DataOperation,
 )
 from edit.training.data.sequential import Sequential, SequentialIterator
@@ -20,7 +20,7 @@ class Rearrange(DataOperation):
 
     def __init__(
         self,
-        index: DataIterator,
+        index: DataStep,
         rearrange: str,
         skip: bool = False,
         *rearrange_args,
@@ -93,14 +93,14 @@ class Squish(DataOperation):
 
     !!! Warning
         If use this with PatchingDataIndex, as patch dim only exists on __getitem__ calls, axis indexing may be off.
-        Either use negative indexing, or two squish operators, one for __getitem__ with apply_iterator = False, 
+        Either use negative indexing, or two squish operators, one for __getitem__ with apply_iterator = False,
         and one for __iter__ with apply_get = False
     """
 
-    def __init__(self, index: DataIterator, axis: int, **kwargs) -> None:
+    def __init__(self, index: DataStep, axis: int, **kwargs) -> None:
         super().__init__(index, self._apply_squish, self._apply_expand, **kwargs)
         self.axis = axis
-    
+
     @property
     def __doc__(self):
         return f"""
@@ -116,7 +116,7 @@ class Squish(DataOperation):
             e.args = (*e.args, f"Shape {data.shape}")
             raise e
         return data
-    
+
     def _apply_expand(self, data):
         if isinstance(data, tuple):
             return tuple(map(self._apply_expand, data))
@@ -129,14 +129,14 @@ class Expand(DataOperation):
     Expand One Dimensional axis at 'axis' location
     """
 
-    def __init__(self, index: DataIterator, axis: int, **kwargs) -> None:
+    def __init__(self, index: DataStep, axis: int, **kwargs) -> None:
         super().__init__(index, self._apply_expand, self._apply_squish, **kwargs)
         self.axis = axis
 
     @property
     def __doc__(self):
         return f"""
-        Expand One Dimensional on axis {self.axis!r}'
+        Expand One Dimensional on axis {self.axis!r}
         """
 
     def _apply_squish(self, data):

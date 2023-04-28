@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name="edit-training",
-    version="0.1",
+    version="0.1.1",
     description="EDIT Machine Learning Training",
     author="Harrison Cook",
     author_email="harrison.cook@bom.gov.au",

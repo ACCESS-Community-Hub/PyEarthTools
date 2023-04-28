@@ -81,9 +81,10 @@ Load ERA5, grab two samples and patch it into `64` by `64` arrays.
 """
 from edit.training.data.templates import (
     DataIterator,
-    DataOperation,
     DataIterationOperator,
+    TrainingOperatorIndex,
     DataInterface,
+    DataStep,
 )
 from edit.training.data.sequential import SequentialIterator, Sequential, from_dict
 from edit.training.data import interfaces, iterators, operations, indexes

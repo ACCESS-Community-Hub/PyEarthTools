@@ -11,7 +11,12 @@ from edit.data import DataIndex, OperatorIndex
 from edit.data.time import EDITDatetime, time_delta
 from edit.training.data.utils import get_indexes, get_callable
 
-from edit.training.data.templates import DataIterator, DataInterface, DataStep
+from edit.training.data.templates import (
+    DataIterator,
+    DataInterface,
+    DataStep,
+    DataOperation,
+)
 
 
 def SequentialIterator(func):

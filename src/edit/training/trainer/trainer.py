@@ -46,7 +46,7 @@ class EDITTrainerWrapper(EDITTrainer):
             Validation data to use, can either be DataIterator, or pytorch DataLoader,
             by default None
 
-        **kwargs, optional   
+        **kwargs, optional
             All passed to trainer __init__, will intercept 'logger' to update from str if given
         """
         self.model = model
@@ -103,18 +103,22 @@ class EDITTrainerWrapper(EDITTrainer):
         self.log_path = Path(path)
         self.logger = None
 
-        if 'logger' not in kwargs:
-            kwargs['logger'] = 'csv'
+        if "logger" not in kwargs:
+            kwargs["logger"] = "csv"
 
-        if 'logger' in kwargs and isinstance(kwargs['logger'], str):
-            self.logger = str(kwargs.pop('logger')).lower()
-            if self.logger == 'tensorboard':
-                kwargs['logger'] = pl.loggers.TensorBoardLogger(path, name= kwargs.pop('name', None))
+        if "logger" in kwargs and isinstance(kwargs["logger"], str):
+            self.logger = str(kwargs.pop("logger")).lower()
+            if self.logger == "tensorboard":
+                kwargs["logger"] = pl.loggers.TensorBoardLogger(
+                    path, name=kwargs.pop("name", None)
+                )
 
-            elif self.logger == 'csv':
-                kwargs['logger'] = pl.loggers.CSVLogger(path, name="csv_logs")
-                self.log_path = self.log_path /'csv_logs'
+            elif self.logger == "csv":
+                kwargs["logger"] = pl.loggers.CSVLogger(path, name="csv_logs")
+                self.log_path = self.log_path / "csv_logs"
 
+        kwargs['limit_val_batches'] = kwargs.pop('limit_val_batches', 0.1)
+        
         self.trainer = pl.Trainer(
             default_root_dir=path,
             callbacks=callbacks,
@@ -178,6 +182,34 @@ class EDITTrainerWrapper(EDITTrainer):
             return
         self.model = self.model.load_from_checkpoint(file)
 
+    def _predict_from_data(self, data, **kwargs):
+        class FakeDataLoader(IterableDataset):
+            def __init__(self, data: tuple[np.ndarray]):
+                self.data = data
+
+            def __iter__(self):
+                for data in zip(*self.data):
+                    yield data
+
+        batch_size = self.batch_size
+        if isinstance(data, list):
+            batch_size = min(self.batch_size, len(data[0]))
+
+        fake_data = DataLoader(
+            FakeDataLoader(data),
+            batch_size=kwargs.pop("batch_size", batch_size),
+            # num_workers=kwargs.pop("num_workers", self.num_workers), #Apparently this reproduces data on small scales
+        )
+
+        prediction = tuple(
+            map(
+                np.vstack,
+                zip(*self.trainer.predict(model=self.model, dataloaders=fake_data)),
+            )
+        )
+
+        return prediction
+
     def predict(
         self,
         index: str,
@@ -219,26 +251,8 @@ class EDITTrainerWrapper(EDITTrainer):
                 only_state=True,
             )
 
-        class FakeDataLoader(IterableDataset):
-            def __init__(self, data: tuple[np.ndarray]):
-                self.data = data
+        prediction = self._predict_from_data(data, **kwargs)
 
-            def __iter__(self):
-                for data in zip(*self.data):
-                    yield data
-
-        fake_data = DataLoader(
-            FakeDataLoader(data),
-            batch_size=kwargs.pop("batch_size", self.batch_size),
-            # num_workers=kwargs.pop("num_workers", self.num_workers), #Apparently this reproduces data on small scales
-        )
-
-        prediction = tuple(
-            map(
-                np.vstack,
-                zip(*self.trainer.predict(model=self.model, dataloaders=fake_data)),
-            )
-        )
         if undo:
             fixed_predictions = list(data_source.undo(prediction))
 
@@ -251,8 +265,49 @@ class EDITTrainerWrapper(EDITTrainer):
                 fixed_predictions[-1], index
             )
 
-            return tuple(fixed_predictions)
-        return prediction
+        return tuple(fixed_predictions)
+
+    def predict_recurrent(
+        self,
+        start_index: str,
+        recurrence: int,
+        data_iterator: DataIterator = None,
+        resume: bool = True,
+        **kwargs,
+    ):
+
+        data_source = data_iterator or self.valid_iterator or self.train_iterator
+        data = list(data_source[start_index])
+
+        if resume and Path(self.checkpoint_path).exists():
+            self.load(
+                max(Path(self.checkpoint_path).iterdir(), key=os.path.getctime),
+                only_state=True,
+            )
+
+        predictions = []
+        index = start_index
+
+        for i in range(recurrence):
+            prediction = self._predict_from_data(data, **kwargs)
+            fixed_predictions = list(data_source.undo(prediction))
+
+            if "Coordinate 1" in fixed_predictions[1]:
+                fixed_predictions[1] = fixed_predictions[1].rename(
+                    {"Coordinate 1": "time"}
+                )
+
+            fixed_predictions[1] = data_source.rebuild_time(
+                fixed_predictions[-1], index
+            )
+            index = fixed_predictions[1].time.values[-1]
+            predictions.append(fixed_predictions[1])
+
+            data = fixed_predictions
+            data.reverse()
+            data = data_source.apply(data)
+
+        return xr.merge(predictions)
 
     def data(self, index, undo=False):
         """
@@ -279,15 +334,15 @@ class EDITTrainerWrapper(EDITTrainer):
         """Find latest file or folder inside a given folder
 
         Args:
-            path (str | Path): 
+            path (str | Path):
                 Folder to search in
-            file (bool, optional): 
+            file (bool, optional):
                 Take only files. Defaults to True.
 
         Returns:
-            (Path): 
+            (Path):
                 Path of latest file or folder
-        """        
+        """
         latest_item = None
         latest_time = -1
         for item in Path(path).iterdir():
@@ -302,38 +357,41 @@ class EDITTrainerWrapper(EDITTrainer):
                 latest_item = item
         return latest_item
 
-
     def __flatten_metrics(self, data: pd.DataFrame):
         return data
 
-    def graph(self, x: str = 'step', y: str = 'train/loss', path: str | Path = None) -> plt.Axes:
+    def graph(
+        self, x: str = "step", y: str = "train/loss", path: str | Path = None
+    ) -> plt.Axes:
         """Create Plots of metrics file
 
         Args:
-            x (str, optional): 
+            x (str, optional):
                 X axis column. Defaults to step.
-            y (str, optional): 
+            y (str, optional):
                 Y axis column. Defaults to train/loss.
             path (str | Path, optional):
                 Override for path to search in. Defaults to None
 
         Raises:
-            FileNotFoundError: 
+            FileNotFoundError:
                 If metrics file/s could not be found
 
         Returns:
-            (plt.Axes): 
+            (plt.Axes):
                 Matplotlib Axes of metrics plot
-        """        
-        if self.logger == 'tensorboard':
-            raise KeyError(f"Model was logged with TensorBoard, run `tensorboard --logdir [dir]` in cmd to view")
+        """
+        if self.logger == "tensorboard":
+            raise KeyError(
+                f"Model was logged with TensorBoard, run `tensorboard --logdir [dir]` in cmd to view"
+            )
 
         metrics = None
         for folder in Path(path or self.log_path).iterdir():
             if folder.is_file():
                 continue
 
-            csv_file = Path(folder) / 'metrics.csv'
+            csv_file = Path(folder) / "metrics.csv"
             if not csv_file.exists():
                 continue
 
@@ -341,10 +399,12 @@ class EDITTrainerWrapper(EDITTrainer):
                 metrics = pd.read_csv(csv_file)
             else:
                 metrics = pd.concat([metrics, pd.read_csv(csv_file)])
-            
+
         if metrics is None:
-            raise FileNotFoundError(f"No metrics.csv files could be found at {self.log_path}")
-        
+            raise FileNotFoundError(
+                f"No metrics.csv files could be found at {self.log_path}"
+            )
+
         metrics = self.__flatten_metrics(metrics)
         ax = metrics.sort_values(x).plot(y=y, x=x)
         ax.set_xlabel(x)

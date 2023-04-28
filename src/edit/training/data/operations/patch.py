@@ -6,7 +6,7 @@ from typing import Union
 import numpy as np
 import xarray as xr
 
-from edit.training.data.templates import BaseDataOperation, DataInterface
+from edit.training.data.templates import DataOperation, DataInterface
 from edit.training.data.sequential import Sequential, SequentialIterator
 
 from edit.utils.data import Tesselator
@@ -14,7 +14,7 @@ from edit.data import DataIndex, Collection
 
 
 @SequentialIterator
-class PatchingDataIndex(BaseDataOperation):
+class PatchingDataIndex(DataOperation):
     """
     Seperate data into np array patches from a data source
     """
@@ -42,7 +42,9 @@ class PatchingDataIndex(BaseDataOperation):
         padding, optional
             Padding method to use. Must be of np.pad, by default 'constant'
         """
-        super().__init__(index)
+        super().__init__(
+            index, apply_func=self.__apply_func, undo_func=self._undo_tesselators
+        )
         self.kernel_size = kernel_size
         self.stride_size = stride_size
         self.padding = padding
@@ -94,7 +96,7 @@ class PatchingDataIndex(BaseDataOperation):
         self.kernel_size = kernel_size or self.kernel_size
         self.stride_size = stride_size
 
-    def __apply_tesselators(self, datasets: tuple[xr.Dataset] | xr.Dataset):
+    def _apply_tesselators(self, datasets: tuple[xr.Dataset] | xr.Dataset):
         """
         Apply Tesselators on Datasets
         """
@@ -115,14 +117,14 @@ class PatchingDataIndex(BaseDataOperation):
 
     def __iter__(self) -> tuple[np.ndarray]:
         for datasets in self.index:
-            for i in self.__apply_tesselators(datasets):
+            for i in self._apply_tesselators(datasets):
                 if len(i) == 1:
                     yield i[0]
-                yield i
+                else:
+                    yield i
 
-    def __getitem__(self, idx: str):
-        datasets = self.index[idx]
-        patches = self.__apply_tesselators(datasets)
+    def __apply_func(self, data):
+        patches = self._apply_tesselators(data)
 
         result = tuple(map(np.array, zip(*patches)))
         if len(result) == 1:
@@ -130,10 +132,7 @@ class PatchingDataIndex(BaseDataOperation):
         else:
             return result
 
-    def get_before_patching(self, idx: str):
-        return self.index[idx]
-
-    def undo(
+    def _undo_tesselators(
         self,
         data: np.ndarray | tuple[np.ndarray],
         override_index: int = None,
@@ -177,7 +176,10 @@ class PatchingDataIndex(BaseDataOperation):
         else:
             raise NotImplementedError(f"What is {type(data)}")
 
-        return self.index.undo(datasets, **kwargs)
+        return datasets
+
+    def get_before_patching(self, idx: str):
+        return self.index[idx]
 
     def _formatted_name(self):
         desc = f"Kernel_size {self.kernel_size}. Stride_size {self.stride_size or self.kernel_size}"

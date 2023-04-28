@@ -30,7 +30,9 @@ class NormaliseInterface(DataInterface):
         cache_dir: str = None,
         **kwargs,
     ) -> None:
-        super().__init__(index, **kwargs)
+        super().__init__(
+            index, apply_func=self.normalise, undo_func=self.unnormalise, **kwargs
+        )
 
         self.normalisation_params = dict(
             start=start, end=end, interval=interval, cache_dir=cache_dir
@@ -41,9 +43,7 @@ class NormaliseInterface(DataInterface):
     def get(self, querytime: str | EDITDatetime):
         return self._normalise(super().get(querytime))
 
-    def normalise(
-        self, dataset: xr.Dataset | tuple[xr.Dataset]
-    ) -> xr.Dataset | tuple[xr.Dataset]:
+    def normalise(self, dataset: xr.Dataset) -> xr.Dataset | tuple[xr.Dataset]:
         """
         Apply normalisation like done on retrieval but to given data
 
@@ -56,7 +56,7 @@ class NormaliseInterface(DataInterface):
         -------
             Normalised Dataset
         """
-        return self._normalise(dataset)
+        return self._normalise(dataset.copy())
 
     @property
     @functools.lru_cache(None)
@@ -69,33 +69,12 @@ class NormaliseInterface(DataInterface):
 
         return normalisation.normalise(self.index, **params)(self.method, self.default)
 
-    def unnormalise(
-        self, dataset: xr.Dataset | tuple[xr.Dataset]
-    ) -> xr.Dataset | tuple[xr.Dataset]:
+    def unnormalise(self, dataset: xr.Dataset) -> xr.Dataset:
         """
         Apply Unnormalisation to given data.
         Can be used on direct output of self[]
-
-        Parameters
-        ----------
-        dataset
-            Dataset/s to apply unnormalisation to
-
-        Returns
-        -------
-            Unnormalised Dataset
-
-        Examples
-        --------
-            >>> MLIndex.unnormalise(MLIndex[date])
         """
-        return self._unnormalise(dataset)
-
-    def undo(self, *args, **kwargs):
-        """
-        Undo changes done to data
-        """
-        return super().undo(self.unnormalise(*args, **kwargs))
+        return self._unnormalise(dataset.copy())
 
     @property
     def _unnormalise(self) -> tuple[Transform]:

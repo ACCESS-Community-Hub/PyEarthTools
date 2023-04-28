@@ -6,8 +6,8 @@ import numpy as np
 import edit.data
 
 from edit.training.data.templates import (
-    DataIterationOperator,
     DataIterator,
+    DataStep,
     DataOperation,
 )
 from edit.training.data.utils import get_callable, get_class, get_transforms
