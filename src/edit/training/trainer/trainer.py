@@ -40,7 +40,7 @@ class EDITTrainerWrapper(EDITTrainer):
         model
             Model to use
         path
-            
+
         train_data
             Training data to use, can either be DataIterator, or pytorch DataLoader
         valid_data, optional
@@ -118,7 +118,7 @@ class EDITTrainerWrapper(EDITTrainer):
                 kwargs["logger"] = pl.loggers.CSVLogger(path, name="csv_logs")
                 self.log_path = self.log_path / "csv_logs"
 
-        kwargs['limit_val_batches'] = kwargs.pop('limit_val_batches', 10)
+        kwargs['limit_val_batches'] = int(kwargs.pop('limit_val_batches', 10))
 
         self.trainer = pl.Trainer(
             default_root_dir=path,
