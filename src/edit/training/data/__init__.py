@@ -81,7 +81,6 @@ Load ERA5, grab two samples and patch it into `64` by `64` arrays.
 """
 from edit.training.data.templates import (
     DataIterator,
-    DataIterationOperator,
     TrainingOperatorIndex,
     DataInterface,
     DataStep,

@@ -53,7 +53,7 @@ class InterpolationIndex(TrainingOperatorIndex):
         base_transforms = TransformCollection(transforms)
 
         super().__init__(
-            indexes, base_transforms, sample_interval, allow_multiple_index=True
+            indexes, base_transforms = base_transforms, data_resolution = sample_interval, allow_multiple_index=True
         )
 
     def get(self, query_time, **kwargs):
@@ -87,19 +87,6 @@ class InterpolationIndex(TrainingOperatorIndex):
         ds = xr.merge(data)
         return ds
 
-    def __repr__(self):
-        return_string = "General Index Combining: \n"
-        for index in self.index:
-            return_string += f"\t{index}\n"
-        return return_string
-
-    def _formatted_name(self):
-        padding = lambda name, length_: name + "".join([" "] * (length_ - len(name)))
-        desc = f"Interpolation Index for {[index.__class__.__name__ for index in self.index]!r}. {self.interpolation_method} interpolating all together"
-        desc = desc.replace("\n", "").replace("\t", "").strip()
-        formatted = f"{padding(self.__class__.__name__, 30)}{desc}"
-
-        for index in self.index:
-            if hasattr(index, "_formatted_name"):
-                formatted += f"\n{index._formatted_name()}"
-        return formatted
+    @property
+    def __doc__(self):
+        return f"Interpolation Index for {[index.__class__.__name__ for index in self.index]!r}. Uses {self.interpolation_method}."

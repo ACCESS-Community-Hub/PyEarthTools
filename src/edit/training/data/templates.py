@@ -1,9 +1,7 @@
 import functools
 from abc import abstractmethod
-from typing import Callable, Union
+from typing import Any, Callable, Union
 
-import yaml
-import inspect
 from datetime import datetime
 
 
@@ -14,24 +12,59 @@ from edit.training.data.utils import get_indexes, get_callable
 
 class DataStep:
     """
-    A step between the edit.data.DataIndex's and the training pipeline
+    Base Data Pipeline Object
     """
 
     def __init__(
         self,
-        index,
+        index : 'DataStep',
     ):
         self.index = index
 
+
+    @abstractmethod
     def __getitem__(self, idx):
         raise NotImplementedError()
 
+    @abstractmethod
     def __iter__(self):
         raise NotImplementedError()
 
+    def step(self, key : str | type | int | Any) -> 'DataStep':
+        """Get Step in Pipeline if it matches key
+
+        Args:
+            key (str | type | int | Any): 
+                Key for step to be retrieved
+
+        Returns:
+            (DataStep): 
+                Step in pipeline matching key
+        """        
+        if isinstance(key, str) and self.__class__.__name__ == key:
+            return self
+        elif isinstance(key, type) and isinstance(self, key):
+            return self
+        elif isinstance(key, int) and key == self.step_number or key == -1:
+            return self
+        elif key == self:
+            return self
+        
+        if isinstance(self.index, DataStep):
+            return self.index.step(key)
+        else:
+            raise KeyError(f"Could not find {key!r} in Data Pipeline")
+
+    @property
+    def step_number(self):
+        if isinstance(self.index, DataStep):
+            return self.index.step_number + 1
+        else:
+            return 0
+    
     def __getattr__(self, key):
         if key == "index":
-            raise AttributeError(f"{self.__class__} has no attribute {key}")
+            raise AttributeError(f"{self.__class__} has no attribute {key!r}")
         return getattr(self.index, key)
 
     def __call__(self, idx):
@@ -64,6 +97,11 @@ class DataStep:
 
 
 class DataOperation(DataStep):
+    """
+    Base DataOperation.
+
+    Applies functions when retrieving data
+    """
     def __init__(
         self,
         index,
@@ -137,25 +175,27 @@ class DataOperation(DataStep):
         return self.index[idx]
 
 
-class TrainingOperatorIndex(OperatorIndex):
+class TrainingOperatorIndex(OperatorIndex, DataStep):
     """
-    EDIT Training Version of edit.data.OperatorIndex
+    edit.data.OperatorIndex as a Pipeline step
+
+    
     """
 
     def __init__(
         self,
         index: "list[TrainingOperatorIndex] | TrainingOperatorIndex",
-        *args,
+        *,
         allow_multiple_index: bool = False,
         **kwargs,
     ) -> None:
-        super().__init__(*args, **kwargs)
 
         if isinstance(index, dict):
             index = get_indexes(index)
         if not allow_multiple_index and isinstance(index, (list, tuple)):
             index = index[0]
         self.index = index
+        super().__init__(**kwargs)
 
     def __getattr__(self, key):
         if key == "index":
@@ -170,28 +210,13 @@ class TrainingOperatorIndex(OperatorIndex):
             return self.index.undo(data, *args, **kwargs)
         return data
 
-    def __repr__(self):
-        string = "Training Index: \n"
-        operations = self._formatted_name()
-        operations = operations.split("\n")
-        operations.reverse()
-        operations = "\n".join(["\t* " + oper for oper in operations])
-        return f"{string}\n{operations}"
-
-    def _formatted_name(self, desc: str = None):
-        padding = lambda name, length_: name + "".join([" "] * (length_ - len(name)))
-        desc = desc or self.__doc__ or "No Docstring"
-        desc = desc.replace("\t", "").strip()
-        formatted = f"{padding(self.__class__.__name__, 30)}{desc}"
-
-        if hasattr(self.index, "_formatted_name"):
-            formatted += f"\n{self.index._formatted_name()}"
-        return formatted
-
 
 class DataInterface(DataOperation, OperatorIndex):
     """
-    A step between the edit.data.DataIndex's and the training pipeline `DataOperation`
+    Training DataOperation that requires a DataIndex underneath it
+
+    Allows OperatorIndex calls as well as DataOperation calls
+    Usually sits between OperatorIndexes and DataOperation's
     """
 
     def __init__(self, index: OperatorIndex, **datastep_kwargs) -> None:
@@ -200,22 +225,7 @@ class DataInterface(DataOperation, OperatorIndex):
     def get(self, querytime: str | EDITDatetime):
         return self.index[querytime]
 
-    def _formatted_name(self, desc: str = None):
-        padding = lambda name, length_: name + "".join([" "] * (length_ - len(name)))
-        desc = desc or self.__doc__ or "No Docstring"
-        desc = desc.replace("\n", "").replace("\t", "").strip()
-        formatted = f"{padding(self.__class__.__name__, 30)}{desc}"
 
-        if hasattr(self.index, "_formatted_name"):
-            formatted += f"\n{self.index._formatted_name()}"
-        return formatted
-
-    @property
-    def ignore_sanity(self):
-        return False
-
-
-# @SequentialIterator
 class DataIterator(DataStep):
     """
     Provide a way to iterator over data, and catch known errors.
@@ -284,80 +294,3 @@ class DataIterator(DataStep):
                 yield self[current_time]
             except self._error_to_catch:
                 pass
-
-
-# class BaseDataOperation(DataStep):
-#     """
-#     Provide a way to change the data between a DataInterface and an ML Model.
-
-#     Must implement __iter__, __getitem__ & undo
-#     """
-
-#     def __init__(self, index: "DataOperation | DataIterator") -> None:
-#         self.index = index
-
-#     def __getattr__(self, key):
-#         if key == "index":
-#             raise AttributeError(f"{self.__class__} has no attribute {key}")
-#         return getattr(self.index, key)
-
-
-# class DataOperation(DataStep):
-#     def __init__(
-#         self,
-#         index: DataStep,
-#         apply_func: Callable,
-#         undo_func: Callable,
-#         *,
-#         apply_iterator: bool = True,
-#         apply_get: bool = True,
-#     ) -> None:
-#         """
-#         Run Operations on Data as it is being used.
-
-#         Parameters
-#         ----------
-#         index
-#             Underlying index to use
-#         """
-#         super().__init__(index)
-
-#         self.apply_func = apply_func
-#         self.undo_func = undo_func
-
-#         self.apply_iterator = apply_iterator
-#         self.apply_get = apply_get
-
-#     def undo(self, data, *args, **kwargs):
-#         if not self.undo_func is None:
-#             return self.index.undo(self.undo_func(data))
-#         return self.index.undo(data, *args, **kwargs)
-
-#     def _apply(self, data):
-#         return self.apply_func(data)
-
-#     def __iter__(self):
-#         for data in self.index:
-#             if self.apply_iterator:
-#                 yield self.apply_func(data)
-#             else:
-#                 yield data
-
-#     def __getitem__(self, idx):
-#         if self.apply_get:
-#             return self.apply_func(self.index[idx])
-#         return self.index[idx]
-
-
-class DataIterationOperator(DataOperation):
-    """
-    A data method to only be applied when iterating.
-    """
-
-    def __init__(self, index) -> None:
-        super().__init__(
-            index, apply_func=None, undo_func=None, apply_iterator=True, apply_get=False
-        )
-
-    def __iter__(self):
-        raise NotImplementedError(f"Filter must define Iterator")

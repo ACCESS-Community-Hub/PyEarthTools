@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 
 from torch.utils.data import DataLoader, IterableDataset
 
+from edit.data import Collection
 from edit.training.trainer.template import EDITTrainer
 from edit.training.data.templates import DataIterator
 
@@ -19,37 +20,32 @@ from edit.training.data.templates import DataIterator
 class EDITTrainerWrapper(EDITTrainer):
     """
     Pytorch Lightning Trainer Wrapper.
-    Provides fit, predict overrides to work with edit.training
     """
 
     def __init__(
         self,
-        model,
-        path: str,
+        model : pl.LightningModule,
         train_data: Union[DataLoader, DataIterator],
-        valid_data: DataIterator = None,
+        path: str = None,
+        valid_data: Union[DataLoader, DataIterator] = None,
         **kwargs,
     ) -> None:
-        """
-        Pytorch Lightning Trainer Wrapper.
+        """Pytorch Lightning Trainer Wrapper.
         Provides fit, predict overrides to work with edit.training
 
+        Args:
+            model (pl.LightningModule): 
+                Pytorch Lightning Module to use as model
+            train_data (Union[DataLoader, DataIterator]): 
+                Dataloader to use for Training, 
+            path (str, optional): 
+                Path to save Models and Logs, can also provide `default_root_dir`. Defaults to None
+            valid_data (DataIterator, optional): 
+                Dataloader to use for validation. Defaults to None.
+            **kwargs (Any, optional):
+                All passed to trainer __init__, will intercept 'logger' to update from str if given
 
-        Parameters
-        ----------
-        model
-            Model to use
-        path
-
-        train_data
-            Training data to use, can either be DataIterator, or pytorch DataLoader
-        valid_data, optional
-            Validation data to use, can either be DataIterator, or pytorch DataLoader,
-            by default None
-
-        **kwargs, optional
-            All passed to trainer __init__, will intercept 'logger' to update from str if given
-        """
+        """        
         self.model = model
 
         num_workers = kwargs.pop("num_workers", 0)
@@ -87,6 +83,8 @@ class EDITTrainerWrapper(EDITTrainer):
                 self.valid_data = valid_data
 
         path = kwargs.pop("default_root_dir", path)
+        if path is None:
+            raise ValueError(f"Path cannot be None, either provide `default_root_dir` or `path`")
         self.path = path
         self.checkpoint_path = (Path(path) / "Checkpoints").resolve()
 
@@ -153,7 +151,7 @@ class EDITTrainerWrapper(EDITTrainer):
             **kwargs,
         )
 
-    def load(self, file: str, only_state: bool = False):
+    def load(self, file: str | bool = True, only_state: bool = False):
         """
         Load Model from Checkpoint File.
 
@@ -167,6 +165,10 @@ class EDITTrainerWrapper(EDITTrainer):
             If only the model state should be loaded, by default False
         """
 
+        if isinstance(file, bool) and file:
+            file = max(Path(self.checkpoint_path).iterdir(), key=os.path.getctime)
+
+        print(f"Loading checkpoint: {file}")
         if only_state:
             state = torch.load(file)
             if "state_dict" in state:
@@ -217,6 +219,7 @@ class EDITTrainerWrapper(EDITTrainer):
         undo: bool = False,
         data_iterator: DataIterator = None,
         resume: bool = True,
+        only_state: bool = True,
         **kwargs,
     ) -> Union[tuple[np.array], tuple[xr.Dataset]]:
         """
@@ -246,27 +249,35 @@ class EDITTrainerWrapper(EDITTrainer):
         data_source = data_iterator or self.valid_iterator or self.train_iterator
         data = data_source[index]
 
-        if resume and Path(self.checkpoint_path).exists():
+        if isinstance(resume, str):
             self.load(
-                max(Path(self.checkpoint_path).iterdir(), key=os.path.getctime),
-                only_state=True,
+                resume,
+                only_state=only_state,
+            )
+
+        elif resume and Path(self.checkpoint_path).exists():
+            self.load(
+                True,
+                only_state=only_state,
             )
 
         prediction = self._predict_from_data(data, **kwargs)
 
         if undo:
-            fixed_predictions = list(data_source.undo(prediction))
+            prediction = data_source.undo(prediction)
+            if isinstance(prediction, (tuple, list)):
+                prediction = prediction[-1]
 
-            if "Coordinate 1" in fixed_predictions[1]:
-                fixed_predictions[1] = fixed_predictions[1].rename(
+            if "Coordinate 1" in prediction:
+                prediction = prediction.rename(
                     {"Coordinate 1": "time"}
                 )
+            if hasattr(data_source, 'rebuild_time'):
+                prediction = data_source.rebuild_time(
+                    prediction, index
+                )
 
-            fixed_predictions[1] = data_source.rebuild_time(
-                fixed_predictions[-1], index
-            )
-
-        return tuple(fixed_predictions)
+        return Collection(data_source.undo(data[1]), prediction)
 
     def predict_recurrent(
         self,
@@ -274,9 +285,11 @@ class EDITTrainerWrapper(EDITTrainer):
         recurrence: int,
         data_iterator: DataIterator = None,
         resume: bool = True,
+        only_state: bool = True,
+        truth_step: int = 0,
         **kwargs,
     ):
-        """Uses [predict][edit.training.trainer.trainer.predict] to predict timesteps and then feed back through recurrently.
+        """Uses [predict][edit.training.trainer.EDITTrainerWrapper.predict] to predict timesteps and then feed back through recurrently.
 
         
         Uses edit.training DataIterator to get data at given start index.
@@ -295,7 +308,10 @@ class EDITTrainerWrapper(EDITTrainer):
                 Override for initial data retrieval. Defaults to None.
             resume (bool, optional): 
                 Resume from checkpoint. Defaults to True.
-
+            only_state (bool, optional): 
+                Resume only_state. Defaults to True.
+            truth_step (int, optional):
+                Data Pipeline step to use to retrieve Truth data. Defaults to 0
         Returns:
             (xr.Dataset): 
                 Combined Predictions
@@ -303,35 +319,56 @@ class EDITTrainerWrapper(EDITTrainer):
         data_source = data_iterator or self.valid_iterator or self.train_iterator
         data = list(data_source[start_index])
 
-        if resume and Path(self.checkpoint_path).exists():
+        if isinstance(resume, str):
             self.load(
-                max(Path(self.checkpoint_path).iterdir(), key=os.path.getctime),
-                only_state=True,
+                resume,
+                only_state=only_state,
+            )
+
+        elif resume and Path(self.checkpoint_path).exists():
+            self.load(
+                True,
+                only_state=only_state,
             )
 
         predictions = []
         index = start_index
 
         for i in range(recurrence):
+            input_data = None
             prediction = self._predict_from_data(data, **kwargs)
-            fixed_predictions = list(data_source.undo(prediction))
+            
+            fixed_predictions = data_source.undo(prediction)
+            
+            if isinstance(fixed_predictions, (tuple, list)):
+                input_data = fixed_predictions[0]
+                fixed_predictions = fixed_predictions[-1]
+                
 
-            if "Coordinate 1" in fixed_predictions[1]:
-                fixed_predictions[1] = fixed_predictions[1].rename(
+            if "Coordinate 1" in fixed_predictions:
+                fixed_predictions = fixed_predictions.rename(
                     {"Coordinate 1": "time"}
                 )
+            if hasattr(data_source, 'rebuild_time'):
+                fixed_predictions = data_source.rebuild_time(
+                    fixed_predictions, index, offset = 1 if i >= 1 else 0,
+                )
+                
+            predictions.append(fixed_predictions)
 
-            fixed_predictions[1] = data_source.rebuild_time(
-                fixed_predictions[-1], index
-            )
-            index = fixed_predictions[1].time.values[-1]
-            predictions.append(fixed_predictions[1])
+            # data[0] = fixed_predictions
+            # #data.reverse()
+            input_data = input_data or data_source.undo(data)[0]
+            new_input = xr.merge((input_data, fixed_predictions)).isel(time = slice(-1 * len(input_data.time), None))
+            index = new_input.time.values[-1]
+            data[0] = data_source.apply(new_input)
 
-            data = fixed_predictions
-            data.reverse()
-            data = data_source.apply(data)
+        predictions = xr.merge(predictions)
 
-        return xr.merge(predictions)
+        if truth_step is None:
+            return predictions
+
+        return Collection(self.train_iterator.step(truth_step)[predictions], predictions)
 
     def data(self, index, undo=False):
         """

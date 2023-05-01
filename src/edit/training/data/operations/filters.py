@@ -1,3 +1,4 @@
+from abc import abstractmethod
 import math
 from typing import Union
 
@@ -5,14 +6,29 @@ import numpy as np
 import xarray as xr
 
 from edit.training.data.templates import (
-    DataIterationOperator,
+    DataOperation,
     DataIterator,
 )
 from edit.training.data.sequential import Sequential, SequentialIterator
 
 
+class DataFilter(DataOperation):
+    """
+    Override __iter__ method to provide a way of filtering the data
+    """
+
+    def __init__(self, index) -> None:
+        super().__init__(
+            index, apply_func=None, undo_func=None, apply_iterator=True, apply_get=False
+        )
+
+    @abstractmethod
+    def __iter__(self):
+        raise NotImplementedError(f"Filter must define Iterator")
+
+
 @SequentialIterator
-class DropNan(DataIterationOperator):
+class DropNan(DataFilter):
     """
     Drop any data with nans when iterating.
     """
@@ -34,7 +50,7 @@ class DropNan(DataIterationOperator):
 
 
 @SequentialIterator
-class DropAllNan(DataIterationOperator):
+class DropAllNan(DataFilter):
     """
     Drop data if it is all nans when iterating.
     """
@@ -62,7 +78,7 @@ class DropAllNan(DataIterationOperator):
 
 
 @SequentialIterator
-class DropValue(DataIterationOperator):
+class DropValue(DataFilter):
     """
     Drop Data containing a value above a percentage when iterating.
     """

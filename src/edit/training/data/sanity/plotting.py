@@ -74,7 +74,7 @@ def plot(
     array_indexes: dict[str, list[int]] | list[list[int]] = None,
     fig_kwargs: dict = {"figsize": (25, 20)},
     layout_kwargs: dict = {"pad": 5},
-    text_location: list[int, int] = [0.8, 0.3],
+    text_location: list[int, int] = [0.8, 0.2],
     **plot_kwargs,
 ):
     """
@@ -100,7 +100,7 @@ def plot(
     layout_kwargs, optional
         Kwargs to be passed to plt.tight_layout, by default {'pad': 5}
     text_location, optional
-        Location of info text, by default [0.8, 0.3]
+        Location of info text, by default [0.8, 0.2]
 
     Returns
     -------
@@ -143,6 +143,6 @@ def plot(
         coords = (i // size, i % size)
         fig.delaxes(axes[coords[0], coords[1]])
 
-    plt.figtext(*text_location, '"int" refers to tuples of data', fontsize="large")
+    plt.figtext(*text_location, '\'int\' refers to tuples of data', fontsize="large")
 
     return fig

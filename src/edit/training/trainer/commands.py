@@ -2,9 +2,8 @@
 EDIT Trainer Commands
 """
 import click
+import yaml
 
-from edit.training.data.context import PatchingUpdate
-from edit.training.trainer.yaml import from_yaml
 
 
 @click.group(name="Trainer From Yaml")
@@ -31,6 +30,8 @@ def fit(yaml_file: str | click.Path, resume: bool):
         yaml_file (str): Path to yaml config
         resume (bool): Use existing model
     """
+    from edit.training.trainer.yaml import from_yaml
+
     trainer = from_yaml(yaml_file)
     trainer.fit(resume=resume)
 
@@ -64,13 +65,16 @@ def predict(
     """Using Yaml Config & Checkpoint, predict at index
 
     Args:
-        yaml_file (str | click.Path): Path to taml config
+        yaml_file (str | click.Path): Path to yaml config
         index (str): Index to predict at
         save_file (str | click.Path): Where to save prediction
         checkpoint (str | click.Path, optional): Path to model checkpoint
         stride_size (int, optional): Update to stride size. Defaults to None.
         recurrence (int, optional): Times to recur. Defaults to None.
     """
+    from edit.training.data.context import PatchingUpdate
+    from edit.training.trainer.yaml import from_yaml
+
     trainer = from_yaml(yaml_file)
 
     resume = True

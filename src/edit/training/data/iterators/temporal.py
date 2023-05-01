@@ -18,8 +18,8 @@ from edit.training.data.sequential import Sequential, SequentialIterator
 
 
 @SequentialIterator
-class TemporalInterface(DataIterator):
-    """Base Temporal DataInterface"""
+class TemporalIterator(DataIterator):
+    """Base Temporal Iterator"""
 
     def __init__(
         self,
@@ -30,49 +30,7 @@ class TemporalInterface(DataIterator):
         catch: tuple[Exception] | Exception = None,
         **kwargs,
     ) -> None:
-        """
-        An extension of DataIndexes designed for ML Training,
-        Using the provided index/s allows iteration between bound
-        automatically applying a normalisation and other transforms.
 
-        Also allows for multiple samples to be returned.
-
-        Parameters
-        ----------
-        index
-            DataIndex/s to use to retrieve data
-        normalisation_params, optional
-            Parameters for transform.normalise, as well as which method.
-                If not given, no normalisation, by default None
-            Params:
-                start - start date for search
-                end - end date for search
-                interval - interval between searches
-                cache_dir - Where to save Data used
-                function - Function to use with functional normalisation
-
-                method - which method to use, or dict assigning variable names to a method
-                default - default method if above not found
-
-        transforms, optional
-            Other transforms to apply to data, can be list of transforms correspondant to data_indexes,
-            by default None
-        samples, optional
-            Number of data samples to retrieve.
-            If tuple[int,int], retrieve samples[0] before including querytime and samples[1] after,
-            by default 1
-        sample_interval, optional
-            Interval between samples, by default 0
-        **kwargs, optional
-            All passed to data retrieval functions
-
-        Raises
-        ------
-        ValueError
-            If Transforms is list for each index but not the right size
-        ValueError
-            If samples > 1 and sample_interval == 0
-        """
 
         # if not isinstance(index, (list, tuple)):
         #     index = [index]
@@ -107,6 +65,7 @@ class TemporalInterface(DataIterator):
         self,
         dataset: tuple[xr.Dataset] | xr.Dataset,
         time_value: EDITDatetime | datetime,
+        offset: int = 0,
     ):
         """
         Rebuild time dimension of given dataset, using known sample interval.
@@ -122,6 +81,8 @@ class TemporalInterface(DataIterator):
             Dataset to rebuild
         time_value
             First timestep to use and thus iterate from
+        offset
+            Offset to add to time in multiples of sample_interval
 
         Returns
         -------
@@ -136,7 +97,7 @@ class TemporalInterface(DataIterator):
         time_size = len(dataset["time"])
         time_value = EDITDatetime(time_value)
         new_time = [
-            (time_value + self.sample_interval * (i + 1)).datetime64()
+            (time_value + self.sample_interval * (i + offset)).datetime64()
             for i in range(time_size)
         ]
         return dataset.assign_coords(time=new_time)
@@ -235,7 +196,8 @@ class TemporalInterface(DataIterator):
             if len(next_idx) == 1:
                 next_idx = next_idx[0]
             return self[idx[0]].__getitem__(next_idx)
-        raise ValueError
+        
+        return self.index[idx]
 
     def _formatted_name(self):
         desc = f"Data Interface for {self.index.__class__.__name__!r}. Providing {self.samples!r} samples"
