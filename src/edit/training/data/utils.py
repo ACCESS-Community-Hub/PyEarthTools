@@ -102,40 +102,46 @@ def get_indexes(sources: dict, order: list = None):
 def get_transforms(sources: dict, order: list = None):
     indexes = []
 
-    order = order or list(sources.keys())
+    if isinstance(sources, edit.data.Transform):
+        return sources
 
-    for transform in order:
-        kwargs = sources[transform]
-        data_transform = None
+    elif isinstance(sources, dict):
+        order = order or list(sources.keys())
 
-        transform = re.sub(r"\[[0-9]*\]", "", transform)
+        for transform in order:
+            kwargs = sources[transform]
+            data_transform = None
 
-        try:
-            data_transform = get_class(edit.data.transform, transform)
-        except:
-            pass
+            transform = re.sub(r"\[[0-9]*\]", "", transform)
 
-        if not data_transform:
-            for alterations in ["__main__.", "", "edit.data.transform", "edit.data."]:
-                try:
-                    data_transform = get_callable(alterations + transform)
-                except (ModuleNotFoundError, ImportError, AttributeError, ValueError):
-                    pass
-                if data_transform:
-                    break
+            try:
+                data_transform = get_class(edit.data.transform, transform)
+            except:
+                pass
 
-        if not data_transform:
-            raise ValueError(f"Unable to load {transform!r}")
+            if not data_transform:
+                for alterations in ["__main__.", "", "edit.data.transform", "edit.data."]:
+                    try:
+                        data_transform = get_callable(alterations + transform)
+                    except (ModuleNotFoundError, ImportError, AttributeError, ValueError):
+                        pass
+                    if data_transform:
+                        break
 
-        if not callable(data_transform):
-            if hasattr(data_transform, transform.split(".")[-1]):
-                data_transform = getattr(data_transform, transform.split(".")[-1])
-            else:
-                raise TypeError(
-                    f"{transform!r} is a {type(data_transform)}, must be callable"
-                )
-        try:
-            indexes.append(data_transform(**kwargs))
-        except Exception as e:
-            raise RuntimeError(f"Initialising {transform} raised {e}")
-    return edit.data.transform.TransformCollection(indexes)
+            if not data_transform:
+                raise ValueError(f"Unable to load {transform!r}")
+
+            if not callable(data_transform):
+                if hasattr(data_transform, transform.split(".")[-1]):
+                    data_transform = getattr(data_transform, transform.split(".")[-1])
+                else:
+                    raise TypeError(
+                        f"{transform!r} is a {type(data_transform)}, must be callable"
+                    )
+            try:
+                indexes.append(data_transform(**kwargs))
+            except Exception as e:
+                raise RuntimeError(f"Initialising {transform} raised {e}")
+        return edit.data.transform.TransformCollection(indexes)
+        
+    edit.data.transform.TransformCollection(sources)

@@ -1,5 +1,6 @@
 import functools
 from abc import abstractmethod
+import logging
 from typing import Any, Callable, Union
 
 from datetime import datetime
@@ -17,10 +18,9 @@ class DataStep:
 
     def __init__(
         self,
-        index : 'DataStep',
+        index: "DataStep",
     ):
         self.index = index
-
 
     @abstractmethod
     def __getitem__(self, idx):
@@ -30,17 +30,17 @@ class DataStep:
     def __iter__(self):
         raise NotImplementedError()
 
-    def step(self, key : str | type | int | Any) -> 'DataStep':
+    def step(self, key: str | type | int | Any) -> "DataStep":
         """Get Step in Pipeline if it matches key
 
         Args:
-            key (str | type | int | Any): 
+            key (str | type | int | Any):
                 Key for step to be retrieved
 
         Returns:
-            (DataStep): 
+            (DataStep):
                 Step in pipeline matching key
-        """        
+        """
         if isinstance(key, str) and self.__class__.__name__ == key:
             return self
         elif isinstance(key, type) and isinstance(self, key):
@@ -49,7 +49,7 @@ class DataStep:
             return self
         elif key == self:
             return self
-        
+
         if isinstance(self.index, DataStep):
             return self.index.step(key)
         else:
@@ -61,7 +61,7 @@ class DataStep:
             return self.index.step_number + 1
         else:
             return 0
-    
+
     def __getattr__(self, key):
         if key == "index":
             raise AttributeError(f"{self.__class__} has no attribute {key!r}")
@@ -84,7 +84,7 @@ class DataStep:
     def _formatted_name(self, desc: str = None):
         padding = lambda name, length_: name + "".join([" "] * (length_ - len(name)))
         desc = desc or self.__doc__ or "No Docstring"
-        desc = desc.replace("\n", "").replace("\t", "").strip()
+        desc = desc.split("\n")[0].replace("\t", "").strip()
         formatted = f"{padding(self.__class__.__name__, 30)}{desc}"
 
         if hasattr(self.index, "_formatted_name"):
@@ -102,6 +102,7 @@ class DataOperation(DataStep):
 
     Applies functions when retrieving data
     """
+
     def __init__(
         self,
         index,
@@ -179,22 +180,24 @@ class TrainingOperatorIndex(OperatorIndex, DataStep):
     """
     edit.data.OperatorIndex as a Pipeline step
 
-    
+
     """
 
     def __init__(
         self,
-        index: "list[TrainingOperatorIndex] | TrainingOperatorIndex",
+        index: "list[TrainingOperatorIndex] | TrainingOperatorIndex | OperatorIndex",
         *,
         allow_multiple_index: bool = False,
         **kwargs,
     ) -> None:
-
         if isinstance(index, dict):
             index = get_indexes(index)
         if not allow_multiple_index and isinstance(index, (list, tuple)):
             index = index[0]
         self.index = index
+
+        if "data_resolution" not in kwargs and not allow_multiple_index:
+            kwargs["data_resolution"] = index.data_resolution
         super().__init__(**kwargs)
 
     def __getattr__(self, key):
@@ -292,5 +295,5 @@ class DataIterator(DataStep):
             try:
                 current_time = self._start + (self._interval * step)
                 yield self[current_time]
-            except self._error_to_catch:
-                pass
+            except self._error_to_catch as e:
+                logging.info(e)

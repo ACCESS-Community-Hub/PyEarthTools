@@ -13,44 +13,63 @@ from edit.data import FunctionTransform, Transform, TransformCollection
 from edit.data import DataIndex, OperatorIndex
 from edit.data.time import EDITDatetime, time_delta
 
-from edit.training.data.templates import DataIterator
+from edit.training.data.templates import DataIterator, DataStep
 from edit.training.data.sequential import Sequential, SequentialIterator
+from edit.training.data.utils import get_transforms
 
 
 @SequentialIterator
 class TemporalIterator(DataIterator):
-    """Base Temporal Iterator"""
+    """
+    TemporalIterator to provide capability to add a temporal dimension to loaded data.
 
+    !!! Warning
+        Must exist above a DataStep which still returns a [Dataset][xarray.Dataset]
+
+    !!! Example
+        ```python
+        TemporalIterator(PipelineStep)
+
+        ## As this is decorated with @SequentialIterator, it can be partially initialised
+
+        partialTemporalIterator = TemporalIterator()
+        partialTemporalIterator(PipelineStep)
+        ```
+    """    
     def __init__(
         self,
-        index: list[DataIndex] | DataIndex,
-        transforms: list[TransformCollection] | TransformCollection = None,
+        index: DataStep,
+        transforms: list[TransformCollection] | TransformCollection | str | dict = None,
         samples: tuple[int] | int = 1,
         sample_interval: int | tuple = 0,
-        catch: tuple[Exception] | Exception = None,
+        catch: tuple[Exception | str] | Exception | str = None,
         **kwargs,
     ) -> None:
+        """TemporalIterator to add a time dimension to the loaded data.
+        
+        
+        Args:
+            index (DataStep): 
+                Underlying Pipeline step, must return a [Dataset][xarray.Dataset]
+            transforms (list[TransformCollection] | TransformCollection | str | dict, optional): 
+                Extra transforms to add to the retrieval of data. Defaults to None.
+            samples (tuple[int] | int, optional): 
+                Temporal Samples to retrieve, if tuple [post,prior], if int post. Defaults to 0.
+            sample_interval (int | tuple, optional): 
+                Interval between samples, must be in form of [TimeDelta][edit.data.time.time_delta].
+                If int, default to minutes unit. Defaults to 1.
+            catch (tuple[Exception | str] | Exception | str, optional): 
+                Errors to catch when iterating. Defaults to None.
+        
+        Raises:
+            ValueError: 
+                If `samples` and `sample_interval` are invalid
+        """    
 
-
-        # if not isinstance(index, (list, tuple)):
-        #     index = [index]
         super().__init__(index, catch)
 
         self.retrieval_kwargs = kwargs
-        self.transforms = transforms
-
-        # if (
-        #     isinstance(transforms, list)
-        #     and len(transforms) > 0
-        #     and isinstance(transforms, Iterable)
-        # ):
-        #     if not len(transforms) == len(index):
-        #         raise ValueError(
-        #             f"If transforms is list of seperate TransformCollections, must be same size as data_index. {len(index)} != {len(transforms)}"
-        #         )
-        #     self.transforms = transforms
-        # else:
-        #     self.transforms = [TransformCollection(transforms)] * len(index)
+        self.transforms = get_transforms(transforms)
 
         if isinstance(samples, int) and samples > 1 and sample_interval == 0:
             raise ValueError(f"If 'samples' > 1, 'sample_interval' cannot be 0")
@@ -60,38 +79,36 @@ class TemporalIterator(DataIterator):
         self.samples = samples
         self.sample_interval = time_delta(sample_interval)
 
-
     def rebuild_time(
         self,
         dataset: tuple[xr.Dataset] | xr.Dataset,
-        time_value: EDITDatetime | datetime,
+        time_value: EDITDatetime | datetime | str,
         offset: int = 0,
-    ):
-        """
-        Rebuild time dimension of given dataset, using known sample interval.
+    ) -> tuple[xr.Dataset] | xr.Dataset:
+        """Rebuild time dimension of given dataset, using known sample interval.
 
         Should be used after a destructive process in an iterator above, 
         that cannot restore the time dimension. 
         
         If 'time' dimension is not present, return dataset unchanged.
-
-        Parameters
-        ----------
-        dataset
-            Dataset to rebuild
-        time_value
-            First timestep to use and thus iterate from
-        offset
-            Offset to add to time in multiples of sample_interval
-
-        Returns
-        -------
-            Dataset with time dimension rebuilt
-        """ ""
+        
+        
+        Args:
+            dataset (tuple[xr.Dataset] | xr.Dataset): 
+                Dataset to rebuild
+            time_value (EDITDatetime | datetime | str): 
+                First timestep to use and thus iterate from
+            offset (int, optional): 
+                Offset to add to time in multiples of `sample_interval`. Defaults to 0.
+        
+        Returns:
+            (tuple[xr.Dataset] | xr.Dataset): 
+                Dataset/s with time dimensions rebuilt
+        """        
         if isinstance(dataset, tuple):
             return tuple(map(self.rebuild_time, dataset))
 
-        if not "time" in dataset:
+        if "time" not in dataset:
             return dataset
 
         time_size = len(dataset["time"])
@@ -196,7 +213,7 @@ class TemporalIterator(DataIterator):
             if len(next_idx) == 1:
                 next_idx = next_idx[0]
             return self[idx[0]].__getitem__(next_idx)
-        
+
         return self.index[idx]
 
     def _formatted_name(self):

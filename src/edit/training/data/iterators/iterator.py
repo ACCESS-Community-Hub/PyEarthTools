@@ -12,11 +12,31 @@ from edit.training.data.sequential import Sequential, SequentialIterator
 
 @SequentialIterator
 class Iterator(DataIterator):
-    """Provide Date Based iteration"""
+    """
+    Basic DataIterator to provide Date Based iteration
 
+
+    !!! Example
+        ```python
+        Iterator(PipelineStep)
+
+        ## As this is decorated with @SequentialIterator, it can be partially initialised
+
+        partialIterator = Iterator()
+        partialIterator(PipelineStep)
+        ```
+    """    
     def __init__(
-        self, index: DataStep, catch: tuple[Exception] | Exception = None
+        self, index: DataStep, catch: tuple[Exception] | Exception | str = None
     ) -> None:
+        """DataIterator to provide Date Based iteration        
+        
+        Args:
+            index (DataStep): 
+                Prior Pipeline step
+            catch (tuple[Exception] | Exception | str, optional): 
+                Name/s or Exceptions to catch and ignore. Defaults to None.
+        """        
         super().__init__(index, catch)
 
     @property

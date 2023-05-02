@@ -1,5 +1,4 @@
 import functools
-import time
 from itertools import zip_longest
 from typing import Union
 
@@ -12,16 +11,25 @@ from edit.training.data.sequential import Sequential, SequentialIterator
 
 
 @SequentialIterator
-class CombineDataIndex(DataIterator):
-    def __init__(self, *data_iterators: DataIterator) -> None:
-        """
-        Combine Multiple DataIterator together, alternating between samples from each
+class CombineDataIterator(DataIterator):
+    """
+    Combining DataIterator to alternate between given DataIterator's
 
-        Parameters
-        ----------
-        *data_iterators
-            DataIterator's to combine
-        """
+    !!! Warning
+        Cannot be used with yaml file configs or Sequential, as it requires multiple Iterators
+
+    !!! Example
+        ```python
+        CombineDataIterator(PipelineIterator, AnotherPipelineIterator)
+        ```
+    """
+    def __init__(self, *data_iterators: DataIterator) -> None:
+        """Combine Multiple DataIterator together, alternating between samples from each
+
+        Args:
+            *data_iterators (DataIterator):
+                DataIterator's to combine and alternate between        
+        """                
 
         super().__init__()
 

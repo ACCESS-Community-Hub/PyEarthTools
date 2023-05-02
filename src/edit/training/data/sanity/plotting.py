@@ -143,6 +143,6 @@ def plot(
         coords = (i // size, i % size)
         fig.delaxes(axes[coords[0], coords[1]])
 
-    plt.figtext(*text_location, '\'int\' refers to tuples of data', fontsize="large")
+    plt.figtext(*text_location, "'int' refers to tuples of data", fontsize="large")
 
     return fig

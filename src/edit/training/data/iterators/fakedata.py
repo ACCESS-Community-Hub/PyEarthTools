@@ -18,11 +18,21 @@ from edit.training.data.templates import (
 @SequentialIterator
 class FakeData(DataIterator):
     """
-    Fake Data Iterator.
+    Fake [DataIterator][edit.training.data.DataIterator].
 
-    Used to remove Data loading times for model testing
+    Used to remove data loading times for model testing
+
+
+    !!! Example
+        ```python
+        FakeData(PipelineStep)
+
+        ## As this is decorated with @SequentialIterator, it can be partially initialised
+
+        partialFakeData = FakeData()
+        partialFakeData(PipelineStep)
+        ```
     """
-
     def __init__(
         self,
         index: DataInterface | OperatorIndex | DataIndex | tuple,
@@ -34,9 +44,13 @@ class FakeData(DataIterator):
         `index` can be another iterator in which to infer shape from, or explicit shape
 
         Args:
-            index (DataInterface | OperatorIndex | DataIndex | tuple): Iterator to get shape of data from, or explicit shape definition
-            num_iterations (int, optional): Manual Number of iterations, so that `[set_iterable][edit.training.data.templates.DataIterator.set_iterable] doesn't need to be used. Defaults to None.
-            catch (tuple[Exception] | Exception, optional): Exceptions to catch. Defaults to None.
+            index (DataInterface | OperatorIndex | DataIndex | tuple): 
+                Iterator to get shape of data from, or explicit shape definition
+            num_iterations (int, optional): 
+                Manual Number of iterations, so that 
+                [set_iterable][edit.training.data.templates.DataIterator.set_iterable] doesn't need to be used. Defaults to None.
+            catch (tuple[Exception] | Exception, optional):
+                Exceptions to catch. Defaults to None.
         """
         super().__init__(index, catch)
         self.num_iterations = num_iterations
@@ -55,10 +69,12 @@ class FakeData(DataIterator):
         """Set whether fake data is used or not
 
         Args:
-            state (bool): Generate Fake Data
+            state (bool): 
+                Generate Fake Data
 
         Raises:
-            TypeError: If self.index is tuple, as true data cannot be returned
+            TypeError: 
+                If self.index is tuple, as true data cannot be returned
         """
         if isinstance(self.index, tuple):
             raise TypeError(f"Cannot change fake data state if `index` is tuple")
@@ -68,10 +84,12 @@ class FakeData(DataIterator):
         """Generate Fake Data of given shape
 
         Args:
-            shape (tuple): Shape of data to generate, can be tuple with shape or tuple of tuples with shape
+            shape (tuple): 
+                Shape of data to generate, can be tuple with shape or tuple of tuples with shape
 
         Returns:
-            np.ndarray | tuple[np.ndarray]: Fake data
+            (np.ndarray | tuple[np.ndarray]): 
+                Fake data
         """
         if isinstance(shape, tuple) and isinstance(shape[0], tuple):
             return tuple(self._generate_data(shp) for shp in shape)
@@ -82,13 +100,16 @@ class FakeData(DataIterator):
         """Find shape of incoming data
 
         Args:
-            data (tuple | np.ndarray): Either numpy array or tuple of numpy arrays
+            data (tuple | np.ndarray): 
+                Either numpy array or tuple of numpy arrays
 
         Raises:
-            TypeError: If type cannot be understood
+            TypeError: 
+                If type cannot be understood
 
         Returns:
-            tuple: Shape of data
+            (tuple): 
+                Shape of data
         """
         if isinstance(data, tuple):
             return tuple(self._find_shape(d) for d in data)
@@ -103,7 +124,7 @@ class FakeData(DataIterator):
         """Get and Cache Fake Data
 
         Returns:
-            np.ndarray: Generated Fake Data
+            (np.ndarray): Generated Fake Data
         """
         if self._data:
             return self._data
@@ -127,7 +148,8 @@ class FakeData(DataIterator):
         """Get and Cache Fake Data from index
 
         Returns:
-            np.ndarray: Generated Fake Data
+            (np.ndarray): 
+                Generated Fake Data
         """
         if self._index_data:
             return self._index_data
@@ -158,7 +180,8 @@ class FakeData(DataIterator):
             tuple | np.ndarray: Data
 
         Raises:
-            RuntimeError: If no iterating bounds set
+            RuntimeError: 
+                If no iterating bounds set
         """
         if not self.set_iterable and not self._start:
             raise RuntimeError(

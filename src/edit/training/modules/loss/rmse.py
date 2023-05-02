@@ -1,5 +1,6 @@
 import torch
 
+
 class RMSELoss(torch.nn.MSELoss):
     def __init__(self) -> None:
         self.MSELoss = torch.nn.MSELoss()

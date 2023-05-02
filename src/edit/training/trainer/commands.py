@@ -5,7 +5,6 @@ import click
 import yaml
 
 
-
 @click.group(name="Trainer From Yaml")
 def entry_point():
     pass
@@ -50,10 +49,10 @@ def fit(yaml_file: str | click.Path, resume: bool):
     type=click.Path(
         exists=True, file_okay=True, dir_okay=False, readable=True, resolve_path=True
     ),
-    default = None
+    default=None,
 )
-@click.option("--stride_size", type=int, default = None)
-@click.option("--recurrence", type=int, default = None)
+@click.option("--stride_size", type=int, default=None)
+@click.option("--recurrence", type=int, default=None)
 def predict(
     yaml_file: str | click.Path,
     index: str,
@@ -81,15 +80,17 @@ def predict(
     if checkpoint is not None:
         trainer.load(checkpoint)
         resume = False
-    
 
     with PatchingUpdate(trainer, stride_size=stride_size):
         if not recurrence:
-            predictions = trainer.predict(index, resume = resume, undo=True)[-1]
+            predictions = trainer.predict(index, resume=resume, undo=True)[-1]
         else:
-            predictions = trainer.predict_recurrent(index, undo=True, resume = resume, recurrence=recurrence)
+            predictions = trainer.predict_recurrent(
+                index, undo=True, resume=resume, recurrence=recurrence
+            )
 
     predictions.to_netcdf(save_file)
+
 
 if __name__ == "__main__":
     entry_point()

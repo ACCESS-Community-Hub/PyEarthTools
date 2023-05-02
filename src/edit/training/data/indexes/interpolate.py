@@ -1,19 +1,29 @@
-from typing import Any, Union
+from typing import Any, Callable, Union
 import xarray as xr
 
-import edit.data
-from edit.data import archive, transform, TransformCollection, EDITDatetime
+from edit.data import transform, TransformCollection, EDITDatetime, operations
 from edit.data import OperatorIndex
 
 from edit.training.data.utils import get_transforms
 from edit.training.data.templates import TrainingOperatorIndex
-from edit.training.data.sequential import Sequential, SequentialIterator
+from edit.training.data.sequential import SequentialIterator
 
 
 @SequentialIterator
 class InterpolationIndex(TrainingOperatorIndex):
     """
-    General OperatorIndex capable of taking any other defined OperatorIndex and combining them.
+    OperatorIndex which interpolates and returns data from any given indexes on the same spatial grid
+
+
+    !!! Example
+        ```python
+        InterpolationIndex(PipelineStep, interpolation_method = 'linear')
+
+        ## As this is decorated with @SequentialIterator, it can be partially initialised
+
+        partialInterpolation = InterpolationIndex(interpolation_method = 'linear')
+        partialInterpolation(PipelineStep)
+        ```
     """
 
     def __init__(
@@ -23,29 +33,40 @@ class InterpolationIndex(TrainingOperatorIndex):
         transforms: list | dict = TransformCollection(),
         interpolation: Any = None,
         interpolation_method: str = "linear",
+        temporal: bool = False,
+        temporal_reference: xr.Dataset = None,
+        temporal_function: str | Callable = "mean",
     ):
-        """
-        GeneralIndexer which interpolates all given indexes together.
+        """OperatorIndex which interpolates any given indexes onto the same spatial grid
 
-        Will retrieve samples with sample_interval resolution.
+        Will retrieve samples with `sample_interval` resolution.
 
-        Parameters
-        ----------
-        indexes
-            Dictionary with keys as imports or modules to other OperatorIndexes
-        sample_interval, optional
-            Sample Interval to pass up, must be of pandas.to_timestep form.
-            E.g. (10,'H') - 10 Hours
-        transforms, optional
-            Other Transforms to apply, by default []
-        interpolation, optional
-            Reference interpolation dataset, if not given use first dataset, by default None
-        interpolation_method, optional
-            Interpolation Method, by default 'linear'
+        Args:
+            indexes (list | dict | OperatorIndex):
+                Indexes in which to interpolate together and return, can be fully defined or dictionary defined
+            sample_interval (tuple[int, tuple[int]], optional):
+                Sample Interval to pass up, must be of pandas.to_timestep form.
+                E.g. (10,'H') - 10 Hours. Defaults to None.
+            transforms (list | dict, optional):
+                 Other Transforms to apply. Defaults to TransformCollection().
+            interpolation (Any, optional):
+                Reference Spatial interpolation dataset, if not given use first dataset. Defaults to None.
+            interpolation_method (str, optional):
+                Interpolation Method, must be in [xarray interp][xarray.Dataset.interp]. Defaults to "linear".
+            temporal (bool, optional):
+                Temporally Interpolate Datasets together. Defaults to False.
+            temporal_reference (xr.Dataset, optional):
+                Reference Temporal interpolation dataset, if not given use first dataset. Defaults to None.
+            temporal_function (str | Callable, optional):
+                Function to use for temporal interpolation. Defaults to 'mean'.
         """
 
         self.interpolation = interpolation
         self.interpolation_method = interpolation_method
+
+        self.temporal = temporal
+        self.temporal_reference = temporal_reference
+        self.temporal_function = temporal_function
 
         if isinstance(transforms, dict):
             transforms = get_transforms(transforms)
@@ -53,10 +74,24 @@ class InterpolationIndex(TrainingOperatorIndex):
         base_transforms = TransformCollection(transforms)
 
         super().__init__(
-            indexes, base_transforms = base_transforms, data_resolution = sample_interval, allow_multiple_index=True
+            indexes,
+            base_transforms=base_transforms,
+            data_resolution=sample_interval,
+            allow_multiple_index=True,
         )
 
-    def get(self, query_time, **kwargs):
+    def get(self, query_time, **kwargs) -> xr.Dataset:
+        """
+        Get Data at given time from all given indexes, and interpolate as defined.
+
+        Args:
+            query_time (Any):
+                Time to retrieve data at
+
+        Returns:
+            (xr.Dataset):
+                [xr.Dataset][xarray.Dataset] containing data from all indexes interpolated together
+        """
         data = []
 
         for index in self.index:
@@ -84,8 +119,15 @@ class InterpolationIndex(TrainingOperatorIndex):
                     pass
                     # new_data['time'] = data[-1]['time']
             data.append(new_data)
-        ds = xr.merge(data)
-        return ds
+
+        if self.temporal:
+            return operations.interpolation.TemporalInterpolation(
+                *data,
+                reference_dataset=self.temporal_reference,
+                aggregation_function=self.temporal_function,
+                merge=True,
+            )
+        return xr.merge(data)
 
     @property
     def __doc__(self):

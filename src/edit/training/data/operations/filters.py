@@ -1,6 +1,5 @@
 from abc import abstractmethod
 import math
-from typing import Union
 
 import numpy as np
 import xarray as xr
@@ -8,32 +7,58 @@ import xarray as xr
 from edit.training.data.templates import (
     DataOperation,
     DataIterator,
+    DataStep,
 )
 from edit.training.data.sequential import Sequential, SequentialIterator
 
 
 class DataFilter(DataOperation):
     """
-    Override __iter__ method to provide a way of filtering the data
-    """
+    DataOperation Child to override `__iter__` method to provide a way of filtering data
 
-    def __init__(self, index) -> None:
+    !!! Example
+        ```python
+        DataFilterChild(PipelineStep)
+
+        ## As this is decorated with @SequentialIterator, it can be partially initialised
+
+        partialDataFilterChild = DataFilterChild()
+        partialDataFilterChild(PipelineStep)
+        ```
+    """
+    def __init__(self, index : DataStep) -> None:
+        """DataOperation to filter incoming data         
+        
+        Args:
+            index (DataStep): 
+                Underlying DataStep to get data from
+        """        
         super().__init__(
             index, apply_func=None, undo_func=None, apply_iterator=True, apply_get=False
         )
 
     @abstractmethod
     def __iter__(self):
-        raise NotImplementedError(f"Filter must define Iterator")
+        raise NotImplementedError(f"Child Filter must define Iterator")
 
 
 @SequentialIterator
 class DropNan(DataFilter):
     """
-    Drop any data with nans when iterating.
+    DataFilter to drop any data with nans when iterating.
     """
 
-    def _check(self, data: xr.Dataset | np.ndarray):
+    def _check(self, data: xr.Dataset | np.ndarray) -> bool:
+        """Check if any of the data is nan        
+        
+        Args:
+            data (xr.Dataset | np.ndarray): 
+                Data to check
+        
+        Returns:
+            (bool): 
+                If data contains nan's
+        """        
         if isinstance(data, (xr.Dataset, xr.DataArray)):
             return np.array(list(np.isnan(data).values())).any()
         return np.isnan(data).any()
@@ -52,10 +77,19 @@ class DropNan(DataFilter):
 @SequentialIterator
 class DropAllNan(DataFilter):
     """
-    Drop data if it is all nans when iterating.
+    DataFilter to drop data if it is all nans when iterating.
     """
 
-    def _check(self, data: xr.Dataset | np.ndarray):
+    def _check(self, data: xr.Dataset | np.ndarray) -> bool:
+        """Check if all of the data is nan        
+        
+        Args:
+            data (xr.Dataset | np.ndarray): 
+                Data to check
+        
+        Returns:
+            (bool): 
+        """      
         if isinstance(data, (xr.Dataset, xr.DataArray)):
             data = np.isnan(data).all()
             if hasattr(data, "to_array"):
@@ -80,25 +114,19 @@ class DropAllNan(DataFilter):
 @SequentialIterator
 class DropValue(DataFilter):
     """
-    Drop Data containing a value above a percentage when iterating.
+    DataFilter to drop data containing more than given percentage of a value.
     """
-
-    def __init__(self, iterator: DataIterator, value: float, percentage: float) -> None:
-        """
-        Drop Data if number of elements equal to value are greater than percentage when iterating.
-
-        When using __getitem__ do nothing.
-
-
-        Parameters
-        ----------
-        iterator
-            Iterator
-        search_value
-            Value to search for
-        percentage
-            Percentage of which an exceedance drops data
-        """
+    def __init__(self, iterator: DataStep, value: float, percentage: float) -> None:
+        """Drop Data if number of elements equal to value are greater than percentage when iterating.        
+        
+        Args:
+            iterator (DataStep): 
+                Underlying DataStep to get data from
+            value (float): 
+                Value to search for
+            percentage (float): 
+                Percentage of `value` of which an exceedance drops data
+        """        
         super().__init__(iterator)
 
         self.function = (

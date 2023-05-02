@@ -7,6 +7,7 @@ from edit.training.data.loaders.pytorch import PytorchIterable
 from torch.utils.data import IterableDataset
 
 
+# TODO Remove this and implement specifically for Solar not in EDIT
 @SequentialIterator
 class ClimaXDataLoader(DataStep, IterableDataset):
     """
@@ -17,19 +18,19 @@ class ClimaXDataLoader(DataStep, IterableDataset):
         super().__init__(index=index)
 
     def _find_time(self):
-        if not hasattr(self.index, 'sample_interval'):
+        if not hasattr(self.index, "sample_interval"):
             raise RuntimeError(f"Not using a known TemporalIterator")
 
-        #if isinstance(data, tuple)
-        
+        # if isinstance(data, tuple)
+
         return torch.Tensor([1])
 
     def __getitem__(self, idx):
-        return (*self.index[idx],self._find_time())
+        return (*self.index[idx], self._find_time())
 
     def __iter__(self):
         for i in self.index:
-            yield (*i,self._find_time())
+            yield (*i, self._find_time())
 
     @property
     def ignore_sanity(self):

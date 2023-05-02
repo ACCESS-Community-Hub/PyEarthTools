@@ -17,11 +17,22 @@ from edit.training.data.sequential import Sequential, SequentialIterator
 class CachingIndex(TrainingOperatorIndex, dataCachingIndex):
     """
     [edit.training][edit.training] Implementation of [CachingIndex][edit.data.cacheIndex.CachingIndex]
+
+    !!! Example
+        ```python
+        CachingIndex(PipelineStep, cache = '~/CacheDirectory/', pattern = 'ExpandedDate')
+
+        ## As this is decorated with @SequentialIterator, it can be partially initialised
+
+        partialCaching = CachingIndex(cache = '~/CacheDirectory/', pattern = 'ExpandedDate')
+        partialCaching(PipelineStep)
+        ```
     """
 
     def __init__(
         self,
-        index: DataIndex | DataStep,
+        index: dict | DataIndex | DataStep,
+        *,
         cache: str | Path = None,
         pattern: str | PatternIndex = None,
         pattern_kwargs: dict = {},
@@ -30,14 +41,20 @@ class CachingIndex(TrainingOperatorIndex, dataCachingIndex):
         """
         Initalise the CachingIndex
 
-        Args:
-            index (DataIndex | DataStep): DataIndex or DataStep to use to get data
-            cache (str | Path, optional): Path to cache data to. Defaults to None.
-            pattern (str | PatternIndex, optional): Pattern to use to cache data, if str use `pattern_kwargs` to initalise. Defaults to None.
-            pattern_kwargs (dict, optional): Kwargs to initalise the pattern with. Defaults to {}.
-
-        Note:
+        !!! Warning:
             Either cache, or pattern must be defined
+
+        Args:
+            index (dict | DataIndex | DataStep):
+                Prior Data Retrieval Step, can be dict which will be automatically initialised
+            cache (str | Path, optional):
+                Path to cache data to. Defaults to None.
+            pattern (str | PatternIndex, optional):
+                Pattern to use to cache data, if str use `pattern_kwargs` to initalise. Defaults to None.
+            pattern_kwargs (dict, optional):
+                Kwargs to initalise the pattern with. Defaults to {}.
+
+
         """
         super().__init__(
             index=index,

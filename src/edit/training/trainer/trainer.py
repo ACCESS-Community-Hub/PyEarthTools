@@ -24,7 +24,7 @@ class EDITTrainerWrapper(EDITTrainer):
 
     def __init__(
         self,
-        model : pl.LightningModule,
+        model: pl.LightningModule,
         train_data: Union[DataLoader, DataIterator],
         path: str = None,
         valid_data: Union[DataLoader, DataIterator] = None,
@@ -34,18 +34,18 @@ class EDITTrainerWrapper(EDITTrainer):
         Provides fit, predict overrides to work with edit.training
 
         Args:
-            model (pl.LightningModule): 
+            model (pl.LightningModule):
                 Pytorch Lightning Module to use as model
-            train_data (Union[DataLoader, DataIterator]): 
-                Dataloader to use for Training, 
-            path (str, optional): 
+            train_data (Union[DataLoader, DataIterator]):
+                Dataloader to use for Training,
+            path (str, optional):
                 Path to save Models and Logs, can also provide `default_root_dir`. Defaults to None
-            valid_data (DataIterator, optional): 
+            valid_data (DataIterator, optional):
                 Dataloader to use for validation. Defaults to None.
             **kwargs (Any, optional):
                 All passed to trainer __init__, will intercept 'logger' to update from str if given
 
-        """        
+        """
         self.model = model
 
         num_workers = kwargs.pop("num_workers", 0)
@@ -84,7 +84,9 @@ class EDITTrainerWrapper(EDITTrainer):
 
         path = kwargs.pop("default_root_dir", path)
         if path is None:
-            raise ValueError(f"Path cannot be None, either provide `default_root_dir` or `path`")
+            raise ValueError(
+                f"Path cannot be None, either provide `default_root_dir` or `path`"
+            )
         self.path = path
         self.checkpoint_path = (Path(path) / "Checkpoints").resolve()
 
@@ -116,7 +118,7 @@ class EDITTrainerWrapper(EDITTrainer):
                 kwargs["logger"] = pl.loggers.CSVLogger(path, name="csv_logs")
                 self.log_path = self.log_path / "csv_logs"
 
-        kwargs['limit_val_batches'] = int(kwargs.pop('limit_val_batches', 10))
+        kwargs["limit_val_batches"] = int(kwargs.pop("limit_val_batches", 10))
 
         self.trainer = pl.Trainer(
             default_root_dir=path,
@@ -269,13 +271,9 @@ class EDITTrainerWrapper(EDITTrainer):
                 prediction = prediction[-1]
 
             if "Coordinate 1" in prediction:
-                prediction = prediction.rename(
-                    {"Coordinate 1": "time"}
-                )
-            if hasattr(data_source, 'rebuild_time'):
-                prediction = data_source.rebuild_time(
-                    prediction, index
-                )
+                prediction = prediction.rename({"Coordinate 1": "time"})
+            if hasattr(data_source, "rebuild_time"):
+                prediction = data_source.rebuild_time(prediction, index)
 
         return Collection(data_source.undo(data[1]), prediction)
 
@@ -291,7 +289,7 @@ class EDITTrainerWrapper(EDITTrainer):
     ):
         """Uses [predict][edit.training.trainer.EDITTrainerWrapper.predict] to predict timesteps and then feed back through recurrently.
 
-        
+
         Uses edit.training DataIterator to get data at given start index.
         Can automatically try to rebuild the xarray Dataset.
 
@@ -300,22 +298,22 @@ class EDITTrainerWrapper(EDITTrainer):
             Solution: batch_size = 1
 
         Args:
-            start_index (str): 
+            start_index (str):
                 Starting Index of Prediction
-            recurrence (int): 
+            recurrence (int):
                 Number of times to recur
-            data_iterator (DataIterator, optional): 
+            data_iterator (DataIterator, optional):
                 Override for initial data retrieval. Defaults to None.
-            resume (bool, optional): 
+            resume (bool, optional):
                 Resume from checkpoint. Defaults to True.
-            only_state (bool, optional): 
+            only_state (bool, optional):
                 Resume only_state. Defaults to True.
             truth_step (int, optional):
                 Data Pipeline step to use to retrieve Truth data. Defaults to 0
         Returns:
-            (xr.Dataset): 
+            (xr.Dataset):
                 Combined Predictions
-        """        
+        """
         data_source = data_iterator or self.valid_iterator or self.train_iterator
         data = list(data_source[start_index])
 
@@ -337,29 +335,30 @@ class EDITTrainerWrapper(EDITTrainer):
         for i in range(recurrence):
             input_data = None
             prediction = self._predict_from_data(data, **kwargs)
-            
+
             fixed_predictions = data_source.undo(prediction)
-            
+
             if isinstance(fixed_predictions, (tuple, list)):
                 input_data = fixed_predictions[0]
                 fixed_predictions = fixed_predictions[-1]
-                
 
             if "Coordinate 1" in fixed_predictions:
-                fixed_predictions = fixed_predictions.rename(
-                    {"Coordinate 1": "time"}
-                )
-            if hasattr(data_source, 'rebuild_time'):
+                fixed_predictions = fixed_predictions.rename({"Coordinate 1": "time"})
+            if hasattr(data_source, "rebuild_time"):
                 fixed_predictions = data_source.rebuild_time(
-                    fixed_predictions, index, offset = 1 if i >= 1 else 0,
+                    fixed_predictions,
+                    index,
+                    offset=1 if i >= 1 else 0,
                 )
-                
+
             predictions.append(fixed_predictions)
 
             # data[0] = fixed_predictions
             # #data.reverse()
             input_data = input_data or data_source.undo(data)[0]
-            new_input = xr.merge((input_data, fixed_predictions)).isel(time = slice(-1 * len(input_data.time), None))
+            new_input = xr.merge((input_data, fixed_predictions)).isel(
+                time=slice(-1 * len(input_data.time), None)
+            )
             index = new_input.time.values[-1]
             data[0] = data_source.apply(new_input)
 
@@ -368,7 +367,9 @@ class EDITTrainerWrapper(EDITTrainer):
         if truth_step is None:
             return predictions
 
-        return Collection(self.train_iterator.step(truth_step)[predictions], predictions)
+        return Collection(
+            self.train_iterator.step(truth_step)[predictions], predictions
+        )
 
     def data(self, index, undo=False):
         """

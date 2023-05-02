@@ -1,31 +1,46 @@
+import functools
+import logging
 from typing import Any, Union
-import xarray as xr
 import numpy as np
-import datetime
+import xarray as xr
 
 
-from edit.data import OperatorIndex
+from edit.data import DataIndex
 
-from edit.training.data.templates import TrainingOperatorIndex
-from edit.training.data.sequential import Sequential, SequentialIterator
+from edit.training.data.templates import TrainingOperatorIndex, DataStep
+from edit.training.data.sequential import SequentialIterator
 
 
 @SequentialIterator
 class CoordinateIndex(TrainingOperatorIndex):
     """
-    Add Coordinates as data variable
+    OperatorIndex which adds coordinates as data variables from a [Dataset][xarray.Dataset]
+
+    !!! Example
+        ```python
+        CoordinateIndex(PipelineStep, coordinates = ['latitude'])
+
+        ## As this is decorated with @SequentialIterator, it can be partially initialised
+
+        partialCoordinate = CoordinateIndex(coordinates = ['latitude'])
+        partialCoordinate(PipelineStep)
+        ```
+
     """
 
-    def __init__(self, index: dict | OperatorIndex, coordinates: str | list[str]):
+    def __init__(
+        self, index: dict | DataIndex | DataStep, coordinates: str | list[str]
+    ):
         """
-        Create CoordinateAdder
+        Initialise CoordinateIndex
 
-        Parameters
-        ----------
-        index
-            Dictionary with keys as imports or modules to other OperatorIndexes
-        coordinates:
-            Coordinates to add
+        Will ignore coordinates if they are not in the [Dataset][xarray.Dataset]
+
+        Args:
+            index (dict | DataIndex | DataStep):
+                Prior Data Retrieval Step, can be dict which will be automatically initialised
+            coordinates (str | list[str]):
+                Coordinates to add as data variables
         """
         super().__init__(index)
 
@@ -33,8 +48,19 @@ class CoordinateIndex(TrainingOperatorIndex):
 
         self.coordinates = coordinates
 
-    def get(self, query_time):
-        data = self.index[query_time]
+    @functools.wraps(DataIndex.get)
+    def get(self, query_time: Any) -> xr.Dataset:
+        """Retrieve Data at given time, and add coordinates
+
+        Args:
+            query_time (Any):
+                Time to retrieve data at
+
+        Returns:
+            (xr.Dataset):
+                Returned [Dataset][xarray.Dataset] with coordinates added
+        """
+        data = self.index(query_time)
         dims = data.dims
 
         for coord in self.coordinates:
@@ -46,7 +72,7 @@ class CoordinateIndex(TrainingOperatorIndex):
                 axis = [list(dims).index(key) for key in new_dims.keys()]
                 data[f"var_{coord}"] = data[coord].expand_dims(new_dims, axis=axis)
             else:
-                raise KeyError(
+                logging.warn(
                     f"{coord} not found in dataset, which has coords: {list(data.coords)}"
                 )
         return data

@@ -1,14 +1,23 @@
-from typing import Union
 from torch.utils.data import IterableDataset
 
 from edit.training.data.templates import DataStep, DataIterator
-from edit.training.data.sequential import Sequential, SequentialIterator
+from edit.training.data.sequential import SequentialIterator
 
 
 @SequentialIterator
 class PytorchIterable(DataStep, IterableDataset):
     """
     Connect Data Pipeline with PyTorch IterableDataset
+
+    !!! Example
+        ```python
+        PytorchIterable(PipelineStep)
+
+        ## As this is decorated with @SequentialIterator, it can be partially initialised
+
+        partialPytorchIterable = PytorchIterable()
+        partialPytorchIterable(PipelineStep)
+        ```
     """
 
     def __init__(self, index: DataStep | DataIterator) -> None:

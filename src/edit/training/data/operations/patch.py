@@ -1,47 +1,55 @@
 import functools
 import time
 from itertools import zip_longest
-from typing import Union
+from typing import Any, Union
 
 import numpy as np
 import xarray as xr
 
-from edit.training.data.templates import DataOperation, DataInterface
-from edit.training.data.sequential import Sequential, SequentialIterator
+from edit.training.data.templates import DataOperation, DataStep
+from edit.training.data.sequential import  SequentialIterator
 
 from edit.utils.data import Tesselator
-from edit.data import DataIndex, Collection
+from edit.data import Collection
 
 
 @SequentialIterator
 class PatchingDataIndex(DataOperation):
     """
-    Seperate data into np array patches from a data source
-    """
+    DataOperation to patch data into smaller chunks of [np.array][numpy.ndarray]
 
+    !!! Example
+        ```python
+        PatchingDataIndex(PipelineStep)
+
+        ## As this is decorated with @SequentialIterator, it can be partially initialised
+
+        partialPatchingDataIndex = PatchingDataIndex()
+        partialPatchingDataIndex(PipelineStep)
+        ```
+    """
     def __init__(
         self,
-        index: DataInterface,
+        index: DataStep,
         kernel_size: tuple[int, int] | int,
         stride_size: tuple[int, int] | int = None,
         padding: str = "constant",
     ) -> None:
-        """
-        Provide functionality to patch data for consumption by an ML Model.
+        """Patching DataOperation to split data into smaller chunks
+        
+        Returned patches will be of shape (Patch, ..., *kernel_size)
 
-        Return patches will be of shape (Patch, ..., *kernel_size)
+        Args:
+            index (DataStep): 
+                Underlying DataStep to retrieve Data from
+            kernel_size (tuple[int] | int): 
+                Kernel size of the data to be returned
+            stride_size (tuple[int] | int, optional): 
+                Stride size of the data, if not given default to `kernel_size`. Defaults to None.
+            padding (str, optional): 
+                Padding method to use. Must be of [np.pad][numpy.pad]. Defaults to "constant".
+        """        
 
-        Parameters
-        ----------
-        data_interface
-            DataInterface which interfaces with the DataIndex/s
-        kernel_size
-            Kernel size of the data to be returned
-        stride_size, optional
-            Stride size of the data, by default None
-        padding, optional
-            Padding method to use. Must be of np.pad, by default 'constant'
-        """
         super().__init__(
             index, apply_func=self.__apply_func, undo_func=self._undo_tesselators
         )
@@ -67,14 +75,13 @@ class PatchingDataIndex(DataOperation):
 
         return return_values
 
-    def get_patching(self):
-        """
-        Get Patching Setup
-
-        Returns
-        -------
-            Patching Info - tuple[kernel_size, stride_size]
-        """
+    def get_patching(self) -> tuple[tuple[int] | int]:
+        """Get Patching Setup
+        
+        Returns:
+            (tuple[tuple[int] | int]): 
+                Patching Info - [kernel_size, stride_size]
+        """        
         return self.kernel_size, self.stride_size
 
     def update_patching(
@@ -82,16 +89,14 @@ class PatchingDataIndex(DataOperation):
         kernel_size: tuple[int, int] | int = None,
         stride_size: tuple[int, int] | int = None,
     ):
-        """
-        Reset Tesselators and update patching configs.
-
-        Parameters
-        ----------
-        kernel_size, optional
-            New kernel_size, by default None
-        stride_size, optional
-            New stride size, by default None
-        """
+        """Reset Tesselators and update patching configs.        
+        
+        Args:
+            kernel_size (tuple[int, int] | int, optional): 
+                New kernel_size. Defaults to None.
+            stride_size (tuple[int, int] | int, optional): 
+                New stride size. Defaults to None.
+        """        
         self._tesselators = []
         self.kernel_size = kernel_size or self.kernel_size
         self.stride_size = stride_size
@@ -106,22 +111,21 @@ class PatchingDataIndex(DataOperation):
             for patch in self._get_tesselators(1)[0].patch(datasets):
                 yield (patch,)
 
-        elif isinstance(datasets, (list, tuple, Collection)):
+        elif isinstance(datasets, (list, tuple, Collection, np.ndarray)):
             tesselators = self._get_tesselators(len(datasets))
             for patches in zip(
                 *(tesselators[i].patch(datasets[i]) for i in range(len(datasets)))
             ):
-                yield patches
+                yield (patches,)
         else:
             raise NotImplementedError(f"Cannot apply tesselation to {type(datasets)!r}")
 
     def __iter__(self) -> tuple[np.ndarray]:
-        for datasets in self.index:
-            for i in self._apply_tesselators(datasets):
-                if len(i) == 1:
-                    yield i[0]
-                else:
-                    yield i
+        for i in self._apply_tesselators(datasets for datasets in self.index):
+            if len(i) == 1:
+                yield i[0]
+            else:
+                yield i
 
     def __apply_func(self, data):
         patches = self._apply_tesselators(data)
@@ -136,32 +140,26 @@ class PatchingDataIndex(DataOperation):
         self,
         data: np.ndarray | tuple[np.ndarray],
         override_index: int = None,
-        **kwargs,
     ) -> xr.Dataset | tuple[xr.Dataset]:
-        """
-        Undo patching done to Datasets. Automatically stitching them together.
+        """Undo patching done to Datasets. Automatically stitching them together.
 
-        Can be run on direct output of self[]
+        Can be run on direct output of self[]        
+        
+        Args:
+            data (np.ndarray | tuple[np.ndarray]): 
+                Arrays to stitch back together
+            override_index (int, optional): 
+                Override of which tesselator to use. Defaults to None.
+        
+        Raises:
+            NotImplementedError: 
+                If data type is not recognised
+        
+        Returns:
+            (xr.Dataset | tuple[xr.Dataset]): 
+                Data stitched back together
+        """        
 
-        Parameters
-        ----------
-        data
-            Arrays to stitch back together
-        override_index, optional
-            Override of which tesselator to use, by default None
-        data_index, optional
-            Override to pass along to DataInterface on which Unnormalise to use,
-                by default None
-
-        Returns
-        -------
-            Data stitched together
-
-        Raises
-        ------
-        NotImplementedError
-            If data is not recognised
-        """
 
         if isinstance(data, np.ndarray):
             if override_index == -1:
@@ -174,16 +172,27 @@ class PatchingDataIndex(DataOperation):
             tesselators = self._get_tesselators(len(data))
             datasets = [tesselators[i].stitch(data[i]) for i in range(len(data))]
         else:
-            raise NotImplementedError(f"What is {type(data)}")
+            raise NotImplemente dError(f"What is {type(data)}")
 
         return datasets
 
-    def get_before_patching(self, idx: str):
+    def get_before_patching(self, idx: str) -> Any:
+        """
+        Get Data before patching step from given index        
+        
+        Args:
+            idx (str): 
+                Index to retrieve data at
+        
+        Returns:
+            (Any): 
+                Data before patching is applied
+        """
         return self.index[idx]
 
-    def _formatted_name(self):
-        desc = f"Kernel_size {self.kernel_size}. Stride_size {self.stride_size or self.kernel_size}"
-        return super()._formatted_name(desc)
+    @property
+    def __doc__(self):
+        return f"Kernel_size {self.kernel_size}. Stride_size {self.stride_size or self.kernel_size}"
 
     def __copy__(self):
         return PatchingDataIndex(

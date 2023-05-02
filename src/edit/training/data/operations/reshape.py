@@ -1,11 +1,9 @@
-from typing import Union
 
 import einops
 import numpy as np
 from scipy import interpolate
 
 from edit.training.data.templates import (
-    DataIterator,
     DataStep,
     DataOperation,
 )
@@ -15,38 +13,52 @@ from edit.training.data.sequential import Sequential, SequentialIterator
 @SequentialIterator
 class Rearrange(DataOperation):
     """
-    Rearrange Data
-    """
+    DataOperation to rearrange data using einops
+    
 
+    !!! Example
+        ```python
+        Rearrange(PipelineStep, rearrange = 't c h w -> h w t c')
+
+        ## As this is decorated with @SequentialIterator, it can be partially initialised
+
+        partialRearrange = Rearrange(rearrange = 't c h w -> h w t c')
+        partialRearrange(PipelineStep)
+        ```
+    """
     def __init__(
         self,
         index: DataStep,
         rearrange: str,
         skip: bool = False,
         *rearrange_args,
+        rearrange_kwargs: dict = {},
         **kwargs,
     ) -> None:
-        """
-        Using Einops rearrange, rearrange data.
+        """Using Einops rearrange, rearrange data.
+        
+        !!! Note
+            This will occur on each iteration, and on `__getitem__`,
+            so it is best to leave patches code out if using [PatchingDataIndex][edit.training.data.operations.PatchingDataIndex].
 
-        NOTE: This will occur on each iteration, and on __getitem__,
-            so it is best to leave patches out if using PatchingDataIndex.
+            'p t c h w' == 't c h w'
 
-        Parameters
-        ----------
-        index
-            Iterator to use
-        rearrange
-            String entry to einops.rearrange
-        skip
-            Whether to skip data that cannot be rearranged
-        *rearrange_args
-            All to be passed to einops.rearrange
-
-        """
+        Args:
+            index (DataStep): 
+                Underlying DataStep to use to retrieve data
+            rearrange (str): 
+                String entry to einops.rearrange
+            skip (bool, optional): 
+                Whether to skip data that cannot be rearranged. Defaults to False.
+            *rearrange_args (Any, optional):
+                Extra arguments to be passed to the einops.rearrange call
+            rearrange_kwargs (dict, optional):
+                Extra keyword arguments to be passed to the einops.rearrange call. Defaults to {}.
+        """        
         super().__init__(index, self._apply_rearrange, self._undo_rearrange, **kwargs)
         self.rearrange = rearrange
         self.rearrange_args = rearrange_args
+        self.rearrange_kwargs = rearrange_kwargs
 
         self.skip = skip
         self.__doc__ = f"Rearrange Data according to {rearrange}"
@@ -63,7 +75,7 @@ class Rearrange(DataOperation):
             if isinstance(data, tuple):
                 return tuple(
                     map(
-                        lambda x: einops.rearrange(x, rearrange, *self.rearrange_args),
+                        lambda x: einops.rearrange(x, rearrange, *self.rearrange_args, **self.rearrange_kwargs),
                         data,
                     )
                 )
@@ -89,15 +101,33 @@ class Rearrange(DataOperation):
 @SequentialIterator
 class Squish(DataOperation):
     """
-    Squish One Dimensional axis at 'axis' location
+    DataOperation to Squish One Dimensional axis at 'axis' location    
+
+    !!! Example
+        ```python
+        Squish(PipelineStep, axis = 1)
+
+        ## As this is decorated with @SequentialIterator, it can be partially initialised
+
+        partialSquish = Squish(axis = 1)
+        partialSquish(PipelineStep)
+        ```
 
     !!! Warning
-        If use this with PatchingDataIndex, as patch dim only exists on __getitem__ calls, axis indexing may be off.
-        Either use negative indexing, or two squish operators, one for __getitem__ with apply_iterator = False,
-        and one for __iter__ with apply_get = False
+        If use this with [PatchingDataIndex][edit.training.data.operations.PatchingDataIndex], as patch dim only exists on `__getitem__` calls, axis indexing may be off.
+        Either use negative indexing, or two squish operators, one for `__getitem__` with `apply_iterator` = False,
+        and one for `__iter__` with `apply_get` = False
     """
 
     def __init__(self, index: DataStep, axis: int, **kwargs) -> None:
+        """Squish Dimension of Data        
+        
+        Args:
+            index (DataStep): 
+                Underlying DataStep to use to retrieve data
+            axis (int): 
+                Axis to squish at
+        """        
         super().__init__(index, self._apply_squish, self._apply_expand, **kwargs)
         self.axis = axis
 
@@ -126,10 +156,34 @@ class Squish(DataOperation):
 @SequentialIterator
 class Expand(DataOperation):
     """
-    Expand One Dimensional axis at 'axis' location
+    DataOperation to Expand One Dimensional axis at 'axis' location    
+
+    !!! Example
+        ```python
+        Expand(PipelineStep, axis = 1)
+
+        ## As this is decorated with @SequentialIterator, it can be partially initialised
+
+        partialExpand = Expand(axis = 1)
+        partialExpand(PipelineStep)
+        ```
+
+    !!! Warning
+        If use this with [PatchingDataIndex][edit.training.data.operations.PatchingDataIndex], as patch dim only exists on `__getitem__` calls, axis indexing may be off.
+        Either use negative indexing, or two squish operators, one for `__getitem__` with `apply_iterator` = False,
+        and one for `__iter__` with `apply_get` = False
     """
 
     def __init__(self, index: DataStep, axis: int, **kwargs) -> None:
+        """Expand Dimension of Data
+        
+
+        Args:
+            index (DataStep): 
+                Underlying DataStep to use to retrieve data
+            axis (int): 
+                Axis to expand at
+        """        
         super().__init__(index, self._apply_expand, self._apply_squish, **kwargs)
         self.axis = axis
 

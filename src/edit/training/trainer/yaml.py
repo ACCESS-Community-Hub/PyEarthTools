@@ -88,9 +88,9 @@ def from_yaml(yaml_file: str, **kwargs) -> EDITTrainerWrapper:
     model = model(**config["model"])
 
     return EDITTrainerWrapper(
-        model= model,
-        train_data= train_data,
-        valid_data= valid_data,
+        model=model,
+        train_data=train_data,
+        valid_data=valid_data,
         path=config["trainer"].pop("root_dir", None),
         **config["trainer"]
     )

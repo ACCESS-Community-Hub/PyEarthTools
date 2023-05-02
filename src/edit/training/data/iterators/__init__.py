@@ -1,5 +1,18 @@
-from .temporal import TemporalIterator as TemporalInterface
-from .temporal import TemporalIterator
-from .combine import CombineDataIndex
-from .iterator import Iterator
-from .fakedata import FakeData
+"""
+Collection of [DataIterators][edit.training.data.DataIterator] for use in Data Pipelines
+
+All implement [DataIterator][edit.training.data.DataIterator], so will provide date based iterations and error catching
+
+| Name                | Description |
+| ------------------- | ----------- |
+| [Iterator][edit.training.data.iterators.iterator]            | Basic Iterator  |
+| [CombineDataIterator][edit.training.data.iterators.combine]    | Combine Multiple DataIterators together and alternate between samples |
+| [TemporalIterator][edit.training.data.iterators.temporal]    | Add Time Dimension to data, with choice on prior/post samples and interval. Must retrieve xarray objects |
+| [FakeData][edit.training.data.iterators.fakedata]            | Fake Data loading process to eliminate data loading times |
+"""
+
+from edit.training.data.iterators.iterator import Iterator
+from edit.training.data.iterators.combine import CombineDataIterator
+from edit.training.data.iterators.temporal import TemporalIterator as TemporalInterface
+from edit.training.data.iterators.temporal import TemporalIterator
+from edit.training.data.iterators.fakedata import FakeData
