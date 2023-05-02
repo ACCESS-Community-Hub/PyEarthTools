@@ -156,6 +156,7 @@ class ToNumpy(DataOperation):
         return ds
 
     def _convert_numpy_to_xarray(self, data: np.ndarray) -> xr.Dataset | tuple[xr.Dataset]:
+        
         if isinstance(data, (np.ndarray)):
             return self._rebuild_arrays(data, self._records[0])
 
