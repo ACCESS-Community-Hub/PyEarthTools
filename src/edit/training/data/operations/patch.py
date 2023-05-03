@@ -192,11 +192,12 @@ class PatchingDataIndex(DataOperation):
         return self.index[idx]
 
     def __iter__(self) -> tuple[np.ndarray]:
-        for i in self._apply_tesselators(datasets for datasets in self.index):
-            if len(i) == 1:
-                yield i[0]
-            else:
-                yield i
+        for dataset in self.index:
+            for i in self._apply_tesselators(dataset):
+                if len(i) == 1:
+                    yield i[0]
+                else:
+                    yield i
 
     @property
     def __doc__(self):
