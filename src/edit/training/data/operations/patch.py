@@ -1,5 +1,5 @@
-import functools
-import time
+from __future__ import annotations
+
 from itertools import zip_longest
 from typing import Any, Union
 
@@ -110,8 +110,11 @@ class PatchingDataIndex(DataOperation):
             datasets = datasets.compute()
             for patch in self._get_tesselators(1)[0].patch(datasets):
                 yield (patch,)
+        elif isinstance(datasets, (np.ndarray)):
+            for patch in self._get_tesselators(1)[0].patch(datasets):
+                yield (patch,)
 
-        elif isinstance(datasets, (list, tuple, Collection, np.ndarray)):
+        elif isinstance(datasets, (list, tuple, Collection)):
             tesselators = self._get_tesselators(len(datasets))
             for patches in zip(
                 *(tesselators[i].patch(datasets[i]) for i in range(len(datasets)))
@@ -120,12 +123,6 @@ class PatchingDataIndex(DataOperation):
         else:
             raise NotImplementedError(f"Cannot apply tesselation to {type(datasets)!r}")
 
-    def __iter__(self) -> tuple[np.ndarray]:
-        for i in self._apply_tesselators(datasets for datasets in self.index):
-            if len(i) == 1:
-                yield i[0]
-            else:
-                yield i
 
     def __apply_func(self, data):
         patches = self._apply_tesselators(data)
@@ -140,8 +137,12 @@ class PatchingDataIndex(DataOperation):
         self,
         data: np.ndarray | tuple[np.ndarray],
         override_index: int = None,
-    ) -> xr.Dataset | tuple[xr.Dataset]:
+    ) -> xr.Dataset | tuple[xr.Dataset | np.ndarray] | np.ndarray:
         """Undo patching done to Datasets. Automatically stitching them together.
+
+        !!! Warning
+            If a tuple of datasets was passed to [_apply_tesselators][edit.training.data.operations.patch._apply_tesselators]
+            and they are different, it is best to pass a tuple to this function replicating the order
 
         Can be run on direct output of self[]        
         
@@ -152,11 +153,11 @@ class PatchingDataIndex(DataOperation):
                 Override of which tesselator to use. Defaults to None.
         
         Raises:
-            NotImplementedError: 
+            TypeError: 
                 If data type is not recognised
         
         Returns:
-            (xr.Dataset | tuple[xr.Dataset]): 
+            (xr.Dataset | tuple[xr.Dataset | np.ndarray] | np.ndarray): 
                 Data stitched back together
         """        
 
@@ -172,7 +173,7 @@ class PatchingDataIndex(DataOperation):
             tesselators = self._get_tesselators(len(data))
             datasets = [tesselators[i].stitch(data[i]) for i in range(len(data))]
         else:
-            raise NotImplemente dError(f"What is {type(data)}")
+            raise TypeError(f"What is {type(data)}")
 
         return datasets
 
@@ -189,6 +190,13 @@ class PatchingDataIndex(DataOperation):
                 Data before patching is applied
         """
         return self.index[idx]
+
+    def __iter__(self) -> tuple[np.ndarray]:
+        for i in self._apply_tesselators(datasets for datasets in self.index):
+            if len(i) == 1:
+                yield i[0]
+            else:
+                yield i
 
     @property
     def __doc__(self):
