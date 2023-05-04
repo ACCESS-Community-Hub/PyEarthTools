@@ -1,5 +1,6 @@
-import functools
-import time
+
+from __future__ import annotations
+
 from itertools import zip_longest
 from typing import Union
 
@@ -155,8 +156,22 @@ class ToNumpy(DataOperation):
         )
         return ds
 
-    def _convert_numpy_to_xarray(self, data: np.ndarray) -> xr.Dataset | tuple[xr.Dataset]:
-        
+    def _convert_numpy_to_xarray(self, data: np.ndarray | tuple[np.ndarray]) -> xr.Dataset | tuple[xr.Dataset]:
+        """
+        Convert [array/s][numpy.ndarray] into [Dataset/s][xarray.Dataset] inferring metadata from saved records
+
+        !!! Warning
+            If a tuple of datasets was passed to [_convert_xarray_to_numpy][edit.training.data.operations.to_numpy._convert_xarray_to_numpy]
+            and they are different, it is best to pass a tuple to this function replicating the order
+
+        Args:
+            data (np.ndarray): 
+                [array/s][numpy.ndarray] to convert back to [Dataset/s][xarray.Dataset]
+
+        Returns:
+            (xr.Dataset | tuple[xr.Dataset]): 
+                Rebuilt [Dataset/s][xarray.Dataset]
+        """        
         if isinstance(data, (np.ndarray)):
             return self._rebuild_arrays(data, self._records[0])
 

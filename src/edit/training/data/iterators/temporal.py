@@ -1,14 +1,11 @@
-import copy
-import functools
-from datetime import datetime, timedelta
-import importlib
-from typing import Iterable, Union
 
-import builtins
+from __future__ import annotations
+
+from datetime import datetime, timedelta
+from typing import Iterable, Union
 
 import xarray as xr
 
-import edit.data
 from edit.data import FunctionTransform, Transform, TransformCollection
 from edit.data import DataIndex, OperatorIndex
 from edit.data.time import EDITDatetime, time_delta

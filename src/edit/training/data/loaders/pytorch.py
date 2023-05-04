@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from torch.utils.data import IterableDataset
 
 from edit.training.data.templates import DataStep, DataIterator

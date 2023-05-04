@@ -1,8 +1,9 @@
 """
 EDIT Trainer Commands
 """
+from __future__ import annotations
+
 import click
-import yaml
 
 
 @click.group(name="Trainer From Yaml")

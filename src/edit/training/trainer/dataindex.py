@@ -1,10 +1,12 @@
 """
-ML Data Indexes
+Provide a Machine Learning Model as an [edit.data.DataIndex][edit.data.DataIndex].
+
+This will allow data to be retrieved as normal, with the user not having to worry about it being an ML Model
 """
+from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Callable, Union
 from edit.data import OperatorIndex, DataIndex
 from edit.data.transform import apply, Transform, TransformCollection
 

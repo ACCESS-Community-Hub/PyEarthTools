@@ -1,6 +1,7 @@
 """
 Fake Data Iterator to be used to test model performance without any data loading slowing things down.
 """
+from __future__ import annotations
 
 import warnings
 import functools

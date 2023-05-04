@@ -1,3 +1,4 @@
+from __future__ import annotations
 
 import einops
 import numpy as np
@@ -56,7 +57,7 @@ class Rearrange(DataOperation):
                 Extra keyword arguments to be passed to the einops.rearrange call. Defaults to {}.
         """        
         super().__init__(index, self._apply_rearrange, self._undo_rearrange, **kwargs)
-        self.rearrange = rearrange
+        self.pattern = rearrange
         self.rearrange_args = rearrange_args
         self.rearrange_kwargs = rearrange_kwargs
 
@@ -64,7 +65,7 @@ class Rearrange(DataOperation):
         self.__doc__ = f"Rearrange Data according to {rearrange}"
 
     def __rearrange(
-        self, data: tuple[np.ndarray] | np.ndarray, rearrange: str, catch=True
+        self, data: tuple[np.ndarray] | np.ndarray, pattern: str, catch=True
     ):
         """
         Apply einops.rearrange on data.
@@ -75,27 +76,27 @@ class Rearrange(DataOperation):
             if isinstance(data, tuple):
                 return tuple(
                     map(
-                        lambda x: einops.rearrange(x, rearrange, *self.rearrange_args, **self.rearrange_kwargs),
+                        lambda x: einops.rearrange(x, pattern, *self.rearrange_args, **self.rearrange_kwargs),
                         data,
                     )
                 )
-            return einops.rearrange(data, self.rearrange)
+            return einops.rearrange(data, pattern)
 
         except einops.EinopsError as excep:
             if not catch:
                 if self.skip:
                     return data
                 raise excep
-            rearrange = "->".join(["p " + side for side in rearrange.split("->")])
-            return self.__rearrange(data, rearrange, catch=False)
+            pattern = "->".join(["p " + side for side in pattern.split("->")])
+            return self.__rearrange(data, pattern, catch=False)
 
     def _apply_rearrange(self, data):
-        return self.__rearrange(data, self.rearrange)
+        return self.__rearrange(data, self.pattern)
 
     def _undo_rearrange(self, data):
-        reversed_rearrange = self.rearrange.split("->")
-        reversed_rearrange.reverse()
-        return self.__rearrange(data, "->".join(reversed_rearrange))
+        pattern = self.pattern.split("->")
+        pattern.reverse()
+        return self.__rearrange(data, "->".join(pattern))
 
 
 @SequentialIterator

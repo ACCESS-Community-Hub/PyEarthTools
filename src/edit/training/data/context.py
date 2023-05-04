@@ -1,4 +1,9 @@
-from typing import Any, Union
+"""
+Context Managers for use wth [edit.training][edit.training]
+"""
+from __future__ import annotations
+
+from typing import Any
 from edit.training.trainer.template import EDITTrainer
 from edit.training.data.operations import PatchingDataIndex
 from edit.training.data.templates import DataStep
@@ -8,7 +13,14 @@ class PatchingUpdate:
     """
     Patching Update Context Manager.
 
-    So that any changes to patching configuration can be reversed.
+    Allows changes to be made to the patching configuration and then reverse them
+
+    !!! Example
+        ```python
+        with PatchingUpdate(Pipeline, kernel_size = [128,128]):
+            ## Do Things
+        ## Original Patching Config
+        ```
     """
 
     def __init__(
@@ -17,12 +29,15 @@ class PatchingUpdate:
         kernel_size: tuple[int, int] | int = None,
         stride_size: tuple[int, int] | int = None,
     ):
-        """Update Patching Config
+        """Update Patching Configuration
 
         Args:
-            iterator (PatchingDataIndex | EDITTrainer): Iterator to update
-            kernel_size (tuple[int, int] | int, optional): New kernel_size. Defaults to None.
-            stride_size (tuple[int, int] | int, optional): New Stride size. Defaults to None.
+            iterator (PatchingDataIndex | EDITTrainer): 
+                Iterator to update
+            kernel_size (tuple[int, int] | int, optional): 
+                New kernel_size. Defaults to None.
+            stride_size (tuple[int, int] | int, optional): 
+                New Stride size. Defaults to None.
 
         Raises:
             RuntimeError: If iterator does not contain a PatchingDataIndex
@@ -50,18 +65,33 @@ class PatchingUpdate:
 class ChangeValue:
     """
     Context Manager to change attribute of object and revert after
-    """
 
+    !!! Example
+        ```python
+        object.attribute = 'value'
+        print(object.attribute) # 'value'
+
+        with ChangeValue(object, key = 'attribute', value = 'NewValue'):
+            object.attribute = 'NewValue'
+            print(object.attribute) # 'NewValue'
+
+        print(object.attribute) # 'value'
+        ```
+    """
     def __init__(self, object: Any, key: str, value: Any):
-        """Update Attribute
+        """Update Attribute of an object
 
         Args:
-            object (Any): Object to update
-            key (str): Attribute Name
-            value (Any): Value to update key to
+            object (Any): 
+                Object to update
+            key (str): 
+                Attribute Name
+            value (Any): 
+                Value to update `key` to
 
         Raises:
-            AttributeError: If object has no attribute key
+            AttributeError: 
+                If object has no attribute key
         """
 
         if not hasattr(object, key):

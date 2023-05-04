@@ -119,7 +119,7 @@ class PatchingDataIndex(DataOperation):
             for patches in zip(
                 *(tesselators[i].patch(datasets[i]) for i in range(len(datasets)))
             ):
-                yield (patches,)
+                yield patches
         else:
             raise NotImplementedError(f"Cannot apply tesselation to {type(datasets)!r}")
 

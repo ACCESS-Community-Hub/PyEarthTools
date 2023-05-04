@@ -9,7 +9,7 @@ setup(
     url="www.bom.gov.au",
     # packages=["edit"],
     package_dir={"": "src"},
-    install_requires=["torch", "einops", "pytorch-lightning"],
+    install_requires=["torch", "einops", "pytorch-lightning", 'scikit-learn', 'scipy'],
     entry_points={
         "console_scripts": ["edit_training=edit.training.trainer.commands:entry_point"]
     },

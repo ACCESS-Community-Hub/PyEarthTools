@@ -1,10 +1,4 @@
-import functools
-import time
-from itertools import zip_longest
-from typing import Union
-
-import numpy as np
-import xarray as xr
+from __future__ import annotations
 
 from edit.training.data.templates import DataStep, DataIterator
 from edit.training.data.sequential import Sequential, SequentialIterator

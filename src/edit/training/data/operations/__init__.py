@@ -1,5 +1,5 @@
 """
-Collection of [DataOperations][edit.training.data.DataOperation] for use in Data Pipelines
+Collection of [DataOperations][edit.training.data.templates.DataOperation] for use in Data Pipelines
 
 | Name                | Description |
 | ------------------- | ----------- |
@@ -7,7 +7,7 @@ Collection of [DataOperations][edit.training.data.DataOperation] for use in Data
 | [values]edit.training.data.operations.values]                     | Change values in the data; FillNa, Mask; ForceNormalised |
 | [filters][edit.training.data.operations.filters]                  | Filter Data when iterating but not on retrieval |
 | [PatchingDataIndex][edit.training.data.operations.patch]          | Patch Data into small arrays |
-| [TransformOperation][edit.training.data.operations.transforms]    | Apply [Transforms][edit.data.Transforms] to data|
+| [TransformOperation][edit.training.data.operations.transforms]    | Apply [Transforms][edit.data.Transform] to data|
 """
 
 from edit.training.data.operations import reshape, values, filters

@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 from typing import Any
 import numpy as np
 import xarray as xr
 
 
-from edit.training.data import DataIterator
+from edit.training.data import DataIterator, DataStep
 from edit.training.data.sanity import iterator_retrieval
 
 
@@ -45,17 +47,49 @@ def _format(iterator, value, padding_size=30, tab_size=10, index: int = 0):
 
 
 def summary(
-    dataIterator: DataIterator,
+    dataIterator: DataIterator | DataStep,
     index: str = None,
     *,
     timeout: int = 20,
     tuple_index: int = 0,
-):
+    verbose: bool = True,
+) -> str:
+    """
+    Create printed summary of a Data Pipeline, with shape and type shown
+
+    !!! Warning
+        If index is not given, steps below an Iterator will fail, as data cannot be retrieved by iterating.
+
+    Args:
+        dataIterator (DataIterator): 
+            Data Pipeline to summarise
+        index (str, optional): 
+            Date index to plot at. Defaults to None.
+        timeout (int, optional): 
+            Time allowed for data to be retrieved. Defaults to 20.
+        tuple_index (int, optional): 
+            If data is a tuple, which element to use. Defaults to 0.
+        verbose (bool, optional):
+            Whether to print summary. Defaults to True
+
+    Returns:
+        (str):
+            Summary as a string
+
+    """    
     result = iterator_retrieval.signal_data(dataIterator, idx=index, timeout=timeout)
 
-    print("\n---- Summary for Data Iterator ----")
-    print(
+    str_summary = ""
+    def add_summary(text: str):
+        if verbose:
+            print(text)
+        str_summary += text + '\n'
+
+    add_summary("\n---- Summary for Data Iterator ----")
+    add_summary(
         "\nNOTE: Normalisation Calculations can take significant amounts of time.\nEnsure that it has been safely run before this.\n"
     )
     for iterator, values in result.items():
-        print(_format(iterator, [v for v in values][0], index=tuple_index))
+        add_summary(_format(iterator, [v for v in values][0], index=tuple_index))
+
+    return str_summary

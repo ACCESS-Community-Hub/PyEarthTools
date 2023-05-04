@@ -1,4 +1,6 @@
-from typing import Union
+
+from __future__ import annotations
+from typing import Literal
 
 import numpy as np
 import xarray as xr
@@ -14,34 +16,44 @@ from edit.training.data.sequential import Sequential, SequentialIterator
 @SequentialIterator
 class FillNa(DataOperation):
     """
-    Fill nan's with value
+    DataOperation to Fill any Nan's with a value
+
+    !!! Example
+        ```python
+        FillNa(PipelineStep, nan = 0)
+
+        ## As this is decorated with @SequentialIterator, it can be partially initialised
+
+        partialFillNa = FillNa(nan = 0)
+        partialFillNa(PipelineStep)
+        ```
     """
 
     def __init__(
         self,
-        index: DataStep | DataIterator,
+        index: DataStep,
         nan: float = 0,
         posinf: float = None,
         neginf: float = None,
         **kwargs,
     ) -> None:
         """
-        Fill Nan's with Value
+        DataOperation to fill Nan's
 
-        Parameters
-        ----------
-        index
-            Underlying index
-        nan, optional
-            Value to fill Nan with, by default 0
-            If no value is passed then NaN values will not be replaced
-        posinf, optional
-            Value to be used to fill positive infinity values, by default None
-            If no value is passed then positive infinity values will be replaced with a very large number.
-        neginf, optional
-           Value to be used to fill negative infinity values, by default None
-            If no value is passed then negative infinity values will be replaced with a very small (or negative) number.
-        """
+        Args:
+            index (DataStep): 
+                Underlying DataStep to retrieve Data from.
+            nan (float, optional): 
+                Value to fill nan's with.
+                If no value is passed then NaN values will not be replaced. Defaults to 0.
+            posinf (float, optional): 
+                Value to be used to fill positive infinity values,
+                If no value is passed then positive infinity values will be replaced with a very large number. Defaults to None.
+            neginf (float, optional): 
+                Value to be used to fill negative infinity values,
+                If no value is passed then negative infinity values will be replaced with a very small (or negative) number. Defaults to None.
+        """        
+
         self.nan = nan
         self.posinf = posinf
         self.neginf = neginf
@@ -64,29 +76,45 @@ class FillNa(DataOperation):
 @SequentialIterator
 class MaskValue(DataOperation):
     """
-    Mask out Values given operation
+    DataOperation to mask values with a given replacement
+
+    !!! Example
+        ```python
+        MaskValue(PipelineStep, value = 0, operation = '<', replacement_value = 0)
+
+        ## As this is decorated with @SequentialIterator, it can be partially initialised
+
+        partialMaskValue = MaskValue(value = 0, operation = '<', replacement_value = 0)
+        partialMaskValue(PipelineStep)
+        ```
     """
 
     def __init__(
         self,
-        index: DataStep | DataIterator,
+        index: DataStep,
         value: int,
-        operation: str,
+        operation: "Literal['==', '>', '<', '>=','<=']" = '==',
         replacement_value: int = np.nan,
     ):
-        """Mask out a value from Data
+        """
+        DataOperation to Mask Values
 
         Args:
-            index (DataStep | DataIterator):
-                _description_
-            value (int):
-                _description_
-            operation (Literal["==", ">", "<", ">=", "<="], optional):
-                Criteria to search by. Defaults to "==".
-            replacement_value (int, optional):
-                Value to replace with. Defaults to np.nan
-        """
+            index (DataStep): 
+                Underlying DataStep to retrieve Data from.
+            value (int): 
+                Value to search for
+            operation (Literal['==', '>', '<', '>=','<='], optional): 
+                Operation to search with. Defaults to '=='.
+            replacement_value (int, optional): 
+                Replacement value. Defaults to np.nan.
+
+        Raises:
+            KeyError: 
+                If invalid `operation` passed.
+        """        
         super().__init__(index, apply_func=self._mask, undo_func=None)
+        
         if operation not in ["==", ">", "<", ">=", "<="]:
             raise KeyError(
                 f"Invalid operation {operation!r}. Must be one of  ['==', '>', '<', '>=', '<=']"
@@ -103,7 +131,18 @@ class MaskValue(DataOperation):
         elif self.apply_iterator ^ self.apply_get:
             self.__doc__ += f" on {'iteration' if self.apply_iterator else 'getitem'}"
 
-    def _mask(self, data: xr.Dataset | np.ndarray | tuple):
+    def _mask(self, data: xr.Dataset | np.ndarray | tuple) -> xr.Dataset | np.ndarray | tuple:
+        """
+        Mask Data from initialised configuration
+
+        Args:
+            data (xr.Dataset | np.ndarray | tuple): 
+                Data to apply mask to
+
+        Returns:
+            (xr.Dataset | np.ndarray | tuple): 
+                Masked Data
+        """        
         operator_package = np
         if isinstance(data, (xr.Dataset, xr.DataArray)):
             operator_package = xr
@@ -137,14 +176,37 @@ class MaskValue(DataOperation):
 @SequentialIterator
 class ForceNormalised(DataOperation):
     """
-    Force Data to be within 0 & 1
+    DataOperation to force data within a certain range, by default 0 & 1
+
+    !!! Example
+        ```python
+        ForceNormalised(PipelineStep)
+
+        ## As this is decorated with @SequentialIterator, it can be partially initialised
+
+        partialForceNormalised = ForceNormalised()
+        partialForceNormalised(PipelineStep)
+        ```
     """
 
-    def __init__(self, index) -> None:
+    def __init__(self, index: DataStep, min_value: float = 0, max_value: float = 1) -> None:
+        """
+        DataOperation to force data into a range
+
+        Args:
+            index (DataStep): 
+                Underlying DataStep to retrieve Data from.
+            min_value (float, optional): 
+                Minimum Value. Defaults to 0.
+            max_value (float, optional): 
+                Maximum Value. Defaults to 1.
+        """        
         super().__init__(index, apply_func=self._mask, undo_func=None)
 
-        self._force_min_0 = MaskValue(index, 0, "<", 0)
-        self._force_max_1 = MaskValue(index, 1, ">", 1)
+        self._force_min_0 = MaskValue(index, min_value, "<", min_value)
+        self._force_max_1 = MaskValue(index, max_value, ">", max_value)
+
+        self.__doc__ = f"Force Data between {min_value} and {max_value}"
 
     def _mask(self, data):
         if isinstance(data, tuple):

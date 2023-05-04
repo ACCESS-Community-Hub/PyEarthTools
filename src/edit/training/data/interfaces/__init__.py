@@ -1,5 +1,5 @@
 """
-[DataOperation][edit.training.data.DataOperation] which appear as a [DataIndex][edit.data.DataIndex].
+[DataOperation][edit.training.data.templates.DataOperation] which appear as a [DataIndex][edit.data.DataIndex].
 
 | Name                | Description |
 | ------------------- | ----------- |

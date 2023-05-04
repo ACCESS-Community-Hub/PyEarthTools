@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import copy
 import os
 from pathlib import Path
@@ -132,15 +134,17 @@ class EDITTrainerWrapper(EDITTrainer):
         return getattr(self.trainer, key)
 
     def fit(self, resume: bool = True, *args, **kwargs):
-        """
-        Using Pytorch Lightning .fit to train model, auto fills model and dataloaders
+        """Using Pytorch Lightning `.fit` to train model, auto fills model and dataloaders
 
-        Parameters
-        ----------
-        resume
-            Whether to resume most recent checkpoint file in checkpoint dir
-        """
-        if resume and Path(self.checkpoint_path).exists() and "ckpt_path" not in kwargs:
+        Args:
+            resume (bool | str, optional): 
+                Whether to resume most recent checkpoint file in checkpoint dir, or specified checkpoint file. Defaults to True.
+        """        
+
+        if isinstance(resume, str):
+            kwargs["ckpt_path"] = resume
+
+        elif resume and Path(self.checkpoint_path).exists() and "ckpt_path" not in kwargs:
             kwargs["ckpt_path"] = max(
                 Path(self.checkpoint_path).iterdir(), key=os.path.getctime
             )
@@ -154,18 +158,16 @@ class EDITTrainerWrapper(EDITTrainer):
         )
 
     def load(self, file: str | bool = True, only_state: bool = False):
-        """
-        Load Model from Checkpoint File.
+        """Load Model from Checkpoint File.
 
         Can either be PytorchLightning Checkpoint or torch checkpoint.
 
-        Parameters
-        ----------
-        file
-            Path to checkpoint
-        only_state, optional
-            If only the model state should be loaded, by default False
-        """
+        Args:
+            file (str | bool, optional): 
+                Path to checkpoint, or boolean to find latest file. Defaults to True.
+            only_state (bool, optional): 
+                If only the model state should be loaded. Defaults to False.
+        """        
 
         if isinstance(file, bool) and file:
             file = max(Path(self.checkpoint_path).iterdir(), key=os.path.getctime)
@@ -187,7 +189,10 @@ class EDITTrainerWrapper(EDITTrainer):
             return
         self.model = self.model.load_from_checkpoint(file)
 
-    def _predict_from_data(self, data, **kwargs):
+    def _predict_from_data(self, data : np.ndarray, **kwargs):
+        """
+        Using the loaded model, and given data make a prediction
+        """
         class FakeDataLoader(IterableDataset):
             def __init__(self, data: tuple[np.ndarray]):
                 self.data = data
@@ -220,34 +225,35 @@ class EDITTrainerWrapper(EDITTrainer):
         index: str,
         undo: bool = False,
         data_iterator: DataIterator = None,
-        resume: bool = True,
+        resume: bool | str = True,
         only_state: bool = True,
         **kwargs,
-    ) -> Union[tuple[np.array], tuple[xr.Dataset]]:
-        """
-        Pytorch Lightning Prediction Override
+    ) -> tuple[np.array] | tuple[xr.Dataset]:
+        """Pytorch Lightning Prediction Override
 
-        Uses edit.training DataIterator to get data at given index.
+        Uses [edit.training][edit.training.data] DataStep to get data at given index.
         Can automatically try to rebuild the xarray Dataset.
 
         !!! Warning
             If number of patches is not divisible by the `batch_size`, issues may arise.
             Solution: batch_size = 1
 
-        Parameters
-        ----------
-        index
-            Index into DataIterator, usually str
-        undo, optional
-            Whether to pass prediction through DataIterator.undo, by default False
-        data_iterator, optional
-            Override for DataIterator to use, by default None
+        Args:
+            index (str): 
+                Index to get from the validation or training data loader or given `data_iterator`
+            undo (bool, optional): 
+                Rebuild Data using DataStep.undo. Defaults to False.
+            data_iterator (DataIterator, optional): 
+                Override for DataStep to us. Defaults to None.
+            resume (bool | str, optional): 
+                Path to checkpoint, or boolean to find latest file. Defaults to True.
+            only_state (bool, optional): 
+                Load only the model state. Defaults to True.
 
-        Returns
-        -------
-            Either xarray datasets or np arrays of input data, predicted data
-
-        """
+        Returns:
+            (tuple[np.array] | tuple[xr.Dataset]): 
+                Either xarray datasets or np arrays, [truth data, predicted data]
+        """    
         data_source = data_iterator or self.valid_iterator or self.train_iterator
         data = data_source[index]
 
@@ -265,9 +271,11 @@ class EDITTrainerWrapper(EDITTrainer):
 
         prediction = self._predict_from_data(data, **kwargs)
 
+        truth_data = None
         if undo:
             prediction = data_source.undo(prediction)
             if isinstance(prediction, (tuple, list)):
+                truth_data = prediction[0]
                 prediction = prediction[-1]
 
             if "Coordinate 1" in prediction:
@@ -275,7 +283,7 @@ class EDITTrainerWrapper(EDITTrainer):
             if hasattr(data_source, "rebuild_time"):
                 prediction = data_source.rebuild_time(prediction, index)
 
-        return Collection(data_source.undo(data[1]), prediction)
+        return Collection(truth_data or data_source.undo(data)[1], prediction)
 
     def predict_recurrent(
         self,
@@ -286,11 +294,10 @@ class EDITTrainerWrapper(EDITTrainer):
         only_state: bool = True,
         truth_step: int = 0,
         **kwargs,
-    ):
+    ) -> tuple[np.array] | tuple[xr.Dataset]:
         """Uses [predict][edit.training.trainer.EDITTrainerWrapper.predict] to predict timesteps and then feed back through recurrently.
 
-
-        Uses edit.training DataIterator to get data at given start index.
+        Uses [edit.training][edit.training.data] DataStep to get data at given index.
         Can automatically try to rebuild the xarray Dataset.
 
         !!! Warning
@@ -311,8 +318,8 @@ class EDITTrainerWrapper(EDITTrainer):
             truth_step (int, optional):
                 Data Pipeline step to use to retrieve Truth data. Defaults to 0
         Returns:
-            (xr.Dataset):
-                Combined Predictions
+            (tuple[np.array] | tuple[xr.Dataset]):
+                Either xarray datasets or np arrays, [truth data, predicted data]
         """
         data_source = data_iterator or self.valid_iterator or self.train_iterator
         data = list(data_source[start_index])
@@ -371,21 +378,19 @@ class EDITTrainerWrapper(EDITTrainer):
             self.train_iterator.step(truth_step)[predictions], predictions
         )
 
-    def data(self, index, undo=False):
-        """
-        Get data which is fed into model
+    def data(self, index : str, undo=False) -> np.array | xr.Dataset:
+        """Get data which is fed into model
 
-        Parameters
-        ----------
-        index
-            Index to retrieve at
-        undo, optional
-            Whether to undo data transforms, by default False
+        Args:
+            index (str): 
+                Index to retrieve at
+            undo (bool, optional): 
+                Rebuild Data using DataStep.undo. Defaults to False.
 
-        Returns
-        -------
-            np.array or xarray.Dataset
-        """
+        Returns:
+            (np.array | xr.Dataset): 
+                Retrieved Data
+        """        
         data = self.train_iterator[index]
 
         if undo:
@@ -464,7 +469,7 @@ class EDITTrainerWrapper(EDITTrainer):
 
         if metrics is None:
             raise FileNotFoundError(
-                f"No metrics.csv files could be found at {self.log_path}"
+                f"No metrics.csv files could be found at {path or self.log_path!r}"
             )
 
         metrics = self.__flatten_metrics(metrics)

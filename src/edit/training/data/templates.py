@@ -1,4 +1,5 @@
-import functools
+from __future__ import annotations
+
 from abc import abstractmethod
 import logging
 from typing import Any, Callable, Union
@@ -84,7 +85,11 @@ class DataStep:
     def _formatted_name(self, desc: str = None):
         padding = lambda name, length_: name + "".join([" "] * (length_ - len(name)))
         desc = desc or self.__doc__ or "No Docstring"
-        desc = desc.split("\n")[0].replace("\t", "").strip()
+        desc_list = desc.strip().split("\n")
+        if "" in desc_list:
+            desc_list.remove("")
+        desc = desc_list[0].replace('\t','').strip()
+        
         formatted = f"{padding(self.__class__.__name__, 30)}{desc}"
 
         if hasattr(self.index, "_formatted_name"):

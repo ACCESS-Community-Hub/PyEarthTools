@@ -1,6 +1,7 @@
-import functools
+from __future__ import annotations
+
 import math
-from typing import Any, Union
+from typing import Any
 import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
@@ -8,7 +9,7 @@ import matplotlib.pyplot as plt
 
 from edit.data import Collection
 
-from edit.training.data import DataIterator
+from edit.training.data.templates import DataIterator, DataStep
 from edit.training.data.sanity import iterator_retrieval
 
 
@@ -67,7 +68,7 @@ def _make_plot(
 
 
 def plot(
-    dataIterator: DataIterator,
+    dataIterator: DataIterator | DataStep ,
     index: str = None,
     *,
     timeout: int = 20,
@@ -76,36 +77,39 @@ def plot(
     layout_kwargs: dict = {"pad": 5},
     text_location: list[int, int] = [0.8, 0.2],
     **plot_kwargs,
-):
+) -> plt.Figure:
     """
     Plot a given Data Pipline.
-
+    
     Each step will be plotted individually, with the shape also shown.
-    If index is not given, steps below an Iterator will fail, as data cannot be retrieved by iterating.
 
-    Parameters
-    ----------
-    dataIterator
-        Data Pipeline to plot
-    index, optional
-        Date index to plot at, by default None
-    timeout, optional
-        Time allowed for data to be retrieved, by default 20
-    array_indexes, optional
-        Indexes to be passed to flattening function,
-        Can be list, where position refers to index, or dict where key == name
-        Each element corresponds to an individual step, by default None
-    fig_kwargs, optional
-        Other kwargs for fig creation, by default {'figsize': (25,20)}
-    layout_kwargs, optional
-        Kwargs to be passed to plt.tight_layout, by default {'pad': 5}
-    text_location, optional
-        Location of info text, by default [0.8, 0.2]
+    !!! Warning
+        If index is not given, steps below an Iterator will fail, as data cannot be retrieved by iterating.
 
-    Returns
-    -------
-        Figure
-    """
+    Args:
+        dataIterator (DataIterator | DataStep): 
+            Data Pipeline to plot
+        index (str, optional): 
+            Date index to plot at. Defaults to None.
+        timeout (int, optional): 
+            Time allowed for data to be retrieved. Defaults to 20.
+        array_indexes (dict[str, list[int]] | list[list[int]], optional): 
+            Indexes to be passed to flattening function,
+            Can be list, where position refers to index, or dict where `key` == `name`.
+            
+            Each element corresponds to an individual step. Defaults to None.
+        fig_kwargs (dict, optional): 
+             Other kwargs for fig creation. Defaults to {"figsize": (25, 20)}.
+        layout_kwargs (dict, optional): 
+            Kwargs to be passed to `plt.tight_layout`. Defaults to {"pad": 5}.
+        text_location (list[int, int], optional): 
+            Location of info text. Defaults to [0.8, 0.2].
+
+    Returns:
+        (plt.Figure): 
+            Matplotlib Figure of Data Pipeline
+    """    
+
     result = iterator_retrieval.signal_data(dataIterator, idx=index, timeout=timeout)
 
     num_iterator = len(result.keys())

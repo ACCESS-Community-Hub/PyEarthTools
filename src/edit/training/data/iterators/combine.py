@@ -1,9 +1,9 @@
+from __future__ import annotations
+
+
 import functools
 from itertools import zip_longest
 from typing import Union
-
-import numpy as np
-import xarray as xr
 
 from edit.training.data.templates import DataIterator
 from edit.training.data import DataIterator

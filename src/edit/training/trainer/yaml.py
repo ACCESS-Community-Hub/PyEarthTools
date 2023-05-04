@@ -1,8 +1,79 @@
+"""
+Allow a Trainer Configuration to be saved and loaded from a yaml file
+
+
+### Info
+
+| Key | SubKey | Description |
+| -------| --- | ---------------- |
+| model | | Model Configuration |
+| model |.Source | Set to Model location on Python PATH | 
+| model | .* | Any Keyword arguments to be passed to the model |
+| | |
+| data  |  | Data Pipeline |
+| data  | .Source | Data Pipeline Config |
+| data  | .Ranges | Data Iteration Ranges. `train_data` & `valid_data` |
+| | |
+| trainer | | Training Configuration |
+| trainer | .* | Any Keyword arguments to be passed to the trainer |
+
+!!! Example
+    ```yaml
+    model:
+        Source: 'Models.Architecture'
+        model_params:
+            img_size: 256
+            in_channels: 6
+            out_channels: 6
+
+    data:
+        Source:
+            archive.ERA5:
+                variables: '2t'
+                level : 'single'
+            iterators.TemporalInterface:
+                samples : [6,6]
+                sample_interval : 10
+            iterators.Iterator:
+                catch: ['edit.data.DataNotFoundError', 'ValueError', 'OSError']
+            operations.filters.DropAllNan: {}
+            operations.PatchingDataIndex:
+                kernel_size: [256,256]
+            operations.filters.DropValue:
+                value: 0
+                percentage: 80
+            operations.filters.DropNan: {}
+            operations.values.ForceNormalised: {}
+            operations.values.FillNa: {}
+            operations.reshape.Squish: {axis: -4}
+            loaders.PytorchIterable: {}
+
+        Ranges:
+            train_data:
+                start: '2021-01-01T00:00'
+                end: '2022-01-01'
+                interval: 60
+            valid_data:
+                start: '2022-01-01T00:00'
+                end: '2022-04-01'
+                interval: 10
+    trainer:
+        root_dir: ''
+        num_workers: 12
+        strategy: 'ddp'
+        accelerator: "gpu"
+        logger: 'tensorboard'
+        max_epochs: 100
+        batch_size: 64
+
+    ```
+"""
+from __future__ import annotations
+
 from pathlib import Path
 import importlib
 
 import yaml
-import copy
 
 # import torch
 

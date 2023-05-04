@@ -1,14 +1,16 @@
-import functools
-from abc import abstractmethod
-from typing import Callable, Union
+"""
+Configure and Initialise a Data Pipeline
 
+"""
+
+from __future__ import annotations
+
+import functools
+from pathlib import Path
+from typing import Callable
 import yaml
 import inspect
-from datetime import datetime
 
-
-from edit.data import DataIndex, OperatorIndex
-from edit.data.time import EDITDatetime, time_delta
 from edit.training.data.utils import get_indexes, get_callable
 
 from edit.training.data.templates import (
@@ -19,17 +21,28 @@ from edit.training.data.templates import (
 )
 
 
-def SequentialIterator(func):
+def SequentialIterator(func: Callable) -> Callable:
     """
-    Decorator to allow Iterator's to not be fully specified,
-    such that the first element of a (DataIterator, DataInterface, DataIndex, OperatorIndex) is missing.
-    """
+    Decorator to allow a Data Pipeline [Step][edit.training.data.templates.DataStep] to be partially initialised,
+    such that the first element which will be the prior step, can be given later.
+
+
+    Raises:
+        RuntimeError: 
+            If an attribute is requested from underlying object while it is uninitialised
+        Any: 
+            If an error is raised while initialising the underlying step
+
+    Returns:
+        (Callable): 
+            Wrapper around underlying function
+    """    
+
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        if (
-            args
-        ):  # and isinstance(args[0], (DataIterator, DataInterface, DataStep, DataIndex, OperatorIndex)):
+        if (args):  
+        # and isinstance(args[0], (DataIterator, DataInterface, DataStep, DataIndex, OperatorIndex)):
             return func(*args, **kwargs)
 
         if list(inspect.signature(func).parameters)[0] in kwargs.keys():
@@ -64,46 +77,63 @@ def SequentialIterator(func):
     return wrapper
 
 
-def Sequential(*args: list["DataIterator"]) -> "DataIterator":
+def Sequential(*args: list[DataStep]) -> DataStep:
     """
-    From a list of DataIterators missing only an iterator,
-    build a full DataIterator
+    Combine partially initialised [DataStep's][edit.training.data.templates.DataStep]
+    to form a fully defined Pipeline
 
-    *args
-        DataIterator - with @SequentialIterator
+    !!! Example
+        ```python
+        Sequential(
+            DataStep(variable = True)   #Only Partially Configured
+            AnotherStep()               #Only Partially Configured
+        )
 
-    Returns
-    -------
-        DataIterator
-    """
+        ```
+    
+    Args:
+        *args (Any):
+            DataIterator - with @SequentialIterator
+    Returns:
+        (DataStep): 
+            Fully initialised DataStep's aka a Data Pipeline
+    """        
     iterator = args[0]
     for i in range(1, len(args)):
         iterator = args[i](iterator)
     return iterator
 
 
-def from_dict(data_specifications: str | dict) -> "DataIterator":
+def from_dict(data_specifications: dict | str | Path ) -> DataStep:
     """
-    Create DataIterator from a dictionary.
+    Create a Data Pipeline from a dictionary, or a yaml file.
 
-    Use keys as class names, if not found will auto try edit.training.data.~
+    Use class names as keys, will auto try [edit.training.data][edit.training.data].KEY, or fail over onto looking on the Python PATH.
 
-    Specify order to set order
+    Values inside the dictionary are expected to also be a dictionary with elements to be passed as keyword arguments to initalise the [DataStep][edit.training.data.templates.DataStep]
 
-    Parameters
-    ----------
-    data_specifications
-        Dictionary containg Data Specifications. Can also be path to yaml file
+    !!! "tip" Notes
+        * Specify `order` to set order
+        * If using two of the same [DataStep][edit.training.data.templates.DataStep], add [NUMBER] to indicate,
 
-    Returns
-    -------
-        DataIterator
+    ??? Example
+        ```python
+        data_pipeline = {
+            "DataStep": {'variable': True},
+            "AnotherStep": {}
+        }
+        from_dict(data_pipeline)
+        ```
 
-    Raises
-    ------
-    TypeError
-        If imported class cannot be understood
-    """
+
+    Args:
+        data_specifications (dict | str | Path ): 
+            Dictionary object or path to file specifying the Data Pipeline
+
+    Returns:
+        (DataStep): 
+            Fully initialised DataStep's aka a Data Pipeline
+    """    
 
     if isinstance(data_specifications, str):
         with open(data_specifications, "r") as file:
