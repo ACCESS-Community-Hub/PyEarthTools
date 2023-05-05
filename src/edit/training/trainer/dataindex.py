@@ -7,8 +7,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from edit.data import OperatorIndex, DataIndex
-from edit.data.transform import apply, Transform, TransformCollection
+from edit.data import DataIndex
 
 from edit.training.data.context import PatchingUpdate
 from edit.training.trainer import from_yaml, EDITTrainerWrapper
@@ -16,21 +15,28 @@ from edit.training.trainer.template import EDITTrainer
 
 
 class MLDataIndex(DataIndex):
-    def __init__(self, trainer: EDITTrainer, stride_override: int = None):
-        """
-        Setup ML Data Index from defined trainer
+    def __init__(self, trainer: EDITTrainer, stride_override: int = None, **kwargs):
+        """Setup ML Data Index from defined trainer
 
-        Parameters
-        ----------
-        trainer
-            EDITTrainer to use to retrieve data
-        """
+        !!! Info
+            This can be used just like a [DataIndex][edit.data.DataIndex] from [edit.data][edit.data.index],
+            so calling or indexing into this object work, as well as supplying transforms.
+
+        Args:
+            trainer (EDITTrainer): 
+                EDITTrainer to use to retrieve data
+            stride_override (int, optional): 
+                Values to override stride with, if using `PatchingDataIndex`. Defaults to None.
+            **kwargs (dict, optional):
+                Any keyword arguments to pass to [DataIndex][edit.data.DataIndex]
+        """        
+        super().__init__(**kwargs)
         self.trainer = trainer
         self.stride_override = stride_override
 
     def get(
         self,
-        query_time,
+        query_time : str,
     ):  # transforms: Union[Callable, TransformCollection, Transform]= None
         """
         Get Data from given timestep
@@ -40,7 +46,7 @@ class MLDataIndex(DataIndex):
         # predicted_ds = apply(transforms)(predicted_ds)
         return predicted_ds
 
-    def input_data(self, query_time):
+    def input_data(self, query_time: str):
         """
         Get input data at given timestep
         """
@@ -57,7 +63,7 @@ class MLDataIndex(DataIndex):
 
     @staticmethod
     def from_yaml(
-        yaml_config: str,
+        yaml_config: str | Path,
         checkpoint_path: str = None,
         *,
         auto_load: bool = False,
@@ -65,18 +71,28 @@ class MLDataIndex(DataIndex):
         stride_override: int = None,
         **kwargs,
     ):
-        """
-        Setup ML Data Index from yaml config and pretrained model
+        """Setup ML Data Index from yaml file config and pretrained model 
 
-        Parameters
-        ----------
-        yaml_config
-            Path to yaml config
-        checkpoint_path
-            Path to pretrained checkpoint
-        **kwargs
-            All passed to trainer.load_from_yaml
-        """
+        Args:
+            yaml_config (str | Path): 
+                Path to yaml config
+            checkpoint_path (str, optional): 
+                Path to pretrained checkpoint. Defaults to None.
+            auto_load (bool, optional): 
+                Find latest `checkpoint_path` automatically . Defaults to False.
+            only_state (bool, optional): 
+                Only load the state of the model. Defaults to False.
+            stride_override (int, optional): 
+                Values to override stride with, if using `PatchingDataIndex`. Defaults to None.
+
+        Raises:
+            RuntimeError: 
+                If no `checkpoint_path` is given
+
+        Returns:
+            (MLDataIndex): 
+                MLDataIndex to use to get data with
+        """    
         trainer: EDITTrainerWrapper
         trainer = from_yaml(
             yaml_config,
@@ -97,4 +113,4 @@ class MLDataIndex(DataIndex):
         print(f"Loading {checkpoint_path}...")
         trainer.load(checkpoint_path, only_state=only_state)
 
-        return MLDataIndex(trainer, stride_override)
+        return MLDataIndex(trainer, stride_override = stride_override)

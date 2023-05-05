@@ -135,7 +135,7 @@ class Squish(DataOperation):
     @property
     def __doc__(self):
         return f"""
-        Squish One Dimensional on axis {self.axis!r}'
+        Squish One Dimensional axis {self.axis!r}
         """
 
     def _apply_squish(self, data):
@@ -191,7 +191,7 @@ class Expand(DataOperation):
     @property
     def __doc__(self):
         return f"""
-        Expand One Dimensional on axis {self.axis!r}
+        Expand One Dimensional axis {self.axis!r}
         """
 
     def _apply_squish(self, data):
@@ -208,3 +208,85 @@ class Expand(DataOperation):
         if isinstance(data, tuple):
             return tuple(map(self._apply_expand, data))
         return np.expand_dims(data, self.axis)
+
+class Flattener:
+    def __init__(self) -> None:
+        self.shape = None
+    def apply(self, data : np.ndarray) -> np.ndarray:
+        self.shape = data.shape
+        return data.flatten()
+    def undo(self, data: np.ndarray) -> np.ndarray:
+        if self.shape is None:
+            raise RuntimeError(f"Shape not set, therefore cannot undo")
+        return data.reshape(self.shape)
+
+@SequentialIterator
+class Flatten(DataOperation):
+    """
+    DataOperation to Flatten Data Samples into a one dimensional array    
+
+    !!! Example
+        ```python
+        Flatten(PipelineStep)
+
+        ## As this is decorated with @SequentialIterator, it can be partially initialised
+
+        partialFlatten = Flatten()
+        partialFlatten(PipelineStep)
+        ```
+
+    !!! Warning
+        If use this with [PatchingDataIndex][edit.training.data.operations.PatchingDataIndex], set `seperate_patch` to True
+    """
+
+    def __init__(self, index: DataStep, seperate_patch: bool = False) -> None:
+        """DataOperation to flatten inoming data
+
+        Args:
+            index (DataStep): 
+                Underlying index to retrieve data from
+            seperate_patch (bool, optional): 
+                Seperate patches so they aren't squashed. Use only if using [PatchingDataIndex][edit.training.data.operations.PatchingDataIndex]. Defaults to False.
+        """        
+        super().__init__(index, apply_func=self._apply_func, undo_func=self._undo_func)
+
+        self.seperate_patch = seperate_patch
+        self._flatteners = []
+
+    def _get_flatteners(self, number: int) -> tuple[Flattener]:
+        """
+        Retrieve a set number of Flattener, creating new ones if needed
+        """
+        return_values = []
+        for i in range(number):
+            if i < len(self._flatteners):
+                return_values.append(self._flatteners[i])
+            else:
+                self._flatteners.append(Flattener())
+                return_values.append(self._flatteners[-1])
+
+        return return_values
+
+    def _apply_func(self, data : tuple[np.ndarray] | np.ndarray):
+        if isinstance(data, tuple):
+            flatteners = self._get_flatteners(len(data))
+            return tuple(flatteners[i].apply(data_item) for i,data_item in enumerate(data))
+        
+        return self._get_flatteners(1)[0].apply(data)
+
+    def _undo_func(self, data : tuple[np.ndarray] | np.ndarray):
+        if isinstance(data, tuple):
+            flatteners = self._get_flatteners(len(data))
+            return tuple(flatteners[i].undo(data_item) for i,data_item in enumerate(data))
+        
+        return self._get_flatteners(1)[0].undo(data)
+
+    def __getitem__(self, idx):
+        data = self.index[idx]
+        if self.apply_get and self.apply_func:
+            if self.seperate_patch:
+                if isinstance(data, tuple):
+                    return tuple(np.stack(tuple(map(self.apply_func, item))) for item in data)
+                return np.stack(tuple(map(self.apply_func, data)))
+            return self.apply_func(data)
+        return data

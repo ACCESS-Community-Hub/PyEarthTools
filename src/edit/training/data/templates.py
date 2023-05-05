@@ -8,9 +8,15 @@ from datetime import datetime
 
 
 from edit.data import DataIndex, OperatorIndex
-from edit.data.time import EDITDatetime, time_delta
-from edit.training.data.utils import get_indexes, get_callable
+from edit.data.time import EDITDatetime, time_delta, time_delta_resolution
+from edit.training.data.utils import get_pipeline, get_callable
 
+HTML_REPR_ENABLED = False
+try:
+    import edit.utils
+    HTML_REPR_ENABLED = True
+except ImportError:
+    HTML_REPR_ENABLED = False
 
 class DataStep:
     """
@@ -74,27 +80,65 @@ class DataStep:
         else:
             return self.apply(idx)
 
-    def __repr__(self):
-        string = "Data Pipeline with the following:"
-        operations = self._formatted_name()
-        operations = operations.split("\n")
-        operations.reverse()
-        operations = "\n".join(["\t* " + oper for oper in operations])
-        return f"{string}\n{operations}"
+    """
+    repr's
+    """
 
-    def _formatted_name(self, desc: str = None):
-        padding = lambda name, length_: name + "".join([" "] * (length_ - len(name)))
-        desc = desc or self.__doc__ or "No Docstring"
+    @property
+    def _formatted_doc_(self):
+        desc = self.__doc__ or "No Docstring"
         desc_list = desc.strip().split("\n")
         if "" in desc_list:
             desc_list.remove("")
         desc = desc_list[0].replace('\t','').strip()
-        
-        formatted = f"{padding(self.__class__.__name__, 30)}{desc}"
+        return desc
 
-        if hasattr(self.index, "_formatted_name"):
-            formatted += f"\n{self.index._formatted_name()}"
-        return formatted
+        
+    def _get_steps_for_repr_(self):
+        pipeline_steps = [self.step(num) for num in range(0, self.step_number + 1)]
+
+        class formatting_wrapper:
+            def __init__(self, object):
+                self.object = object
+
+            @property
+            def __class__(self):
+                return self.object.__class__
+
+            @property
+            def _formatted_doc_(self):
+                if isinstance(self.object, (list, tuple)):
+                    return f"List containing: {[obj.__class__.__name__ for obj in self.object]}"
+                desc = self.object.__doc__ or "No Docstring"
+                desc_list = desc.strip().split("\n")
+                if "" in desc_list:
+                    desc_list.remove("")
+                desc = desc_list[0].replace('\t','').strip()
+                return desc
+
+        if not isinstance(self.step(0).index, DataStep):
+            pipeline_steps = [formatting_wrapper(self.step(0).index), *pipeline_steps]
+        return pipeline_steps
+
+    def _repr_html_(self) -> str:
+        if not HTML_REPR_ENABLED:
+            raise AttributeError(f"{self!r} has no attribute '_repr_html_'")
+        pipeline_steps = self._get_steps_for_repr_()
+
+        return edit.utils.repr.provide_html(*pipeline_steps, name = 'Data Pipeline', documentation_attr = '_formatted_doc_', backup_repr = self.__repr__())
+
+    def __repr__(self):
+        string = "Data Pipeline of the following:\n"
+        padding = lambda name, length_: name + "".join([" "] * (length_ - len(name)))
+
+        pipeline_steps = self._get_steps_for_repr_()
+
+        for step in pipeline_steps:
+            formatted = f"\t*{padding(step.__class__.__name__, 30)}{step._formatted_doc_}\n"
+            string += formatted
+
+        return string
+
 
     @property
     def ignore_sanity(self):
@@ -103,29 +147,35 @@ class DataStep:
 
 class DataOperation(DataStep):
     """
-    Base DataOperation.
+    Base DataOperation. A pipeline step with which an operation can be applied to the data.
 
-    Applies functions when retrieving data
     """
 
     def __init__(
         self,
-        index,
+        index : DataStep,
         apply_func: Callable,
         undo_func: Callable,
         *,
         apply_iterator: bool = True,
         apply_get: bool = True,
     ) -> None:
-        """
-        Run Operations on Data as it is being used.
+        """Base DataOperation, 
 
-        Parameters
-        ----------
-        index
-            Underlying index to use
-        """
+        Applies given functions on given steps
 
+        Args:
+            index (DataStep): 
+                Underlying pipeline step with which to get data from
+            apply_func (Callable): 
+                Function to apply to data
+            undo_func (Callable): 
+                Function to apply to data to `undo` the `apply_func`
+            apply_iterator (bool, optional): 
+                Apply on iteration. Defaults to True.
+            apply_get (bool, optional): 
+                Apply on __getitem__. Defaults to True.
+        """        
         super().__init__(index)
 
         self.apply_func = apply_func
@@ -183,20 +233,26 @@ class DataOperation(DataStep):
 
 class TrainingOperatorIndex(OperatorIndex, DataStep):
     """
-    edit.data.OperatorIndex as a Pipeline step
-
-
+    [edit.data.OperatorIndex][edit.data.OperatorIndex] as a Pipeline step
     """
 
     def __init__(
         self,
-        index: "list[TrainingOperatorIndex] | TrainingOperatorIndex | OperatorIndex",
+        index: list[TrainingOperatorIndex] | TrainingOperatorIndex | OperatorIndex,
         *,
         allow_multiple_index: bool = False,
         **kwargs,
     ) -> None:
+        """Combine an OperatorIndex as a DataStep in a pipeline
+
+        Args:
+            index (list[TrainingOperatorIndex] | TrainingOperatorIndex | OperatorIndex): 
+                Underlying OperatorIndex to use to get data
+            allow_multiple_index (bool, optional): 
+                Allow multiple indexes to be set. Defaults to False.
+        """    
         if isinstance(index, dict):
-            index = get_indexes(index)
+            index = get_pipeline(index)
         if not allow_multiple_index and isinstance(index, (list, tuple)):
             index = index[0]
         self.index = index
@@ -228,6 +284,12 @@ class DataInterface(DataOperation, OperatorIndex):
     """
 
     def __init__(self, index: OperatorIndex, **datastep_kwargs) -> None:
+        """An `OperatorIndex` as a [DataOperation][edit.training.data.templates.DataOperation]
+
+        Args:
+            index (OperatorIndex): 
+                Underlying OperatorIndex to use to get data
+        """        
         super().__init__(index=index, **datastep_kwargs)
 
     def get(self, querytime: str | EDITDatetime):
@@ -243,9 +305,17 @@ class DataIterator(DataStep):
 
     def __init__(
         self,
-        index: DataInterface | OperatorIndex | DataIndex,
-        catch: tuple[Exception] | Exception = None,
+        index: DataStep,
+        catch: tuple[Exception] | tuple[str] | Exception | str = None,
     ) -> None:
+        """Iterate over Data between date ranges
+
+        Args:
+            index (DataStep): 
+                Underlying DataStep to get data from
+            catch (tuple[Exception] | Exception, optional): 
+                Errors to catch, either defined or names of. Defaults to None.
+        """    
         super().__init__(index)
 
         if catch:
@@ -256,7 +326,7 @@ class DataIterator(DataStep):
                     catch[i] = get_callable(err)
         else:
             catch = []
-        self._error_to_catch = tuple(catch)
+        self._error_to_catch: tuple[Exception] = tuple(catch)
 
     def __getitem__(self, idx: str):
         return self.index[idx]
@@ -267,24 +337,22 @@ class DataIterator(DataStep):
         end: str | datetime | EDITDatetime,
         interval: int | tuple,
     ):
-        """
-        Set iteration range for DataInterface
+        """Set iteration range for DataIterator
 
-        Parameters
-        ----------
-        start
-            Start date of iteration
-        end
-            End date of iteration
-        interval
-            Interval between samples
-            Use pandas.to_timedelta notation, (10, 'minute')
-
-        """
+        Args:
+            start (str | datetime | EDITDatetime): 
+                Start date of iteration
+            end (str | datetime | EDITDatetime): 
+                End date of iteration
+            interval (int | tuple): 
+                Interval between samples
+                Use [pandas.to_timedelta][pandas.to_timedelta] notation, (10, 'minute')
+        """   
 
         self._interval = time_delta(interval)
-        self._start = EDITDatetime(start)
-        self._end = EDITDatetime(end)
+
+        self._start = EDITDatetime(start).at_resolution(self._interval)
+        self._end = EDITDatetime(end).at_resolution(self._interval)
 
         self._iterator_ready = True
 

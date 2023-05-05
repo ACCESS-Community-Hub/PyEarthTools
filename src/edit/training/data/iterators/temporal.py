@@ -51,7 +51,7 @@ class TemporalIterator(DataIterator):
             transforms (list[TransformCollection] | TransformCollection | str | dict, optional): 
                 Extra transforms to add to the retrieval of data. Defaults to None.
             samples (tuple[int] | int, optional): 
-                Temporal Samples to retrieve, if tuple [post,prior], if int post. Defaults to 0.
+                Temporal Samples to retrieve, if tuple [prior,post], if int post. Defaults to 0.
             sample_interval (int | tuple, optional): 
                 Interval between samples, must be in form of [TimeDelta][edit.data.time.time_delta].
                 If int, default to minutes unit. Defaults to 1.
@@ -213,9 +213,9 @@ class TemporalIterator(DataIterator):
 
         return self.index[idx]
 
-    def _formatted_name(self):
-        desc = f"Data Interface for {self.index.__class__.__name__!r}. Providing {self.samples!r} samples"
-        return super()._formatted_name(desc)
+    @property
+    def __doc__(self):
+        return f"Providing {self.samples!r} samples of {self.index.__class__.__name__!r}."
 
     def apply(self, data):
         if isinstance(data, tuple):

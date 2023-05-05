@@ -135,7 +135,8 @@ class DropValue(DataFilter):
             lambda x: ((np.count_nonzero(x == value) / math.prod(x.shape)) * 100)
             > percentage
         )
-        self.__doc__ = f"Drop data containing more than {percentage}% of {value}"
+
+        self.__doc__ = f"Drop data containing more than {percentage}% of {value}."
 
     def __iter__(self):
         for data in self.index:

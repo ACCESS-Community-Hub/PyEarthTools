@@ -11,7 +11,7 @@ from typing import Callable
 import yaml
 import inspect
 
-from edit.training.data.utils import get_indexes, get_callable
+from edit.training.data.utils import get_pipeline, get_callable
 
 from edit.training.data.templates import (
     DataIterator,
@@ -56,7 +56,7 @@ def SequentialIterator(func: Callable) -> Callable:
 
             def __getattr__(self, key):
                 raise RuntimeError(
-                    f"{self} cannot be used while it is waiting on an iterator."
+                    f"{self} cannot be used while it is waiting on an index."
                 )
 
             def __call__(self, iterator: DataIterator):
@@ -69,7 +69,7 @@ def SequentialIterator(func: Callable) -> Callable:
 
             def __repr__(self) -> str:
                 return (
-                    f"Sequential Iterator for {func.__name__} waiting on an iterator."
+                    f"Sequential Iterator for {func.__name__} waiting on an index."
                 )
 
         return add_iterator(func, *args, **kwargs)
@@ -148,5 +148,5 @@ def from_dict(data_specifications: dict | str | Path ) -> DataStep:
     else:
         order = list(data_specifications.keys())
 
-    data_list = get_indexes(data_specifications, order)
+    data_list = get_pipeline(data_specifications, order)
     return Sequential(*data_list)

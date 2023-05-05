@@ -32,6 +32,7 @@ class InterpolationIndex(TrainingOperatorIndex):
         self,
         indexes: list | dict | OperatorIndex,
         sample_interval: tuple[int, tuple[int]] = None,
+        override_if_wrong: bool = True,
         transforms: list | dict = TransformCollection(),
         interpolation: Any = None,
         interpolation_method: str = "linear",
@@ -49,6 +50,8 @@ class InterpolationIndex(TrainingOperatorIndex):
             sample_interval (tuple[int, tuple[int]], optional):
                 Sample Interval to pass up, must be of pandas.to_timestep form.
                 E.g. (10,'H') - 10 Hours. Defaults to None.
+            override_if_wrong (bool, optional):
+                Override time dim if subset fails. Defaults to True.
             transforms (list | dict, optional):
                  Other Transforms to apply. Defaults to TransformCollection().
             interpolation (Any, optional):
@@ -69,6 +72,8 @@ class InterpolationIndex(TrainingOperatorIndex):
         self.temporal = temporal
         self.temporal_reference = temporal_reference
         self.temporal_function = temporal_function
+
+        self.override = override_if_wrong
 
         if isinstance(transforms, dict):
             transforms = get_transforms(transforms)
@@ -98,28 +103,28 @@ class InterpolationIndex(TrainingOperatorIndex):
 
         for index in self.index:
             new_data = index(query_time, transforms=self.base_transforms, **kwargs)
+            if "time" in new_data.indexes:
+                if EDITDatetime(query_time).datetime64() in new_data.time:
+                    new_data = new_data.sel(time=str(EDITDatetime(query_time)))
+                else:
+                    if self.override and len(new_data.time) == 1:
+                        new_data = new_data.assign_coords(
+                            time=[EDITDatetime(query_time).datetime64()]
+                        )
+                    else:
+                        new_data = new_data.drop_dims('time')
+            if "time" not in new_data:
+                new_data = new_data.assign_coords(
+                    time=data[-1].time if data else [EDITDatetime(query_time).datetime64()]
+                )  # [EDITDatetime(query_time).datetime64()]
+
             if data:
-                interp = transform.interpolation(
+                interp = transform.interpolation.like(
                     self.interpolation or data[-1],
                     method=self.interpolation_method,
                     drop_coords="time",
                 )
-                if "time" in new_data.indexes:
-                    new_data = new_data.sel(time=EDITDatetime(query_time).datetime64())
-                    new_data = interp(new_data)
-                elif "time" not in new_data:
-                    try:
-                        new_data = new_data.assign_coords(
-                            time=data[-1].time
-                        )  # [EDITDatetime(query_time).datetime64()]
-                    except ValueError:
-                        new_data = new_data.assign_coords(
-                            time=[EDITDatetime(query_time).datetime64()]
-                        )
-                    new_data = interp(new_data)
-                else:
-                    pass
-                    # new_data['time'] = data[-1]['time']
+                new_data = interp(new_data)
             data.append(new_data)
 
         if self.temporal:
@@ -133,4 +138,4 @@ class InterpolationIndex(TrainingOperatorIndex):
 
     @property
     def __doc__(self):
-        return f"Interpolation Index for {[index.__class__.__name__ for index in self.index]!r}. Uses {self.interpolation_method}."
+        return f"Interpolation Index for {[index.__class__.__name__ for index in self.index]!r}. Uses {self.interpolation_method} interpolation."

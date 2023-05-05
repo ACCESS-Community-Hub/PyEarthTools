@@ -70,9 +70,9 @@ class CachingIndex(TrainingOperatorIndex, dataCachingIndex):
     def generate(self, querytime, **kwargs):
         return self.index(querytime, **kwargs)
 
-    def _formatted_name(self):
-        desc = f"Caching Index for {self.index.__class__.__name__!r}. Saving at {self.cache}"
-        return super()._formatted_name(desc)
+    @property
+    def __doc__(self):
+        return f"Caching Index for {self.index.__class__.__name__!r}. Saving at {self.cache}"
 
     @property
     def ignore_sanity(self):

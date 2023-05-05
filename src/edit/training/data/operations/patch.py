@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from itertools import zip_longest
-from typing import Any, Union
+from typing import Any
 
 import numpy as np
 import xarray as xr
@@ -16,7 +15,18 @@ from edit.data import Collection
 @SequentialIterator
 class PatchingDataIndex(DataOperation):
     """
-    DataOperation to patch data into smaller chunks of [np.array][numpy.ndarray]
+    DataOperation to patch data into smaller chunks of [np.array][numpy.ndarray].
+
+    Uses the [Tesselator][edit.utils.data.Tesselator] to patch and stitch the data.
+
+    !!! Warning
+        Issues may arise with rebuilding the time dimensions of a [Dataset][xarray.Dataset],
+        as the original dataset metadata is used.
+        
+        It is suggested that you find a way to reset the time dimension afterwards.
+
+        However, if using this with [TemporalIterator][edit.training.data.iterators.TemporalIterator],
+        a `rebuild_time` function is provided.
 
     !!! Example
         ```python
@@ -37,7 +47,7 @@ class PatchingDataIndex(DataOperation):
     ) -> None:
         """Patching DataOperation to split data into smaller chunks
         
-        Returned patches will be of shape (Patch, ..., *kernel_size)
+        Returned patches will be of shape `(Patch, ..., *kernel_size)`
 
         Args:
             index (DataStep): 
@@ -83,6 +93,10 @@ class PatchingDataIndex(DataOperation):
                 Patching Info - [kernel_size, stride_size]
         """        
         return self.kernel_size, self.stride_size
+
+    @property
+    def patching_config(self):
+        return [tess._coords for tess in self._tesselators]
 
     def update_patching(
         self,

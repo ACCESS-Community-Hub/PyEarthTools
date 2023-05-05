@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+from logging import warning
 import os
 from pathlib import Path
 from typing import Union
@@ -11,6 +12,12 @@ import pytorch_lightning as pl
 import torch
 import xarray as xr
 import matplotlib.pyplot as plt
+
+TENSORBOARD_INSTALLED = True
+try:
+    import tensorboard
+except ModuleNotFoundError:
+    TENSORBOARD_INSTALLED = False
 
 from torch.utils.data import DataLoader, IterableDataset
 
@@ -107,10 +114,15 @@ class EDITTrainerWrapper(EDITTrainer):
         self.logger = None
 
         if "logger" not in kwargs:
-            kwargs["logger"] = "csv"
+            kwargs["logger"] = "tensorboard"
 
         if "logger" in kwargs and isinstance(kwargs["logger"], str):
             self.logger = str(kwargs.pop("logger")).lower()
+            if self.logger == "tensorboard" and not TENSORBOARD_INSTALLED:
+                warning.warn(f"Logger was set to 'tensorboard' but 'tensorboard' is not installed.\nDefaulting to csv logging")
+                kwargs["logger"] = "csv"
+
+            
             if self.logger == "tensorboard":
                 kwargs["logger"] = pl.loggers.TensorBoardLogger(
                     path, name=kwargs.pop("name", None)
@@ -179,8 +191,8 @@ class EDITTrainerWrapper(EDITTrainer):
                 state = state["state_dict"]
                 new_state = {}
                 for key, variable in state.items():
-                    if "model" in key:
-                        new_state[key.replace("model.", "")] = variable
+                    if "model" in key or "net" in key:
+                        new_state[key.replace("model.", "").replace("net.", "")] = variable
                     else:
                         new_state[key] = variable
                 state = new_state
@@ -283,7 +295,8 @@ class EDITTrainerWrapper(EDITTrainer):
             if hasattr(data_source, "rebuild_time"):
                 prediction = data_source.rebuild_time(prediction, index)
 
-        return Collection(truth_data or data_source.undo(data)[1], prediction)
+            return Collection(truth_data or data_source.undo(data)[1], prediction)
+        return Collection(data[1], prediction[1])
 
     def predict_recurrent(
         self,

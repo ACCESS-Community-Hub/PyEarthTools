@@ -81,45 +81,24 @@ from edit.training import data
 from edit.training.models import networks
 from edit.training.trainer.trainer import EDITTrainerWrapper
 
-
-def get_callable(module: str):
-    """
-    Provide dynamic import capability
-
-    Parameters
-    ----------
-        module
-            String of path the module, either module or specific function/class
-
-    Returns
-    -------
-        Specified module or function
-    """
-    try:
-        return importlib.import_module(module)
-    except ModuleNotFoundError:
-        module = module.split(".")
-        return getattr(get_callable(".".join(module[:-1])), module[-1])
-    except ValueError as e:
-        raise ModuleNotFoundError("End of module definition reached")
+from edit.training.data.utils import get_callable
 
 
 def from_yaml(yaml_file: str, **kwargs) -> EDITTrainerWrapper:
-    """
-    Load and create trainer from Yaml Config
+    """Load and create trainer from Yaml Config
 
-    Parameters
-    ----------
-        yaml_file
+    !!! Warning
+        See above for information regarding keys 
+
+    Args:
+        yaml_file (str): 
             Path to yaml config
-
-        **kwargs
+        **kwargs (dict, optional):
             All passed into trainer config
-
-    Returns
-    -------
-        EDITTrainerWrapper
-    """
+    Returns:
+        (EDITTrainerWrapper): 
+            Loaded Trainer
+    """    
     with open(yaml_file, "r") as file:
         config = dict(yaml.safe_load(file))
 
@@ -148,13 +127,13 @@ def from_yaml(yaml_file: str, **kwargs) -> EDITTrainerWrapper:
         valid_data = None
 
     model_name = config["model"].pop("Source")
-    try:
-        model = get_callable(model_name)
-    except (AttributeError, ModuleNotFoundError):
-        if hasattr(networks, model_name):
-            model = getattr(networks, model_name)
-        else:
-            model = get_callable("edit.training.models.networks." + model_name)
+    #try:
+    model = get_callable(model_name)
+    #except (AttributeError, ModuleNotFoundError):
+        #if hasattr(networks, model_name):
+            #model = getattr(networks, model_name)
+        #else:
+            #model = get_callable("edit.training.models.networks." + model_name)
 
     model = model(**config["model"])
 

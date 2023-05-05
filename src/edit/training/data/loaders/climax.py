@@ -33,7 +33,9 @@ class ClimaXDataLoader(DataOperation, IterableDataset):
 
     def __getitem__(self, idx):
         self._size = len(idx)
-        return (*self.index[idx], self._find_time())
+        data = self.index[idx]
+        extend = data[0].shape[0]
+        return (*data, self._find_time().expand(extend))
 
     def __iter__(self):
         for i in self.index:

@@ -1,6 +1,9 @@
-from typing import Any, Union
+"""
+Utilty functions for edit.training.data
+"""
+
+from typing import Any, Callable, Union
 import xarray as xr
-import datetime
 
 import importlib
 import builtins
@@ -8,21 +11,28 @@ import builtins
 import re
 
 import edit.data
+from edit.training.data import templates
 
 
-def get_callable(module: str):
-    """
-    Provide dynamic import capability
+def get_callable(module: str) -> Callable:
+    """Provide dynamic import capability.
 
-    Parameters
-    ----------
-        module
+    Allows a string name of a module or class to be given, and an imported callable returned
+
+    Args:
+        module (str): 
             String of path the module, either module or specific function/class
 
-    Returns
-    -------
-        Specified module or function
-    """
+    Returns:
+        (Callable): 
+            Specified module or function
+    
+    Examples:
+        >>> get_callable('Exception')
+        Exception
+        >>> get_callable('edit.training')
+        <module 'edit.training' from ... >
+    """    
 
     try:
         return getattr(builtins, module)
@@ -34,6 +44,9 @@ def get_callable(module: str):
     except ModuleNotFoundError:
         module = module.split(".")
         return getattr(get_callable(".".join(module[:-1])), module[-1])
+    except ValueError as e:
+        raise ModuleNotFoundError("End of module definition reached")
+
 
 
 def get_class(root_module, class_name):
@@ -44,13 +57,56 @@ def get_class(root_module, class_name):
     return get_class(getattr(root_module, class_name[0]), class_name[1:])
 
 
-def get_indexes(sources: dict, order: list = None):
+def get_pipeline(sources: dict, order: list = None) -> list[Any]:
+    """Load [pipeline steps][edit.training] and initalise them from a dictionary.
+
+    !!! tip "Path Tip"
+        A path to the class doesn't always have to be specified, the below are automatically tried.
+
+        - `__main__.`
+        - `edit.training.data.`
+        - `edit.data.`
+        - `edit.training.data.operations.`
+
+    !!! tip "Multiple Tip"
+        If two or more of the same [DataStep][edit.training.data.DataStep] are wanted, add '[NUMBER]', to distiguish the key, this will be removed before import
+
+    !!! Warning
+        If `index` is not provided to [edit.training.data][edit.training.data] classes, they will not be fully initalised, due to [SequentialIterator][edit.training.data.sequential.SequentialIterator].
+
+        Suggested to instead use [sequential.from_dict][edit.training.data.sequential.from_dict].
+
+    Args:
+        sources (dict): 
+            Dictionary specifying pipeline steps to load and keyword arguments to pass
+        order (list, optional): 
+            Override for order to load them in. Defaults to None.
+
+    Raises:
+        ValueError: 
+            If an error occurs importing the step
+        TypeError: 
+            If an invalid type was imported
+        RuntimeError: 
+            If an error occurs intialising the steps
+
+    Returns:
+        (list[Any]): 
+            Imported and Initalised objects from the configuration
+
+    Examples:
+        >>> get_pipeline(sources = {'filters.DropNan':{}, 'reshape.Squish': {'axis': 1}})
+        #Somewhat loaded pipeline containing those two steps, but waiting on an index, as it wasn't given
+        [Sequential Iterator for DropNan waiting on an index., Sequential Iterator for Squish waiting on an index.]
+    """    
     indexes = []
+    if isinstance(sources, templates.DataStep):
+        return sources
 
     order = order or list(sources.keys())
 
     for index in order:
-        kwargs = sources[index]
+        init_args = sources[index]
         data_index = None
 
         index = re.sub(r"\[[0-9]*\]", "", index)
@@ -69,7 +125,6 @@ def get_indexes(sources: dict, order: list = None):
                 "edit.training.data.",
                 "edit.data.",
                 "edit.training.data.operations.",
-                "",
             ]:
                 try:
                     data_index = get_callable(alterations + index)
@@ -93,14 +148,53 @@ def get_indexes(sources: dict, order: list = None):
             else:
                 raise TypeError(f"{index!r} is a {type(data_index)}, must be callable")
         try:
-            indexes.append(data_index(**kwargs))
+            if isinstance(init_args, list):
+                indexes.append(data_index(*init_args))
+            elif isinstance(init_args, dict):
+                indexes.append(data_index(**init_args)) 
         except Exception as e:
-            raise RuntimeError(f"Initialising {index} raised {e}")
+            raise RuntimeError(f"Error occured initialising {index}") from e
     return indexes
 
 
-def get_transforms(sources: dict, order: list = None):
-    indexes = []
+def get_transforms(sources: dict, order: list = None) -> list[edit.data.Transform]:
+    """Load [Transforms][edit.data.transform] and initalise them from a dictionary.
+
+    !!! tip "Path Tip"
+        A path to the class doesn't always have to be specified, the below are automatically tried.
+
+        - `__main__.`
+        - `edit.data.transform.`
+        - `edit.data.`
+
+    !!! tip "Multiple Tip"
+        If two or more of the same [Transform][edit.data.transform] are wanted, add '[NUMBER]', to distiguish the key, this will be removed before import
+
+    Args:
+        sources (dict): 
+            Dictionary specifying transforms to load and keyword arguments to pass
+        order (list, optional): 
+            Override for order to load them in. Defaults to None.
+
+    Raises:
+        ValueError: 
+            If an error occurs importing the transform
+        TypeError: 
+            If an invalid type was imported
+        RuntimeError: 
+            If an error occurs intialising the transforms
+
+    Returns:
+        (list[edit.data.Transform]): 
+            Imported and Initalised Transforms from the configuration
+
+    Examples:
+        >>> get_transforms(sources = {'region.lookup':{'key': 'Adelaide'}})
+        Transform Collection:
+        BoundingCut                   Cut Dataset to Adelaide region
+    """      
+
+    transforms = []
 
     if isinstance(sources, edit.data.Transform):
         return sources
@@ -109,7 +203,7 @@ def get_transforms(sources: dict, order: list = None):
         order = order or list(sources.keys())
 
         for transform in order:
-            kwargs = sources[transform]
+            init_args = sources[transform]
             data_transform = None
 
             transform = re.sub(r"\[[0-9]*\]", "", transform)
@@ -120,7 +214,7 @@ def get_transforms(sources: dict, order: list = None):
                 pass
 
             if not data_transform:
-                for alterations in ["__main__.", "", "edit.data.transform", "edit.data."]:
+                for alterations in ["__main__.", "", "edit.data.transform.", "edit.data."]:
                     try:
                         data_transform = get_callable(alterations + transform)
                     except (ModuleNotFoundError, ImportError, AttributeError, ValueError):
@@ -139,9 +233,11 @@ def get_transforms(sources: dict, order: list = None):
                         f"{transform!r} is a {type(data_transform)}, must be callable"
                     )
             try:
-                indexes.append(data_transform(**kwargs))
+                if isinstance(init_args, list):
+                    transforms.append(data_transform(*init_args))
+                elif isinstance(init_args, dict):
+                    transforms.append(data_transform(**init_args))            
             except Exception as e:
-                raise RuntimeError(f"Initialising {transform} raised {e}")
-        return edit.data.transform.TransformCollection(indexes)
-        
-    edit.data.transform.TransformCollection(sources)
+                raise RuntimeError(f"Error occured initialising {data_transform}") from e
+        return edit.data.transform.TransformCollection(transforms)
+    return edit.data.transform.TransformCollection(sources)

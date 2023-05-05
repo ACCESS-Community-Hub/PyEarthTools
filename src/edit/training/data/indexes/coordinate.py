@@ -79,6 +79,6 @@ class CoordinateIndex(TrainingOperatorIndex):
                 )
         return data
 
-    def _formatted_name(self):
-        desc = f"Coordinate Adding Index. Adding {self.coordinates}"
-        return super()._formatted_name(desc)
+    @property
+    def __doc__(self):
+        return f"Coordinate Adding Index. Adding {self.coordinates}"

@@ -65,7 +65,8 @@ class CombineDataIterator(DataIterator):
     def undo(self, data, iterator_index: int, *args, **kwargs):
         return self.data_iterators[iterator_index].undo(data, *args, **kwargs)
 
-    def _formated_name(self):
+    @property
+    def __doc__(self):
         desc = f"Combining {self.data_iterators}"
         padding = lambda name, length_: name + "".join([" "] * (length_ - len(name)))
         desc = desc.replace("\n", "").replace("\t", "").strip()
@@ -73,5 +74,5 @@ class CombineDataIterator(DataIterator):
 
         for d_iter in self.data_iterators:
             if hasattr(self.index, "_formatted_name"):
-                formatted += f"\n{self.index._formatted_name()}"
+                formatted += f"\n{self.index._formatted_doc_()}"
         return formatted
