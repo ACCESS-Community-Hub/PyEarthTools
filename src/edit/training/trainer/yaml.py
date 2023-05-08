@@ -113,6 +113,9 @@ def from_yaml(yaml_file: str, **kwargs) -> EDITTrainerWrapper:
     config["trainer"].update(**kwargs)
 
     if "root_dir" in config["trainer"]:
+        if "%auto%" in config["trainer"]['root_dir']:
+            config["trainer"]['root_dir'] = Path(config["trainer"]['root_dir'].replace("%auto%","")) / '/'.join(Path(yaml_file).with_suffix('').parts[1:])
+
         Path(config["trainer"]["root_dir"]).mkdir(exist_ok=True, parents=True)
         with open(Path(config["trainer"]["root_dir"]) / "config.yaml", "w") as file:
             yaml.dump(config, file)

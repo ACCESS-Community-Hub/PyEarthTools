@@ -1,6 +1,7 @@
 from typing import Union
 import warnings
 import torch
+import numpy as np
 
 from edit.training.data.templates import DataStep, DataIterator, DataOperation
 from edit.training.data.sequential import SequentialIterator
@@ -23,13 +24,14 @@ class ClimaXDataLoader(DataOperation, IterableDataset):
     def _undo_func(self, data):
         return data[:self._size]
 
-    def _find_time(self):
+    def _find_time(self, size = 1):
         if not hasattr(self.index, "sample_interval"):
             raise RuntimeError(f"Not using a known TemporalIterator")
 
         # if isinstance(data, tuple)
-
-        return torch.Tensor([1])
+        if size == 1:
+            return torch.Tensor([1])
+        return torch.Tensor(np.linspace(0,1,size))
 
     def __getitem__(self, idx):
         self._size = len(idx)
@@ -38,8 +40,21 @@ class ClimaXDataLoader(DataOperation, IterableDataset):
         return (*data, self._find_time().expand(extend))
 
     def __iter__(self):
-        for i in self.index:
-            yield (*i, self._find_time())
+        for data in self.index:
+            if isinstance(data, tuple):
+                if len(data[0].shape) == 4:
+                    time = self._find_time(size = data[0].shape[1])
+                    for i in range(data[0].shape[1]):
+                        yield (*(data_sub[:,i] for data_sub in data), time[i])
+                else:
+                    yield (*data, self._find_time())
+            else:
+                if len(data.shape) == 4:
+                    time = self._find_time(size = data.shape[1])
+                    for i in range(data.shape[1]):
+                        yield data[:,i], time[i]
+                else:
+                    yield data, self._find_time()
 
     @property
     def ignore_sanity(self):
