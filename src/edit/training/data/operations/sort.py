@@ -37,7 +37,7 @@ class xarraySorter(DataOperation):
                 Order to set vars to, if not given sort alphabetically, or add others alphabetically to the end. Defaults to None.
         """        
         self.order = order
-        super().__init__(index, apply_func=self.sort, undo_func=None, split_tuples=True, recognised_types=(xr.Dataset, xr.DataArray))
+        super().__init__(index, apply_func=self.sort, undo_func=self.sort, split_tuples=True, recognised_types=(xr.Dataset, xr.DataArray))
 
     
     def sort(self, data : xr.Dataset | xr.DataArray) -> xr.Dataset | xr.DataArray:
