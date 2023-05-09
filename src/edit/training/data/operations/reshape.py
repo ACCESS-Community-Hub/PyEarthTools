@@ -243,9 +243,9 @@ class Flatten(DataOperation):
             index (DataStep): 
                 Underlying index to retrieve data from
             seperate_patch (bool, optional): 
-                Seperate patches so they aren't squashed. Use only if using [PatchingDataIndex][edit.training.data.operations.PatchingDataIndex]. Defaults to False.
+                Separate patches so they aren't squashed. Use only if using [PatchingDataIndex][edit.training.data.operations.PatchingDataIndex]. Defaults to False.
         """        
-        super().__init__(index, apply_func=self._apply_func, undo_func=self._undo_func)
+        super().__init__(index, apply_func=self._apply_flattening, undo_func=self._undo_flattening)
 
         self.seperate_patch = seperate_patch
         self._flatteners = []
@@ -264,26 +264,35 @@ class Flatten(DataOperation):
 
         return return_values
 
-    def _apply_func(self, data : tuple[np.ndarray] | np.ndarray):
+    def _apply_flattening(self, data : tuple[np.ndarray] | np.ndarray):
         if isinstance(data, tuple):
             flatteners = self._get_flatteners(len(data))
             return tuple(flatteners[i].apply(data_item) for i,data_item in enumerate(data))
-        
         return self._get_flatteners(1)[0].apply(data)
 
-    def _undo_func(self, data : tuple[np.ndarray] | np.ndarray):
+
+    def _undo_flattening(self, data):
         if isinstance(data, tuple):
             flatteners = self._get_flatteners(len(data))
-            return tuple(flatteners[i].undo(data_item) for i,data_item in enumerate(data))
-        
-        return self._get_flatteners(1)[0].undo(data)
+            if self.seperate_patch:
+                return tuple(np.stack(tuple(map(flatteners[i].undo, item))) for i, item in enumerate(data))
+            return tuple(np.stack(flatteners[i].undo(item)) for i, item in enumerate(data))
+        else:
+            if self.seperate_patch:
+                return np.stack(tuple(map(self._get_flatteners(1)[0].undo, data)))
+            return self._get_flatteners(1)[0].undo(data)
+
 
     def __getitem__(self, idx):
         data = self.index[idx]
         if self.apply_get and self.apply_func:
-            if self.seperate_patch:
-                if isinstance(data, tuple):
-                    return tuple(np.stack(tuple(map(self.apply_func, item))) for item in data)
-                return np.stack(tuple(map(self.apply_func, data)))
-            return self.apply_func(data)
+            if isinstance(data, tuple):
+                flatteners = self._get_flatteners(len(data))
+                if self.seperate_patch:
+                    return tuple(np.stack(tuple(map(flatteners[i].apply, item))) for i, item in enumerate(data))
+                return tuple(np.stack(flatteners[i].apply(item)) for i, item in enumerate(data))
+            else:
+                if self.seperate_patch:
+                    return np.stack(tuple(map(self._get_flatteners(1)[0].apply, data)))
+                return self._get_flatteners(1)[0].apply(data)
         return data
