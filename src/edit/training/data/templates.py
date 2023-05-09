@@ -118,6 +118,11 @@ class DataStep:
                     desc_list.remove("")
                 return desc_list[0].replace('\t','').strip()
 
+            @property
+            def _info_(self):
+                if isinstance(self.object, (list, tuple)):
+                    return {f"{obj.__class__.__name__}{i}": obj.__doc__ for i, obj in enumerate(self.object)}
+
         if not isinstance(self.step(0).index, DataStep):
             pipeline_steps = [formatting_wrapper(self.step(0).index), *pipeline_steps]
         return pipeline_steps
@@ -220,7 +225,8 @@ class DataOperation(DataStep):
                 recognised_types = tuple(recognised_types)
             elif not isinstance(recognised_types, tuple):
                 recognised_types = (recognised_types,)
-            recognised_types = (tuple, *recognised_types)
+            if self.split_tuples:
+                recognised_types = (tuple, list, *recognised_types)
         self.recognised_types = recognised_types
 
         self.apply_iterator = apply_iterator
@@ -417,6 +423,8 @@ class DataIterator(DataStep):
         else:
             catch = []
         self._error_to_catch: tuple[Exception] = tuple(catch)
+        self._info_ = dict(NotConfigured = True)
+        self._iterator_ready = False
 
     def __getitem__(self, idx: str):
         return self.index[idx]
@@ -441,13 +449,14 @@ class DataIterator(DataStep):
 
         self._interval = time_delta(interval)
 
-        self._start = EDITDatetime(start)#.at_resolution(self._interval)
+        self._start = EDITDatetime(start).at_resolution('minute')
         self._end = EDITDatetime(end)#.at_resolution(self._interval)
 
         self._iterator_ready = True
+        self._info_ = dict(start = self._start, end = self._end, interval = self._interval)
 
     def __iter__(self):
-        if not hasattr(self, "_start"):
+        if not self._iterator_ready:
             raise RuntimeError(
                 f"Iterator not set for {self.__class__.__name__}. Run .set_iterable()"
             )
