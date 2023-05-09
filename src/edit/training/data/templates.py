@@ -76,7 +76,10 @@ class DataStep:
     def __getattr__(self, key):
         if key == "index" or key in RESERVED_NAMES:
             raise AttributeError(f"{self.__class__} has no attribute {key!r}")
-        return getattr(self.index, key)
+        try:
+            return getattr(self.index, key)
+        except AttributeError as e:
+            raise AttributeError(f"{self} has no attribute {key!r}")
 
     def __call__(self, idx):
         if isinstance(idx, str | EDITDatetime):
@@ -238,7 +241,7 @@ class DataOperation(DataStep):
 
     def check_types(self, data: Any) -> bool:
         if self.recognised_types is not None and not isinstance(data, self.recognised_types):
-            raise TypeError(f"{self.__class__.__name__} cannot handle {type(data)!r}. Recognised types are {self.recognised_types!r}")
+            raise TypeError(f"{self.__class__.__name__} cannot handle '{type(data)}'. Recognised types are: {self.recognised_types}")
         return True
         
     def apply_func(self, data: xr.Dataset | xr.DataArray | np.ndarray | tuple) -> xr.Dataset | xr.DataArray | np.ndarray | tuple:
@@ -256,7 +259,7 @@ class DataOperation(DataStep):
         """        
         self.check_types(data)
 
-        if isinstance(data, tuple) and self.split_tuples:
+        if isinstance(data, (list, tuple)) and self.split_tuples:
             return tuple(map(self.apply_func, data))
         if self._apply_func:
             return self._apply_func(data)
@@ -277,7 +280,7 @@ class DataOperation(DataStep):
         """            
         self.check_types(data)
 
-        if isinstance(data, tuple) and self.split_tuples:
+        if isinstance(data, (list, tuple)) and self.split_tuples:
             return tuple(map(self.undo_func, data))
         if self._undo_func:
             return self._undo_func(data)
@@ -310,6 +313,7 @@ class DataOperation(DataStep):
             (xr.Dataset | xr.DataArray | np.ndarray | tuple):
                 Result of Data Pipeline steps
         """
+
         if hasattr(self.index, "apply"):
             data = self.index.apply(data)
         return self.apply_func(data)
