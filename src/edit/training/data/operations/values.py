@@ -64,6 +64,8 @@ class FillNa(DataOperation):
             self.__doc__ += " on both iteration and get"
         elif self.apply_iterator ^ self.apply_get:
             self.__doc__ += f" on {'iteration' if self.apply_iterator else 'getitem'}"
+        
+        self._info_ = dict(nan = nan, posinf = posinf, neginf = neginf)
 
     def _apply_fill(self, data):
         if isinstance(data, tuple):
@@ -126,6 +128,8 @@ class MaskValue(DataOperation):
         self.__doc__ = (
             f"Given data {operation} {value} replace with {replacement_value}"
         )
+        self._info_ = dict(value = value, operation = operation, replacement_value = replacement_value)
+
         if self.apply_iterator & self.apply_get:
             self.__doc__ += " on both iteration and get"
         elif self.apply_iterator ^ self.apply_get:
@@ -207,6 +211,7 @@ class ForceNormalised(DataOperation):
         self._force_max_1 = MaskValue(index, max_value, ">", max_value)
 
         self.__doc__ = f"Force Data between {min_value} and {max_value}"
+        self._info_ = dict(min_value = min_value, max_value = max_value)
 
     def _mask(self, data):
         if isinstance(data, tuple):

@@ -69,6 +69,8 @@ class PatchingDataIndex(DataOperation):
 
         self._tesselators = []
 
+        self._info_ = dict(kernel_size = kernel_size, stride_size = stride_size, padding = padding)
+
     def _get_tesselators(self, number: int) -> tuple[Tesselator]:
         """
         Retrieve a set number of tesselators, creating new ones if needed
@@ -96,7 +98,14 @@ class PatchingDataIndex(DataOperation):
 
     @property
     def patching_config(self):
-        return [tess._coords for tess in self._tesselators]
+        class NameSpace:
+            def __init__(self, dict) -> None:
+                self.dict = dict
+                for key, value in dict.items():
+                    setattr(self, key, value)
+            def __repr__(self) -> str:
+                return str(self.dict)
+        return Collection(*(NameSpace(tess._coords) for tess in self._tesselators))
 
     def update_patching(
         self,

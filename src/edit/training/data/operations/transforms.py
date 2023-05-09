@@ -38,6 +38,7 @@ class TransformOperation(DataOperation):
         super().__init__(iterator, self._apply_transforms, undo_func=None, **kwargs)
         self.transforms = get_transforms(transforms)
         self.__doc__ = f"Apply Transforms {self.transforms}"
+        self._info_ = dict(transforms = transforms)
 
     def _apply_transforms(self, data):
         return self.transforms(data)

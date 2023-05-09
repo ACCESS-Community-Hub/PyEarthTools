@@ -1,0 +1,72 @@
+
+from __future__ import annotations
+from typing import Literal
+
+import numpy as np
+import xarray as xr
+
+from edit.training.data.templates import (
+    DataIterator,
+    DataStep,
+    DataOperation,
+)
+from edit.training.data.sequential import Sequential, SequentialIterator
+
+
+@SequentialIterator
+class xarraySorter(DataOperation):
+    """
+    Sort Variables of an xarray object
+
+    !!! Example
+        ```python
+        xarraySorter(PipelineStep, order = ['a','b'])
+
+        ## As this is decorated with @SequentialIterator, it can be partially initialised
+
+        partialxarraySorter = xarraySorter(order = ['a','b'])
+        partialxarraySorter(PipelineStep)
+        ```
+    """
+    def __init__(self, index: DataStep, order : list[str] = None):
+        """Initialise sorter
+
+        Args:
+            index (DataStep): 
+                Underlying DataStep to get data for
+            order (list[str], optional): 
+                Order to set vars to, if not given sort alphabetically. Defaults to None.
+        """        
+        self.order = order
+        super().__init__(index, apply_func=self.sort, undo_func=None, split_tuples=True, recognised_types=(xr.Dataset, xr.DataArray))
+
+    
+    def sort(self, data : xr.Dataset | xr.DataArray) -> xr.Dataset | xr.DataArray:
+        """Sort an xarray object data variables into the given order
+
+        Args:
+            data (xr.Dataset): 
+                Dataset to sort
+
+        Returns:
+            (xr.Dataset | xr.DataArray): 
+                Sorted dataset
+        """
+        current_data_vars = data.data_vars
+        order = self.order
+
+        if order is None:
+            order = [str(index) for index in current_data_vars]
+            order.sort()
+            self.order = list(order)
+
+        order = list(order)
+
+        new_data = data[order.pop(0)].to_dataset()
+        for key in order:
+            new_data[key] = data[key]
+        return new_data
+
+    @property
+    def _info_(self):
+        return dict(order = self.order)

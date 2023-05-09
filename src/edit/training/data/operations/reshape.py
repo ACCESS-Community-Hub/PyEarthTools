@@ -65,6 +65,7 @@ class Rearrange(DataOperation):
 
         self.skip = skip
         self.__doc__ = f"Rearrange Data according to {rearrange}"
+        self._info_ = dict(rearrange = rearrange)
 
     def __rearrange(
         self, data: tuple[np.ndarray] | np.ndarray, pattern: str, catch=True
@@ -128,6 +129,7 @@ class Squish(DataOperation):
         """        
         super().__init__(index, self._apply_squish, self._apply_expand, **kwargs)
         self.axis = axis
+        self._info_ = dict(axis = axis)
 
     @property
     def __doc__(self):
@@ -184,6 +186,7 @@ class Expand(DataOperation):
         """        
         super().__init__(index, self._apply_expand, self._apply_squish, **kwargs)
         self.axis = axis
+        self._info_ = dict(axis = axis)
 
     @property
     def __doc__(self):
@@ -237,7 +240,7 @@ class Flatten(DataOperation):
     """
 
     def __init__(self, index: DataStep, seperate_patch: bool = False) -> None:
-        """DataOperation to flatten inoming data
+        """DataOperation to flatten incoming data
 
         Args:
             index (DataStep): 
@@ -249,6 +252,8 @@ class Flatten(DataOperation):
 
         self.seperate_patch = seperate_patch
         self._flatteners = []
+
+        self._info_ = dict(seperate_patch = seperate_patch)
 
     def _get_flatteners(self, number: int) -> tuple[Flattener]:
         """

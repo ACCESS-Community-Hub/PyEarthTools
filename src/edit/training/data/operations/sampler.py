@@ -62,8 +62,8 @@ class RandomSampler(DataSampler):
         partialRandomSampler(PipelineStep)
         ```
     """
-    def __init__(self, index: DataStep, buffer_size: int = 10) -> None:
-        """Semi-Randomlly Sample a buffer of data samples
+    def __init__(self, index: DataStep, buffer_size: int = 10, seed: int = 42) -> None:
+        """Semi-Randomly Sample a buffer of data samples
 
         Args:
             index (DataStep): 
@@ -71,22 +71,27 @@ class RandomSampler(DataSampler):
             buffer_size (int, optional): 
                 Size of buffer to create and to sample from. 
                 Larger buffer will improve the randomness. Defaults to 10.
+            seed (int, optional):
+                Seed of random number generator. Defaults to 42.
         """        
         super().__init__(index)
         buffer_size = max(1, buffer_size)
         self.buffer_size = buffer_size
+        self.seed = seed
+        self._info_ = dict(buffer_size = buffer_size, seed = seed)
 
     def __iter__(self):
         buffer = []
         iterator = iter(self.index)
+        rng = np.random.default_rng(self.seed)
         while True:
             try:
                 while len(buffer) < self.buffer_size:
                     buffer.append(iterator.__next__())
-                yield buffer.pop(random.randint(0,len(buffer)))
+                yield buffer.pop(rng.integers(0,len(buffer)-1))
             except StopIteration:
                 while len(buffer) > 0:
-                    yield buffer.pop(random.randint(0,len(buffer)))
+                    yield buffer.pop(rng.integers(0,len(buffer)-1))
                 return
 
 
@@ -105,7 +110,7 @@ class RandomDropOut(DataSampler):
         partialRandomDropOut(PipelineStep)
         ```
     """
-    def __init__(self, index: DataStep, chance: int = 0) -> None:
+    def __init__(self, index: DataStep, chance: int = 0, seed: int = 42) -> None:
         """Randomly drop out samples from iteration
 
         Args:
@@ -113,6 +118,8 @@ class RandomDropOut(DataSampler):
                 Underlying DataStep to retrieve data from
             chance (int, optional): 
                 Chance each data step is dropped. Percentage between 0 & 100. Defaults to 0.
+            seed (int, optional):
+                Seed of random number generator. Defaults to 42.
         """        
         super().__init__(index)
         if chance < 0 or chance > 100:
@@ -121,10 +128,12 @@ class RandomDropOut(DataSampler):
         if chance > 50:
             warnings.warn(f"Dropout chance is high {chance!r}, unlikely to be an effective training pipeline", RuntimeWarning)
         self.__doc__ = f"DataSampler with a {chance}% chance to drop data"
+        self._info_ = dict(chance = chance, seed = seed)
 
     def __iter__(self):
+        rng = np.random.default_rng(self.seed)
         for data in self.index:
-            if random.randint(0,100) < self.chance:
+            if rng.integers(0,100) < self.chance:
                 continue
             yield data
 
@@ -162,6 +171,7 @@ class DropOut(DataSampler):
         self.yield_on_step = yield_on_step
 
         self.__doc__ = f"DataSampler {'dropping' if yield_on_step else 'returning'} every {step} data sample."
+        self._info_ = dict(step = step, yield_on_step = yield_on_step)
 
     def __iter__(self):
         for i, data in enumerate(self.index):

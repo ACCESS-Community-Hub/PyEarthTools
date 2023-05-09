@@ -141,6 +141,7 @@ class DropValue(DataFilter):
         )
 
         self.__doc__ = f"Drop data containing more than {percentage}% of {value}."
+        self._info_ = dict(value = value, percentage = percentage)
 
     def __iter__(self):
         for data in self.index:
