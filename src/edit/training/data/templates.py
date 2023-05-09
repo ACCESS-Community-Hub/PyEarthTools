@@ -6,6 +6,8 @@ from typing import Any, Callable, Union
 
 from datetime import datetime
 
+import numpy as np
+import xarray as xr
 
 from edit.data import DataIndex, OperatorIndex
 from edit.data.time import EDITDatetime, time_delta, time_delta_resolution
@@ -17,6 +19,8 @@ try:
     HTML_REPR_ENABLED = True
 except ImportError:
     HTML_REPR_ENABLED = False
+
+RESERVED_NAMES = ['_info_','__doc__']
 
 class DataStep:
     """
@@ -31,7 +35,7 @@ class DataStep:
 
     @abstractmethod
     def __getitem__(self, idx):
-        raise NotImplementedError()
+        return self.index[idx]
 
     @abstractmethod
     def __iter__(self):
@@ -70,7 +74,7 @@ class DataStep:
             return 0
 
     def __getattr__(self, key):
-        if key == "index":
+        if key == "index" or key in RESERVED_NAMES:
             raise AttributeError(f"{self.__class__} has no attribute {key!r}")
         return getattr(self.index, key)
 
@@ -90,8 +94,7 @@ class DataStep:
         desc_list = desc.strip().split("\n")
         if "" in desc_list:
             desc_list.remove("")
-        desc = desc_list[0].replace('\t','').strip()
-        return desc
+        return desc_list[0].replace('\t','').strip()
 
         
     def _get_steps_for_repr_(self):
@@ -113,8 +116,7 @@ class DataStep:
                 desc_list = desc.strip().split("\n")
                 if "" in desc_list:
                     desc_list.remove("")
-                desc = desc_list[0].replace('\t','').strip()
-                return desc
+                return desc_list[0].replace('\t','').strip()
 
         if not isinstance(self.step(0).index, DataStep):
             pipeline_steps = [formatting_wrapper(self.step(0).index), *pipeline_steps]
@@ -125,7 +127,7 @@ class DataStep:
             raise AttributeError(f"{self!r} has no attribute '_repr_html_'")
         pipeline_steps = self._get_steps_for_repr_()
 
-        return edit.utils.repr.provide_html(*pipeline_steps, name = 'Data Pipeline', documentation_attr = '_formatted_doc_', backup_repr = self.__repr__())
+        return edit.utils.repr.provide_html(*pipeline_steps, name = 'Data Pipeline', documentation_attr = '_formatted_doc_', info_attr = '_info_', backup_repr = self.__repr__())
 
     def __repr__(self):
         string = "Data Pipeline of the following:\n"
@@ -134,7 +136,9 @@ class DataStep:
         pipeline_steps = self._get_steps_for_repr_()
 
         for step in pipeline_steps:
-            formatted = f"\t*{padding(step.__class__.__name__, 30)}{step._formatted_doc_}\n"
+            formatted = f"\t* {padding(step.__class__.__name__, 30)}{step._formatted_doc_}\n"
+            if hasattr(step, '_info_'):
+                formatted = formatted + f"\t\t\t\t{step._info_}"
             string += formatted
 
         return string
@@ -148,17 +152,19 @@ class DataStep:
 class DataOperation(DataStep):
     """
     Base DataOperation. A pipeline step with which an operation can be applied to the data.
-
     """
 
     def __init__(
         self,
-        index : DataStep,
+        index : DataStep | DataOperation,
         apply_func: Callable,
         undo_func: Callable,
         *,
         apply_iterator: bool = True,
         apply_get: bool = True,
+        split_tuples: bool = False,
+        recognised_types: tuple[type] = None,
+        doc: str = None,
     ) -> None:
         """Base DataOperation, 
 
@@ -168,40 +174,126 @@ class DataOperation(DataStep):
             index (DataStep): 
                 Underlying pipeline step with which to get data from
             apply_func (Callable): 
-                Function to apply to data
+                Function to apply to data. Can be None to not apply.
             undo_func (Callable): 
-                Function to apply to data to `undo` the `apply_func`
+                Function to apply to data to `undo` the `apply_func`. Can be None to not undo.
             apply_iterator (bool, optional): 
                 Apply on iteration. Defaults to True.
             apply_get (bool, optional): 
                 Apply on __getitem__. Defaults to True.
+            split_tuples (bool, optional):
+                Split tuples of data, applying the given functions to each element. Defaults to False.
+            recognised_types (tuple[type], optional):
+                List or tuple of recognised types, will raise an exception if data is passed of the wrong type. Defaults to None.
+            doc (str, optional):
+                Override for __doc__ string. Defaults to None.
+
+        Examples:
+            ## Applying a Function
+            >>> operation = DataOperation(DataStep, apply_func = lambda x: x + 1, undo_func = lambda x: x - 1)
+            >>> operation.apply_func(0) # Apply this operation to a given data
+            1
+            ## Undoing a Function
+            >>> operation.undo_func(1) # Apply the undo operation to a given data
+            0
+            ## Indexing Data
+            >>> operation = DataOperation([41], apply_func = lambda x: x + 1, undo_func = lambda x: x - 1)
+            >>> operation[0]
+            42  # Data from DataStep at [0] with lambda x: x + 1 applied
+            ## Iterating Through Data
+            >>> list(operation)
+            [42]
+            >>> operation.undo(list(operation))
+            41
+
         """        
         super().__init__(index)
 
-        self.apply_func = apply_func
-        self.undo_func = undo_func
+        self._apply_func = apply_func
+        self._undo_func = undo_func
+
+        self.split_tuples = split_tuples
+
+
+        if not recognised_types is None:
+            if isinstance(recognised_types, list):
+                recognised_types = tuple(recognised_types)
+            elif not isinstance(recognised_types, tuple):
+                recognised_types = (recognised_types,)
+            recognised_types = (tuple, *recognised_types)
+        self.recognised_types = recognised_types
 
         self.apply_iterator = apply_iterator
         self.apply_get = apply_get
 
-    def undo(self, data):
+        if doc:
+            self.__doc__ = doc
+
+
+    def check_types(self, data: Any) -> bool:
+        if self.recognised_types is not None and not isinstance(data, self.recognised_types):
+            raise TypeError(f"{self.__class__.__name__} cannot handle {type(data)!r}. Recognised types are {self.recognised_types!r}")
+        return True
+        
+    def apply_func(self, data: xr.Dataset | xr.DataArray | np.ndarray | tuple) -> xr.Dataset | xr.DataArray | np.ndarray | tuple:
+        """Apply the given `apply_func` from init.
+
+        Will automatically split / join tuples and check types if given by init arguments
+
+        Args:
+            data (xr.Dataset | xr.DataArray | np.ndarray | tuple): 
+                Data to apply `apply_func` to
+
+        Returns:
+            (xr.Dataset | xr.DataArray | np.ndarray | tuple): 
+                Data with `apply_func` function applied to it
+        """        
+        self.check_types(data)
+
+        if isinstance(data, tuple) and self.split_tuples:
+            return tuple(map(self.apply_func, data))
+        if self._apply_func:
+            return self._apply_func(data)
+        return data
+
+    def undo_func(self, data: xr.Dataset | xr.DataArray | np.ndarray | tuple) -> xr.Dataset | xr.DataArray | np.ndarray | tuple:
+        """Apply the given `undo_func` from init.
+
+        Will automatically split / join tuples and check types if given by init arguments
+
+        Args:
+            data (xr.Dataset | xr.DataArray | np.ndarray | tuple): 
+                Data to apply `undo_func` to
+
+        Returns:
+            (xr.Dataset | xr.DataArray | np.ndarray | tuple): 
+                Data with `undo_func` function applied to it
+        """            
+        self.check_types(data)
+
+        if isinstance(data, tuple) and self.split_tuples:
+            return tuple(map(self.undo_func, data))
+        if self._undo_func:
+            return self._undo_func(data)
+        return data
+
+    def undo(self, data: xr.Dataset | xr.DataArray | np.ndarray | tuple):
         """Undo transforms and edits the Data Pipeline has done
 
         Args:
-            data (xr.Dataset | xr.DataArray | np.ndarray):
+            data (xr.Dataset | xr.DataArray | np.ndarray | tuple):
                 Data from this pipeline to undo changes from
 
         Returns:
-            (xr.Dataset | xr.DataArray | np.ndarray):
+            (xr.Dataset | xr.DataArray | np.ndarray | tuple):
                 Result of `.undo` from the Pipeline
         """
-        if self.undo_func is not None:
-            data = self.undo_func(data)
+        data = self.undo_func(data)
         if hasattr(self.index, "undo"):
             data = self.index.undo(data)
         return data
 
-    def apply(self, data):
+    def apply(self, data: xr.Dataset | xr.DataArray | np.ndarray | tuple):
         """Apply DataPipeline to given Data
 
         Args:
@@ -209,24 +301,22 @@ class DataOperation(DataStep):
                 Data to apply pipeline to
 
         Returns:
-            (xr.Dataset | xr.DataArray | np.ndarray):
+            (xr.Dataset | xr.DataArray | np.ndarray | tuple):
                 Result of Data Pipeline steps
         """
         if hasattr(self.index, "apply"):
             data = self.index.apply(data)
-        if self.apply_func is not None:
-            data = self.apply_func(data)
-        return data
+        return self.apply_func(data)
 
     def __iter__(self):
         for data in self.index:
-            if self.apply_iterator and self.apply_func:
+            if self.apply_iterator:
                 yield self.apply_func(data)
             else:
                 yield data
 
     def __getitem__(self, idx):
-        if self.apply_get and self.apply_func:
+        if self.apply_get:
             return self.apply_func(self.index[idx])
         return self.index[idx]
 
@@ -351,8 +441,8 @@ class DataIterator(DataStep):
 
         self._interval = time_delta(interval)
 
-        self._start = EDITDatetime(start).at_resolution(self._interval)
-        self._end = EDITDatetime(end).at_resolution(self._interval)
+        self._start = EDITDatetime(start)#.at_resolution(self._interval)
+        self._end = EDITDatetime(end)#.at_resolution(self._interval)
 
         self._iterator_ready = True
 

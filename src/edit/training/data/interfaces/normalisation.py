@@ -138,4 +138,8 @@ class NormaliseInterface(DataInterface):
 
     @property
     def __doc__(self):
-        return f"Normalising with method: {self.method} and default: {self.default}"
+        return f"Normalise Data.\nMethod: {self.method} and default: {self.default}"
+
+    @property
+    def _info_(self):
+        return dict(method = self.method, default = self.default)

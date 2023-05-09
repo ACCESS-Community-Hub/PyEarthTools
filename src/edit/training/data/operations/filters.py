@@ -17,6 +17,10 @@ from edit.training.data.sequential import Sequential, SequentialIterator
 class DataFilter(DataOperation):
     """
     DataOperation Child to override `__iter__` method to provide a way of filtering data
+    Parent Class of Data Filters
+
+    !!! Warning
+        Cannot be used directly, this is simply the parent class to provide a structure
 
     !!! Example
         ```python

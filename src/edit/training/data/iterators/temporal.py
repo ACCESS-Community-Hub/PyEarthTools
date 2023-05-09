@@ -224,3 +224,11 @@ class TemporalIterator(DataIterator):
         if hasattr(self.index, "apply"):
             data = self.index.apply(data)
         return data
+
+    def undo(self, data):
+        if isinstance(data, tuple):
+            return tuple(map(self.undo, data))
+
+        if hasattr(self.index, "undo"):
+            data = self.index.undo(data)
+        return data

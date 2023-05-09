@@ -8,8 +8,7 @@ See each sub module for a list of available Pipeline steps
 
 # Examples
 
-### Example 1 
-Load ERA5, grab two samples and patch it into `64` by `64` arrays.
+### Load ERA5, grab two samples and patch it into `64` by `64` arrays.
 === "Yaml File"
     ```yaml
     ## Data Pipeline Configuration
@@ -108,6 +107,7 @@ from edit.training.data.templates import (
     DataIterator,
     TrainingOperatorIndex,
     DataInterface,
+    DataOperation,
     DataStep,
 )
 from edit.training.data.sequential import SequentialIterator, Sequential, from_dict

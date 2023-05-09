@@ -16,6 +16,10 @@ from edit.training.data.sequential import Sequential, SequentialIterator
 class DataSampler(DataOperation):
     """
     DataOperation Child to override `__iter__` method to provide a way of sampling data
+    Parent Class of Data Samplers
+
+    !!! Warning
+        Cannot be used directly, this is simply the parent class to provide a structure
 
     !!! Example
         ```python
@@ -47,6 +51,16 @@ class DataSampler(DataOperation):
 class RandomSampler(DataSampler):
     """
     DataSampler to collect a list of samples and randomly choose one to give back
+
+    !!! Example
+        ```python
+        RandomSampler(PipelineStep, buffer_size = 10)
+
+        ## As this is decorated with @SequentialIterator, it can be partially initialised
+
+        partialRandomSampler = RandomSampler(buffer_size = 10)
+        partialRandomSampler(PipelineStep)
+        ```
     """
     def __init__(self, index: DataStep, buffer_size: int = 10) -> None:
         """Semi-Randomlly Sample a buffer of data samples
@@ -71,13 +85,25 @@ class RandomSampler(DataSampler):
                     buffer.append(iterator.__next__())
                 yield buffer.pop(random.randint(0,len(buffer)))
             except StopIteration:
+                while len(buffer) > 0:
+                    yield buffer.pop(random.randint(0,len(buffer)))
                 return
 
 
 @SequentialIterator
-class DropOut(DataSampler):
+class RandomDropOut(DataSampler):
     """
     DataSampler to randomally drop out data
+
+    !!! Example
+        ```python
+        RandomDropOut(PipelineStep, chance = 10)
+
+        ## As this is decorated with @SequentialIterator, it can be partially initialised
+
+        partialRandomDropOut = RandomDropOut(chance = 10)
+        partialRandomDropOut(PipelineStep)
+        ```
     """
     def __init__(self, index: DataStep, chance: int = 0) -> None:
         """Randomly drop out samples from iteration
@@ -101,3 +127,51 @@ class DropOut(DataSampler):
             if random.randint(0,100) < self.chance:
                 continue
             yield data
+
+@SequentialIterator
+class DropOut(DataSampler):
+    """
+    DataSampler to drop out data at given step interval
+
+    !!! Example
+        ```python
+        DropOut(PipelineStep, step = 10)
+
+        ## As this is decorated with @SequentialIterator, it can be partially initialised
+
+        partialDropOut = DropOut(step = 10)
+        partialDropOut(PipelineStep)
+        ```
+    """
+    def __init__(self, index: DataStep, step: int, yield_on_step: bool = False) -> None:
+        """Drop out samples from iteration at given step interval
+
+        Args:
+            index (DataStep): 
+                Underlying DataStep to retrieve data from
+            step (int): 
+                Step value in which to drop out data, or if `yield_on_step` when to yield data
+            yield_on_step (bool, optional):
+                Reverse behaviour of this Sampler, such that on `step` yield data.
+
+        ??? Warning:
+            If `step` is set to `1` and `yield_on_step` == False, this will drop data every iteration, returning nothing.
+        """        
+        super().__init__(index)
+        self.step_val = step
+        self.yield_on_step = yield_on_step
+
+        self.__doc__ = f"DataSampler {'dropping' if yield_on_step else 'returning'} every {step} data sample."
+
+    def __iter__(self):
+        for i, data in enumerate(self.index):
+            if (i % self.step_val) == 0:
+                if self.yield_on_step:
+                    yield data
+                else:
+                    continue
+            else:
+                if self.yield_on_step:
+                    continue
+                else:
+                    yield data

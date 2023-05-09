@@ -113,7 +113,7 @@ class InterpolationIndex(TrainingOperatorIndex):
                         )
                     else:
                         new_data = new_data.drop_dims('time')
-            if "time" not in new_data:
+            if "time" not in new_data.indexes:
                 new_data = new_data.assign_coords(
                     time=data[-1].time if data else [EDITDatetime(query_time).datetime64()]
                 )  # [EDITDatetime(query_time).datetime64()]

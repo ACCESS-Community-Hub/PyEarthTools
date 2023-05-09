@@ -235,7 +235,7 @@ class EDITTrainerWrapper(EDITTrainer):
     def predict(
         self,
         index: str,
-        undo: bool = False,
+        undo: bool = True,
         data_iterator: DataIterator = None,
         resume: bool | str = True,
         only_state: bool = True,
@@ -254,7 +254,7 @@ class EDITTrainerWrapper(EDITTrainer):
             index (str): 
                 Index to get from the validation or training data loader or given `data_iterator`
             undo (bool, optional): 
-                Rebuild Data using DataStep.undo. Defaults to False.
+                Rebuild Data using DataStep.undo. Defaults to True.
             data_iterator (DataIterator, optional): 
                 Override for DataStep to us. Defaults to None.
             resume (bool | str, optional): 
@@ -388,7 +388,7 @@ class EDITTrainerWrapper(EDITTrainer):
             return predictions
 
         return Collection(
-            self.train_iterator.step(truth_step)[predictions], predictions
+            self.train_iterator.step(truth_step)(predictions), predictions
         )
 
     def data(self, index : str, undo=False) -> np.array | xr.Dataset:

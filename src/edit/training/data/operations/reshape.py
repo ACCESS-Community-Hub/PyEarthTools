@@ -38,11 +38,13 @@ class Rearrange(DataOperation):
     ) -> None:
         """Using Einops rearrange, rearrange data.
         
-        !!! Note
+        !!! Warning
             This will occur on each iteration, and on `__getitem__`,
             so it is best to leave patches code out if using [PatchingDataIndex][edit.training.data.operations.PatchingDataIndex].
-
+            
+            ```
             'p t c h w' == 't c h w'
+            ```
 
         Args:
             index (DataStep): 
@@ -67,11 +69,6 @@ class Rearrange(DataOperation):
     def __rearrange(
         self, data: tuple[np.ndarray] | np.ndarray, pattern: str, catch=True
     ):
-        """
-        Apply einops.rearrange on data.
-
-        If this fails, attempt to add 'p' to either side.
-        """
         try:
             if isinstance(data, tuple):
                 return tuple(
@@ -115,7 +112,7 @@ class Squish(DataOperation):
         ```
 
     !!! Warning
-        If use this with [PatchingDataIndex][edit.training.data.operations.PatchingDataIndex], as patch dim only exists on `__getitem__` calls, axis indexing may be off.
+        If using this with [PatchingDataIndex][edit.training.data.operations.PatchingDataIndex], as patch dim only exists on `__getitem__` calls, axis indexing may be off.
         Either use negative indexing, or two squish operators, one for `__getitem__` with `apply_iterator` = False,
         and one for `__iter__` with `apply_get` = False
     """
@@ -170,7 +167,7 @@ class Expand(DataOperation):
         ```
 
     !!! Warning
-        If use this with [PatchingDataIndex][edit.training.data.operations.PatchingDataIndex], as patch dim only exists on `__getitem__` calls, axis indexing may be off.
+        If using this with [PatchingDataIndex][edit.training.data.operations.PatchingDataIndex], as patch dim only exists on `__getitem__` calls, axis indexing may be off.
         Either use negative indexing, or two squish operators, one for `__getitem__` with `apply_iterator` = False,
         and one for `__iter__` with `apply_get` = False
     """
