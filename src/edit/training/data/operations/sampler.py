@@ -124,9 +124,13 @@ class RandomDropOut(DataSampler):
         super().__init__(index)
         if chance < 0 or chance > 100:
             raise ValueError(f"Invalid `chance` given. {chance!r}. Must be between 0 and 100.")
+            
         self.chance = chance
+        self.seed = seed
+
         if chance > 50:
             warnings.warn(f"Dropout chance is high {chance!r}, unlikely to be an effective training pipeline", RuntimeWarning)
+
         self.__doc__ = f"DataSampler with a {chance}% chance to drop data"
         self._info_ = dict(chance = chance, seed = seed)
 

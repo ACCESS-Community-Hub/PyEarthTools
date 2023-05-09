@@ -1,6 +1,5 @@
 
 from __future__ import annotations
-from typing import Literal
 
 import numpy as np
 import xarray as xr
@@ -10,7 +9,7 @@ from edit.training.data.templates import (
     DataStep,
     DataOperation,
 )
-from edit.training.data.sequential import Sequential, SequentialIterator
+from edit.training.data.sequential import SequentialIterator
 
 
 @SequentialIterator
