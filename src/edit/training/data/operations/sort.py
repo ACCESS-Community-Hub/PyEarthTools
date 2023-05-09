@@ -34,7 +34,7 @@ class xarraySorter(DataOperation):
             index (DataStep): 
                 Underlying DataStep to get data for
             order (list[str], optional): 
-                Order to set vars to, if not given sort alphabetically. Defaults to None.
+                Order to set vars to, if not given sort alphabetically, or add others alphabetically to the end. Defaults to None.
         """        
         self.order = order
         super().__init__(index, apply_func=self.sort, undo_func=None, split_tuples=True, recognised_types=(xr.Dataset, xr.DataArray))
@@ -58,6 +58,13 @@ class xarraySorter(DataOperation):
             order = [str(index) for index in current_data_vars]
             order.sort()
             self.order = list(order)
+
+        if not len(order) == len(current_data_vars):
+            add_to = list(set([str(index) for index in current_data_vars]).difference(set(order)))
+            add_to.sort()
+            order = [*order, *add_to]
+            self.order = list(order)
+
 
         order = list(order)
 
