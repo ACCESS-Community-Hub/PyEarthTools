@@ -23,7 +23,7 @@ class PatchingUpdate:
         ```
     """
 
-    def __init__(
+    def __init__(   
         self,
         iterator: "PatchingDataIndex | EDITTrainer | DataStep",
         kernel_size: tuple[int, int] | int = None,

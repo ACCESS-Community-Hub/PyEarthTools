@@ -76,6 +76,8 @@ class TemporalIterator(DataIterator):
         self.samples = samples
         self.sample_interval = time_delta(sample_interval)
 
+        self._info_ = dict(samples = samples, sample_interval = sample_interval)
+
     def rebuild_time(
         self,
         dataset: tuple[xr.Dataset] | xr.Dataset,

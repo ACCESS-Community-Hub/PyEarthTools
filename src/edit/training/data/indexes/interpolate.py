@@ -86,6 +86,7 @@ class InterpolationIndex(TrainingOperatorIndex):
             data_resolution=sample_interval,
             allow_multiple_index=True,
         )
+        self._info_ = dict(interpolation_method = interpolation_method, temporal = temporal, temporal_function = temporal_function)
 
     def get(self, query_time, **kwargs) -> xr.Dataset:
         """

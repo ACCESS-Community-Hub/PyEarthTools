@@ -56,22 +56,26 @@ class DataStep:
             return self
         elif isinstance(key, type) and isinstance(self, key):
             return self
-        elif isinstance(key, int) and key == self.step_number or key == -1:
-            return self
+        elif isinstance(key, int):
+            if key < 0:
+                key = self.step_number - (key + 1)
+            if key == self.step_number:
+                return self
         elif key == self:
             return self
 
-        if isinstance(self.index, DataStep):
-            return self.index.step(key)
-        else:
-            raise KeyError(f"Could not find {key!r} in Data Pipeline")
+        try:
+            if isinstance(self.index, DataStep):
+                return self.index.step(key)
+        except KeyError:
+            pass
+        raise KeyError(f"Could not find {key!r} in Data Pipeline")
 
     @property
     def step_number(self):
         if isinstance(self.index, DataStep):
             return self.index.step_number + 1
-        else:
-            return 0
+        return 0
 
     def __getattr__(self, key):
         if key == "index" or key in RESERVED_NAMES:
@@ -82,10 +86,7 @@ class DataStep:
             raise AttributeError(f"{self} has no attribute {key!r}")
 
     def __call__(self, idx):
-        if isinstance(idx, str | EDITDatetime):
-            return self.__getitem__(idx)
-        else:
-            return self.apply(idx)
+        return self.__getitem__(idx)
 
     """
     repr's
@@ -330,6 +331,11 @@ class DataOperation(DataStep):
             return self.apply_func(self.index[idx])
         return self.index[idx]
 
+    def __call__(self, idx):
+        if isinstance(idx, str | EDITDatetime):
+            return self.__getitem__(idx)
+        else:
+            return self.apply(idx)
 
 class TrainingOperatorIndex(OperatorIndex, DataStep):
     """

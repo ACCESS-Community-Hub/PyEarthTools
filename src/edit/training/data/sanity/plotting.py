@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from edit.data import Collection
 
 from edit.training.data.templates import DataIterator, DataStep
+from edit.training.trainer.template import EDITTrainer
 from edit.training.data.sanity import iterator_retrieval
 
 
@@ -68,7 +69,7 @@ def _make_plot(
 
 
 def plot(
-    dataIterator: DataIterator | DataStep ,
+    dataIterator: DataIterator | DataStep | EDITTrainer,
     index: str = None,
     *,
     timeout: int = 20,
@@ -109,6 +110,9 @@ def plot(
         (plt.Figure): 
             Matplotlib Figure of Data Pipeline
     """    
+
+    if isinstance(dataIterator, EDITTrainer):
+        dataIterator = getattr(dataIterator, 'train_iterator', dataIterator)
 
     result = iterator_retrieval.signal_data(dataIterator, idx=index, timeout=timeout)
 

@@ -140,6 +140,8 @@ class EDITTrainerWrapper(EDITTrainer):
             **kwargs,
         )
 
+        #pl.tuner.tuning.Tuner(self.trainer).scale_batch_size(self.model, train_dataloaders = self.train_data, val_dataloaders = self.valid_data)
+
     def __getattr__(self, key):
         if key == "trainer":
             raise AttributeError(f"{self!r} has no attribute {key!r}")
