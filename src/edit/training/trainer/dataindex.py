@@ -10,7 +10,7 @@ from pathlib import Path
 from edit.data import DataIndex
 
 from edit.training.data.context import PatchingUpdate
-from edit.training.trainer import from_yaml, EDITTrainerWrapper
+from edit.training.trainer import from_yaml, EDITLightningTrainer
 from edit.training.trainer.template import EDITTrainer
 
 
@@ -93,7 +93,7 @@ class MLDataIndex(DataIndex):
             (MLDataIndex): 
                 MLDataIndex to use to get data with
         """    
-        trainer: EDITTrainerWrapper
+        trainer: EDITLightningTrainer
         trainer = from_yaml(
             yaml_config,
             strategy=kwargs.pop("strategy", "dp"),

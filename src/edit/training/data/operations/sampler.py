@@ -11,7 +11,7 @@ from edit.training.data.templates import (
     DataStep,
 )
 from edit.training.data.sequential import Sequential, SequentialIterator
-
+from edit.training.data.warnings import PipelineResourceWarning
 
 class DataSampler(DataOperation):
     """
@@ -129,7 +129,7 @@ class RandomDropOut(DataSampler):
         self.seed = seed
 
         if chance > 50:
-            warnings.warn(f"Dropout chance is high {chance!r}, unlikely to be an effective training pipeline", RuntimeWarning)
+            warnings.warn(f"Dropout chance is high {chance!r}, unlikely to be an effective training pipeline", PipelineResourceWarning)
 
         self.__doc__ = f"DataSampler with a {chance}% chance to drop data"
         self._info_ = dict(chance = chance, seed = seed)

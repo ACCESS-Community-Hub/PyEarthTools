@@ -58,7 +58,7 @@ class DataStep:
             return self
         elif isinstance(key, int):
             if key < 0:
-                key = self.step_number - (key + 1)
+                key = self.step_number - abs(key + 1)
             if key == self.step_number:
                 return self
         elif key == self:
@@ -69,6 +69,8 @@ class DataStep:
                 return self.index.step(key)
         except KeyError:
             pass
+        if isinstance(key, int):
+            raise KeyError(f"Could not find pipeline step {key!r} in DataPipeline. Steps length is {self.step_number}")
         raise KeyError(f"Could not find {key!r} in Data Pipeline")
 
     @property
@@ -83,7 +85,8 @@ class DataStep:
         try:
             return getattr(self.index, key)
         except AttributeError as e:
-            raise AttributeError(f"{self} has no attribute {key!r}")
+            pass
+        raise AttributeError(f"DataPipeline has no attribute {key!r}")
 
     def __call__(self, idx):
         return self.__getitem__(idx)
@@ -299,6 +302,7 @@ class DataOperation(DataStep):
                 Result of `.undo` from the Pipeline
         """
         data = self.undo_func(data)
+        
         if hasattr(self.index, "undo"):
             data = self.index.undo(data)
         return data

@@ -9,7 +9,7 @@
 Provide simple classes to combine the Data Pipeline defined in [edit.training.data][edit.training.data] and an ML model for training.
 """
 
-from edit.training.trainer.trainer import EDITTrainerWrapper
+from edit.training.trainer.pytorch.trainer import EDITLightningTrainer
 from edit.training.trainer import commands
 from edit.training.trainer.yaml import from_yaml
 from edit.training.trainer.dataindex import MLDataIndex

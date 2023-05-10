@@ -8,6 +8,7 @@ Collection of [DataOperations][edit.training.data.templates.DataOperation] for u
 | [filters][edit.training.data.operations.filters]                  | Filter Data when iterating but not on retrieval; DropNan, DropValue |
 | [sampler][edit.training.data.operations.sampler]                  | Change Sampling routine of data; RandomSample, RandomDropOut, DropOut Interval,  |
 | [sort][edit.training.data.operations.sort]                        | Sort Data Variables  |
+| [pad][edit.training.data.operations.padder]                       | Pad Data  |
 | [PatchingDataIndex][edit.training.data.operations.patch]          | Patch Data into small arrays |
 | [TransformOperation][edit.training.data.operations.transforms]    | Apply [Transforms][edit.data.Transform] to data|
 """

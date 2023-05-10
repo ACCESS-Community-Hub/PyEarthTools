@@ -4,7 +4,6 @@ import copy
 from logging import warning
 import os
 from pathlib import Path
-from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -26,7 +25,7 @@ from edit.training.trainer.template import EDITTrainer
 from edit.training.data.templates import DataIterator
 
 
-class EDITTrainerWrapper(EDITTrainer):
+class EDITLightningTrainer(EDITTrainer):
     """
     Pytorch Lightning Trainer Wrapper.
     """
@@ -34,9 +33,9 @@ class EDITTrainerWrapper(EDITTrainer):
     def __init__(
         self,
         model: pl.LightningModule,
-        train_data: Union[DataLoader, DataIterator],
+        train_data: DataLoader | DataIterator,
         path: str = None,
-        valid_data: Union[DataLoader, DataIterator] = None,
+        valid_data: DataLoader | DataIterator = None,
         **kwargs,
     ) -> None:
         """Pytorch Lightning Trainer Wrapper.
@@ -45,7 +44,7 @@ class EDITTrainerWrapper(EDITTrainer):
         Args:
             model (pl.LightningModule):
                 Pytorch Lightning Module to use as model
-            train_data (Union[DataLoader, DataIterator]):
+            train_data (DataLoader | DataIterator):
                 Dataloader to use for Training,
             path (str, optional):
                 Path to save Models and Logs, can also provide `default_root_dir`. Defaults to None
@@ -234,183 +233,165 @@ class EDITTrainerWrapper(EDITTrainer):
 
         return prediction
 
-    def predict(
-        self,
-        index: str,
-        undo: bool = True,
-        data_iterator: DataIterator = None,
-        resume: bool | str = True,
-        only_state: bool = True,
-        **kwargs,
-    ) -> tuple[np.array] | tuple[xr.Dataset]:
-        """Pytorch Lightning Prediction Override
+    # def predict(
+    #     self,
+    #     index: str,
+    #     undo: bool = True,
+    #     data_iterator: DataIterator = None,
+    #     resume: bool | str = True,
+    #     only_state: bool = True,
+    #     **kwargs,
+    # ) -> tuple[np.array] | tuple[xr.Dataset]:
+    #     """Pytorch Lightning Prediction Override
 
-        Uses [edit.training][edit.training.data] DataStep to get data at given index.
-        Can automatically try to rebuild the xarray Dataset.
+    #     Uses [edit.training][edit.training.data] DataStep to get data at given index.
+    #     Can automatically try to rebuild the xarray Dataset.
 
-        !!! Warning
-            If number of patches is not divisible by the `batch_size`, issues may arise.
-            Solution: batch_size = 1
+    #     !!! Warning
+    #         If number of patches is not divisible by the `batch_size`, issues may arise.
+    #         Solution: batch_size = 1
 
-        Args:
-            index (str): 
-                Index to get from the validation or training data loader or given `data_iterator`
-            undo (bool, optional): 
-                Rebuild Data using DataStep.undo. Defaults to True.
-            data_iterator (DataIterator, optional): 
-                Override for DataStep to us. Defaults to None.
-            resume (bool | str, optional): 
-                Path to checkpoint, or boolean to find latest file. Defaults to True.
-            only_state (bool, optional): 
-                Load only the model state. Defaults to True.
+    #     Args:
+    #         index (str): 
+    #             Index to get from the validation or training data loader or given `data_iterator`
+    #         undo (bool, optional): 
+    #             Rebuild Data using DataStep.undo. Defaults to True.
+    #         data_iterator (DataIterator, optional): 
+    #             Override for DataStep to us. Defaults to None.
+    #         resume (bool | str, optional): 
+    #             Path to checkpoint, or boolean to find latest file. Defaults to True.
+    #         only_state (bool, optional): 
+    #             Load only the model state. Defaults to True.
 
-        Returns:
-            (tuple[np.array] | tuple[xr.Dataset]): 
-                Either xarray datasets or np arrays, [truth data, predicted data]
-        """    
-        data_source = data_iterator or self.valid_iterator or self.train_iterator
-        data = data_source[index]
+    #     Returns:
+    #         (tuple[np.array] | tuple[xr.Dataset]): 
+    #             Either xarray datasets or np arrays, [truth data, predicted data]
+    #     """    
+    #     data_source = data_iterator or self.valid_iterator or self.train_iterator
+    #     data = data_source[index]
 
-        if isinstance(resume, str):
-            self.load(
-                resume,
-                only_state=only_state,
-            )
+    #     if isinstance(resume, str):
+    #         self.load(
+    #             resume,
+    #             only_state=only_state,
+    #         )
 
-        elif resume and Path(self.checkpoint_path).exists():
-            self.load(
-                True,
-                only_state=only_state,
-            )
+    #     elif resume and Path(self.checkpoint_path).exists():
+    #         self.load(
+    #             True,
+    #             only_state=only_state,
+    #         )
 
-        prediction = self._predict_from_data(data, **kwargs)
+    #     prediction = self._predict_from_data(data, **kwargs)
 
-        truth_data = None
-        if undo:
-            prediction = data_source.undo(prediction)
-            if isinstance(prediction, (tuple, list)):
-                truth_data = prediction[0]
-                prediction = prediction[-1]
+    #     truth_data = None
+    #     if undo:
+    #         prediction = data_source.undo(prediction)
+    #         if isinstance(prediction, (tuple, list)):
+    #             truth_data = prediction[0]
+    #             prediction = prediction[-1]
 
-            if "Coordinate 1" in prediction:
-                prediction = prediction.rename({"Coordinate 1": "time"})
-            if hasattr(data_source, "rebuild_time"):
-                prediction = data_source.rebuild_time(prediction, index)
+    #         if "Coordinate 1" in prediction:
+    #             prediction = prediction.rename({"Coordinate 1": "time"})
+    #         if hasattr(data_source, "rebuild_time"):
+    #             prediction = data_source.rebuild_time(prediction, index)
 
-            return Collection(truth_data or data_source.undo(data)[1], prediction)
-        return Collection(data[1], prediction[1])
+    #         return Collection(truth_data or data_source.undo(data)[1], prediction)
+    #     return Collection(data[1], prediction[1])
 
-    def predict_recurrent(
-        self,
-        start_index: str,
-        recurrence: int,
-        data_iterator: DataIterator = None,
-        resume: bool = True,
-        only_state: bool = True,
-        truth_step: int = 0,
-        **kwargs,
-    ) -> tuple[np.array] | tuple[xr.Dataset]:
-        """Uses [predict][edit.training.trainer.EDITTrainerWrapper.predict] to predict timesteps and then feed back through recurrently.
+    # def predict_recurrent(
+    #     self,
+    #     start_index: str,
+    #     recurrence: int,
+    #     data_iterator: DataIterator = None,
+    #     resume: bool = True,
+    #     only_state: bool = True,
+    #     truth_step: int = 0,
+    #     **kwargs,
+    # ) -> tuple[np.array] | tuple[xr.Dataset]:
+    #     """Uses [predict][edit.training.trainer.EDITTrainerWrapper.predict] to predict timesteps and then feed back through recurrently.
 
-        Uses [edit.training][edit.training.data] DataStep to get data at given index.
-        Can automatically try to rebuild the xarray Dataset.
+    #     Uses [edit.training][edit.training.data] DataStep to get data at given index.
+    #     Can automatically try to rebuild the xarray Dataset.
 
-        !!! Warning
-            If number of patches is not divisible by the `batch_size`, issues may arise.
-            Solution: batch_size = 1
+    #     !!! Warning
+    #         If number of patches is not divisible by the `batch_size`, issues may arise.
+    #         Solution: batch_size = 1
 
-        Args:
-            start_index (str):
-                Starting Index of Prediction
-            recurrence (int):
-                Number of times to recur
-            data_iterator (DataIterator, optional):
-                Override for initial data retrieval. Defaults to None.
-            resume (bool, optional):
-                Resume from checkpoint. Defaults to True.
-            only_state (bool, optional):
-                Resume only_state. Defaults to True.
-            truth_step (int, optional):
-                Data Pipeline step to use to retrieve Truth data. Defaults to 0
-        Returns:
-            (tuple[np.array] | tuple[xr.Dataset]):
-                Either xarray datasets or np arrays, [truth data, predicted data]
-        """
-        data_source = data_iterator or self.valid_iterator or self.train_iterator
-        data = list(data_source[start_index])
+    #     Args:
+    #         start_index (str):
+    #             Starting Index of Prediction
+    #         recurrence (int):
+    #             Number of times to recur
+    #         data_iterator (DataIterator, optional):
+    #             Override for initial data retrieval. Defaults to None.
+    #         resume (bool, optional):
+    #             Resume from checkpoint. Defaults to True.
+    #         only_state (bool, optional):
+    #             Resume only_state. Defaults to True.
+    #         truth_step (int, optional):
+    #             Data Pipeline step to use to retrieve Truth data. Defaults to 0
+    #     Returns:
+    #         (tuple[np.array] | tuple[xr.Dataset]):
+    #             Either xarray datasets or np arrays, [truth data, predicted data]
+    #     """
+    #     data_source = data_iterator or self.valid_iterator or self.train_iterator
+    #     data = list(data_source[start_index])
 
-        if isinstance(resume, str):
-            self.load(
-                resume,
-                only_state=only_state,
-            )
+    #     if isinstance(resume, str):
+    #         self.load(
+    #             resume,
+    #             only_state=only_state,
+    #         )
 
-        elif resume and Path(self.checkpoint_path).exists():
-            self.load(
-                True,
-                only_state=only_state,
-            )
+    #     elif resume and Path(self.checkpoint_path).exists():
+    #         self.load(
+    #             True,
+    #             only_state=only_state,
+    #         )
 
-        predictions = []
-        index = start_index
+    #     predictions = []
+    #     index = start_index
 
-        for i in range(recurrence):
-            input_data = None
-            prediction = self._predict_from_data(data, **kwargs)
+    #     for i in range(recurrence):
+    #         input_data = None
+    #         prediction = self._predict_from_data(data, **kwargs)
 
-            fixed_predictions = data_source.undo(prediction)
+    #         fixed_predictions = data_source.undo(prediction)
 
-            if isinstance(fixed_predictions, (tuple, list)):
-                input_data = fixed_predictions[0]
-                fixed_predictions = fixed_predictions[-1]
+    #         if isinstance(fixed_predictions, (tuple, list)):
+    #             input_data = fixed_predictions[0]
+    #             fixed_predictions = fixed_predictions[-1]
 
-            if "Coordinate 1" in fixed_predictions:
-                fixed_predictions = fixed_predictions.rename({"Coordinate 1": "time"})
-            if hasattr(data_source, "rebuild_time"):
-                fixed_predictions = data_source.rebuild_time(
-                    fixed_predictions,
-                    index,
-                    offset=1 if i >= 1 else 0,
-                )
+    #         if "Coordinate 1" in fixed_predictions:
+    #             fixed_predictions = fixed_predictions.rename({"Coordinate 1": "time"})
+    #         if hasattr(data_source, "rebuild_time"):
+    #             fixed_predictions = data_source.rebuild_time(
+    #                 fixed_predictions,
+    #                 index,
+    #                 offset=1 if i >= 1 else 0,
+    #             )
 
-            predictions.append(fixed_predictions)
+    #         predictions.append(fixed_predictions)
 
-            # data[0] = fixed_predictions
-            # #data.reverse()
-            input_data = input_data or data_source.undo(data)[0]
-            new_input = xr.merge((input_data, fixed_predictions)).isel(
-                time=slice(-1 * len(input_data.time), None)
-            )
-            index = new_input.time.values[-1]
-            data[0] = data_source.apply(new_input)
+    #         # data[0] = fixed_predictions
+    #         # #data.reverse()
+    #         input_data = input_data or data_source.undo(data)[0]
+    #         new_input = xr.merge((input_data, fixed_predictions)).isel(
+    #             time=slice(-1 * len(input_data.time), None)
+    #         )
+    #         index = new_input.time.values[-1]
+    #         data[0] = data_source.apply(new_input)
 
-        predictions = xr.merge(predictions)
+    #     predictions = xr.merge(predictions)
 
-        if truth_step is None:
-            return predictions
+    #     if truth_step is None:
+    #         return predictions
 
-        return Collection(
-            self.train_iterator.step(truth_step)(predictions), predictions
-        )
+    #     return Collection(
+    #         self.train_iterator.step(truth_step)(predictions), predictions
+    #     )
 
-    def data(self, index : str, undo=False) -> np.array | xr.Dataset:
-        """Get data which is fed into model
-
-        Args:
-            index (str): 
-                Index to retrieve at
-            undo (bool, optional): 
-                Rebuild Data using DataStep.undo. Defaults to False.
-
-        Returns:
-            (np.array | xr.Dataset): 
-                Retrieved Data
-        """        
-        data = self.train_iterator[index]
-
-        if undo:
-            data = self.train_iterator.undo(data)
-        return data
 
     def _find_latest_path(self, path: str | Path, file: bool = True) -> Path:
         """Find latest file or folder inside a given folder

@@ -79,12 +79,24 @@ import yaml
 
 from edit.training import data
 from edit.training.models import networks
-from edit.training.trainer.trainer import EDITTrainerWrapper
+from edit.training.trainer.pytorch.trainer import EDITLightningTrainer
+from edit.training.trainer.xgboost.trainer import EDITXGBoostTrainer
 
 from edit.training.data.utils import get_callable
 
+TRAINER_ASSIGNMENT = {
+    EDITLightningTrainer : ['pytorch', 'lightning'],
+    EDITXGBoostTrainer : ['xgboost'],
+}
 
-def from_yaml(yaml_file: str, **kwargs) -> EDITTrainerWrapper:
+def flip_dict(dict):
+    return_dict = {}
+    for k, v in dict:
+        for i in v:
+            return_dict[i] = k
+    return return_dict
+
+def from_yaml(yaml_file: str, **kwargs) -> EDITLightningTrainer:
     """Load and create trainer from Yaml Config
 
     !!! Warning
@@ -140,7 +152,17 @@ def from_yaml(yaml_file: str, **kwargs) -> EDITTrainerWrapper:
 
     model = model(**config["model"])
 
-    return EDITTrainerWrapper(
+    trainer_class = EDITLightningTrainer
+    trainer_dict = flip_dict(TRAINER_ASSIGNMENT)
+
+    if 'type' in config['trainer']:
+        trainer_type = config['trainer'].pop('type')
+        if trainer_type in trainer_dict:
+            trainer_class = trainer_dict[trainer_type]
+        else:
+            raise KeyError(f"Trainer type {trainer_type} not recognised. Use {trainer_dict.keys()}")
+
+    return trainer_class(
         model=model,
         train_data=train_data,
         valid_data=valid_data,
