@@ -10,11 +10,13 @@ Collection of [DataOperations][edit.training.data.templates.DataOperation] for u
 | [sort][edit.training.data.operations.sort]                        | Sort Data Variables  |
 | [pad][edit.training.data.operations.pad]                          | Pad Data  |
 | [PatchingDataIndex][edit.training.data.operations.patch]          | Patch Data into small arrays |
+| [ToNumpy][edit.training.data.operations.to_numpy]                 | Convert xarray's to numpy's |
 | [TransformOperation][edit.training.data.operations.transforms]    | Apply [Transforms][edit.data.Transform] to data|
 """
 
 from edit.training.data.operations import reshape, values, filters, sampler, sort
 from edit.training.data.operations.patch import PatchingDataIndex
+from edit.training.data.operations.to_numpy import ToNumpy
 from edit.training.data.operations.transforms import TransformOperation
 
 from edit.training.data.operations.filters import DataFilter

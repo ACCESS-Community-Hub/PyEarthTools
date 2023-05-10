@@ -5,6 +5,8 @@ from edit.training.data.templates import (
     DataOperation,
 )
 
+import xarray as xr
+
 from edit.data import Transform
 from edit.training.data.utils import get_callable, get_class, get_transforms
 from edit.training.data.sequential import Sequential, SequentialIterator
@@ -35,7 +37,7 @@ class TransformOperation(DataOperation):
             transforms (Transform | dict): 
                 Transforms to apply, either fully defined or dictionary defining the transform.
         """        
-        super().__init__(iterator, self._apply_transforms, undo_func=None, **kwargs)
+        super().__init__(iterator, self._apply_transforms, undo_func=None, split_tuples=True, recognised_types=[xr.Dataset, xr.DataArray] **kwargs)
         self.transforms = get_transforms(transforms)
         self.__doc__ = f"Apply Transforms {self.transforms}"
         self._info_ = dict(transforms = transforms)

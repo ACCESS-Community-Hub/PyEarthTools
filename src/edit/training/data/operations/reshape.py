@@ -46,6 +46,8 @@ class Rearrange(DataOperation):
             'p t c h w' == 't c h w'
             ```
 
+            As this will attempt to add the patch dim if the first attempt fails
+
         Args:
             index (DataStep): 
                 Underlying DataStep to use to retrieve data
@@ -58,7 +60,7 @@ class Rearrange(DataOperation):
             rearrange_kwargs (dict, optional):
                 Extra keyword arguments to be passed to the einops.rearrange call. Defaults to {}.
         """        
-        super().__init__(index, self._apply_rearrange, self._undo_rearrange, **kwargs)
+        super().__init__(index, self._apply_rearrange, self._undo_rearrange, split_tuples=True, recognised_types=[np.ndarray], **kwargs)
         self.pattern = rearrange
         self.rearrange_args = rearrange_args
         self.rearrange_kwargs = rearrange_kwargs
@@ -71,27 +73,19 @@ class Rearrange(DataOperation):
         self, data: tuple[np.ndarray] | np.ndarray, pattern: str, catch=True
     ):
         try:
-            if isinstance(data, tuple):
-                return tuple(
-                    map(
-                        lambda x: einops.rearrange(x, pattern, *self.rearrange_args, **self.rearrange_kwargs),
-                        data,
-                    )
-                )
-            return einops.rearrange(data, pattern)
-
+            return einops.rearrange(data, pattern, *self.rearrange_args, **self.rearrange_kwargs)
         except einops.EinopsError as excep:
             if not catch:
                 if self.skip:
                     return data
                 raise excep
-            pattern = "->".join(["p " + side for side in pattern.split("->")])
+            pattern = "->".join(["p" + side for side in pattern.split("->")])
             return self.__rearrange(data, pattern, catch=False)
 
-    def _apply_rearrange(self, data):
+    def _apply_rearrange(self, data: np.ndarray):
         return self.__rearrange(data, self.pattern)
 
-    def _undo_rearrange(self, data):
+    def _undo_rearrange(self, data: np.ndarray):
         pattern = self.pattern.split("->")
         pattern.reverse()
         return self.__rearrange(data, "->".join(pattern))

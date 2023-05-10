@@ -24,6 +24,23 @@ from edit.data import Collection
 from edit.training.trainer.template import EDITTrainer
 from edit.training.data.templates import DataIterator
 
+class EDITDataModule(pl.LightningDataModule):
+    def __init__(self, batch_size, train_data, valid_data = None, num_workers=0) -> None:
+        super().__init__()
+        self.batch_size = batch_size
+        self.num_workers = num_workers
+        self.train_data = train_data
+        self.valid_data = valid_data
+
+    def train_dataloader(self):
+        if isinstance(self.train_data, DataLoader):
+            return self.train_data
+        return DataLoader(self.train_data, batch_size=self.batch_size, num_workers = self.num_workers)
+    def valid_dataloader(self):
+        if isinstance(self.valid_data, DataLoader):
+            return self.valid_data
+        return DataLoader(self.valid_data or self.train_data, batch_size=self.batch_size, num_workers = self.num_workers, pin_memory = True)
+
 
 class EDITLightningTrainer(EDITTrainer):
     """
@@ -36,6 +53,7 @@ class EDITLightningTrainer(EDITTrainer):
         train_data: DataLoader | DataIterator,
         path: str = None,
         valid_data: DataLoader | DataIterator = None,
+        find_batch_size: bool = True,
         **kwargs,
     ) -> None:
         """Pytorch Lightning Trainer Wrapper.
@@ -50,6 +68,8 @@ class EDITLightningTrainer(EDITTrainer):
                 Path to save Models and Logs, can also provide `default_root_dir`. Defaults to None
             valid_data (DataIterator, optional):
                 Dataloader to use for validation. Defaults to None.
+            find_batch_size (bool, optional):
+                Auto find the best batch size. Defaults to True.
             **kwargs (Any, optional):
                 All passed to trainer __init__, will intercept 'logger' to update from str if given
 
@@ -66,30 +86,7 @@ class EDITLightningTrainer(EDITTrainer):
         except Exception:
             pass
 
-        self.train_iterator = train_data
-
-        if not isinstance(train_data, DataLoader):
-            self.train_dataloader = DataLoader(
-                train_data,
-                batch_size=batch_size,
-                num_workers=num_workers,
-                pin_memory=True,
-            )
-        else:
-            self.train_dataloader = train_data
-
-        self.valid_iterator = valid_data
-        self.valid_data = None
-        if valid_data:
-            if not isinstance(valid_data, DataLoader):
-                self.valid_dataloader = DataLoader(
-                    valid_data,
-                    batch_size=batch_size,
-                    num_workers=num_workers,
-                    pin_memory=True,
-                )
-            else:
-                self.valid_dataloader = valid_data
+        self.datamodule = EDITDataModule(batch_size, train_data=train_data, valid_data=valid_data, num_workers=num_workers)
 
         path = kwargs.pop("default_root_dir", path)
         if path is None:
@@ -140,14 +137,16 @@ class EDITLightningTrainer(EDITTrainer):
             **kwargs,
         )
 
-        #pl.tuner.tuning.Tuner(self.trainer).scale_batch_size(self.model, train_dataloaders = self.train_data, val_dataloaders = self.valid_data)
+        if find_batch_size:
+            tuner = pl.tuner.Tuner(self.trainer)
+            tuner.scale_batch_size(model, mode="power", datamodule=self.datamodule)
 
     def __getattr__(self, key):
         if key == "trainer":
             raise AttributeError(f"{self!r} has no attribute {key!r}")
         return getattr(self.trainer, key)
 
-    def fit(self, resume: bool = True, *args, **kwargs):
+    def fit(self, load: bool = True, *args, **kwargs):
         """Using Pytorch Lightning `.fit` to train model, auto fills model and dataloaders
 
         Args:
@@ -155,18 +154,13 @@ class EDITLightningTrainer(EDITTrainer):
                 Whether to resume most recent checkpoint file in checkpoint dir, or specified checkpoint file. Defaults to True.
         """        
 
-        if isinstance(resume, str):
-            kwargs["ckpt_path"] = resume
-
-        elif resume and Path(self.checkpoint_path).exists() and "ckpt_path" not in kwargs:
-            kwargs["ckpt_path"] = max(
-                Path(self.checkpoint_path).iterdir(), key=os.path.getctime
-            )
+        self.load(load)
 
         self.trainer.fit(
             model=self.model,
-            train_dataloaders=kwargs.pop("train_dataloaders", self.train_dataloader),
-            val_dataloaders=kwargs.pop("valid_dataloaders", self.valid_dataloader),
+            train_dataloaders=kwargs.pop("train_dataloaders", None),
+            val_dataloaders=kwargs.pop("valid_dataloaders", None),
+            datamodule = self.datamodule,
             *args,
             **kwargs,
         )
@@ -183,8 +177,11 @@ class EDITLightningTrainer(EDITTrainer):
                 If only the model state should be loaded. Defaults to False.
         """        
 
-        if isinstance(file, bool) and file:
-            file = max(Path(self.checkpoint_path).iterdir(), key=os.path.getctime)
+        if isinstance(file, bool):
+            if file:
+                file = max(Path(self.checkpoint_path).iterdir(), key=os.path.getctime)
+            else:
+                return
 
         print(f"Loading checkpoint: {file}")
         if only_state:
@@ -216,7 +213,7 @@ class EDITLightningTrainer(EDITTrainer):
                     yield data
 
         batch_size = self.batch_size
-        if isinstance(data, list):
+        if isinstance(data, (list, tuple)):
             batch_size = min(self.batch_size, len(data[0]))
 
         fake_data = DataLoader(

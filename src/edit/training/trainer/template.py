@@ -52,10 +52,12 @@ class EDITTrainer:
     def predict(
         self,
         index: str,
+        *,
         undo: bool = True,
         data_iterator: DataStep = None,
-        resume: bool | str = True,
+        load: bool | str = False,
         load_kwargs: dict = {},
+        fake_batch_dim: bool = False,
         **kwargs,
     ) -> tuple[np.array] | tuple[xr.Dataset]:
         """Predict using the model a particular index
@@ -74,52 +76,67 @@ class EDITTrainer:
                 Rebuild Data using DataStep.undo. Defaults to True.
             data_iterator (DataIterator, optional): 
                 Override for DataStep to us. Defaults to None.
-            resume (bool | str, optional): 
-                Path to checkpoint, or boolean to find latest file. Defaults to True.
+            load (bool | str, optional): 
+                Path to checkpoint, or boolean to find latest file. Defaults to False.
             load_kwargs (dict, optional): 
-                Keyword arguments to pass to loading function
+                Keyword arguments to pass to loading function. Defaults to {}.
+            fake_batch_dim (bool, optional):
+                If the batch dimension needs to be faked. Defaults to False.
 
         Returns:
             (tuple[np.array] | tuple[xr.Dataset]): 
                 Either xarray datasets or np arrays, [truth data, predicted data]
         """    
+        self.load(load,**load_kwargs)
+
         data_source = data_iterator or self.valid_data or self.train_data
         data = data_source[index]
+        truth = data[0]
 
-        if isinstance(resume, str):
-            self.load(resume,**load_kwargs)
+        if fake_batch_dim:
+            if isinstance(data, tuple):
+                data = tuple(map(lambda x: np.expand_dims(x,axis = 0), data))
+            else:
+                data = np.expand_dims(data, axis = 0)
 
-        elif resume and Path(self.path).exists():
-            self.load(True, **load_kwargs)
 
         prediction = self._predict_from_data(data, **kwargs)
 
+        if fake_batch_dim:
+            if isinstance(data, tuple):
+                prediction = list(map(lambda x: np.squeeze(x,axis = 0), prediction))
+            else:
+                prediction = np.squeeze(prediction, axis = 0)
+        
         truth_data = None
-        if undo:
-            prediction = data_source.undo(prediction)
-            if isinstance(prediction, (tuple, list)):
-                truth_data = prediction[0]
-                prediction = prediction[-1]
 
-            if not isinstance(prediction, xr.Dataset):
-                return Collection(truth_data, prediction)
+        if not undo:
+            return Collection(truth, prediction[1])
 
-            if "Coordinate 1" in prediction:
-                prediction = prediction.rename({"Coordinate 1": "time"})
-            if hasattr(data_source, "rebuild_time"):
-                prediction = data_source.rebuild_time(prediction, index)
+        prediction = data_source.undo(prediction)
+        if isinstance(prediction, (tuple, list)):
+            truth_data = prediction[0]
+            prediction = prediction[-1]
 
-            return Collection(truth_data or data_source.undo(data)[1], prediction)
-        return Collection(data[1], prediction[1])
+        if not isinstance(prediction, xr.Dataset):
+            return Collection(truth_data, prediction)
+
+        if "Coordinate 1" in prediction:
+            prediction = prediction.rename({"Coordinate 1": "time"})
+        if hasattr(data_source, "rebuild_time"):
+            prediction = data_source.rebuild_time(prediction, index)
+
+        return Collection(truth_data or data_source.undo(data)[1], prediction)
 
     def predict_recurrent(
         self,
         start_index: str,
         recurrence: int,
         data_iterator: DataStep = None,
-        resume: bool = True,
+        load: bool = False,
         load_kwargs: dict = {},
         truth_step: int = 0,
+        fake_batch_dim: bool = False,
         **kwargs,
     ) -> tuple[np.array] | tuple[xr.Dataset]:
         """Uses [predict][edit.training.trainer.template.EDITTrainer.predict] to predict timesteps and then feed back through recurrently.
@@ -138,12 +155,14 @@ class EDITTrainer:
                 Number of times to recur
             data_iterator (DataIterator, optional):
                 Override for initial data retrieval. Defaults to None.
-            resume (bool, optional):
-                Resume from checkpoint. Defaults to True.
+            load (bool, optional):
+                Resume from checkpoint. Defaults to False.
             load_kwargs (dict, optional): 
                 Keyword arguments to pass to loading function
             truth_step (int, optional):
                 Data Pipeline step to use to retrieve Truth data. Defaults to 0
+            fake_batch_dim (bool, optional):
+                If the batch dimension needs to be faked. Defaults to False.
         Returns:
             (tuple[np.array] | tuple[xr.Dataset]):
                 Either xarray datasets or np arrays, [truth data, predicted data]
@@ -151,18 +170,29 @@ class EDITTrainer:
         data_source = data_iterator or self.valid_data or self.train_data
         data = list(data_source[start_index])
 
-        if isinstance(resume, str):
-            self.load(resume,**load_kwargs)
+        if isinstance(load, str):
+            self.load(load,**load_kwargs)
 
-        elif resume and Path(self.path).exists():
+        elif load and Path(self.path).exists():
             self.load(True, **load_kwargs)
 
         predictions = []
         index = start_index
 
         for i in range(recurrence):
+            if fake_batch_dim:
+                if isinstance(data, (list,tuple)):
+                    data = list(map(lambda x: np.expand_dims(x,axis = 0), data))
+                else:
+                    data = np.expand_dims(data, axis = 0)
+
             input_data = None
             prediction = self._predict_from_data(data, **kwargs)
+            if fake_batch_dim:
+                if isinstance(data, (list, tuple)):
+                    prediction = list(map(lambda x: np.squeeze(x,axis = 0), prediction))
+                else:
+                    prediction = np.squeeze(prediction, axis = 0)
 
             fixed_predictions = data_source.undo(prediction)
 
@@ -205,7 +235,7 @@ class EDITTrainer:
 
     ## Model State Functions 
     @abstractmethod
-    def load(self, path : str | Path):
+    def load(self, path : str | Path | bool):
         raise NotImplementedError
 
     @abstractmethod

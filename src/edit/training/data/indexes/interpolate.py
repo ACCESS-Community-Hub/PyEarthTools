@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any, Callable, Union
+import warnings
 import xarray as xr
 
 from edit.data import transform, TransformCollection, EDITDatetime, operations
@@ -125,7 +126,8 @@ class InterpolationIndex(TrainingOperatorIndex):
                     method=self.interpolation_method,
                     drop_coords="time",
                 )
-                new_data = interp(new_data)
+                with warnings.catch_warnings(action = 'ignore', category = RuntimeWarning):
+                    new_data = interp(new_data)
             data.append(new_data)
 
         if self.temporal:

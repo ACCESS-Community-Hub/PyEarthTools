@@ -33,7 +33,7 @@ def fit(yaml_file: str | click.Path, resume: bool):
     from edit.training.trainer.yaml import from_yaml
 
     trainer = from_yaml(yaml_file)
-    trainer.fit(resume=resume)
+    trainer.fit(load=resume)
 
 
 @entry_point.command(name="predict")
@@ -84,10 +84,10 @@ def predict(
 
     with PatchingUpdate(trainer, stride_size=stride_size):
         if not recurrence:
-            predictions = trainer.predict(index, resume=resume, undo=True)[-1]
+            predictions = trainer.predict(index, load=resume, undo=True)[-1]
         else:
             predictions = trainer.predict_recurrent(
-                index, undo=True, resume=resume, recurrence=recurrence
+                index, undo=True, load=resume, recurrence=recurrence
             )
 
     predictions.to_netcdf(save_file)
