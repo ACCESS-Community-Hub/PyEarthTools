@@ -44,6 +44,7 @@ class PatchingDataIndex(DataOperation):
         kernel_size: tuple[int, int] | int,
         stride_size: tuple[int, int] | int = None,
         padding: str = "constant",
+        ignore_difference: bool = False,
     ) -> None:
         """Patching DataOperation to split data into smaller chunks
         
@@ -58,6 +59,8 @@ class PatchingDataIndex(DataOperation):
                 Stride size of the data, if not given default to `kernel_size`. Defaults to None.
             padding (str, optional): 
                 Padding method to use. Must be of [np.pad][numpy.pad]. Defaults to "constant".
+            ignore_difference (bool, optional):
+                Quiet warnings about differences in shapes when undoing
         """        
 
         super().__init__(
@@ -68,6 +71,7 @@ class PatchingDataIndex(DataOperation):
         self.padding = padding
 
         self._tesselators = []
+        self.ignore_difference = ignore_difference
 
         self._info_ = dict(kernel_size = kernel_size, stride_size = stride_size, padding = padding)
 
@@ -81,7 +85,7 @@ class PatchingDataIndex(DataOperation):
                 return_values.append(self._tesselators[i])
             else:
                 self._tesselators.append(
-                    Tesselator(self.kernel_size, self.stride_size, self.padding)
+                    Tesselator(self.kernel_size, self.stride_size, self.padding, ignore_difference = self.ignore_difference)
                 )
                 return_values.append(self._tesselators[-1])
 
@@ -196,7 +200,7 @@ class PatchingDataIndex(DataOperation):
             tesselators = self._get_tesselators(len(data))
             datasets = [tesselators[i].stitch(data[i]) for i in range(len(data))]
         else:
-            raise TypeError(f"What is {type(data)}")
+            raise TypeError(f"Data of type: {type(data)} cannot be parsed.")
 
         return datasets
 

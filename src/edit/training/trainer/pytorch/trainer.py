@@ -54,7 +54,7 @@ class EDITLightningTrainer(EDITTrainer):
                 All passed to trainer __init__, will intercept 'logger' to update from str if given
 
         """
-        self.model = model
+        super().__init__(model, train_data=train_data, valid_data=valid_data, path=path)
 
         num_workers = kwargs.pop("num_workers", 0)
         self.num_workers = num_workers
@@ -67,28 +67,29 @@ class EDITLightningTrainer(EDITTrainer):
             pass
 
         self.train_iterator = train_data
+
         if not isinstance(train_data, DataLoader):
-            self.train_data = DataLoader(
+            self.train_dataloader = DataLoader(
                 train_data,
                 batch_size=batch_size,
                 num_workers=num_workers,
                 pin_memory=True,
             )
         else:
-            self.train_data = train_data
+            self.train_dataloader = train_data
 
         self.valid_iterator = valid_data
         self.valid_data = None
         if valid_data:
             if not isinstance(valid_data, DataLoader):
-                self.valid_data = DataLoader(
+                self.valid_dataloader = DataLoader(
                     valid_data,
                     batch_size=batch_size,
                     num_workers=num_workers,
                     pin_memory=True,
                 )
             else:
-                self.valid_data = valid_data
+                self.valid_dataloader = valid_data
 
         path = kwargs.pop("default_root_dir", path)
         if path is None:
@@ -164,8 +165,8 @@ class EDITLightningTrainer(EDITTrainer):
 
         self.trainer.fit(
             model=self.model,
-            train_dataloaders=kwargs.pop("train_dataloaders", self.train_data),
-            val_dataloaders=kwargs.pop("valid_dataloaders", self.valid_data),
+            train_dataloaders=kwargs.pop("train_dataloaders", self.train_dataloader),
+            val_dataloaders=kwargs.pop("valid_dataloaders", self.valid_dataloader),
             *args,
             **kwargs,
         )

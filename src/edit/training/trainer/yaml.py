@@ -91,7 +91,7 @@ TRAINER_ASSIGNMENT = {
 
 def flip_dict(dict):
     return_dict = {}
-    for k, v in dict:
+    for k, v in dict.items():
         for i in v:
             return_dict[i] = k
     return return_dict

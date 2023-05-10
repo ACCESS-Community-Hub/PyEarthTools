@@ -43,10 +43,10 @@ class PatchingUpdate:
             RuntimeError: If iterator does not contain a PatchingDataIndex
         """
         if isinstance(iterator, EDITTrainer):
-            iterator = iterator.valid_iterator or iterator.train_iterator
+            iterator = iterator.valid_data or iterator.train_data
 
         if not hasattr(iterator, "get_patching"):
-            raise RuntimeError("DataIterator does not seem to be a PatchingDataIndex.")
+            raise TypeError(f"DataIterator does not seem to be a PatchingDataIndex. It is {type(iterator)}")
 
         self.iterator = iterator
 
