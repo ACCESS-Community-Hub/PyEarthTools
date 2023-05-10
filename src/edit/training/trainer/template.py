@@ -122,7 +122,7 @@ class EDITTrainer:
         truth_step: int = 0,
         **kwargs,
     ) -> tuple[np.array] | tuple[xr.Dataset]:
-        """Uses [predict][edit.training.trainer.EDITTrainerWrapper.predict] to predict timesteps and then feed back through recurrently.
+        """Uses [predict][edit.training.trainer.template.EDITTrainer.predict] to predict timesteps and then feed back through recurrently.
 
         Uses [edit.training][edit.training.data] DataStep to get data at given index.
         Can automatically try to rebuild the data.

@@ -51,7 +51,7 @@ class PatchingUpdate:
         self.iterator = iterator
 
         self._patching_initial = iterator.get_patching()
-        self._saved_tesselators = iterator._tesselators
+        self._saved_tesselators = list(iterator._tesselators)
         self._new_patching = (kernel_size, stride_size)
 
     def __enter__(self):

@@ -210,15 +210,38 @@ class Expand(DataOperation):
         return np.expand_dims(data, self.axis)
 
 class Flattener:
-    def __init__(self) -> None:
+    def __init__(self, shape_attempt: tuple = None) -> None:
         self.shape = None
+        self.shape_attempt = shape_attempt
+
+    def _configure_shape_attempt(self):
+        if not self.shape or not self.shape_attempt:
+            return self.shape_attempt
+        if not '...' in self.shape_attempt:
+            return self.shape_attempt
+        shape_attempt = list(self.shape_attempt)
+        if not len(shape_attempt) == len(self.shape):
+            raise IndexError(f"Shapes must be the same length, not {shape_attempt} and {self.shape}")
+        
+        while '...' in shape_attempt:
+            shape_attempt[shape_attempt.index('...')] = self.shape[shape_attempt.index('...')]
+        
+        return tuple(shape_attempt)
+
     def apply(self, data : np.ndarray) -> np.ndarray:
         self.shape = data.shape
         return data.flatten()
+
     def undo(self, data: np.ndarray) -> np.ndarray:
         if self.shape is None:
             raise RuntimeError(f"Shape not set, therefore cannot undo")
-        return data.reshape(self.shape)
+        try:
+            return data.reshape(self.shape)
+        except ValueError as e:
+            if self.shape_attempt:
+                shape_attempt = self._configure_shape_attempt()
+                return data.reshape(shape_attempt)
+            raise e
 
 @SequentialIterator
 class Flatten(DataOperation):
@@ -239,21 +262,54 @@ class Flatten(DataOperation):
         If use this with [PatchingDataIndex][edit.training.data.operations.PatchingDataIndex], set `seperate_patch` to True
     """
 
-    def __init__(self, index: DataStep, seperate_patch: bool = False) -> None:
+    def __init__(self, index: DataStep, seperate_patch: bool = False, shape_attempt: tuple = None) -> None:
         """DataOperation to flatten incoming data
 
         Args:
             index (DataStep): 
                 Underlying index to retrieve data from
             seperate_patch (bool, optional): 
-                Separate patches so they aren't squashed. Use only if using [PatchingDataIndex][edit.training.data.operations.PatchingDataIndex]. Defaults to False.
+                Separate patches so they aren't squashed. 
+                Use only if using [PatchingDataIndex][edit.training.data.operations.PatchingDataIndex]. Defaults to False.
+            shape_attempt (tuple, optional):
+                Reshape value to try if discovered shape fails. Used if data coming to be undone is different. 
+                Can have `'...'` as wildcards to get from discovered, Defaults to None.
+
+        ??? tip "Advanced Use"
+            If using a model which does not return a full sample, say an XGBoost model only returning the centre value, set `shape_attempt`.
+
+            If incoming data is of shape `(1, 1, 3, 3)`, and data for undoing is `(1, 1, 1, 1)` aka `(1)`, set `shape_attempt` to `('...','...',1,1)`
+
+            
+            ```python title="Spatial Size Change"
+            incoming_data = np.zeros((1,1,3,3))
+            flattener = Flatten([], shape_attempt = (1,1,1,1))
+            flattener.apply_func(incoming_data).shape   #(9,)
+
+            undo_data = np.zeros((1))
+            flattener.undo_func(undo_data).shape        #(1,1,1,1)
+            ```  
+
+           
+            If incoming data is of shape `(8, 1, 3, 3)`, and data for undoing is `(2, 1, 1, 1)` aka `(2)`, set `shape_attempt` to `(2,'...',1,1)`
+
+            ```python title=" Channel or Time Size Change also"
+            incoming_data = np.zeros((8,1,3,3))
+            flattener = Flatten([], shape_attempt = (2,1,1,1))
+            flattener.apply_func(incoming_data).shape   #(72,)
+
+            undo_data = np.zeros((2))
+            flattener.undo_func(undo_data).shape        #(2,1,1,1)
+            ```  
         """        
         super().__init__(index, apply_func=self._apply_flattening, undo_func=self._undo_flattening)
 
         self.seperate_patch = seperate_patch
+        self.shape_attempt = shape_attempt
         self._flatteners = []
 
-        self._info_ = dict(seperate_patch = seperate_patch)
+
+        self._info_ = dict(seperate_patch = seperate_patch, shape_attempt = shape_attempt)
 
     def _get_flatteners(self, number: int) -> tuple[Flattener]:
         """
@@ -264,7 +320,7 @@ class Flatten(DataOperation):
             if i < len(self._flatteners):
                 return_values.append(self._flatteners[i])
             else:
-                self._flatteners.append(Flattener())
+                self._flatteners.append(Flattener(shape_attempt= self.shape_attempt))
                 return_values.append(self._flatteners[-1])
 
         return return_values

@@ -67,9 +67,12 @@ class xarraySorter(DataOperation):
 
 
         order = list(order)
+        filtered_order: list = [ord for ord in order if ord in current_data_vars]
+        while None in filtered_order:
+            filtered_order.pop(None)
 
-        new_data = data[order.pop(0)].to_dataset()
-        for key in order:
+        new_data = data[filtered_order.pop(0)].to_dataset()
+        for key in filtered_order:
             new_data[key] = data[key]
         return new_data
 

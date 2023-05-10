@@ -50,7 +50,7 @@ class UndoPadder(DataOperation):
         ```
 
     !!! Warning
-        If use this with [PatchingDataIndex][edit.training.data.operations.PatchingDataIndex], set `seperate_patch` to True
+        This can change the behaviour a lot, please use with caution
     """
 
     def __init__(self, index: DataStep, padding_type: str = 'edge') -> None:
