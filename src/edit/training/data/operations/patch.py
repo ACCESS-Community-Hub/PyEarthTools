@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any
+import concurrent.futures
 
 import numpy as np
 import xarray as xr
@@ -11,6 +12,7 @@ from edit.training.data.sequential import  SequentialIterator
 from edit.utils.data import Tesselator
 from edit.data import Collection
 
+_executor = concurrent.futures.ThreadPoolExecutor() 
 
 @SequentialIterator
 class PatchingDataIndex(DataOperation):
@@ -128,6 +130,14 @@ class PatchingDataIndex(DataOperation):
         self.kernel_size = kernel_size or self.kernel_size
         self.stride_size = stride_size
 
+    def __run_patching_threaded(self, tesselators: list[Tesselator], datasets):
+        def run_patch(tesselator: Tesselator, data):
+            return tesselator.patch(data)
+
+        future_patches = [_executor.submit(run_patch, tesselators[i], data) for i, data in enumerate(datasets)]
+        
+        return (patch.result() for patch in future_patches)
+
     def _apply_tesselators(self, datasets: tuple[xr.Dataset] | xr.Dataset):
         """
         Apply Tesselators on Datasets
@@ -143,9 +153,11 @@ class PatchingDataIndex(DataOperation):
 
         elif isinstance(datasets, (list, tuple, Collection)):
             tesselators = self._get_tesselators(len(datasets))
-            for patches in zip(
-                *(tesselators[i].patch(datasets[i]) for i in range(len(datasets)))
-            ):
+            # for patches in zip(
+            #     *(tesselators[i].patch(datasets[i]) for i in range(len(datasets)))
+            # ):
+            tuple_patches = self.__run_patching_threaded(tesselators, datasets)
+            for patches in zip(*tuple_patches):
                 yield patches
         else:
             raise NotImplementedError(f"Cannot apply tesselation to {type(datasets)!r}")

@@ -47,6 +47,8 @@ class DataFilter(DataOperation):
     def __iter__(self):
         raise NotImplementedError(f"Child Filter must define Iterator")
 
+    def ignore_sanity(self):
+        return True
 
 @SequentialIterator
 class DropNan(DataFilter):
@@ -137,7 +139,7 @@ class DropValue(DataFilter):
 
         self.function = (
             lambda x: ((np.count_nonzero(x == value) / math.prod(x.shape)) * 100)
-            > percentage
+            >= percentage
         )
 
         self.__doc__ = f"Drop data containing more than {percentage}% of {value}."

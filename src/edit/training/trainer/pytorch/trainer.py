@@ -4,6 +4,7 @@ import copy
 from logging import warning
 import os
 from pathlib import Path
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -11,6 +12,8 @@ import pytorch_lightning as pl
 import torch
 import xarray as xr
 import matplotlib.pyplot as plt
+
+torch.set_float32_matmul_precision('high')
 
 TENSORBOARD_INSTALLED = True
 try:
@@ -97,12 +100,12 @@ class EDITLightningTrainer(EDITTrainer):
         self.checkpoint_path = (Path(path) / "Checkpoints").resolve()
 
         checkpoint_callback = pl.callbacks.ModelCheckpoint(
-            save_top_k=10,
-            monitor="train/loss",
+            save_top_k=5,
+            monitor='step',
+            mode='max',
             dirpath=self.checkpoint_path,
-            mode="min",
-            filename="{epoch:02d}",
-            every_n_train_steps=2500,
+            filename="model-{step}-{epoch:02d}",
+            every_n_train_steps=500,
         )
         callbacks = kwargs.pop("callbacks", [])
         callbacks.append(checkpoint_callback)
@@ -137,6 +140,9 @@ class EDITLightningTrainer(EDITTrainer):
             **kwargs,
         )
 
+        if isinstance(find_batch_size, str):
+            find_batch_size = True if find_batch_size == 'True' else False
+
         if find_batch_size:
             tuner = pl.tuner.Tuner(self.trainer)
             tuner.scale_batch_size(model, mode="power", datamodule=self.datamodule)
@@ -168,22 +174,23 @@ class EDITLightningTrainer(EDITTrainer):
     def load(self, file: str | bool = True, only_state: bool = False):
         """Load Model from Checkpoint File.
 
-        Can either be PytorchLightning Checkpoint or torch checkpoint.
+        Can either be PyTorch Lightning Checkpoint or torch checkpoint.
 
         Args:
             file (str | bool, optional): 
                 Path to checkpoint, or boolean to find latest file. Defaults to True.
             only_state (bool, optional): 
                 If only the model state should be loaded. Defaults to False.
-        """        
+        """          
 
         if isinstance(file, bool):
-            if file:
+            if file and self.checkpoint_path.exists():
                 file = max(Path(self.checkpoint_path).iterdir(), key=os.path.getctime)
             else:
                 return
 
-        print(f"Loading checkpoint: {file}")
+        warnings.warn(f"Loading checkpoint: {file}", UserWarning)
+
         if only_state:
             state = torch.load(file)
             if "state_dict" in state:

@@ -76,7 +76,8 @@ def plot(
     array_indexes: dict[str, list[int]] | list[list[int]] = None,
     fig_kwargs: dict = {"figsize": (25, 20)},
     layout_kwargs: dict = {"pad": 5},
-    text_location: list[int, int] = [0.8, 0.2],
+    text_location: list[int, int] = [0.8, 0.98],
+    show_all: bool = False,
     **plot_kwargs,
 ) -> plt.Figure:
     """
@@ -104,8 +105,9 @@ def plot(
         layout_kwargs (dict, optional): 
             Kwargs to be passed to `plt.tight_layout`. Defaults to {"pad": 5}.
         text_location (list[int, int], optional): 
-            Location of info text. Defaults to [0.8, 0.2].
-
+            Location of info text. Defaults to [0.8, 0.98].
+        show_all (bool, optional): 
+            Show all steps. Defaults to False.
     Returns:
         (plt.Figure): 
             Matplotlib Figure of Data Pipeline
@@ -114,7 +116,7 @@ def plot(
     if isinstance(dataIterator, EDITTrainer):
         dataIterator = getattr(dataIterator, 'train_iterator', dataIterator)
 
-    result = iterator_retrieval.signal_data(dataIterator, idx=index, timeout=timeout)
+    result = iterator_retrieval.signal_data(dataIterator, idx=index, timeout=timeout, show_all = show_all)
 
     num_iterator = len(result.keys())
     size = math.ceil(math.sqrt(num_iterator))
@@ -151,6 +153,6 @@ def plot(
         coords = (i // size, i % size)
         fig.delaxes(axes[coords[0], coords[1]])
 
-    plt.figtext(*text_location, "'int' refers to tuples of data", fontsize="large")
+    plt.figtext(*text_location, "Notes: 'int' refers to tuples of data.\n Filters & Iterators are usually skipped", fontsize="large")
 
     return fig

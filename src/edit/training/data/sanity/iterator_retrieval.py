@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import functools
-import multiprocessing
-import signal
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import TimeoutError
 
 from edit.data import DataNotFoundError
 from edit.training.data import DataIterator, DataStep
@@ -74,15 +73,8 @@ def _get_iterator_name(iterator: DataIterator):
 #     return data_samples
 
 
-class TimeoutException(Exception):
-    pass
 
-
-def timeout_handler(num, stack):
-    raise TimeoutException("Timeout Exception was Triggered")
-
-
-def _get_signal_data(iterator, num_samples: int = 2, index: int = None):
+def _get_data(iterator, num_samples: int = 2, index: int = None):
     samples = None
     if index:
         return iterator[index]
@@ -97,13 +89,13 @@ def _get_signal_data(iterator, num_samples: int = 2, index: int = None):
 
 # @functools.lru_cache(2)
 def signal_data(
-    iterator: DataStep, idx: str = None, num_samples: int = 1, timeout: int = 30
+    iterator: DataStep, idx: str = None, num_samples: int = 1, timeout: int = None, show_all: bool = False
 ):
     iterators = [iterator]
 
     while hasattr(iterator, "index"):
         iterator = iterator.index
-        if hasattr(iterator, "ignore_sanity") and iterator.ignore_sanity:
+        if hasattr(iterator, "ignore_sanity") and iterator.ignore_sanity and not show_all:
             continue
 
         if isinstance(iterator, list):
@@ -117,21 +109,17 @@ def signal_data(
     iterators.reverse()
 
     data_samples = {}
-    timeouts = 0
-
-    for iter in iterators:
-        try:
-            # signal.signal(signal.SIGALRM, timeout_handler)
-            # signal.alarm(timeout)
-            data_samples[iter] = _get_signal_data(
-                iter, num_samples=num_samples, index=idx
-            )
-        except TimeoutException:
-            timeouts += 1
-            data_samples[iter] = f"Data took longer than {timeout} seconds to get."
-        except (DataNotFoundError, RuntimeError):
-            if idx is None:
-                data_samples[iter] = "Iterator likely not set, Cannot retrieve data."
-            else:
-                data_samples[iter] = f"Unable to find data at {idx!r}"
+    with ThreadPoolExecutor(max_workers=len(iterators)) as executor:
+        futures = [_get_data(iterator, num_samples, idx) for iterator in iterators] #executor.submit
+        for i, data in enumerate(futures):
+            iter = iterators[i]
+            try:
+                data_samples[iter] = data #data.result(timeout=timeout)
+            except TimeoutError:
+                data_samples[iter] = f"Data took longer than {timeout} seconds to get."
+            except (DataNotFoundError, RuntimeError):
+                if idx is None:
+                    data_samples[iter] = "Iterator likely not set, Cannot retrieve data."
+                else:
+                    data_samples[iter] = f"Unable to find data at {idx!r}"
     return data_samples

@@ -126,7 +126,7 @@ def from_yaml(yaml_file: str, **kwargs) -> EDITLightningTrainer:
 
     if "root_dir" in config["trainer"]:
         if "%auto%" in config["trainer"]['root_dir']:
-            config["trainer"]['root_dir'] = Path(config["trainer"]['root_dir'].replace("%auto%","")) / '/'.join(Path(yaml_file).with_suffix('').parts[1:])
+            config["trainer"]['root_dir'] = str(Path(config["trainer"]['root_dir'].replace("%auto%","")) / '/'.join(Path(yaml_file).with_suffix('').parts[1:]))
 
         Path(config["trainer"]["root_dir"]).mkdir(exist_ok=True, parents=True)
         with open(Path(config["trainer"]["root_dir"]) / "config.yaml", "w") as file:
@@ -143,7 +143,10 @@ def from_yaml(yaml_file: str, **kwargs) -> EDITLightningTrainer:
 
     model_name = config["model"].pop("Source")
     #try:
-    model = get_callable(model_name)
+    try:
+        model = get_callable(model_name)
+    except (ImportError, ModuleNotFoundError):
+        raise ImportError(f"Could not find model: {model_name}")
     #except (AttributeError, ModuleNotFoundError):
         #if hasattr(networks, model_name):
             #model = getattr(networks, model_name)

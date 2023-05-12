@@ -234,3 +234,6 @@ class TemporalIterator(DataIterator):
         if hasattr(self.index, "undo"):
             data = self.index.undo(data)
         return data
+
+    def ignore_sanity(self):
+        return False

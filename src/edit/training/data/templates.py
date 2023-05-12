@@ -463,8 +463,8 @@ class DataIterator(DataStep):
 
         self._interval = time_delta(interval)
 
-        self._start = EDITDatetime(start).at_resolution('minute')
-        self._end = EDITDatetime(end)#.at_resolution(self._interval)
+        self._start: EDITDatetime = EDITDatetime(start).at_resolution('minute')
+        self._end: EDITDatetime = EDITDatetime(end)#.at_resolution(self._interval)
 
         self._iterator_ready = True
         self._info_ = dict(start = self._start, end = self._end, interval = self._interval)
@@ -483,3 +483,6 @@ class DataIterator(DataStep):
                 yield self[current_time]
             except self._error_to_catch as e:
                 logging.info(e)
+
+    def ignore_sanity(self):
+        return True
