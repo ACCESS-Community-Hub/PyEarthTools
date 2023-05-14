@@ -38,8 +38,9 @@ class EDITDataModule(pl.LightningDataModule):
     def train_dataloader(self):
         if isinstance(self.train_data, DataLoader):
             return self.train_data
-        return DataLoader(self.train_data, batch_size=self.batch_size, num_workers = self.num_workers)
-    def valid_dataloader(self):
+        return DataLoader(self.train_data, batch_size=self.batch_size, num_workers = self.num_workers, pin_memory = True)
+    
+    def val_dataloader(self):
         if isinstance(self.valid_data, DataLoader):
             return self.valid_data
         return DataLoader(self.valid_data or self.train_data, batch_size=self.batch_size, num_workers = self.num_workers, pin_memory = True)
@@ -56,7 +57,7 @@ class EDITLightningTrainer(EDITTrainer):
         train_data: DataLoader | DataIterator,
         path: str = None,
         valid_data: DataLoader | DataIterator = None,
-        find_batch_size: bool = True,
+        find_batch_size: bool = False,
         **kwargs,
     ) -> None:
         """Pytorch Lightning Trainer Wrapper.
@@ -72,7 +73,7 @@ class EDITLightningTrainer(EDITTrainer):
             valid_data (DataIterator, optional):
                 Dataloader to use for validation. Defaults to None.
             find_batch_size (bool, optional):
-                Auto find the best batch size. Defaults to True.
+                Auto find the best batch size. Defaults to False.
             **kwargs (Any, optional):
                 All passed to trainer __init__, will intercept 'logger' to update from str if given
 
@@ -228,6 +229,7 @@ class EDITLightningTrainer(EDITTrainer):
             batch_size=kwargs.pop("batch_size", batch_size),
             # num_workers=kwargs.pop("num_workers", self.num_workers), #Apparently this reproduces data on small scales
         )
+        warnings.filterwarnings("ignore", ".*does not have many workers.*")        
 
         prediction = tuple(
             map(

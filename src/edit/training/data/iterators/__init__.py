@@ -13,6 +13,8 @@ All implement [DataIterator][edit.training.data.DataIterator], so will provide d
 
 from edit.training.data.iterators.iterator import Iterator
 from edit.training.data.iterators.combine import CombineDataIterator
-from edit.training.data.iterators.temporal import TemporalIterator as TemporalInterface
-from edit.training.data.iterators.temporal import TemporalIterator
 from edit.training.data.iterators.fakedata import FakeData
+
+## Backwards compatible api
+from edit.training.data.indexes.temporal import TemporalIndex as TemporalInterface
+from edit.training.data.indexes.temporal import TemporalIndex as TemporalIterator

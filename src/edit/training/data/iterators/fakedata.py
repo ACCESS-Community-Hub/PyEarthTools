@@ -145,26 +145,6 @@ class FakeData(DataIterator):
 
         return self._data
 
-    def _get_fake_index_data(self, index: str | int) -> np.ndarray:
-        """Get and Cache Fake Data from index
-
-        Returns:
-            (np.ndarray): 
-                Generated Fake Data
-        """
-        if self._index_data:
-            return self._index_data
-
-        if isinstance(self.index, tuple):
-            self._index_data = self._generate_data(self.index)
-            return self._index_data
-
-        data_sample = self.index[index]
-
-        shape = self._find_shape(data_sample)
-        self._index_data = self._generate_data(shape)
-
-        return self._index_data
 
     @functools.wraps(DataIterator.set_iterable)
     def set_iterable(self, *args, **kwargs):

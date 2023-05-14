@@ -81,7 +81,7 @@ def plot(
     **plot_kwargs,
 ) -> plt.Figure:
     """
-    Plot a given Data Pipline.
+    Plot a given Data Pipeline.
     
     Each step will be plotted individually, with the shape also shown.
 
@@ -114,7 +114,7 @@ def plot(
     """    
 
     if isinstance(dataIterator, EDITTrainer):
-        dataIterator = getattr(dataIterator, 'train_iterator', dataIterator)
+        dataIterator = getattr(dataIterator, 'train_data', dataIterator)
 
     result = iterator_retrieval.signal_data(dataIterator, idx=index, timeout=timeout, show_all = show_all)
 

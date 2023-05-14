@@ -47,8 +47,8 @@ class DataFilter(DataOperation):
     def __iter__(self):
         raise NotImplementedError(f"Child Filter must define Iterator")
 
-    def ignore_sanity(self):
-        return True
+    def _sanity(self):
+        return 'Filter'
 
 @SequentialIterator
 class DropNan(DataFilter):

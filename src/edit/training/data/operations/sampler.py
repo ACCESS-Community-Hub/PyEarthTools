@@ -46,6 +46,8 @@ class DataSampler(DataOperation):
     def __iter__(self):
         raise NotImplementedError(f"Child Filter must define Iterator")
 
+    def _sanity(self):
+        return 'Sampler'
 
 @SequentialIterator
 class RandomSampler(DataSampler):
@@ -88,10 +90,10 @@ class RandomSampler(DataSampler):
             try:
                 while len(buffer) < self.buffer_size:
                     buffer.append(iterator.__next__())
-                yield buffer.pop(rng.integers(0,len(buffer)-1))
+                yield buffer.pop(rng.integers(0,len(buffer)))
             except StopIteration:
                 while len(buffer) > 0:
-                    yield buffer.pop(rng.integers(0,len(buffer)-1))
+                    yield buffer.pop(rng.integers(0,len(buffer)))
                 return
 
 

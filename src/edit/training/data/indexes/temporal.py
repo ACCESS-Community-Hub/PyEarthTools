@@ -10,13 +10,13 @@ from edit.data import FunctionTransform, Transform, TransformCollection
 from edit.data import DataIndex, OperatorIndex
 from edit.data.time import EDITDatetime, time_delta
 
-from edit.training.data.templates import DataIterator, DataStep
+from edit.training.data.templates import DataIterator, DataStep, DataInterface, TrainingOperatorIndex
 from edit.training.data.sequential import Sequential, SequentialIterator
 from edit.training.data.utils import get_transforms
 
 
 @SequentialIterator
-class TemporalIterator(DataIterator):
+class TemporalIndex(TrainingOperatorIndex):
     """
     TemporalIterator to provide capability to add a temporal dimension to loaded data.
 
@@ -25,12 +25,12 @@ class TemporalIterator(DataIterator):
 
     !!! Example
         ```python
-        TemporalIterator(PipelineStep)
+        TemporalIndex(PipelineStep)
 
         ## As this is decorated with @SequentialIterator, it can be partially initialised
 
-        partialTemporalIterator = TemporalIterator()
-        partialTemporalIterator(PipelineStep)
+        partialTemporalIndex = TemporalIndex()
+        partialTemporalIndex(PipelineStep)
         ```
     """    
     def __init__(
@@ -39,10 +39,9 @@ class TemporalIterator(DataIterator):
         transforms: list[TransformCollection] | TransformCollection | str | dict = None,
         samples: tuple[int] | int = 1,
         sample_interval: int | tuple = 0,
-        catch: tuple[Exception | str] | Exception | str = None,
         **kwargs,
     ) -> None:
-        """TemporalIterator to add a time dimension to the loaded data.
+        """TemporalIndex to add a time dimension to the loaded data.
         
         
         Args:
@@ -55,15 +54,13 @@ class TemporalIterator(DataIterator):
             sample_interval (int | tuple, optional): 
                 Interval between samples, must be in form of [TimeDelta][edit.data.time.time_delta].
                 If int, default to minutes unit. Defaults to 1.
-            catch (tuple[Exception | str] | Exception | str, optional): 
-                Errors to catch when iterating. Defaults to None.
         
         Raises:
             ValueError: 
                 If `samples` and `sample_interval` are invalid
         """    
 
-        super().__init__(index, catch)
+        super().__init__(index, data_resolution = sample_interval)
 
         self.retrieval_kwargs = kwargs
         self.transforms = get_transforms(transforms)
@@ -200,20 +197,26 @@ class TemporalIterator(DataIterator):
     #     else:
     #         return (*tuple(return_list),)
 
-    def __getitem__(self, idx):
-        if isinstance(idx, int):
-            return self.index[idx]
-        elif isinstance(idx, (str, EDITDatetime, datetime)):
-            return self._retrieve_from_index(
-                EDITDatetime(idx), self.index, self.transforms
-            )
-        elif isinstance(idx, tuple):
-            next_idx = idx[1:]
-            if len(next_idx) == 1:
-                next_idx = next_idx[0]
-            return self[idx[0]].__getitem__(next_idx)
 
-        return self.index[idx]
+    def get(self, querytime: str | EDITDatetime):
+        return self._retrieve_from_index(
+                EDITDatetime(querytime), self.index, self.transforms
+            )
+
+    # def __getitem__(self, idx):
+    #     if isinstance(idx, int):
+    #         return self.index[idx]
+    #     elif isinstance(idx, (str, EDITDatetime, datetime)):
+    #         return self._retrieve_from_index(
+    #             EDITDatetime(idx), self.index, self.transforms
+    #         )
+    #     elif isinstance(idx, tuple):
+    #         next_idx = idx[1:]
+    #         if len(next_idx) == 1:
+    #             next_idx = next_idx[0]
+    #         return self[idx[0]].__getitem__(next_idx)
+
+    #     return self.index[idx]
 
     @property
     def __doc__(self):

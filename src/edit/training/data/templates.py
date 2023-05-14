@@ -148,10 +148,10 @@ class DataStep:
         pipeline_steps = self._get_steps_for_repr_()
 
         for step in pipeline_steps:
-            formatted = f"\t* {padding(step.__class__.__name__, 30)}{step._formatted_doc_}\n"
+            formatted = f"\t* {padding(step.__class__.__name__, 25)}{step._formatted_doc_}\n"
             if hasattr(step, '_info_'):
-                formatted = formatted + f"\t\t\t\t{step._info_}"
-            string += formatted
+                formatted = formatted + f"\t\t\t\t\t{step._info_}\n"
+            string += formatted #+ '\n'
 
         return string
 
@@ -290,7 +290,7 @@ class DataOperation(DataStep):
             return self._undo_func(data)
         return data
 
-    def undo(self, data: xr.Dataset | xr.DataArray | np.ndarray | tuple):
+    def undo(self, data: xr.Dataset | xr.DataArray | np.ndarray | tuple) -> xr.Dataset | xr.DataArray | np.ndarray | tuple:
         """Undo transforms and edits the Data Pipeline has done
 
         Args:
@@ -368,7 +368,7 @@ class TrainingOperatorIndex(OperatorIndex, DataStep):
         self.index = index
 
         if "data_resolution" not in kwargs and not allow_multiple_index:
-            kwargs["data_resolution"] = index.data_resolution
+            kwargs["data_resolution"] = index.data_interval
         super().__init__(**kwargs)
 
     def __getattr__(self, key):
@@ -467,7 +467,11 @@ class DataIterator(DataStep):
         self._end: EDITDatetime = EDITDatetime(end)#.at_resolution(self._interval)
 
         self._iterator_ready = True
-        self._info_ = dict(start = self._start, end = self._end, interval = self._interval)
+        self._info_.update(dict(start = self._start, end = self._end, interval = self._interval))
+        self._info_.pop('NotConfigured')
+
+        if hasattr(self.index, 'set_iterable'):
+            self.index.set_iterable(start, end, interval)
 
     def __iter__(self):
         if not self._iterator_ready:
@@ -485,4 +489,4 @@ class DataIterator(DataStep):
                 logging.info(e)
 
     def ignore_sanity(self):
-        return True
+        return 'Iterator'

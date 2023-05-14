@@ -17,7 +17,7 @@ class ClimaXDataLoader(DataOperation, IterableDataset):
     """
 
     def __init__(self, index: DataStep | DataIterator) -> None:
-        super().__init__(index=index, apply_func=None, undo_func=self._undo_func)
+        super().__init__(index=index, apply_func=self._add_time_dim, undo_func=self._undo_func)
         warnings.warn(f"ClimaX Dataloader will be moved out shortly")
         self._size = 2
 
@@ -33,11 +33,21 @@ class ClimaXDataLoader(DataOperation, IterableDataset):
             return torch.Tensor([1])
         return torch.Tensor(np.linspace(0,1,size))
 
-    def __getitem__(self, idx):
-        self._size = len(idx)
-        data = self.index[idx]
-        extend = data[0].shape[0]
-        return (*data, self._find_time().expand(extend))
+    def _add_time_dim(self, data):
+        self._size = len(data)
+        # extend = data[0].shape[0]
+        # return (*data, self._find_time().expand(extend))
+
+        if isinstance(data, tuple):
+            if len(data[0].shape) == 4:
+                time = self._find_time(size = data[0].shape[1])
+                return (*data, time)
+            return (*data, self._find_time())
+        else:
+            if len(data.shape) == 4:
+                time = self._find_time(size = data.shape[1])
+                return data, time
+            return data, self._find_time()
 
     def __iter__(self):
         for data in self.index:

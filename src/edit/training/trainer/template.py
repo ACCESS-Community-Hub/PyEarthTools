@@ -46,8 +46,18 @@ class EDITTrainer:
 
     @abstractmethod
     def _predict_from_data(self, data, **kwargs):
-        raise NotImplementedError
+        raise NotImplementedError()
 
+
+    def _expand_dims(data: np.ndarray | tuple | list) -> np.ndarray | tuple | list:
+        if isinstance(data, (list, tuple)):
+            return type(data)(map(EDITTrainer._expand_dims, data))
+        return np.expand_dims(data, axis = 0)
+
+    def _squeeze_dims(data: np.ndarray | tuple | list) -> np.ndarray | tuple | list:
+        if isinstance(data, (list, tuple)):
+            return type(data)(map(EDITTrainer._squeeze_dims, data))
+        return np.squeeze(data, axis = 0)
 
     def predict(
         self,
@@ -65,9 +75,12 @@ class EDITTrainer:
         Uses [edit.training][edit.training.data] DataStep to get data at given index.
         Can automatically try to rebuild the data.
 
+        Uses [_predict_from_data][edit.training.trainer.template._predict_from_data] to run the predictions.
+
         !!! Warning
             If number of patches is not divisible by the `batch_size`, issues may arise.
-            Solution: batch_size = 1
+
+            Solution: `batch_size = 1`
 
         Args:
             index (str): 
@@ -94,19 +107,13 @@ class EDITTrainer:
         truth = data[0]
 
         if fake_batch_dim:
-            if isinstance(data, tuple):
-                data = tuple(map(lambda x: np.expand_dims(x,axis = 0), data))
-            else:
-                data = np.expand_dims(data, axis = 0)
-
+            data = EDITTrainer._expand_dims(data)
 
         prediction = self._predict_from_data(data, **kwargs)
 
         if fake_batch_dim:
-            if isinstance(data, tuple):
-                prediction = list(map(lambda x: np.squeeze(x,axis = 0), prediction))
-            else:
-                prediction = np.squeeze(prediction, axis = 0)
+            prediction = EDITTrainer._squeeze_dims(prediction)
+            data = EDITTrainer._squeeze_dims(data)
         
         truth_data = None
 
@@ -132,6 +139,7 @@ class EDITTrainer:
         self,
         start_index: str,
         recurrence: int,
+        *,
         data_iterator: DataStep = None,
         load: bool = False,
         load_kwargs: dict = {},
@@ -139,10 +147,11 @@ class EDITTrainer:
         fake_batch_dim: bool = False,
         **kwargs,
     ) -> tuple[np.array] | tuple[xr.Dataset]:
-        """Uses [predict][edit.training.trainer.template.EDITTrainer.predict] to predict timesteps and then feed back through recurrently.
+        """Time wise recurrent prediction
 
         Uses [edit.training][edit.training.data] DataStep to get data at given index.
-        Can automatically try to rebuild the data.
+
+        Uses [_predict_from_data][edit.training.trainer.template._predict_from_data] to run the predictions.
 
         !!! Warning
             If number of patches is not divisible by the `batch_size`, issues may arise.
@@ -168,8 +177,11 @@ class EDITTrainer:
                 Either xarray datasets or np arrays, [truth data, predicted data]
         """
         data_source = data_iterator or self.valid_data or self.train_data
+        
+        # Retrieve Initial Input Data
         data = list(data_source[start_index])
 
+        # Load Model
         if isinstance(load, str):
             self.load(load,**load_kwargs)
 
@@ -179,23 +191,21 @@ class EDITTrainer:
         predictions = []
         index = start_index
 
+        # Begin Recurrence
         for i in range(recurrence):
-            if fake_batch_dim:
-                if isinstance(data, (list,tuple)):
-                    data = list(map(lambda x: np.expand_dims(x,axis = 0), data))
-                else:
-                    data = np.expand_dims(data, axis = 0)
+            if fake_batch_dim: # Fake the Batch Dimension, for use with ToNumpy
+                data = EDITTrainer._expand_dims(data)
 
             input_data = None
-            prediction = self._predict_from_data(data, **kwargs)
-            if fake_batch_dim:
-                if isinstance(data, (list, tuple)):
-                    prediction = list(map(lambda x: np.squeeze(x,axis = 0), prediction))
-                else:
-                    prediction = np.squeeze(prediction, axis = 0)
+            prediction = self._predict_from_data(data, **kwargs) # Prediction
 
-            fixed_predictions = data_source.undo(prediction)
+            if fake_batch_dim: # Squeeze again if faking the batch dim
+                prediction = EDITTrainer._squeeze_dims(prediction)
+                data = EDITTrainer._squeeze_dims(data)
 
+            fixed_predictions = data_source.undo(prediction) # Undo Pipeline
+
+            # Separate components
             if isinstance(fixed_predictions, (tuple, list)):
                 input_data = fixed_predictions[0]
                 fixed_predictions = fixed_predictions[-1]
@@ -203,8 +213,10 @@ class EDITTrainer:
             if not isinstance(fixed_predictions, xr.Dataset):
                 raise TypeError(f"Unable to recurrently merge data of type {type(fixed_predictions)}")
 
+            # Rebuild Time Dimension
             if "Coordinate 1" in fixed_predictions:
                 fixed_predictions = fixed_predictions.rename({"Coordinate 1": "time"})
+
             if hasattr(data_source, "rebuild_time"):
                 fixed_predictions = data_source.rebuild_time(
                     fixed_predictions,
@@ -212,16 +224,18 @@ class EDITTrainer:
                     offset=1 if i >= 1 else 0,
                 )
 
+            # Record Prediction
             predictions.append(fixed_predictions)
 
-            # data[0] = fixed_predictions
-            # #data.reverse()
+            # Setup recurrent input data
+            data = list(data)
             input_data = input_data or data_source.undo(data)[0]
             new_input = xr.merge((input_data, fixed_predictions)).isel(
                 time=slice(-1 * len(input_data.time), None)
             )
             index = new_input.time.values[-1]
             data[0] = data_source.apply(new_input)
+
 
         predictions = xr.merge(predictions)
 
