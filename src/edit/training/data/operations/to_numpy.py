@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from itertools import zip_longest
 from typing import Union
+import warnings
 
 import numpy as np
 import xarray as xr
@@ -151,6 +152,9 @@ class ToNumpy(DataOperation):
         """        
         data_vars = {}
 
+        if not numpy_array.shape == xarray_distill['shape']:
+            warnings.warn(f"Incoming and expected shape don't match. {numpy_array.shape} != {xarray_distill['shape']}.", RuntimeWarning)
+
         coords = dict(xarray_distill["coords"])
         variables = coords.pop("Variables")
 
@@ -161,11 +165,14 @@ class ToNumpy(DataOperation):
             )
             data_vars[variables[i]] = (coords, data)
 
-        ds = xr.Dataset(
-            data_vars=data_vars,
-            coords=coords,
-            attrs=xarray_distill.get("attrs",{}),
-        )
+        try:
+            ds = xr.Dataset(
+                data_vars=data_vars,
+                coords=coords,
+                attrs=xarray_distill.get("attrs",{}),
+            )
+        except ValueError as e:
+            raise ValueError(f"An error occurred converting data back to a NumPy array. Incoming shape is {numpy_array.shape}") from e
         return ds
 
     def _convert_numpy_to_xarray(self, data: np.ndarray | tuple[np.ndarray]) -> xr.Dataset | tuple[xr.Dataset]:

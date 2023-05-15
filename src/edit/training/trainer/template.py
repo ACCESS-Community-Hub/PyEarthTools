@@ -104,7 +104,7 @@ class EDITTrainer:
 
         data_source = data_iterator or self.valid_data or self.train_data
         data = data_source[index]
-        truth = data[0]
+        truth = data[1]
 
         if fake_batch_dim:
             data = EDITTrainer._expand_dims(data)
@@ -115,25 +115,24 @@ class EDITTrainer:
             prediction = EDITTrainer._squeeze_dims(prediction)
             data = EDITTrainer._squeeze_dims(data)
         
-        truth_data = None
 
         if not undo:
             return Collection(truth, prediction[1])
 
         prediction = data_source.undo(prediction)
         if isinstance(prediction, (tuple, list)):
-            truth_data = prediction[0]
+            # truth_data = prediction[0]
             prediction = prediction[-1]
 
         if not isinstance(prediction, xr.Dataset):
-            return Collection(truth_data, prediction)
+            return Collection(data_source.undo(data)[1], prediction)
 
         if "Coordinate 1" in prediction:
             prediction = prediction.rename({"Coordinate 1": "time"})
         if hasattr(data_source, "rebuild_time"):
             prediction = data_source.rebuild_time(prediction, index)
 
-        return Collection(truth_data or data_source.undo(data)[1], prediction)
+        return Collection(data_source.undo(data)[1], prediction)
 
     def predict_recurrent(
         self,
@@ -234,7 +233,11 @@ class EDITTrainer:
                 time=slice(-1 * len(input_data.time), None)
             )
             index = new_input.time.values[-1]
-            data[0] = data_source.apply(new_input)
+
+            new_input_data = data_source.apply(new_input)
+            if isinstance(new_input_data, (list, tuple)):
+                new_input_data = new_input_data[0]
+            data[0] = new_input_data
 
 
         predictions = xr.merge(predictions)

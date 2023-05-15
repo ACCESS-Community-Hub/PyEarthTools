@@ -18,7 +18,7 @@ class ClimaXDataLoader(DataOperation, IterableDataset):
 
     def __init__(self, index: DataStep | DataIterator) -> None:
         super().__init__(index=index, apply_func=self._add_time_dim, undo_func=self._undo_func)
-        warnings.warn(f"ClimaX Dataloader will be moved out shortly")
+        warnings.warn(f"ClimaX Dataloader will be moved out shortly", DeprecationWarning)
         self._size = 2
 
     def _undo_func(self, data):
@@ -39,32 +39,24 @@ class ClimaXDataLoader(DataOperation, IterableDataset):
         # return (*data, self._find_time().expand(extend))
 
         if isinstance(data, tuple):
-            if len(data[0].shape) == 4:
-                time = self._find_time(size = data[0].shape[1])
+            if len(data[0].shape) > 4:
+                time = self._find_time(size = data[1].shape[-3])
                 return (*data, time)
             return (*data, self._find_time())
         else:
-            if len(data.shape) == 4:
-                time = self._find_time(size = data.shape[1])
-                return data, time
-            return data, self._find_time()
+            raise NotImplementedError()
 
     def __iter__(self):
         for data in self.index:
             if isinstance(data, tuple):
                 if len(data[0].shape) == 4:
-                    time = self._find_time(size = data[0].shape[1])
-                    for i in range(data[0].shape[1]):
-                        yield (*(data_sub[:,i] for data_sub in data), time[i])
+                    time = self._find_time(size = data[1].shape[1])
+                    for i in range(data[1].shape[1]):
+                        yield (data[0][:,0], data[1][:,i], time[i])
                 else:
                     yield (*data, self._find_time())
             else:
-                if len(data.shape) == 4:
-                    time = self._find_time(size = data.shape[1])
-                    for i in range(data.shape[1]):
-                        yield data[:,i], time[i]
-                else:
-                    yield data, self._find_time()
+                raise NotImplementedError()
 
     @property
     def ignore_sanity(self):

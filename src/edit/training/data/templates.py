@@ -468,7 +468,9 @@ class DataIterator(DataStep):
 
         self._iterator_ready = True
         self._info_.update(dict(start = self._start, end = self._end, interval = self._interval))
-        self._info_.pop('NotConfigured')
+        
+        if 'NotConfigured' in self._info_:
+            self._info_.pop('NotConfigured')
 
         if hasattr(self.index, 'set_iterable'):
             self.index.set_iterable(start, end, interval)

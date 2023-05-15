@@ -69,10 +69,10 @@ def get_pipeline(sources: dict, order: list = None) -> list[Any]:
         - `edit.training.data.operations.`
 
     !!! tip "Multiple Tip"
-        If two or more of the same [DataStep][edit.training.data.DataStep] are wanted, add '[NUMBER]', to distiguish the key, this will be removed before import
+        If two or more of the same [DataStep][edit.training.data.DataStep] are wanted, add '[NUMBER]', to distinguish the key, this will be removed before import
 
     !!! Warning
-        If `index` is not provided to [edit.training.data][edit.training.data] classes, they will not be fully initalised, due to [SequentialIterator][edit.training.data.sequential.SequentialIterator].
+        If `index` is not provided to [edit.training.data][edit.training.data] classes, they will not be fully initialised, due to [SequentialIterator][edit.training.data.sequential.SequentialIterator].
 
         Suggested to instead use [sequential.from_dict][edit.training.data.sequential.from_dict].
 
@@ -88,11 +88,11 @@ def get_pipeline(sources: dict, order: list = None) -> list[Any]:
         TypeError: 
             If an invalid type was imported
         RuntimeError: 
-            If an error occurs intialising the steps
+            If an error occurs initialising the steps
 
     Returns:
         (list[Any]): 
-            Imported and Initalised objects from the configuration
+            Imported and Initialised objects from the configuration
 
     Examples:
         >>> get_pipeline(sources = {'filters.DropNan':{}, 'reshape.Squish': {'axis': 1}})
@@ -153,7 +153,7 @@ def get_pipeline(sources: dict, order: list = None) -> list[Any]:
             elif isinstance(init_args, dict):
                 indexes.append(data_index(**init_args)) 
         except Exception as e:
-            raise RuntimeError(f"Error occured initialising {index}") from e
+            raise RuntimeError(f"Error occurred initialising {index}") from e
     return indexes
 
 

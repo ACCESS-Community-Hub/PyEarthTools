@@ -79,7 +79,7 @@ class Rearrange(DataOperation):
                 if self.skip:
                     return data
                 raise excep
-            pattern = "->".join(["p" + side for side in pattern.split("->")])
+            pattern = "->".join(["p " + side for side in pattern.split("->")])
             return self.__rearrange(data, pattern, catch=False)
 
     def _apply_rearrange(self, data: np.ndarray):

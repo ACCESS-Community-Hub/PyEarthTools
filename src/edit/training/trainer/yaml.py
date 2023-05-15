@@ -163,7 +163,13 @@ def from_yaml(yaml_file: str, **kwargs) -> EDITLightningTrainer:
         if trainer_type in trainer_dict:
             trainer_class = trainer_dict[trainer_type]
         else:
-            raise KeyError(f"Trainer type {trainer_type} not recognised. Use {trainer_dict.keys()}")
+            try:
+                trainer_class = get_callable(trainer_type)
+            except (ImportError, ModuleNotFoundError):
+                raise KeyError(f"Could not find trainer: {trainer_type}")
+
+        if trainer_class is None:
+            raise KeyError(f"Trainer type {trainer_type} not recognised. Use {trainer_dict.keys()} or import path.")
 
     return trainer_class(
         model=model,

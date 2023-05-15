@@ -43,7 +43,7 @@ class RandomIterator(DataIterator):
         super().__init__(index, catch)
         self.seed = seed
         self._all_timesteps = []
-        self._info_ = dict(seed = seed)
+        self._info_.update(dict(seed = seed))
 
     def set_iterable(self, start: str | datetime | EDITDatetime, end: str | datetime | EDITDatetime, interval: int | tuple):
         super().set_iterable(start, end, interval)

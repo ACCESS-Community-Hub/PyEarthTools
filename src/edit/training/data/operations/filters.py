@@ -55,6 +55,9 @@ class DropNan(DataFilter):
     """
     DataFilter to drop any data with nans when iterating.
     """
+    def __init__(self, index: DataStep, variables: list = None) -> None:
+        super().__init__(index)
+        self.variables = variables
 
     def _check(self, data: xr.Dataset | np.ndarray) -> bool:
         """Check if any of the data is nan        
@@ -68,6 +71,8 @@ class DropNan(DataFilter):
                 If data contains nan's
         """        
         if isinstance(data, (xr.Dataset, xr.DataArray)):
+            if self.variables:
+                data = data[self.variables]
             return np.array(list(np.isnan(data).values())).any()
         return np.isnan(data).any()
 

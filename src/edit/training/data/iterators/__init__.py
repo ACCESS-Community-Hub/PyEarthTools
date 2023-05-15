@@ -6,12 +6,14 @@ All implement [DataIterator][edit.training.data.DataIterator], so will provide d
 | Name                | Description |
 | ------------------- | ----------- |
 | [Iterator][edit.training.data.iterators.iterator]            | Basic Iterator  |
+| [Iterator][edit.training.data.iterators.random]            | Iterator which Randomly Samples dates  |
 | [CombineDataIterator][edit.training.data.iterators.combine]    | Combine Multiple DataIterators together and alternate between samples |
 | [TemporalIterator][edit.training.data.iterators.temporal]    | Add Time Dimension to data, with choice on prior/post samples and interval. Must retrieve xarray objects |
 | [FakeData][edit.training.data.iterators.fakedata]            | Fake Data loading process to eliminate data loading times |
 """
 
 from edit.training.data.iterators.iterator import Iterator
+from edit.training.data.iterators.random import RandomIterator
 from edit.training.data.iterators.combine import CombineDataIterator
 from edit.training.data.iterators.fakedata import FakeData
 
