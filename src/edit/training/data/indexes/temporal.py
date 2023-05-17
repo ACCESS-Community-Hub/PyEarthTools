@@ -10,15 +10,15 @@ from edit.data import FunctionTransform, Transform, TransformCollection
 from edit.data import DataIndex, OperatorIndex
 from edit.data.time import EDITDatetime, time_delta
 
-from edit.training.data.templates import DataIterator, DataStep, DataInterface, TrainingOperatorIndex
+from edit.training.data.templates import DataIterator, DataStep, DataInterface, TrainingOperatorIndex, TrainingDataIndex
 from edit.training.data.sequential import Sequential, SequentialIterator
 from edit.training.data.utils import get_transforms
 
 
 @SequentialIterator
-class TemporalIndex(TrainingOperatorIndex):
+class TemporalIndex(TrainingDataIndex):
     """
-    TemporalIterator to provide capability to add a temporal dimension to loaded data.
+    TemporalIndex to provide capability to add a temporal dimension to loaded data.
 
     !!! Warning
         Must exist above a DataStep which still returns a [Dataset][xarray.Dataset]
@@ -38,7 +38,7 @@ class TemporalIndex(TrainingOperatorIndex):
         index: DataStep,
         transforms: list[TransformCollection] | TransformCollection | str | dict = None,
         samples: tuple[int] | int = 1,
-        sample_interval: int | tuple = 0,
+        sample_interval: int | tuple = [60, 'min'],
         **kwargs,
     ) -> None:
         """TemporalIndex to add a time dimension to the loaded data.
@@ -50,7 +50,7 @@ class TemporalIndex(TrainingOperatorIndex):
             transforms (list[TransformCollection] | TransformCollection | str | dict, optional): 
                 Extra transforms to add to the retrieval of data. Defaults to None.
             samples (tuple[int] | int, optional): 
-                Temporal Samples to retrieve, if tuple [prior,post], if int post. Defaults to 0.
+                Temporal Samples to retrieve, if tuple [prior,post], if int post. Defaults to [60, 'min'].
             sample_interval (int | tuple, optional): 
                 Interval between samples, must be in form of [TimeDelta][edit.data.time.time_delta].
                 If int, default to minutes unit. Defaults to 1.
@@ -60,18 +60,19 @@ class TemporalIndex(TrainingOperatorIndex):
                 If `samples` and `sample_interval` are invalid
         """    
 
-        super().__init__(index, data_resolution = sample_interval)
+        super().__init__(index)
 
         self.retrieval_kwargs = kwargs
         self.transforms = get_transforms(transforms)
 
-        if isinstance(samples, int) and samples > 1 and sample_interval == 0:
-            raise ValueError(f"If 'samples' > 1, 'sample_interval' cannot be 0")
         if isinstance(samples, list):
             samples = tuple(samples)
 
         self.samples = samples
-        self.sample_interval = time_delta(sample_interval)
+        if isinstance(sample_interval, tuple) and isinstance(sample_interval[0], tuple):
+            self.sample_interval = tuple(map(time_delta, sample_interval))
+        else:
+            self.sample_interval = time_delta(sample_interval)
 
         self._info_ = dict(samples = samples, sample_interval = sample_interval)
 
@@ -80,6 +81,7 @@ class TemporalIndex(TrainingOperatorIndex):
         dataset: tuple[xr.Dataset] | xr.Dataset,
         time_value: EDITDatetime | datetime | str,
         offset: int = 0,
+        interval_index: int = -1
     ) -> tuple[xr.Dataset] | xr.Dataset:
         """Rebuild time dimension of given dataset, using known sample interval.
 
@@ -96,6 +98,8 @@ class TemporalIndex(TrainingOperatorIndex):
                 First timestep to use and thus iterate from
             offset (int, optional): 
                 Offset to add to time in multiples of `sample_interval`. Defaults to 0.
+            interval_index (int, optional):
+                Sample Interval to use if `sample_interval` is a tuple. Defaults to -1.
         
         Returns:
             (tuple[xr.Dataset] | xr.Dataset): 
@@ -109,8 +113,13 @@ class TemporalIndex(TrainingOperatorIndex):
 
         time_size = len(dataset["time"])
         time_value = EDITDatetime(time_value)
+
+        interval = self.sample_interval
+        if isinstance(self.sample_interval, tuple):
+            interval = self.sample_interval[interval_index]
+
         new_time = [
-            (time_value + self.sample_interval * (i + offset)).datetime64()
+            (time_value + interval * (i + offset)).datetime64()
             for i in range(time_size)
         ]
         return dataset.assign_coords(time=new_time)
@@ -151,19 +160,26 @@ class TemporalIndex(TrainingOperatorIndex):
 
         elif isinstance(self.samples, tuple):
             if isinstance(index, OperatorIndex) or True:
+                interval = self.sample_interval
+                if isinstance(self.sample_interval, tuple):
+                    interval = self.sample_interval[0]
                 data_prior = index.safe_series(
-                    timestep - self.sample_interval * self.samples[0],
+                    timestep - interval * self.samples[0],
                     timestep,
-                    interval=self.sample_interval,
+                    interval=interval,
                     transforms=transforms,
                     chunks=self.retrieval_kwargs.pop("chunks", "auto"),
                     verbose=self.retrieval_kwargs.pop("verbose", False),
                     **self.retrieval_kwargs,
                 )
+
+                if isinstance(self.sample_interval, tuple):
+                    interval = self.sample_interval[1]
+
                 data_next = index.safe_series(
                     timestep,  # + self.sample_interval,
-                    timestep + self.sample_interval * self.samples[1],
-                    interval=self.sample_interval,
+                    timestep + interval * self.samples[1],
+                    interval=interval,
                     transforms=transforms,
                     chunks=self.retrieval_kwargs.pop("chunks", "auto"),
                     verbose=self.retrieval_kwargs.pop("verbose", False),

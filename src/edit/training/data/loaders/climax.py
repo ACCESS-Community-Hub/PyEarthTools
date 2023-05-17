@@ -29,6 +29,7 @@ class ClimaXDataLoader(DataOperation, IterableDataset):
             raise RuntimeError(f"Not using a known TemporalIterator")
 
         # if isinstance(data, tuple)
+        return torch.Tensor(tuple(range(size)))
         if size == 1:
             return torch.Tensor([1])
         return torch.Tensor(np.linspace(0,1,size))

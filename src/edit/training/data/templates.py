@@ -341,6 +341,47 @@ class DataOperation(DataStep):
         else:
             return self.apply(idx)
 
+class TrainingDataIndex(DataIndex, DataStep):
+    """
+    [edit.data.DataIndex][edit.data.DataIndex] as a Pipeline step
+    """
+
+    def __init__(
+        self,
+        index: list[TrainingDataIndex] | TrainingDataIndex | DataIndex,
+        *,
+        allow_multiple_index: bool = False,
+        **kwargs,
+    ) -> None:
+        """Combine an DataIndex as a DataStep in a pipeline
+
+        Args:
+            index (list[TrainingDataIndex] | TrainingDataIndex | DataIndex): 
+                Underlying DataIndex to use to get data
+            allow_multiple_index (bool, optional): 
+                Allow multiple indexes to be set. Defaults to False.
+        """    
+        if isinstance(index, dict):
+            index = get_pipeline(index)
+        if not allow_multiple_index and isinstance(index, (list, tuple)):
+            index = index[0]
+        self.index = index
+
+        super().__init__(**kwargs)
+
+    def __getattr__(self, key):
+        if key == "index":
+            raise AttributeError(f"{self.__class__} has no attribute {key}")
+        index = self.index
+        if isinstance(self.index, (list, tuple)):
+            index = self.index[0]
+        return getattr(index, key)
+
+    def undo(self, data, *args, **kwargs):
+        if hasattr(self.index, "undo"):
+            return self.index.undo(data, *args, **kwargs)
+        return data
+
 class TrainingOperatorIndex(OperatorIndex, DataStep):
     """
     [edit.data.OperatorIndex][edit.data.OperatorIndex] as a Pipeline step

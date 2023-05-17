@@ -110,6 +110,7 @@ class EDITLightningTrainer(EDITTrainer):
         )
         callbacks = kwargs.pop("callbacks", [])
         callbacks.append(checkpoint_callback)
+        callbacks.append(pl.callbacks.early_stopping.EarlyStopping(monitor="valid/loss", min_delta=0.00, patience=4, verbose=False, mode="min"))
 
         self.log_path = Path(path)
         self.logger = None

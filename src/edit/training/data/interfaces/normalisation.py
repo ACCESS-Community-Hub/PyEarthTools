@@ -38,9 +38,11 @@ class NormaliseInterface(DataInterface):
         start: str | EDITDatetime,
         end: str | EDITDatetime,
         interval: int | tuple[int, str],
+        *,
         method: str | dict = None,
         default: str = None,
         cache_dir: str = None,
+        retrieval_kwargs: dict = {},
         **kwargs,
     ) -> None:
         """A DataInterface to Normalise a given DataIndex as data is retrieved
@@ -61,13 +63,15 @@ class NormaliseInterface(DataInterface):
                 Default method if variable not found in dict method. Defaults to None.
             cache_dir (str, optional):
                 Caching location for the normalisation values. Defaults to None.
+            retrieval_kwargs (dict, optional):
+                Keyword arguments to provide to [edit.data.transform.normalisation][edit.data.transform.normalisation]
         """
         super().__init__(
             index, apply_func=self.normalise, undo_func=self.unnormalise, **kwargs
         )
 
         self.normalisation_params = dict(
-            start=start, end=end, interval=interval, cache_dir=cache_dir
+            start=start, end=end, interval=interval, cache_dir=cache_dir, **retrieval_kwargs
         )
         self.method = method
         self.default = default
