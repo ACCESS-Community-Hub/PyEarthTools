@@ -131,8 +131,9 @@ def from_yaml(yaml_file: str, **kwargs) -> EDITLightningTrainer:
 
     if 'path' in config['trainer']:
         auto_string = "%auto.*%"
-        auto_match = re.search(r'%auto.*%', config['trainer']['path'])[0]
+        auto_match = re.search(r'%auto.*%', config['trainer']['path'])            
         if auto_match:
+            auto_match = auto_match[0]
             auto_parts: list[str] = auto_match.replace('%','').split('_')
             parts = Path(yaml_file).with_suffix('').parts
 
@@ -144,7 +145,7 @@ def from_yaml(yaml_file: str, **kwargs) -> EDITLightningTrainer:
                 if auto_parts[-1].isdigit():
                     parts = parts[int(auto_parts[-1]) * (-1 if neg else 1):]
                 elif auto_parts[-1] in parts:
-                    parts = parts[parts.index(auto_parts[-1]):]
+                    parts = parts[parts.index(auto_parts[-1])+1:]
                 else:
                     raise KeyError(f"Cannot parse {auto_match}")
             
