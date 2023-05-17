@@ -125,11 +125,14 @@ def from_yaml(yaml_file: str, **kwargs) -> EDITLightningTrainer:
     config["trainer"].update(**kwargs)
 
     if "root_dir" in config["trainer"]:
-        if "%auto%" in config["trainer"]['root_dir']:
-            config["trainer"]['root_dir'] = str(Path(config["trainer"]['root_dir'].replace("%auto%","")) / '/'.join(Path(yaml_file).with_suffix('').parts[1:]))
+        config['trainer']['path'] = config["trainer"].pop('root_dir')
+        
+    if "path" in config["trainer"]:
+        if "%auto%" in config["trainer"]['path']:
+            config["trainer"]['path'] = Path(config["trainer"]['path'].replace("%auto%","")) / '/'.join(Path(yaml_file).with_suffix('').parts[1:])
 
-        Path(config["trainer"]["root_dir"]).mkdir(exist_ok=True, parents=True)
-        with open(Path(config["trainer"]["root_dir"]) / "config.yaml", "w") as file:
+        Path(config["trainer"]["path"]).mkdir(exist_ok=True, parents=True)
+        with open(Path(config["trainer"]["path"]) / "config.yaml", "w") as file:
             yaml.dump(config, file)
 
     train_data = data_iterator()
@@ -175,6 +178,6 @@ def from_yaml(yaml_file: str, **kwargs) -> EDITLightningTrainer:
         model=model,
         train_data=train_data,
         valid_data=valid_data,
-        path=config["trainer"].pop("root_dir", None),
+        path=config["trainer"].pop("path", None),
         **config["trainer"]
     )
