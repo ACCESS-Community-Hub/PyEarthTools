@@ -74,6 +74,7 @@ from pathlib import Path
 import importlib
 
 import yaml
+import re
 
 # import torch
 
@@ -127,11 +128,29 @@ def from_yaml(yaml_file: str, **kwargs) -> EDITLightningTrainer:
     if "root_dir" in config["trainer"]:
         config['trainer']['path'] = config["trainer"].pop('root_dir')
         
-    if "path" in config["trainer"]:
-        if "%auto%" in config["trainer"]['path']:
-            config["trainer"]['path'] = Path(config["trainer"]['path'].replace("%auto%","")) / '/'.join(Path(yaml_file).with_suffix('').parts[1:])
 
-        Path(config["trainer"]["path"]).mkdir(exist_ok=True, parents=True)
+    if 'path' in config['trainer']:
+        auto_string = "%auto.*%"
+        auto_match = re.search(r'%auto.*%', config['trainer']['path'])[0]
+        if auto_match:
+            auto_parts: list[str] = auto_match.replace('%','').split('_')
+            parts = Path(yaml_file).with_suffix('').parts
+
+            if len(auto_parts) == 2:
+                neg = False
+                if '-' in auto_parts[-1]:
+                    auto_parts[-1] = auto_parts[-1].replace('-','')
+                    neg = True
+                if auto_parts[-1].isdigit():
+                    parts = parts[int(auto_parts[-1]) * (-1 if neg else 1):]
+                elif auto_parts[-1] in parts:
+                    parts = parts[parts.index(auto_parts[-1]):]
+                else:
+                    raise KeyError(f"Cannot parse {auto_match}")
+            
+            config["trainer"]['path'] = Path(config["trainer"]['path'].replace(auto_match,"")) / '/'.join(parts)
+            Path(config["trainer"]["path"]).mkdir(exist_ok=True, parents=True)
+
         with open(Path(config["trainer"]["path"]) / "config.yaml", "w") as file:
             yaml.dump(config, file)
 
