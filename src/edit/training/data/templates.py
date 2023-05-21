@@ -9,9 +9,13 @@ from datetime import datetime
 import numpy as np
 import xarray as xr
 
-from edit.data import DataIndex, OperatorIndex
+from edit.data import RootIndex, DataIndex, OperatorIndex
 from edit.data.time import EDITDatetime, time_delta, time_delta_resolution
+
+import edit.training
 from edit.training.data.utils import get_pipeline, get_callable
+
+
 
 HTML_REPR_ENABLED = False
 try:
@@ -27,11 +31,19 @@ class DataStep:
     Base Data Pipeline Object
     """
 
+    # def __new__(cls, *args, **kwargs) -> 'Self':
+    #     from edit.training.data.sequential import SequentialIterator
+    #     print(args)
+    #     return SequentialIterator(cls.__init__)(cls, *args, **kwargs)
+
     def __init__(
         self,
         index: "DataStep",
     ):
         self.index = index
+        if HTML_REPR_ENABLED:
+            self._repr_html_ = self._repr_html__
+            
 
     @abstractmethod
     def __getitem__(self, idx):
@@ -65,7 +77,7 @@ class DataStep:
             return self
 
         try:
-            if isinstance(self.index, DataStep):
+            if isinstance(self.index, (DataInterface, DataStep)):
                 return self.index.step(key)
         except KeyError:
             pass
@@ -127,16 +139,24 @@ class DataStep:
 
             @property
             def _info_(self):
+                info_dict = {}
                 if isinstance(self.object, (list, tuple)):
-                    return {f"{obj.__class__.__name__}{i}": obj.__doc__ for i, obj in enumerate(self.object)}
+                    for i, obj in enumerate(self.object):
+                        if hasattr(obj, 'variables'):
+                            info_dict.update({f"{obj.__class__.__name__}{i}": obj.variables})
+                            continue
+                        else:
+                            info_dict.update({f"{obj.__class__.__name__}{i}": obj.__doc__})
+                
+                return info_dict
 
         if not isinstance(self.step(0).index, DataStep):
             pipeline_steps = [formatting_wrapper(self.step(0).index), *pipeline_steps]
         return pipeline_steps
 
-    def _repr_html_(self) -> str:
+    def _repr_html__(self) -> str:
         if not HTML_REPR_ENABLED:
-            raise AttributeError(f"{self!r} has no attribute '_repr_html_'")
+            raise KeyError(f"{self!r} has no attribute '_repr_html_'")
         pipeline_steps = self._get_steps_for_repr_()
 
         return edit.utils.repr.provide_html(*pipeline_steps, name = 'Data Pipeline', documentation_attr = '_formatted_doc_', info_attr = '_info_', backup_repr = self.__repr__())
@@ -154,12 +174,17 @@ class DataStep:
             string += formatted #+ '\n'
 
         return string
+    
 
+    def plot(self, idx = None, **kwargs):
+        return edit.training.data.sanity.plot(self, idx, **kwargs)
+
+    def summary(self, idx = None, **kwargs):
+        return edit.training.data.sanity.summary(self, idx, **kwargs)
 
     @property
     def ignore_sanity(self):
         return False
-
 
 class DataOperation(DataStep):
     """
@@ -244,8 +269,13 @@ class DataOperation(DataStep):
 
 
     def check_types(self, data: Any) -> bool:
-        if self.recognised_types is not None and not isinstance(data, self.recognised_types):
+        if self.recognised_types is None:
+            return True
+        if not isinstance(data, self.recognised_types):
             raise TypeError(f"{self.__class__.__name__} cannot handle '{type(data)}'. Recognised types are: {self.recognised_types}")
+        if isinstance(data, (tuple, list)):
+            if not isinstance(data[0], self.recognised_types):
+                raise TypeError(f"{self.__class__.__name__} cannot handle an iterable containing '{type(data[0])}'. Recognised types are: {self.recognised_types}")
         return True
         
     def apply_func(self, data: xr.Dataset | xr.DataArray | np.ndarray | tuple) -> xr.Dataset | xr.DataArray | np.ndarray | tuple:
@@ -263,8 +293,11 @@ class DataOperation(DataStep):
         """        
         self.check_types(data)
 
-        if isinstance(data, (list, tuple)) and self.split_tuples:
-            return tuple(map(self.apply_func, data))
+        try:
+            if isinstance(data, (list, tuple)) and self.split_tuples:
+                return tuple(map(self.apply_func, data))
+        except NotImplementedError:
+            pass
         if self._apply_func:
             return self._apply_func(data)
         return data
@@ -283,9 +316,12 @@ class DataOperation(DataStep):
                 Data with `undo_func` function applied to it
         """            
         self.check_types(data)
+        try:
+            if isinstance(data, (list, tuple)) and self.split_tuples:
+                return tuple(map(self.undo_func, data))
+        except NotImplementedError:
+            pass
 
-        if isinstance(data, (list, tuple)) and self.split_tuples:
-            return tuple(map(self.undo_func, data))
         if self._undo_func:
             return self._undo_func(data)
         return data
@@ -341,10 +377,14 @@ class DataOperation(DataStep):
         else:
             return self.apply(idx)
 
-class TrainingDataIndex(DataIndex, DataStep):
+class TrainingDataIndex(RootIndex, DataStep):
     """
-    [edit.data.DataIndex][edit.data.DataIndex] as a Pipeline step
+    [edit.data.RootIndex][edit.data.RootIndex] as a Pipeline step
     """
+    # def __new__(cls, *args, **kwargs) -> 'Self':
+    #     from edit.training.data.sequential import SequentialIterator
+    #     print('cls', type(cls))
+    #     return SequentialIterator(cls.__init__)(cls, *args, **kwargs)
 
     def __init__(
         self,
@@ -365,9 +405,14 @@ class TrainingDataIndex(DataIndex, DataStep):
             index = get_pipeline(index)
         if not allow_multiple_index and isinstance(index, (list, tuple)):
             index = index[0]
+        elif allow_multiple_index and not isinstance(index, (tuple, list)):
+            index = (index,)
         self.index = index
 
         super().__init__(**kwargs)
+        if HTML_REPR_ENABLED:
+            self._repr_html_ = self._repr_html__
+
 
     def __getattr__(self, key):
         if key == "index":
@@ -406,11 +451,15 @@ class TrainingOperatorIndex(OperatorIndex, DataStep):
             index = get_pipeline(index)
         if not allow_multiple_index and isinstance(index, (list, tuple)):
             index = index[0]
+        elif allow_multiple_index and not isinstance(index, (tuple, list)):
+            index = (index,)
         self.index = index
 
         if "data_resolution" not in kwargs and not allow_multiple_index:
             kwargs["data_resolution"] = index.data_interval
         super().__init__(**kwargs)
+        if HTML_REPR_ENABLED:
+            self._repr_html_ = self._repr_html__
 
     def __getattr__(self, key):
         if key == "index":
@@ -424,7 +473,6 @@ class TrainingOperatorIndex(OperatorIndex, DataStep):
         if hasattr(self.index, "undo"):
             return self.index.undo(data, *args, **kwargs)
         return data
-
 
 class DataInterface(DataOperation, OperatorIndex):
     """
@@ -445,7 +493,6 @@ class DataInterface(DataOperation, OperatorIndex):
 
     def get(self, querytime: str | EDITDatetime):
         return self.index[querytime]
-
 
 class DataIterator(DataStep):
     """
@@ -504,7 +551,7 @@ class DataIterator(DataStep):
 
         self._interval = time_delta(interval)
 
-        self._start: EDITDatetime = EDITDatetime(start).at_resolution('minute')
+        self._start: EDITDatetime = EDITDatetime(start).at_resolution(time_delta_resolution(interval))
         self._end: EDITDatetime = EDITDatetime(end)#.at_resolution(self._interval)
 
         self._iterator_ready = True

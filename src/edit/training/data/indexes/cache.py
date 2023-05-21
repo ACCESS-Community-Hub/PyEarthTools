@@ -65,14 +65,12 @@ class CachingIndex(TrainingOperatorIndex, dataCachingIndex):
             pattern_kwargs=pattern_kwargs,
             **kwargs,
         )
+        self.__doc__ = "Caching Index"
+        self._info_ = dict(cache_location = cache)
 
     @functools.wraps(dataCachingIndex.generate)
     def generate(self, querytime, **kwargs):
         return self.index(querytime, **kwargs)
-
-    @property
-    def __doc__(self):
-        return f"Caching Index for {self.index.__class__.__name__!r}. Saving at {self.cache}"
 
     @property
     def ignore_sanity(self):

@@ -97,23 +97,24 @@ def flip_dict(dict):
             return_dict[i] = k
     return return_dict
 
-def from_yaml(yaml_file: str, **kwargs) -> EDITLightningTrainer:
-    """Load and create trainer from Yaml Config
+def from_yaml(config: str | dict, **kwargs) -> EDITLightningTrainer:
+    """Load and create trainer from dictionary config or yaml file
 
     !!! Warning
         See above for information regarding keys 
 
     Args:
-        yaml_file (str): 
-            Path to yaml config
+        config (str): 
+            Path to yaml config or dictionary
         **kwargs (dict, optional):
             All passed into trainer config
     Returns:
         (EDITTrainerWrapper): 
             Loaded Trainer
     """    
-    with open(yaml_file, "r") as file:
-        config = dict(yaml.safe_load(file))
+    if not isinstance(config, dict):
+        with open(config, "r") as file:
+            config = dict(yaml.safe_load(file))
 
     if not "order" in config["data"]["Source"]:
         config["data"]["Source"].update(order=list(config["data"]["Source"].keys()))
@@ -135,7 +136,7 @@ def from_yaml(yaml_file: str, **kwargs) -> EDITLightningTrainer:
         if auto_match:
             auto_match = auto_match[0]
             auto_parts: list[str] = auto_match.replace('%','').split('_')
-            parts = Path(yaml_file).with_suffix('').parts
+            parts = Path(config).with_suffix('').parts
 
             if len(auto_parts) == 2:
                 neg = False
@@ -150,7 +151,8 @@ def from_yaml(yaml_file: str, **kwargs) -> EDITLightningTrainer:
                     raise KeyError(f"Cannot parse {auto_match}")
             
             config["trainer"]['path'] = Path(config["trainer"]['path'].replace(auto_match,"")) / '/'.join(parts)
-            Path(config["trainer"]["path"]).mkdir(exist_ok=True, parents=True)
+        
+        Path(config["trainer"]["path"]).mkdir(exist_ok=True, parents=True)
 
         with open(Path(config["trainer"]["path"]) / "config.yaml", "w") as file:
             yaml.dump(config, file)

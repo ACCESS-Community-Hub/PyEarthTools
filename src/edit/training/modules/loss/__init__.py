@@ -1,5 +1,4 @@
 
-import torch.nn as nn
 import importlib
 
 from .extremes import ExtremeLoss
@@ -47,6 +46,8 @@ def get_loss(loss_function: str, **loss_kwargs):
     -------
         Initialised loss function
     """
+    import torch.nn as nn
+
     if hasattr(nn, loss_function):
         return getattr(nn, loss_function)(**loss_kwargs)
     elif hasattr(modules.loss, loss_function):

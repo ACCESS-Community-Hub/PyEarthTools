@@ -2,6 +2,7 @@ from __future__ import annotations
 from abc import abstractmethod
 
 from pathlib import Path
+from typing import Any
 import numpy as np
 import xarray as xr
 
@@ -38,6 +39,9 @@ class EDITTrainer:
 
         if undo:
             data = self.train_data.undo(data)
+
+        if isinstance(data, (tuple, list)):
+            data = Collection(*data)
         return data
 
     @abstractmethod
@@ -45,7 +49,10 @@ class EDITTrainer:
         raise NotImplementedError()
 
     @abstractmethod
-    def _predict_from_data(self, data, **kwargs):
+    def _predict_from_data(self, data: Any, **kwargs):
+        """
+        Must be implemented by a child class to actually predict
+        """
         raise NotImplementedError()
 
 
@@ -75,7 +82,7 @@ class EDITTrainer:
         Uses [edit.training][edit.training.data] DataStep to get data at given index.
         Can automatically try to rebuild the data.
 
-        Uses [_predict_from_data][edit.training.trainer.template._predict_from_data] to run the predictions.
+        Uses [_predict_from_data][edit.training.trainer.template.EDITTrainer._predict_from_data] to run the predictions.
 
         !!! Warning
             If number of patches is not divisible by the `batch_size`, issues may arise.
@@ -144,13 +151,14 @@ class EDITTrainer:
         load_kwargs: dict = {},
         truth_step: int = 0,
         fake_batch_dim: bool = False,
+        trim_time_dim: int = None,
         **kwargs,
     ) -> tuple[np.array] | tuple[xr.Dataset]:
         """Time wise recurrent prediction
 
         Uses [edit.training][edit.training.data] DataStep to get data at given index.
 
-        Uses [_predict_from_data][edit.training.trainer.template._predict_from_data] to run the predictions.
+        Uses [_predict_from_data][edit.training.trainer.template.EDITTrainer._predict_from_data] to run the predictions.
 
         !!! Warning
             If number of patches is not divisible by the `batch_size`, issues may arise.
@@ -171,6 +179,8 @@ class EDITTrainer:
                 Data Pipeline step to use to retrieve Truth data. Defaults to 0
             fake_batch_dim (bool, optional):
                 If the batch dimension needs to be faked. Defaults to False.
+            trim_time_dim (int, optional):
+                Number of sample in time to use of prediction. Defaults to None.
         Returns:
             (tuple[np.array] | tuple[xr.Dataset]):
                 Either xarray datasets or np arrays, [truth data, predicted data]
@@ -224,14 +234,25 @@ class EDITTrainer:
                 )
 
             # Record Prediction
-            predictions.append(fixed_predictions)
+            if trim_time_dim:
+                predictions.append(fixed_predictions.isel(
+                    time=slice(None, trim_time_dim)
+                ))
+            else:
+                predictions.append(fixed_predictions)
 
             # Setup recurrent input data
             data = list(data)
             input_data = input_data or data_source.undo(data)[0]
-            new_input = xr.merge((input_data, fixed_predictions)).isel(
-                time=slice(-1 * len(input_data.time), None)
-            )
+            new_input = xr.merge((input_data, fixed_predictions))
+            if trim_time_dim:
+                new_input = new_input.isel(
+                    time=slice(trim_time_dim, len(input_data.time) + trim_time_dim)
+                )
+            else:
+                new_input = new_input.isel(
+                    time=slice(-1 * len(input_data.time), None)
+                )
             index = new_input.time.values[-1]
 
             new_input_data = data_source.apply(new_input)

@@ -41,7 +41,7 @@ def SequentialIterator(func: Callable) -> Callable:
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        if (args):  
+        if args and len(args) > 0 and not isinstance(args[0], type):  
         # and isinstance(args[0], (DataIterator, DataInterface, DataStep, DataIndex, OperatorIndex)):
             return func(*args, **kwargs)
 
@@ -61,6 +61,9 @@ def SequentialIterator(func: Callable) -> Callable:
 
             def __call__(self, iterator: DataIterator):
                 try:
+                    if len(self.args) > 0 and isinstance(self.args[0], type):
+                        return self.func(self.args[0], iterator, *self.args[1:], **self.kwargs)
+
                     return self.func(iterator, *self.args, **self.kwargs)
                 except Exception as e:
                     raise type(e)(
@@ -97,7 +100,7 @@ def Sequential(*args: list[DataStep]) -> DataStep:
     Returns:
         (DataStep): 
             Fully initialised DataStep's aka a Data Pipeline
-    """        
+    """    
     iterator = args[0]
     for i in range(1, len(args)):
         iterator = args[i](iterator)

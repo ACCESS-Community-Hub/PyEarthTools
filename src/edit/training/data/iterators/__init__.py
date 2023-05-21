@@ -8,7 +8,6 @@ All implement [DataIterator][edit.training.data.DataIterator], so will provide d
 | [Iterator][edit.training.data.iterators.iterator]            | Basic Iterator  |
 | [Iterator][edit.training.data.iterators.random]            | Iterator which Randomly Samples dates  |
 | [CombineDataIterator][edit.training.data.iterators.combine]    | Combine Multiple DataIterators together and alternate between samples |
-| [TemporalIterator][edit.training.data.iterators.temporal]    | Add Time Dimension to data, with choice on prior/post samples and interval. Must retrieve xarray objects |
 | [FakeData][edit.training.data.iterators.fakedata]            | Fake Data loading process to eliminate data loading times |
 """
 

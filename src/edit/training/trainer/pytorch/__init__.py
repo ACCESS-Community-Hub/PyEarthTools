@@ -1,1 +1,1 @@
-from edit.training.trainer.pytorch.trainer import EDITDataModule, EDITLightningTrainer
+from edit.training.trainer.pytorch.trainer import EDITLightningTrainer

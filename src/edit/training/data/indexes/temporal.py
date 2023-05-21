@@ -14,7 +14,6 @@ from edit.training.data.templates import DataIterator, DataStep, DataInterface, 
 from edit.training.data.sequential import Sequential, SequentialIterator
 from edit.training.data.utils import get_transforms
 
-
 @SequentialIterator
 class TemporalIndex(TrainingDataIndex):
     """
@@ -36,7 +35,7 @@ class TemporalIndex(TrainingDataIndex):
     def __init__(
         self,
         index: DataStep,
-        transforms: list[TransformCollection] | TransformCollection | str | dict = None,
+        transforms: list[TransformCollection] | TransformCollection | str | dict = TransformCollection(),
         samples: tuple[int] | int = 1,
         sample_interval: int | tuple = [60, 'min'],
         **kwargs,

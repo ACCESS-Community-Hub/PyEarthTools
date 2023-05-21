@@ -14,18 +14,18 @@ from edit.training.data.sequential import Sequential, SequentialIterator
 
 
 @SequentialIterator
-class FillNa(DataOperation):
+class FillNan(DataOperation):
     """
     DataOperation to Fill any Nan's with a value
 
     !!! Example
         ```python
-        FillNa(PipelineStep, nan = 0)
+        FillNan(PipelineStep, nan = 0)
 
         ## As this is decorated with @SequentialIterator, it can be partially initialised
 
-        partialFillNa = FillNa(nan = 0)
-        partialFillNa(PipelineStep)
+        partialFillNan = FillNan(nan = 0)
+        partialFillNan(PipelineStep)
         ```
     """
 
@@ -74,6 +74,7 @@ class FillNa(DataOperation):
             data = data.fillna(self.nan)
         return np.nan_to_num(data, self.nan, posinf=self.posinf, neginf=self.neginf)
 
+FillNa = FillNan
 
 @SequentialIterator
 class MaskValue(DataOperation):

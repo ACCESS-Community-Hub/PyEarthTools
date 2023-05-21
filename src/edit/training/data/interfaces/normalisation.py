@@ -76,6 +76,8 @@ class NormaliseInterface(DataInterface):
         self.method = method
         self.default = default
 
+        self._info_ =  dict(method = self.method, default = self.default, start=start, end=end, interval=interval)
+
     def get(self, querytime: str | EDITDatetime) -> xr.Dataset:
         """Get normalise data at a given time
 
@@ -144,6 +146,3 @@ class NormaliseInterface(DataInterface):
     def __doc__(self):
         return f"Normalise Data.\nMethod: {self.method} and default: {self.default}"
 
-    @property
-    def _info_(self):
-        return dict(method = self.method, default = self.default)

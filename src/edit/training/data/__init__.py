@@ -113,4 +113,4 @@ from edit.training.data.templates import (
 from edit.training.data.sequential import SequentialIterator, Sequential, from_dict
 from edit.training.data import interfaces, iterators, operations, indexes
 from edit.training.data import sanity, warnings
-
+from edit.training.data.user import DataFunctionOperation
