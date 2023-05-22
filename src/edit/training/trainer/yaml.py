@@ -112,7 +112,9 @@ def from_yaml(config: str | dict, **kwargs) -> EDITLightningTrainer:
         (EDITTrainerWrapper): 
             Loaded Trainer
     """    
+    yaml_file = None
     if not isinstance(config, dict):
+        yaml_file = config
         with open(config, "r") as file:
             config = dict(yaml.safe_load(file))
 
@@ -131,12 +133,13 @@ def from_yaml(config: str | dict, **kwargs) -> EDITLightningTrainer:
         
 
     if 'path' in config['trainer']:
-        auto_string = "%auto.*%"
         auto_match = re.search(r'%auto.*%', config['trainer']['path'])            
         if auto_match:
             auto_match = auto_match[0]
             auto_parts: list[str] = auto_match.replace('%','').split('_')
-            parts = Path(config).with_suffix('').parts
+            if not yaml_file:
+                raise ValueError(f"Cannot fill %auto% if config file path not given.")
+            parts = Path(yaml_file).with_suffix('').parts
 
             if len(auto_parts) == 2:
                 neg = False
