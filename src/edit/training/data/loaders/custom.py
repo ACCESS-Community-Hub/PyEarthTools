@@ -36,7 +36,7 @@ class CustomLoader(DataStep):
 
         Raises:
             TypeError: 
-                If batch_size is not an int
+                If `batch_size` is not an int
         """
         super().__init__(index)
 

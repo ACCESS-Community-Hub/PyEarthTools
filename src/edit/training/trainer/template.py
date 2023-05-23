@@ -6,6 +6,7 @@ from typing import Any
 import numpy as np
 import xarray as xr
 
+import tqdm
 
 from edit.training.data.templates import DataStep
 from edit.data import Collection
@@ -152,6 +153,7 @@ class EDITTrainer:
         truth_step: int = 0,
         fake_batch_dim: bool = False,
         trim_time_dim: int = None,
+        verbose: bool = False,
         **kwargs,
     ) -> tuple[np.array] | tuple[xr.Dataset]:
         """Time wise recurrent prediction
@@ -201,7 +203,7 @@ class EDITTrainer:
         index = start_index
 
         # Begin Recurrence
-        for i in range(recurrence):
+        for i in tqdm.trange(recurrence, disable = not verbose, desc = 'Predicting Recurrently'):
             if fake_batch_dim: # Fake the Batch Dimension, for use with ToNumpy
                 data = EDITTrainer._expand_dims(data)
 
@@ -243,19 +245,23 @@ class EDITTrainer:
 
             # Setup recurrent input data
             data = list(data)
-            input_data = input_data or data_source.undo(data)[0]
-            new_input = xr.merge((input_data, fixed_predictions))
-            if trim_time_dim:
-                new_input = new_input.isel(
-                    time=slice(trim_time_dim, len(input_data.time) + trim_time_dim)
-                )
-            else:
-                new_input = new_input.isel(
-                    time=slice(-1 * len(input_data.time), None)
-                )
-            index = new_input.time.values[-1]
 
-            new_input_data = data_source.apply(new_input)
+            def add_predictions(input_data, prediction_data):
+                new_input = xr.merge((input_data, prediction_data))
+                if trim_time_dim:
+                    new_input = new_input.isel(
+                        time=slice(trim_time_dim, len(input_data.time) + trim_time_dim)
+                    )
+                else:
+                    new_input = new_input.isel(
+                        time=slice(-1 * len(input_data.time), None)
+                    )
+            # index = new_input.time.values[-1]
+            new_input_data = add_predictions(input_data or data_source.undo(data)[0], fixed_predictions)
+
+            new_input_data = data_source.apply((new_input_data, fixed_predictions))
+            return new_input_data
+
             if isinstance(new_input_data, (list, tuple)):
                 new_input_data = new_input_data[0]
             data[0] = new_input_data

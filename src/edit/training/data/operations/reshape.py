@@ -235,8 +235,8 @@ class Flattener:
         return tuple(shape_attempt)
 
     def apply(self, data : np.ndarray) -> np.ndarray:
-        if self._unflattenshape is None:
-            self._unflattenshape = data.shape
+        #if self._unflattenshape is None:
+        self._unflattenshape = data.shape
         if self._fillshape is None:
             self._fillshape = data.shape
 
@@ -251,13 +251,17 @@ class Flattener:
             raise RuntimeError(f"Shape not set, therefore cannot undo")
         
         def _unflatten(data, shape):
+            while len(data.shape) > len(shape):
+                shape = (data[-len(shape)], *shape)
             return data.reshape(shape)
         
-        attempts = [(*data.shape[: -1 * min(1,(self.flatten_dims-1))], *self._unflattenshape), ]
+        data_shape = data.shape
+        parsed_shape = data_shape[: -1 * min(1,(self.flatten_dims-1))] if len(data_shape) > 1 else data_shape
+        attempts = [(*parsed_shape, *self._unflattenshape), ]
 
         if self.shape_attempt:
             shape_attempt = self._configure_shape_attempt()
-            attempts.append((*data.shape[: -1 * min(1,(self.flatten_dims-1))], *shape_attempt[-1 * self.flatten_dims:]))
+            attempts.append((*parsed_shape, *shape_attempt[-1 * self.flatten_dims:]))
 
         for attemp in attempts:
             try:

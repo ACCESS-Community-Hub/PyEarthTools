@@ -18,6 +18,7 @@ from edit.training.data.operations import reshape, values, filters, sampler, sor
 from edit.training.data.operations.patch import PatchingDataIndex
 from edit.training.data.operations.to_numpy import ToNumpy
 from edit.training.data.operations.transforms import TransformOperation
+from edit.training.data.operations.select import Select
 
 from edit.training.data.operations.filters import DataFilter
 from edit.training.data.operations.sampler import DataSampler

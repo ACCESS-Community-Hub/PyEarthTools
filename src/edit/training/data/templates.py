@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 import logging
+import warnings
 from typing import Any, Callable, Union
 
 from datetime import datetime
@@ -505,6 +506,7 @@ class DataIterator(DataStep):
         self,
         index: DataStep,
         catch: tuple[Exception] | tuple[str] | Exception | str = None,
+        warnings: tuple[warning] | tuple[str] | warning | str = None,
     ) -> None:
         """Iterate over Data between date ranges
 
@@ -515,16 +517,21 @@ class DataIterator(DataStep):
                 Errors to catch, either defined or names of. Defaults to None.
         """    
         super().__init__(index)
-
-        if catch:
-            catch = [catch] if not isinstance(catch, (tuple, list)) else catch
-
-            for i, err in enumerate(catch):
-                if isinstance(err, str):
-                    catch[i] = get_callable(err)
-        else:
-            catch = []
+        
+        def get_callables(callables):
+            callables = [callables] if not isinstance(catch, (tuple, list)) else list(catch)
+            
+            for i, call in enumerate(callables):
+                if isinstance(call, str):
+                    callables[i] = get_callable(call)
+            return callables
+        
+        catch = get_callables(catch) if catch else []
+        warnings = get_callables(warnings) if warnings else []
+        
         self._error_to_catch: tuple[Exception] = tuple(catch)
+        self._warnings_to_catch = tuple(warnings)
+        
         self._info_ = dict(NotConfigured = True)
         self._iterator_ready = False
 
@@ -570,7 +577,8 @@ class DataIterator(DataStep):
             )
 
         steps = (self._end - self._start) // self._interval
-
+        tuple(warnings.filterwarnings(action = 'once', category = warn) for warn in self._warnings_to_catch)
+        
         for step in range(int(steps)):
             try:
                 current_time = self._start + (self._interval * step)
