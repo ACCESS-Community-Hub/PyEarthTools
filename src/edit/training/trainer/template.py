@@ -256,11 +256,11 @@ class EDITTrainer:
                     new_input = new_input.isel(
                         time=slice(-1 * len(input_data.time), None)
                     )
+                return new_input
             # index = new_input.time.values[-1]
             new_input_data = add_predictions(input_data or data_source.undo(data)[0], fixed_predictions)
 
             new_input_data = data_source.apply((new_input_data, fixed_predictions))
-            return new_input_data
 
             if isinstance(new_input_data, (list, tuple)):
                 new_input_data = new_input_data[0]

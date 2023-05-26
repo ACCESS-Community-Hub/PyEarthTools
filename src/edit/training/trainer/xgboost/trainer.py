@@ -33,9 +33,7 @@ class EDITXGBoostTrainer(EDITTrainer):
         # Initialise Model
         self.model = model
 
-        self.path = Path(path) ## ?? path to results dir for model version
-
-        print('Experiement path:', self.path)
+        self.path = Path(path)
 
 
     def fit(self, num_batches: int=2, load: bool = False, verbose: bool = True):
@@ -90,21 +88,21 @@ class EDITXGBoostTrainer(EDITTrainer):
         self.model.save_model(path / "model.json")
 
     
-    def eval(self, config_path: str, max_samples: int=None):
+    def eval(self, max_samples: int=None):
         # Evaluate Model
 
         # Feature importance
-        logging.info('Getting feature importances...')
-        feature_names = self.get_feature_names(config_path)
+        print('Getting feature importances...')
+        feature_names = self.get_feature_names()
         self._feature_importance(feature_names)
         
         # Tree
-        logging.info('Getting tree...')
+        print('Getting tree...')
         self._view_tree()
 
         # Case study time plots
-        logging.info('Plotting case study time...')
-        self._plot_case(config_path)
+        print('Plotting case study time...')
+        self._plot_case()
 
         # Stats
 
@@ -113,7 +111,7 @@ class EDITXGBoostTrainer(EDITTrainer):
                          )
 
         for key, data_pipe in data_sets.items():
-            logging.info(f'Getting {key} statistics...')
+            print(f'Getting {key} statistics...')
             for data in data_pipe:
                 # Only first batch
                 break
@@ -152,13 +150,11 @@ class EDITXGBoostTrainer(EDITTrainer):
         # TODO view metrics instead of print.
 
     
-    def _plot_case(self, config_path, test_time: str = '20220303T0000', vmax: int=255):
+    def _plot_case(self, test_time: str = '20220303T0000', vmax: int=255):
         # Get preds for time
 
-        trainer = edit.training.trainer.from_yaml(config_path)
-
-        with edit.training.data.context.PatchingUpdate(trainer, stride_size=[1,1]):
-            truth, predictions = trainer.predict(test_time)
+        with edit.training.data.context.PatchingUpdate(self, stride_size=[1,1]):
+            truth, predictions = self.predict(test_time)
 
         # Plot
         fig, axs = plt.subplots(1,3,figsize=(15,4), layout='tight')
@@ -170,12 +166,12 @@ class EDITXGBoostTrainer(EDITTrainer):
         (predictions - truth).cloud_optical_depth.rename('error').plot(ax=axs[2], vmin=-255, vmax=255)
         axs[2].set_title('Error')
         fig.suptitle(test_time)
-        fig.savefig(self.path / "example_view-{test_time}.jpg", dpi=300)
+        fig.savefig(self.path / f"example_view-{test_time}.jpg", dpi=300)
 
         # Scatter
         fig, ax = plt.subplots(1,1)
         ax.scatter(truth.cloud_optical_depth.values.flatten(), predictions.cloud_optical_depth.values.flatten(), s=1)
-        fig.savefig(self.path / "example_scatter-{test_time}.jpg", dpi=300)            
+        fig.savefig(self.path / f"example_scatter-{test_time}.jpg", dpi=300)            
 
 
     
@@ -200,20 +196,20 @@ class EDITXGBoostTrainer(EDITTrainer):
 
         fig, ax = plt.subplots(1,1,figsize=(8,15))
         xgboost.plot_importance(self.model.get_booster(), ax=ax, max_num_features=max_num_features, color='k')
-        fig.savefig(self.path / "f_scores.jpg", dpi=300)
+        fig.savefig(self.path / "f_scores.jpg", dpi=300, bbox_inches='tight')
 
 
-    def get_feature_names(self, config_path):
+    def get_feature_names(self):
 
-        trainer = edit.training.trainer.from_yaml(config_path)
-        trainer.data('2022-02-01 00:00')
-        variable_order = trainer.train_data.patching_config.Variables[0] 
+        self.train_data('2021-03-03 00:00')
+        variable_order = self.train_data.patching_config.Variables[0]
+
+        config_path = Path(str(self.path) + '.yaml')
 
         with open(config_path, 'r') as file:
             config = yaml.safe_load(file)
         
         di_source = config['data']['Source']
-        # variable_order = di_source['operations.sort.xarraySorter']['order']
         tsteps = di_source['iterators.TemporalInterface']['samples'][0]
         n_patches = di_source['operations.PatchingDataIndex']['kernel_size'][0]
 
