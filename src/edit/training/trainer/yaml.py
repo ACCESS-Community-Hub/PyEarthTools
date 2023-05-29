@@ -180,7 +180,6 @@ def from_yaml(config: str | dict, **kwargs) -> EDITLightningTrainer:
             #model = getattr(networks, model_name)
         #else:
             #model = get_callable("edit.training.models.networks." + model_name)
-
     model = model(**config["model"])
 
     trainer_class = EDITLightningTrainer
