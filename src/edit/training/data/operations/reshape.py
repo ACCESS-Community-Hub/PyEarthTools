@@ -32,8 +32,9 @@ class Rearrange(DataOperation):
         self,
         index: DataStep,
         rearrange: str,
-        skip: bool = False,
         *rearrange_args,
+        skip: bool = False,
+        reverse_rearrange: str = None,
         rearrange_kwargs: dict = {},
         **kwargs,
     ) -> None:
@@ -56,6 +57,8 @@ class Rearrange(DataOperation):
                 String entry to einops.rearrange
             skip (bool, optional): 
                 Whether to skip data that cannot be rearranged. Defaults to False.
+            reverse_rearrange (str, optional):
+                Override for reverse operation, if not given flip rearrange. Defaults to None.
             *rearrange_args (Any, optional):
                 Extra arguments to be passed to the einops.rearrange call
             rearrange_kwargs (dict, optional):
@@ -63,6 +66,7 @@ class Rearrange(DataOperation):
         """        
         super().__init__(index, self._apply_rearrange, self._undo_rearrange, split_tuples=True, recognised_types=[np.ndarray], **kwargs)
         self.pattern = rearrange
+        self.reverse_pattern = reverse_rearrange
         self.rearrange_args = rearrange_args
         self.rearrange_kwargs = rearrange_kwargs
 
@@ -87,9 +91,13 @@ class Rearrange(DataOperation):
         return self.__rearrange(data, self.pattern)
 
     def _undo_rearrange(self, data: np.ndarray):
-        pattern = self.pattern.split("->")
-        pattern.reverse()
-        return self.__rearrange(data, "->".join(pattern))
+        if self.reverse_pattern:
+            pattern = self.reverse_pattern
+        else:
+            pattern = self.pattern.split("->")
+            pattern.reverse()
+            pattern = "->".join(pattern)
+        return self.__rearrange(data, pattern)
 
 
 @SequentialIterator

@@ -45,8 +45,8 @@ class RandomIterator(DataIterator):
         self._all_timesteps = []
         self._info_.update(dict(seed = seed))
 
-    def set_iterable(self, start: str | datetime | EDITDatetime, end: str | datetime | EDITDatetime, interval: int | tuple):
-        super().set_iterable(start, end, interval)
+    def set_iterable(self, *args, **kwargs):
+        super().set_iterable(*args,  **kwargs)
         self._all_timesteps = [self._start + self._interval * i for i in range(int((self._end-self._start)/self._interval))]
 
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod
+import functools
 import logging
 import warnings
 from typing import Any, Callable, Union
@@ -10,8 +11,8 @@ from datetime import datetime
 import numpy as np
 import xarray as xr
 
-from edit.data import RootIndex, DataIndex, OperatorIndex
-from edit.data.time import EDITDatetime, time_delta, time_delta_resolution
+from edit.data import RootIndex, DataIndex, OperatorIndex, Collection
+from edit.data.time import EDITDatetime, TimeDelta, time_delta, time_delta_resolution
 
 import edit.training
 from edit.training.data.utils import get_pipeline, get_callable
@@ -53,6 +54,20 @@ class DataStep:
     @abstractmethod
     def __iter__(self):
         raise NotImplementedError()
+    
+    @property
+    def steps(self) -> list[str]:
+        """List of steps in Pipeline 
+
+        Returns:
+            (list[str]): 
+                List of steps in Pipeline 
+        """
+        step_num = self.step_number
+        steps = []
+        for num in range(step_num):
+            steps.append(self.step(num).__class__.__name__)
+        return steps
 
     def step(self, key: str | type | int | Any) -> "DataStep":
         """Get Step in Pipeline if it matches key
@@ -87,7 +102,9 @@ class DataStep:
         raise KeyError(f"Could not find {key!r} in Data Pipeline")
 
     @property
+    # @functools.lru_cache(1)
     def step_number(self):
+        # print(isinstance(self.index, DataStep), type(self.index))
         if isinstance(self.index, DataStep):
             return self.index.step_number + 1
         return 0
@@ -175,6 +192,9 @@ class DataStep:
             string += formatted #+ '\n'
 
         return string
+    
+    def __str__(self):
+        return f"DataPipeline containing {self.steps}"
     
 
     def plot(self, idx = None, **kwargs):
@@ -408,6 +428,8 @@ class TrainingDataIndex(RootIndex, DataStep):
             index = index[0]
         elif allow_multiple_index and not isinstance(index, (tuple, list)):
             index = (index,)
+        if allow_multiple_index:
+            index = Collection(*index)
         self.index = index
 
         super().__init__(**kwargs)
@@ -419,8 +441,6 @@ class TrainingDataIndex(RootIndex, DataStep):
         if key == "index":
             raise AttributeError(f"{self.__class__} has no attribute {key}")
         index = self.index
-        if isinstance(self.index, (list, tuple)):
-            index = self.index[0]
         return getattr(index, key)
 
     def undo(self, data, *args, **kwargs):
@@ -454,6 +474,8 @@ class TrainingOperatorIndex(OperatorIndex, DataStep):
             index = index[0]
         elif allow_multiple_index and not isinstance(index, (tuple, list)):
             index = (index,)
+        if allow_multiple_index:
+            index = Collection(*index)
         self.index = index
 
         if "data_resolution" not in kwargs and not allow_multiple_index:
@@ -466,8 +488,6 @@ class TrainingOperatorIndex(OperatorIndex, DataStep):
         if key == "index":
             raise AttributeError(f"{self.__class__} has no attribute {key}")
         index = self.index
-        if isinstance(self.index, (list, tuple)):
-            index = self.index[0]
         return getattr(index, key)
 
     def undo(self, data, *args, **kwargs):
@@ -543,6 +563,8 @@ class DataIterator(DataStep):
         start: str | datetime | EDITDatetime,
         end: str | datetime | EDITDatetime,
         interval: int | tuple,
+        *,
+        resolution: str = None
     ):
         """Set iteration range for DataIterator
 
@@ -554,11 +576,13 @@ class DataIterator(DataStep):
             interval (int | tuple): 
                 Interval between samples
                 Use [pandas.to_timedelta][pandas.to_timedelta] notation, (10, 'minute')
+            resolution (str, optional):
+                Override for resolution
         """   
 
-        self._interval = time_delta(interval)
+        self._interval = TimeDelta(interval)
 
-        self._start: EDITDatetime = EDITDatetime(start).at_resolution(time_delta_resolution(interval))
+        self._start: EDITDatetime = EDITDatetime(start).at_resolution(resolution or self._interval.resolution)
         self._end: EDITDatetime = EDITDatetime(end)#.at_resolution(self._interval)
 
         self._iterator_ready = True

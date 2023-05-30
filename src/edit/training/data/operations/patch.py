@@ -3,13 +3,16 @@ from __future__ import annotations
 from typing import Any
 import concurrent.futures
 
+import warnings
 import numpy as np
 import xarray as xr
 
 from edit.training.data.templates import DataOperation, DataStep
-from edit.training.data.sequential import  SequentialIterator
+from edit.training.data.sequential import SequentialIterator
 
 from edit.utils.data import Tesselator
+from edit.utils import TesselatorWarning
+
 from edit.data import Collection
 
 _executor = concurrent.futures.ThreadPoolExecutor() 
@@ -39,6 +42,24 @@ class PatchingDataIndex(DataOperation):
         partialPatchingDataIndex = PatchingDataIndex()
         partialPatchingDataIndex(PipelineStep)
         ```
+
+    ??? Advanced Use
+        The Tesselator used to provide the patching and stitching contains a couple interesting behaviours when an incorrect shape is provided to stitch.
+        Firstly, data will first be cut, so if the stride_size == returning_data size, it is possible to stitch everything back.
+
+        ```py title="Example" 
+        patcher = PatchingDataIndex(None, kernel_size = 5, stride_size = 1)
+        data = np.zeros((10,10))
+        patcher.apply_func(data).shape # (100,5,5)
+
+
+        stitch_data = np.zeros((100,1,1))
+        patcher.undo_func(stitch_data).shape # (10,10)
+        ```
+
+        Secondly, variables will be added until the associated dimension runs out, so if 10 variables are patched and only 1 is used for stitching, the
+        first variable will be the one returned. [xarraySorter][edit.training.data.operations.sort.xarraySorter] can be used to control this behaviour.
+
     """
     def __init__(
         self,
@@ -74,6 +95,8 @@ class PatchingDataIndex(DataOperation):
 
         self._tesselators = []
         self.ignore_difference = ignore_difference
+        if ignore_difference:
+            warnings.simplefilter(action = 'ignore', category=TesselatorWarning)
 
         self._info_ = dict(kernel_size = kernel_size, stride_size = stride_size, padding = padding)
 
