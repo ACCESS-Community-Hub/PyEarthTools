@@ -137,7 +137,8 @@ class InterpolationIndex(TrainingOperatorIndex):
                 aggregation_function=self.temporal_function,
                 merge=True,
             )
-        return xr.merge(data)
+        data = xr.merge(data)
+        return data.transpose(*list(data.dims))
 
     @property
     def __doc__(self):
