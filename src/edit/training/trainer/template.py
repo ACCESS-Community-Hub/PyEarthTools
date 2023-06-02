@@ -7,7 +7,7 @@ from typing import Any
 import numpy as np
 import xarray as xr
 
-import tqdm
+from tqdm.auto import tqdm, trange
 
 from edit.training.data.templates import DataStep
 from edit.data import Collection, IndexWarning
@@ -220,7 +220,7 @@ class EDITTrainer:
         index = start_index
 
         # Begin Recurrence
-        for i in tqdm.trange(recurrence, disable = not verbose, desc = 'Predicting Recurrently'):
+        for i in trange(recurrence, disable = not verbose, desc = 'Predicting Recurrently'):
             if fake_batch_dim: # Fake the Batch Dimension, for use with ToNumpy
                 data = EDITTrainer._expand_dims(data)
 

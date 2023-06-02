@@ -380,6 +380,14 @@ class DataOperation(DataStep):
             data = self.index.apply(data)
         return self.apply_func(data)
 
+    def get(self, *args, **kwargs):
+        if hasattr(self.index, "get"):
+            data = self.index.get(*args, **kwargs)
+            if self.apply_get:
+                data = self.apply_func(data)
+            return data
+        raise AttributeError(f"{self} has no attribute 'get'")
+
     def __iter__(self):
         for data in self.index:
             if self.apply_iterator:
@@ -389,7 +397,8 @@ class DataOperation(DataStep):
 
     def __getitem__(self, idx):
         if self.apply_get:
-            return self.apply_func(self.index[idx])
+            data = self.index[idx]
+            return self.apply_func(data)
         return self.index[idx]
 
     def __call__(self, idx):
@@ -432,7 +441,7 @@ class TrainingDataIndex(RootIndex, DataStep):
             index = Collection(*index)
         self.index = index
 
-        super().__init__(**kwargs)
+        super().__init__(add_default_transforms = kwargs.pop('add_default_transforms', False), **kwargs)
         if HTML_REPR_ENABLED:
             self._repr_html_ = self._repr_html__
 
@@ -480,7 +489,7 @@ class TrainingOperatorIndex(OperatorIndex, DataStep):
 
         if "data_resolution" not in kwargs and not allow_multiple_index:
             kwargs["data_resolution"] = index.data_interval
-        super().__init__(**kwargs)
+        super().__init__(add_default_transforms = kwargs.pop('add_default_transforms', False), **kwargs)
         if HTML_REPR_ENABLED:
             self._repr_html_ = self._repr_html__
 
@@ -510,6 +519,7 @@ class DataInterface(DataOperation, OperatorIndex):
             index (OperatorIndex): 
                 Underlying OperatorIndex to use to get data
         """        
+        
         super().__init__(index=index, **datastep_kwargs)
 
     def get(self, querytime: str | EDITDatetime):
