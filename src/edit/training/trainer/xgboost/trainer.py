@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import numpy as np
-import tqdm
+from tqdm.auto import tqdm, trange
+
 import xarray as xr
 from pathlib import Path
 import os
@@ -45,9 +46,7 @@ class EDITXGBoostTrainer(EDITTrainer):
         else:
             xgb_model = None
 
-        print(f'Getting batch 0 / {num_batches}...')
-        for i, data in tqdm.tqdm(enumerate(self.train_data), disable=not verbose):
-            print(f'Getting batch {i} / {num_batches}...')
+        for i, data in tqdm(enumerate(self.train_data), disable=not verbose):
             if i >= num_batches - 1:
                 break
 

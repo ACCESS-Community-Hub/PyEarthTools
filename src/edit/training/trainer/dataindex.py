@@ -7,15 +7,15 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from edit.data import DataIndex
+from edit.data import DataIndex, CachingIndex
 
 from edit.training.data.context import PatchingUpdate
 from edit.training.trainer import from_yaml, EDITLightningTrainer
 from edit.training.trainer.template import EDITTrainer
 
 
-class MLDataIndex(DataIndex):
-    def __init__(self, trainer: EDITTrainer, stride_override: int = None, **kwargs):
+class MLDataIndex(CachingIndex):
+    def __init__(self, trainer: EDITTrainer, stride_override: int = None, cache: str | Path = None, recurrent_config: dict = {}, **kwargs):
         """Setup ML Data Index from defined trainer
 
         !!! Info
@@ -27,39 +27,47 @@ class MLDataIndex(DataIndex):
                 EDITTrainer to use to retrieve data
             stride_override (int, optional): 
                 Values to override stride with, if using `PatchingDataIndex`. Defaults to None.
+            cache (str | Path, optional):
+                Location to cache outputs, if not supplied don't cache.
+            recurrent_config (dict, optional):
+                Configuration if Model must be run recurrently
             **kwargs (dict, optional):
                 Any keyword arguments to pass to [DataIndex][edit.data.DataIndex]
         """        
-        super().__init__(**kwargs)
+        super().__init__(cache = cache, **kwargs)
         self.trainer = trainer
         self.stride_override = stride_override
+        self.recurrent_config= recurrent_config
 
     def get(
         self,
-        query_time : str,
+        querytime : str,
     ):  # transforms: Union[Callable, TransformCollection, Transform]= None
         """
         Get Data from given timestep
         """
         with PatchingUpdate(self.trainer, stride_size=self.stride_override):
-            _, predicted_ds = self.trainer.predict(query_time, undo=True)
-        # predicted_ds = apply(transforms)(predicted_ds)
+            if self.recurrent_config:
+                _, predicted_ds = self.trainer.predict_recurrent(querytime, **self.recurrent_config)
+            else:
+                _, predicted_ds = self.trainer.predict(querytime, undo=True)
+
         return predicted_ds
 
-    def input_data(self, query_time: str):
+    def input_data(self, querytime: str):
         """
         Get input data at given timestep
         """
         with PatchingUpdate(self.trainer, stride_size=self.stride_override):
             input_data = self.trainer.train_iterator.undo(
-                self.trainer.train_iterator[query_time]
+                self.trainer.train_iterator[querytime]
             )
         return input_data
 
     @property
-    def iterator(self):
+    def data(self):
         with PatchingUpdate(self.trainer, stride_size=self.stride_override):
-            return self.trainer.train_iterator
+            return self.trainer.train_data
 
     @staticmethod
     def from_yaml(

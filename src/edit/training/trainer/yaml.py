@@ -153,7 +153,7 @@ def from_yaml(config: str | dict, **kwargs) -> EDITLightningTrainer:
                 else:
                     raise KeyError(f"Cannot parse {auto_match}")
             
-            config["trainer"]['path'] = Path(config["trainer"]['path'].replace(auto_match,"")) / '/'.join(parts)
+            config["trainer"]['path'] = str(Path(config["trainer"]['path'].replace(auto_match,"")) / '/'.join(parts))
         
         Path(config["trainer"]["path"]).mkdir(exist_ok=True, parents=True)
 
