@@ -45,7 +45,9 @@ class EDITXGBoostTrainer(EDITTrainer):
         else:
             xgb_model = None
 
+        print(f'Getting batch 0 / {num_batches}...')
         for i, data in tqdm.tqdm(enumerate(self.train_data), disable=not verbose):
+            print(f'Getting batch {i} / {num_batches}...')
             if i >= num_batches - 1:
                 break
 
@@ -101,8 +103,11 @@ class EDITXGBoostTrainer(EDITTrainer):
         self._view_tree()
 
         # Case study time plots
-        print('Plotting case study time...')
-        self._plot_case()
+        try:
+            print('Plotting case study time...')
+            self._plot_case()
+        except:
+            print("Couldn't do case study")
 
         # Stats
 
@@ -135,10 +140,10 @@ class EDITXGBoostTrainer(EDITTrainer):
         # Evaluate on given data
 
         metrics = {}
-        metrics['mae'] = sklearn.metrics.mean_absolute_error(y, y_pred)
-        metrics['rmse'] = np.sqrt(sklearn.metrics.mean_squared_error(y, y_pred))
-        metrics['bias'] = np.mean(y_pred-y)
-        metrics['corr'] = sklearn.metrics.r2_score(y, y_pred)
+        metrics['mae'] = sklearn.metrics.mean_absolute_error(y, y_pred).astype(float)
+        metrics['rmse'] = np.sqrt(sklearn.metrics.mean_squared_error(y, y_pred)).astype(float)
+        metrics['bias'] = np.mean(y_pred-y).astype(float)
+        metrics['corr'] = sklearn.metrics.r2_score(y, y_pred).astype(float)
         # metrics['mgd'] = sklearn.metrics.mean_gamma_deviance(y, y_pred)
 
         print(metrics)

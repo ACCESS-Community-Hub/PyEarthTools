@@ -76,5 +76,6 @@ class MergeIndex(TrainingOperatorIndex):
                 [xr.Dataset][xarray.Dataset] containing data from all indexes merged together
         """
 
-        return xr.merge([index(query_time, transforms=self.base_transforms, **kwargs) for index in self.index])
+        data = xr.merge([index(query_time, transforms=self.base_transforms, **kwargs) for index in self.index])
+        return data.transpose(*list(data.dims))
 
