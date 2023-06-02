@@ -3,7 +3,7 @@ import math
 
 import einops
 import numpy as np
-from scipy import interpolate
+import xarray as xr
 
 from edit.training.data.templates import (
     DataStep,
@@ -385,3 +385,24 @@ class Flatten(DataOperation):
             return tuple(np.stack(flatteners[i].undo(item)) for i, item in enumerate(data))
         else:
             return self._get_flatteners(1)[0].undo(data)
+
+
+@SequentialIterator
+class Dimension(DataOperation):
+    def __init__(self, index: DataStep, dimensions: str | list[str], append: bool = True):
+        super().__init__(index, apply_func=self._order_dims, recognised_types=[xr.Dataset, xr.DataArray], split_tuples=True)
+        
+        self.dimensions = dimensions if isinstance(dimensions, (list, tuple)) else [dimensions]
+        self.append = append
+        
+        self.__doc__ = "Reordering Dimensions"
+        self._info_  = dict(dimensions = dimensions, append = append)
+
+    def _order_dims(self, ds : xr.Dataset, xr.DataArray):
+        dims = ds.dims
+        dims = set(dims).difference(set(self.dimensions))
+        if self.append:
+            dims = [*self.dimensions, *dims]
+        else:
+            dims = [*dims, self.dimensions]
+        return ds.transpose(*dims)
