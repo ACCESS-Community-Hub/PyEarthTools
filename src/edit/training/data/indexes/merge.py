@@ -31,9 +31,11 @@ class MergeIndex(TrainingOperatorIndex):
 
     def __init__(
         self,
-        indexes: list | dict | OperatorIndex,
+        indexes: list | dict | OperatorIndex = {},
+        *,
         data_resolution: tuple[int, tuple[int]] = None,
         transforms: list | dict = TransformCollection(),
+        **kwargs,
     ):
         """OperatorIndex which interpolates any given indexes onto the same spatial grid
 
@@ -53,6 +55,7 @@ class MergeIndex(TrainingOperatorIndex):
             transforms = get_transforms(transforms)
 
         base_transforms = TransformCollection(transforms)
+        indexes.update(kwargs)
 
         super().__init__(
             indexes,

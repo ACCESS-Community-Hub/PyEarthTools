@@ -388,21 +388,45 @@ class Flatten(DataOperation):
 
 
 @SequentialIterator
-class Dimension(DataOperation):
+class Dimensions(DataOperation):
     def __init__(self, index: DataStep, dimensions: str | list[str], append: bool = True):
-        super().__init__(index, apply_func=self._order_dims, recognised_types=[xr.Dataset, xr.DataArray], split_tuples=True)
+        """
+        DataOperation to reorder Dimensions of an [xarray][xarray] object.
+
+        Not all dims have to be supplied, will automatically add remaining dims, 
+        or if append == False, prepend extra dims.
+
+        !!! Example
+            ```python
+            Dimensions(PipelineStep, dimensions = ['time'])
+
+            ## As this is decorated with @SequentialIterator, it can be partially initialised
+
+            partialDimensions = Dimensions(dimensions = ['time'])
+            partialDimensions(PipelineStep)
+            ```
+
+        Args:
+            index (DataStep): 
+                Underlying DataStep to get data from
+            dimensions (str | list[str]): 
+                Specified order of dimensions to tranpose dataset to
+            append (bool, optional): 
+                Append extra dims, if false, prepend dims. Defaults to True.
+        """
+        super().__init__(index, apply_func=self._order_dims, undo_func = None, recognised_types=[xr.Dataset, xr.DataArray], split_tuples=True)
         
         self.dimensions = dimensions if isinstance(dimensions, (list, tuple)) else [dimensions]
         self.append = append
         
-        self.__doc__ = "Reordering Dimensions"
+        self.__doc__ = "Reorder Dimensions"
         self._info_  = dict(dimensions = dimensions, append = append)
 
-    def _order_dims(self, ds : xr.Dataset, xr.DataArray):
+    def _order_dims(self, ds : xr.Dataset | xr.DataArray):
         dims = ds.dims
         dims = set(dims).difference(set(self.dimensions))
         if self.append:
             dims = [*self.dimensions, *dims]
         else:
-            dims = [*dims, self.dimensions]
-        return ds.transpose(*dims)
+            dims = [*dims, *self.dimensions]
+        return ds.transpose(*dims, missing_dims = 'warn')

@@ -56,7 +56,7 @@ class Select(DataOperation):
         self.array_index = array_index
         self.tuple_index = tuple_index
 
-        self.__doc__ = f"Index Data in position {tuple_index} according to {array_index}"
+        self.__doc__ = f"Index Data in position {tuple_index} according to :, {array_index}"
         self._info_ = dict(array_index = array_index, tuple_index = tuple_index)
 
     def _index(self, data, array_index):

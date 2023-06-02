@@ -13,6 +13,7 @@ from edit.training.trainer.pytorch.trainer import EDITLightningTrainer
 from edit.training.trainer.xgboost.trainer import EDITXGBoostTrainer
 from edit.training.trainer import commands
 from edit.training.trainer.yaml import from_yaml
+from edit.training.trainer.yaml import from_yaml as from_dict
 from edit.training.trainer.dataindex import MLDataIndex
 
 if __name__ == "__main__":

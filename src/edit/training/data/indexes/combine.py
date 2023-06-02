@@ -28,7 +28,7 @@ class CombineIndex(TrainingDataIndex):
 
     def __init__(
         self,
-        indexes: list | dict | OperatorIndex | TrainingOperatorIndex | DataIndex | OperatorIndex,
+        indexes: list | dict | OperatorIndex | TrainingOperatorIndex | DataIndex | OperatorIndex = {}, **kwargs,
     ):
         """DataIndex which combines data into a tuple from other indexes
 
@@ -37,7 +37,7 @@ class CombineIndex(TrainingDataIndex):
             indexes (list | dict | OperatorIndex | TrainingOperatorIndex | DataIndex | OperatorIndex):
                 Indexes in which to interpolate together and return, can be fully defined or dictionary defined
         """
-
+        indexes.update(kwargs)
         super().__init__(
             indexes,
         )
