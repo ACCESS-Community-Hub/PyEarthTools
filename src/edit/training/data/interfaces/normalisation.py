@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import functools
+import warnings
 
 
 import xarray as xr
@@ -66,6 +67,7 @@ class NormaliseInterface(DataInterface):
             retrieval_kwargs (dict, optional):
                 Keyword arguments to provide to [edit.data.transform.normalisation][edit.data.transform.normalisation]
         """
+
         super().__init__(
             index, apply_func=self.normalise, undo_func=self.unnormalise, **kwargs
         )

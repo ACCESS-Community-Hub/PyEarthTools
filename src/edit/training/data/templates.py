@@ -148,7 +148,7 @@ class DataStep:
             @property
             def _formatted_doc_(self):
                 if isinstance(self.object, (list, tuple)):
-                    return f"List containing: {[obj.__class__.__name__ for obj in self.object]}"
+                    return f"List "# containing {[obj.__class__.__name__ for obj in self.object]}"
                 desc = self.object.__doc__ or "No Docstring"
                 desc_list = desc.strip().split("\n")
                 if "" in desc_list:
@@ -177,28 +177,29 @@ class DataStep:
             raise KeyError(f"{self!r} has no attribute '_repr_html_'")
         pipeline_steps = self._get_steps_for_repr_()
 
-        return edit.utils.repr.provide_html(*pipeline_steps, name = 'Data Pipeline', documentation_attr = '_formatted_doc_', info_attr = '_info_', backup_repr = self.__repr__())
+        return edit.utils.repr.html(*pipeline_steps, name = 'Data', documentation_attr = '_formatted_doc_', info_attr = '_info_', backup_repr = self.__repr__())
 
     def __repr__(self):
         string = "Data Pipeline of the following:\n"
         padding = lambda name, length_: name + "".join([" "] * (length_ - len(name)))
 
         pipeline_steps = self._get_steps_for_repr_()
+        return edit.utils.repr.standard(*pipeline_steps, name = 'Data', documentation_attr = '_formatted_doc_', info_attr = '_info_')
 
-        for step in pipeline_steps:
-            formatted = f"\t* {padding(step.__class__.__name__, 25)}{step._formatted_doc_}\n"
-            if hasattr(step, '_info_'):
-                formatted = formatted + f"\t\t\t\t\t{step._info_}\n"
-            string += formatted #+ '\n'
+        # for step in pipeline_steps:
+        #     formatted = f"\t* {padding(step.__class__.__name__, 25)}{step._formatted_doc_}\n"
+        #     if hasattr(step, '_info_'):
+        #         formatted = formatted + f"\t\t\t\t\t{step._info_}\n"
+        #     string += formatted #+ '\n'
 
-        return string
+        # return string
     
     def __str__(self):
         return f"DataPipeline containing {self.steps}"
     
 
     def plot(self, idx = None, **kwargs):
-        return edit.training.data.sanity.plot(self, idx, **kwargs)
+        return edit.training.data.sanity.plot(self, index = idx, **kwargs)
 
     def summary(self, idx = None, **kwargs):
         return edit.training.data.sanity.summary(self, idx, **kwargs)
@@ -407,9 +408,9 @@ class DataOperation(DataStep):
         else:
             return self.apply(idx)
 
-class TrainingDataIndex(RootIndex, DataStep):
+class TrainingRootIndex(RootIndex, DataStep):
     """
-    [edit.data.RootIndex][edit.data.RootIndex] as a Pipeline step
+    [edit.data.DataIndex][edit.data.DataIndex] as a Pipeline step
     """
     # def __new__(cls, *args, **kwargs) -> 'Self':
     #     from edit.training.data.sequential import SequentialIterator
@@ -418,7 +419,7 @@ class TrainingDataIndex(RootIndex, DataStep):
 
     def __init__(
         self,
-        index: list[TrainingDataIndex] | TrainingDataIndex | DataIndex,
+        index: list[TrainingRootIndex] | TrainingRootIndex | DataIndex,
         *,
         allow_multiple_index: bool = False,
         **kwargs,
@@ -437,11 +438,13 @@ class TrainingDataIndex(RootIndex, DataStep):
             index = index[0]
         elif allow_multiple_index and not isinstance(index, (tuple, list)):
             index = (index,)
+        
         if allow_multiple_index:
             index = Collection(*index)
         self.index = index
 
         super().__init__(add_default_transforms = kwargs.pop('add_default_transforms', False), **kwargs)
+
         if HTML_REPR_ENABLED:
             self._repr_html_ = self._repr_html__
 
@@ -490,6 +493,7 @@ class TrainingOperatorIndex(OperatorIndex, DataStep):
         if "data_resolution" not in kwargs and not allow_multiple_index:
             kwargs["data_resolution"] = index.data_interval
         super().__init__(add_default_transforms = kwargs.pop('add_default_transforms', False), **kwargs)
+        
         if HTML_REPR_ENABLED:
             self._repr_html_ = self._repr_html__
 

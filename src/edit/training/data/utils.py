@@ -109,7 +109,7 @@ def get_pipeline(sources: dict, order: list = None) -> list[Any]:
         init_args = sources[index]
         data_index = None
 
-        index = re.sub(r"\[[0-9]*\]", "", index)
+        index = re.sub(r"\[.*\]", "", index)
 
         try:
             data_index = get_class(edit.data, index)

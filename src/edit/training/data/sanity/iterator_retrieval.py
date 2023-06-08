@@ -128,7 +128,7 @@ def signal_data(
             )
         except TimeoutException:
             data_samples[iter] = f"Data took longer than {timeout} seconds to get."
-        except (DataNotFoundError, RuntimeError):
+        except (DataNotFoundError, RuntimeError, TypeError):
             if idx is None:
                 data_samples[iter] = "Iterator likely not set, Cannot retrieve data."
             else:

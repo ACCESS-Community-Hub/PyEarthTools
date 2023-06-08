@@ -10,12 +10,12 @@ from edit.data import FunctionTransform, Transform, TransformCollection
 from edit.data import DataIndex, OperatorIndex
 from edit.data.time import EDITDatetime, TimeDelta
 
-from edit.training.data.templates import DataIterator, DataStep, DataInterface, TrainingOperatorIndex, TrainingDataIndex
+from edit.training.data.templates import DataIterator, DataStep, DataInterface, TrainingOperatorIndex, TrainingRootIndex
 from edit.training.data.sequential import Sequential, SequentialIterator
 from edit.training.data.utils import get_transforms
 
 @SequentialIterator
-class TemporalIndex(TrainingDataIndex):
+class TemporalIndex(TrainingRootIndex):
     """
     TemporalIndex to provide capability to add a temporal dimension to loaded data.
 
@@ -244,7 +244,9 @@ class TemporalIndex(TrainingDataIndex):
 
     @property
     def __doc__(self):
-        return f"Providing {self.samples!r} samples of {self.index.__class__.__name__!r}."
+        if isinstance(self.samples, (list, tuple)):
+            return f'Providing {self.samples[0]} prior, and {self.samples[1]} post samples at {self.sample_interval} interval'
+        return f'Providing {self.samples} samples at {self.sample_interval} interval'
 
     def apply(self, data):
         if isinstance(data, tuple):

@@ -31,7 +31,7 @@ class InterpolationIndex(TrainingOperatorIndex):
 
     def __init__(
         self,
-        indexes: list | dict | OperatorIndex = {},
+        indexes: list | dict | OperatorIndex,
         *,
         sample_interval: tuple[int, tuple[int]] = None,
         override_if_wrong: bool = True,
@@ -83,7 +83,6 @@ class InterpolationIndex(TrainingOperatorIndex):
 
         base_transforms = TransformCollection(transforms)
 
-        indexes.update(kwargs)
         super().__init__(
             indexes,
             base_transforms=base_transforms,
@@ -145,4 +144,4 @@ class InterpolationIndex(TrainingOperatorIndex):
 
     @property
     def __doc__(self):
-        return f"Interpolation Index for {[index.__class__.__name__ for index in self.index]!r}. Uses {self.interpolation_method} interpolation."
+        return f"Interpolation Index. Uses {self.interpolation_method} interpolation."

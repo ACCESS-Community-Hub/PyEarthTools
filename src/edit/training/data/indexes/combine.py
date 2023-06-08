@@ -5,12 +5,12 @@ import xarray as xr
 from edit.data import DataIndex, OperatorIndex
 
 from edit.training.data.utils import get_transforms
-from edit.training.data.templates import TrainingDataIndex, TrainingOperatorIndex
+from edit.training.data.templates import TrainingRootIndex, TrainingOperatorIndex
 from edit.training.data.sequential import SequentialIterator
 
 
 @SequentialIterator
-class CombineIndex(TrainingDataIndex):
+class CombineIndex(TrainingRootIndex):
     """
     DataIndex which combines data into a tuple from other indexes
 
@@ -28,7 +28,7 @@ class CombineIndex(TrainingDataIndex):
 
     def __init__(
         self,
-        indexes: list | dict | OperatorIndex | TrainingOperatorIndex | DataIndex | OperatorIndex = {}, **kwargs,
+        indexes: list | dict | OperatorIndex | TrainingOperatorIndex | DataIndex | OperatorIndex,
     ):
         """DataIndex which combines data into a tuple from other indexes
 
@@ -37,7 +37,6 @@ class CombineIndex(TrainingDataIndex):
             indexes (list | dict | OperatorIndex | TrainingOperatorIndex | DataIndex | OperatorIndex):
                 Indexes in which to interpolate together and return, can be fully defined or dictionary defined
         """
-        indexes.update(kwargs)
         super().__init__(
             indexes,
         )

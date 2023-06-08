@@ -47,9 +47,13 @@ def get_loss(loss_function: str, **loss_kwargs):
     -------
         Initialised loss function
     """
-    import torch.nn as nn
+    try:
+        import torch.nn as nn
+        torch_imported = True
+    except (ModuleNotFoundError, ImportError):
+        torch_imported = False
 
-    if hasattr(nn, loss_function):
+    if torch_imported and hasattr(nn, loss_function):
         return getattr(nn, loss_function)(**loss_kwargs)
     elif hasattr(modules.loss, loss_function):
         return getattr(modules.loss, loss_function)(**loss_kwargs)
