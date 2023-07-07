@@ -78,17 +78,18 @@ import re
 
 # import torch
 
-from edit.training import data
 from edit.training.models import networks
 from edit.training.trainer.pytorch.trainer import EDITLightningTrainer
 from edit.training.trainer.xgboost.trainer import EDITXGBoostTrainer
 
-from edit.training.data.utils import get_callable
+import edit.pipeline
+from edit.pipeline.utils import get_callable
 
 TRAINER_ASSIGNMENT = {
-    EDITLightningTrainer : ['pytorch', 'lightning'],
-    EDITXGBoostTrainer : ['xgboost'],
+    EDITLightningTrainer: ["pytorch", "lightning"],
+    EDITXGBoostTrainer: ["xgboost"],
 }
+
 
 def flip_dict(dict):
     return_dict = {}
@@ -97,21 +98,22 @@ def flip_dict(dict):
             return_dict[i] = k
     return return_dict
 
+
 def from_yaml(config: str | dict, **kwargs) -> EDITLightningTrainer:
     """Load and create trainer from dictionary config or yaml file
 
     !!! Warning
-        See above for information regarding keys 
+        See above for information regarding keys
 
     Args:
-        config (str): 
+        config (str):
             Path to yaml config or dictionary
         **kwargs (dict, optional):
             All passed into trainer config
     Returns:
-        (EDITTrainerWrapper): 
+        (EDITTrainerWrapper):
             Loaded Trainer
-    """    
+    """
     yaml_file = None
     if not isinstance(config, dict):
         yaml_file = config
@@ -121,7 +123,7 @@ def from_yaml(config: str | dict, **kwargs) -> EDITLightningTrainer:
     if not "order" in config["data"]["Source"]:
         config["data"]["Source"].update(order=list(config["data"]["Source"].keys()))
 
-    data_iterator = lambda: data.from_dict(dict(config["data"]["Source"]))
+    data_iterator = lambda: edit.pipeline.from_dict(dict(config["data"]["Source"]))
 
     # if 'accelerator' in kwargs and kwargs['accelerator'] == 'auto':
     #     kwargs['accelerator'] = 'gpu' if torch.cuda.is_available() else 'cpu'
@@ -129,32 +131,34 @@ def from_yaml(config: str | dict, **kwargs) -> EDITLightningTrainer:
     config["trainer"].update(**kwargs)
 
     if "root_dir" in config["trainer"]:
-        config['trainer']['path'] = config["trainer"].pop('root_dir')
-        
+        config["trainer"]["path"] = config["trainer"].pop("root_dir")
 
-    if 'path' in config['trainer']:
-        auto_match = re.search(r'%auto.*%', config['trainer']['path'])            
+    if "path" in config["trainer"]:
+        auto_match = re.search(r"%auto.*%", config["trainer"]["path"])
         if auto_match:
             auto_match = auto_match[0]
-            auto_parts: list[str] = auto_match.replace('%','').split('_')
+            auto_parts: list[str] = auto_match.replace("%", "").split("_")
             if not yaml_file:
                 raise ValueError(f"Cannot fill %auto% if config file path not given.")
-            parts = Path(yaml_file).with_suffix('').parts
+            parts = Path(yaml_file).with_suffix("").parts
 
             if len(auto_parts) == 2:
                 neg = False
-                if '-' in auto_parts[-1]:
-                    auto_parts[-1] = auto_parts[-1].replace('-','')
+                if "-" in auto_parts[-1]:
+                    auto_parts[-1] = auto_parts[-1].replace("-", "")
                     neg = True
                 if auto_parts[-1].isdigit():
-                    parts = parts[int(auto_parts[-1]) * (-1 if neg else 1):]
+                    parts = parts[int(auto_parts[-1]) * (-1 if neg else 1) :]
                 elif auto_parts[-1] in parts:
-                    parts = parts[parts.index(auto_parts[-1])+1:]
+                    parts = parts[parts.index(auto_parts[-1]) + 1 :]
                 else:
                     raise KeyError(f"Cannot parse {auto_match}")
-            
-            config["trainer"]['path'] = str(Path(config["trainer"]['path'].replace(auto_match,"")) / '/'.join(parts))
-        
+
+            config["trainer"]["path"] = str(
+                Path(config["trainer"]["path"].replace(auto_match, ""))
+                / "/".join(parts)
+            )
+
         Path(config["trainer"]["path"]).mkdir(exist_ok=True, parents=True)
 
         with open(Path(config["trainer"]["path"]) / "config.yaml", "w") as file:
@@ -170,23 +174,23 @@ def from_yaml(config: str | dict, **kwargs) -> EDITLightningTrainer:
         valid_data = None
 
     model_name = config["model"].pop("Source")
-    #try:
+    # try:
     try:
         model = get_callable(model_name)
     except (ImportError, ModuleNotFoundError):
         raise ImportError(f"Could not find model: {model_name}")
-    #except (AttributeError, ModuleNotFoundError):
-        #if hasattr(networks, model_name):
-            #model = getattr(networks, model_name)
-        #else:
-            #model = get_callable("edit.training.models.networks." + model_name)
+    # except (AttributeError, ModuleNotFoundError):
+    # if hasattr(networks, model_name):
+    # model = getattr(networks, model_name)
+    # else:
+    # model = get_callable("edit.training.models.networks." + model_name)
     model = model(**config["model"])
 
     trainer_class = EDITLightningTrainer
     trainer_dict = flip_dict(TRAINER_ASSIGNMENT)
 
-    if 'type' in config['trainer']:
-        trainer_type = config['trainer'].pop('type')
+    if "type" in config["trainer"]:
+        trainer_type = config["trainer"].pop("type")
         if trainer_type in trainer_dict:
             trainer_class = trainer_dict[trainer_type]
         else:
@@ -196,12 +200,14 @@ def from_yaml(config: str | dict, **kwargs) -> EDITLightningTrainer:
                 raise KeyError(f"Could not find trainer: {trainer_type}")
 
         if trainer_class is None:
-            raise KeyError(f"Trainer type {trainer_type} not recognised. Use {trainer_dict.keys()} or import path.")
+            raise KeyError(
+                f"Trainer type {trainer_type} not recognised. Use {trainer_dict.keys()} or import path."
+            )
 
     return trainer_class(
         model=model,
         train_data=train_data,
         valid_data=valid_data,
         path=config["trainer"].pop("path", None),
-        **config["trainer"]
+        **config["trainer"],
     )

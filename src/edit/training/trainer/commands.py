@@ -11,10 +11,13 @@ def entry_point():
     pass
 
 
-@entry_point.command(name="fit", context_settings=dict(
-    ignore_unknown_options=True,
-    allow_extra_args=True,
-))
+@entry_point.command(
+    name="fit",
+    context_settings=dict(
+        ignore_unknown_options=True,
+        allow_extra_args=True,
+    ),
+)
 @click.pass_context
 @click.argument(
     "yaml_file",
@@ -39,9 +42,13 @@ def fit(ctx, yaml_file: str | click.Path, load: bool):
     d = dict()
     if len(ctx.args) > 1:
         for i in range(0, len(ctx.args), 2):
-            if not str(ctx.args[i]).startswith('--'):
-                raise KeyError(f"{ctx.args[i]} is an invalid kwarg, ensure it starts with '--'")
-            d[str(ctx.args[i]).replace('--','')] = int(ctx.args[i+1]) if ctx.args[i+1].isdigit() else ctx.args[i+1]
+            if not str(ctx.args[i]).startswith("--"):
+                raise KeyError(
+                    f"{ctx.args[i]} is an invalid kwarg, ensure it starts with '--'"
+                )
+            d[str(ctx.args[i]).replace("--", "")] = (
+                int(ctx.args[i + 1]) if ctx.args[i + 1].isdigit() else ctx.args[i + 1]
+            )
 
     extra_kwargs = d
 
@@ -85,7 +92,7 @@ def predict(
         stride_size (int, optional): Update to stride size. Defaults to None.
         recurrence (int, optional): Times to recur. Defaults to None.
     """
-    from edit.training.data.context import PatchingUpdate
+    from edit.pipeline.context import PatchingUpdate
     from edit.training.trainer.yaml import from_yaml
 
     trainer = from_yaml(yaml_file)

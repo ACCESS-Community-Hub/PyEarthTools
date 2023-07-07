@@ -9,7 +9,7 @@ import xarray as xr
 
 from tqdm.auto import tqdm, trange
 
-from edit.training.data.templates import DataStep
+from edit.pipeline.templates import DataStep
 from edit.data import Collection, IndexWarning
 
 
@@ -18,25 +18,32 @@ class EDITTrainer:
     Template for EDITTrainer Wrapper
     """
 
-    def __init__(self, model, train_data: DataStep, valid_data: DataStep = None, path : str | Path = None, **kwargs) -> None:
+    def __init__(
+        self,
+        model,
+        train_data: DataStep,
+        valid_data: DataStep = None,
+        path: str | Path = None,
+        **kwargs,
+    ) -> None:
         self.model = model
         self.train_data = train_data
         self.valid_data = valid_data
         self.path = path
 
-    def data(self, index : str, undo=False) -> np.array | xr.Dataset:
+    def data(self, index: str, undo=False) -> np.array | xr.Dataset:
         """Get data which is fed into model
 
         Args:
-            index (str): 
+            index (str):
                 Index to retrieve at
-            undo (bool, optional): 
+            undo (bool, optional):
                 Rebuild Data using DataStep.undo. Defaults to False.
 
         Returns:
-            (np.array | xr.Dataset): 
+            (np.array | xr.Dataset):
                 Retrieved Data
-        """        
+        """
         data = self.train_data[index]
 
         if undo:
@@ -57,16 +64,15 @@ class EDITTrainer:
         """
         raise NotImplementedError()
 
-
     def _expand_dims(data: np.ndarray | tuple | list) -> np.ndarray | tuple | list:
         if isinstance(data, (list, tuple)):
             return type(data)(map(EDITTrainer._expand_dims, data))
-        return np.expand_dims(data, axis = 0)
+        return np.expand_dims(data, axis=0)
 
     def _squeeze_dims(data: np.ndarray | tuple | list) -> np.ndarray | tuple | list:
         if isinstance(data, (list, tuple)):
             return type(data)(map(EDITTrainer._squeeze_dims, data))
-        return np.squeeze(data, axis = 0)
+        return np.squeeze(data, axis=0)
 
     def predict(
         self,
@@ -81,7 +87,7 @@ class EDITTrainer:
     ) -> tuple[np.array] | tuple[xr.Dataset]:
         """Predict using the model a particular index
 
-        Uses [edit.training][edit.training.data] DataStep to get data at given index.
+        Uses [edit.training][edit.pipeline] DataStep to get data at given index.
         Can automatically try to rebuild the data.
 
         Uses [_predict_from_data][edit.training.trainer.template.EDITTrainer._predict_from_data] to run the predictions.
@@ -92,26 +98,26 @@ class EDITTrainer:
             Solution: `batch_size = 1`
 
         Args:
-            index (str): 
+            index (str):
                 Index to get from the validation or training data loader or given `data_iterator`
-            undo (bool, optional): 
+            undo (bool, optional):
                 Rebuild Data using DataStep.undo. Defaults to True.
-            data_iterator (DataIterator, optional): 
+            data_iterator (DataIterator, optional):
                 Override for DataStep to us. Defaults to None.
-            load (bool | str, optional): 
+            load (bool | str, optional):
                 Path to checkpoint, or boolean to find latest file. Defaults to False.
-            load_kwargs (dict, optional): 
+            load_kwargs (dict, optional):
                 Keyword arguments to pass to loading function. Defaults to {}.
             fake_batch_dim (bool, optional):
                 If the batch dimension needs to be faked. Defaults to False.
 
         Returns:
-            (tuple[np.array] | tuple[xr.Dataset]): 
+            (tuple[np.array] | tuple[xr.Dataset]):
                 Either xarray datasets or np arrays, [truth data, predicted data]
-        """    
-        self.load(load,**load_kwargs)
+        """
+        self.load(load, **load_kwargs)
 
-        if 'ToNumpy' in self.train_data.steps:
+        if "ToNumpy" in self.train_data.steps:
             fake_batch_dim = True if fake_batch_dim is None else fake_batch_dim
         if fake_batch_dim is None:
             fake_batch_dim = False
@@ -128,7 +134,6 @@ class EDITTrainer:
         if fake_batch_dim:
             prediction = EDITTrainer._squeeze_dims(prediction)
             data = EDITTrainer._squeeze_dims(data)
-        
 
         if not undo:
             return Collection(truth, prediction[1])
@@ -157,14 +162,14 @@ class EDITTrainer:
         load: bool = False,
         load_kwargs: dict = {},
         truth_step: int = 0,
-        fake_batch_dim: bool = False,
+        fake_batch_dim: bool = None,
         trim_time_dim: int = None,
         verbose: bool = False,
         **kwargs,
     ) -> tuple[np.array] | tuple[xr.Dataset]:
         """Time wise recurrent prediction
 
-        Uses [edit.training][edit.training.data] DataStep to get data at given index.
+        Uses [edit.training][edit.pipeline] DataStep to get data at given index.
 
         Uses [_predict_from_data][edit.training.trainer.template.EDITTrainer._predict_from_data] to run the predictions.
 
@@ -172,8 +177,8 @@ class EDITTrainer:
             If number of patches is not divisible by the `batch_size`, issues may arise.
             Solution: batch_size = 1
 
-        ??? Tip 
-            If data is being converted using [ToNumpy][edit.training.data.operations.to_numpy] issues may arise with an invalid shape,
+        ??? Tip
+            If data is being converted using [ToNumpy][edit.pipeline.operations.to_numpy] issues may arise with an invalid shape,
             simply set `fake_batch_dim` to `True`
 
         Args:
@@ -185,7 +190,7 @@ class EDITTrainer:
                 Override for initial data retrieval. Defaults to None.
             load (bool, optional):
                 Resume from checkpoint. Defaults to False.
-            load_kwargs (dict, optional): 
+            load_kwargs (dict, optional):
                 Keyword arguments to pass to loading function
             truth_step (int, optional):
                 Data Pipeline step to use to retrieve Truth data. Defaults to 0
@@ -200,18 +205,18 @@ class EDITTrainer:
                 Either xarray datasets or np arrays, [truth data, predicted data]
         """
         data_source = data_iterator or self.valid_data or self.train_data
-        
+
         # Retrieve Initial Input Data
         data = list(data_source[start_index])
 
         # Load Model
         if isinstance(load, str):
-            self.load(load,**load_kwargs)
+            self.load(load, **load_kwargs)
 
         elif load and Path(self.path).exists():
             self.load(True, **load_kwargs)
 
-        if 'ToNumpy' in self.train_data.steps:
+        if "ToNumpy" in self.train_data.steps:
             fake_batch_dim = True if fake_batch_dim is None else fake_batch_dim
         if fake_batch_dim is None:
             fake_batch_dim = False
@@ -220,18 +225,18 @@ class EDITTrainer:
         index = start_index
 
         # Begin Recurrence
-        for i in trange(recurrence, disable = not verbose, desc = 'Predicting Recurrently'):
-            if fake_batch_dim: # Fake the Batch Dimension, for use with ToNumpy
+        for i in trange(recurrence, disable=not verbose, desc="Predicting Recurrently"):
+            if fake_batch_dim:  # Fake the Batch Dimension, for use with ToNumpy
                 data = EDITTrainer._expand_dims(data)
 
             input_data = None
-            prediction = self._predict_from_data(data, **kwargs) # Prediction
+            prediction = self._predict_from_data(data, **kwargs)  # Prediction
 
-            if fake_batch_dim: # Squeeze again if faking the batch dim
+            if fake_batch_dim:  # Squeeze again if faking the batch dim
                 prediction = EDITTrainer._squeeze_dims(prediction)
                 data = EDITTrainer._squeeze_dims(data)
 
-            fixed_predictions = data_source.undo(prediction) # Undo Pipeline
+            fixed_predictions = data_source.undo(prediction)  # Undo Pipeline
 
             # Separate components
             if isinstance(fixed_predictions, (tuple, list)):
@@ -239,7 +244,9 @@ class EDITTrainer:
                 fixed_predictions = fixed_predictions[-1]
 
             if not isinstance(fixed_predictions, xr.Dataset):
-                raise TypeError(f"Unable to recurrently merge data of type {type(fixed_predictions)}")
+                raise TypeError(
+                    f"Unable to recurrently merge data of type {type(fixed_predictions)}"
+                )
 
             # Rebuild Time Dimension
             if "Coordinate 1" in fixed_predictions:
@@ -272,12 +279,13 @@ class EDITTrainer:
 
                 new_input = xr.merge((input_data, prediction_data))
 
-                new_input = new_input.isel(
-                    time=slice(-1 * len(input_data.time), None)
-                )
+                new_input = new_input.isel(time=slice(-1 * len(input_data.time), None))
                 return new_input
+
             # index = new_input.time.values[-1]
-            new_input_data = add_predictions(input_data or data_source.undo(data)[0], fixed_predictions)
+            new_input_data = add_predictions(
+                input_data or data_source.undo(data)[0], fixed_predictions
+            )
             new_input_data = data_source.apply((new_input_data, fixed_predictions))
 
             if isinstance(new_input_data, (list, tuple)):
@@ -291,24 +299,23 @@ class EDITTrainer:
 
         if truth_step is None:
             return predictions
-        
+
         if verbose:
             print(f"Recovering Truth")
 
-        with warnings.catch_warnings(action = 'ignore', category = IndexWarning):
-            truth_data = self.train_data.step(truth_step)(predictions)
-
+        with warnings.catch_warnings(action="ignore", category=IndexWarning):
+            truth_step = self.train_data.step(truth_step)
+            if 'CachingIndex' in self.train_data.steps:
+                truth_step = self.train_data.step('CachingIndex')
+            truth_data = truth_step(predictions)
 
         return Collection(truth_data, predictions)
 
-
-    ## Model State Functions 
+    ## Model State Functions
     @abstractmethod
-    def load(self, path : str | Path | bool):
+    def load(self, path: str | Path | bool):
         raise NotImplementedError
 
     @abstractmethod
     def save(self, path: str | Path):
         raise NotImplementedError
-        
-    

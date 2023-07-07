@@ -22,19 +22,23 @@ except ModuleNotFoundError:
 
 from edit.data import Collection
 from edit.training.trainer.template import EDITTrainer
-from edit.training.data.templates import DataIterator
+from edit.pipeline.templates import DataIterator
 
-class LoggingContext():
+
+class LoggingContext:
     def __init__(self, change: bool = True) -> None:
         self.change = change
+
     def __enter__(self, *args, **kwargs):
         if self.change:
             logging.getLogger("pytorch_lightning").setLevel(logging.ERROR)
-            warnings.simplefilter(action = 'ignore', category=UserWarning)
+            warnings.simplefilter(action="ignore", category=UserWarning)
+
     def __exit__(self, *args, **kwargs):
         if self.change:
             logging.getLogger("pytorch_lightning").setLevel(logging.INFO)
-            warnings.simplefilter(action = 'default', category=UserWarning)
+            warnings.simplefilter(action="default", category=UserWarning)
+
 
 class EDITLightningTrainer(EDITTrainer):
     """
@@ -43,7 +47,7 @@ class EDITLightningTrainer(EDITTrainer):
 
     def __init__(
         self,
-        model: 'pl.LightningModule',
+        model: "pl.LightningModule",
         train_data: DataLoader | DataIterator,
         path: str = None,
         valid_data: DataLoader | DataIterator = None,
@@ -72,7 +76,8 @@ class EDITLightningTrainer(EDITTrainer):
 
         import pytorch_lightning as pl
         import torch
-        torch.set_float32_matmul_precision('high')
+
+        torch.set_float32_matmul_precision("high")
 
         num_workers = kwargs.pop("num_workers", 0)
         self.num_workers = num_workers
@@ -84,7 +89,12 @@ class EDITLightningTrainer(EDITTrainer):
         except Exception:
             pass
 
-        self.datamodule = self._get_data(batch_size, train_data=train_data, valid_data=valid_data, num_workers=num_workers)
+        self.datamodule = self._get_data(
+            batch_size,
+            train_data=train_data,
+            valid_data=valid_data,
+            num_workers=num_workers,
+        )
 
         path = kwargs.pop("default_root_dir", path)
         if path is None:
@@ -96,16 +106,24 @@ class EDITLightningTrainer(EDITTrainer):
 
         checkpoint_callback = pl.callbacks.ModelCheckpoint(
             save_top_k=5,
-            monitor='step',
-            mode='max',
+            monitor="step",
+            mode="max",
             dirpath=self.checkpoint_path,
             filename="model-{step}-{epoch:02d}",
             every_n_train_steps=500,
         )
         self.callbacks = kwargs.pop("callbacks", [])
         self.callbacks.append(checkpoint_callback)
-        self.callbacks.append(pl.callbacks.early_stopping.EarlyStopping(monitor="valid/loss", min_delta=0.00, patience=4, verbose=False, mode="min"))
-        
+        self.callbacks.append(
+            pl.callbacks.early_stopping.EarlyStopping(
+                monitor="valid/loss",
+                min_delta=0.00,
+                patience=4,
+                verbose=False,
+                mode="min",
+            )
+        )
+
         self.log_path = Path(path)
         self.logger = None
 
@@ -115,10 +133,11 @@ class EDITLightningTrainer(EDITTrainer):
         if "logger" in kwargs and isinstance(kwargs["logger"], str):
             self.logger = str(kwargs.pop("logger")).lower()
             if self.logger == "tensorboard" and not TENSORBOARD_INSTALLED:
-                warnings.warn(f"Logger was set to 'tensorboard' but 'tensorboard' is not installed.\nDefaulting to csv logging")
+                warnings.warn(
+                    f"Logger was set to 'tensorboard' but 'tensorboard' is not installed.\nDefaulting to csv logging"
+                )
                 kwargs["logger"] = "csv"
 
-            
             if self.logger == "tensorboard":
                 kwargs["logger"] = pl.loggers.TensorBoardLogger(
                     path, name=kwargs.pop("name", None)
@@ -131,11 +150,11 @@ class EDITLightningTrainer(EDITTrainer):
         kwargs["limit_val_batches"] = int(kwargs.pop("limit_val_batches", 10))
 
         if isinstance(find_batch_size, str):
-            find_batch_size = True if find_batch_size == 'True' else False
+            find_batch_size = True if find_batch_size == "True" else False
         self.find_batch_size = find_batch_size
 
         self.trainer_kwargs = kwargs
-        self.trainer_kwargs.update(dict(default_root_dir = path))
+        self.trainer_kwargs.update(dict(default_root_dir=path))
 
         self.load_trainer()
 
@@ -143,20 +162,21 @@ class EDITLightningTrainer(EDITTrainer):
         import pytorch_lightning as pl
 
         trainer_kwargs = dict(self.trainer_kwargs)
-        trainer_kwargs.update(callbacks = list(self.callbacks), **kwargs)
-        
+        trainer_kwargs.update(callbacks=list(self.callbacks), **kwargs)
+
         self.trainer = pl.Trainer(**trainer_kwargs)
 
         if self.find_batch_size:
             tuner = pl.tuner.Tuner(self.trainer)
             tuner.scale_batch_size(self.model, mode="power", datamodule=self.datamodule)
 
-
     def _get_data(self, *args, **kwargs):
         import pytorch_lightning as pl
+
         class EDITDataModule(pl.LightningDataModule):
-            
-            def __init__(self, batch_size, train_data, valid_data = None, num_workers=0) -> None:
+            def __init__(
+                self, batch_size, train_data, valid_data=None, num_workers=0
+            ) -> None:
                 super().__init__()
                 self.batch_size = batch_size
                 self.num_workers = num_workers
@@ -168,16 +188,26 @@ class EDITLightningTrainer(EDITTrainer):
 
                 if isinstance(self.train_data, DataLoader):
                     return self.train_data
-                return DataLoader(self.train_data, batch_size=self.batch_size, num_workers = self.num_workers, pin_memory = True)
-            
+                return DataLoader(
+                    self.train_data,
+                    batch_size=self.batch_size,
+                    num_workers=self.num_workers,
+                    pin_memory=False,
+                )
+
             def val_dataloader(self):
                 from torch.utils.data import DataLoader
 
                 if isinstance(self.valid_data, DataLoader):
                     return self.valid_data
-                return DataLoader(self.valid_data or self.train_data, batch_size=self.batch_size, num_workers = self.num_workers, pin_memory = True)
-        return EDITDataModule(*args, **kwargs)
+                return DataLoader(
+                    self.valid_data or self.train_data,
+                    batch_size=self.batch_size,
+                    num_workers=self.num_workers,
+                    pin_memory=False,
+                )
 
+        return EDITDataModule(*args, **kwargs)
 
     def __getattr__(self, key):
         if key == "trainer":
@@ -188,9 +218,9 @@ class EDITLightningTrainer(EDITTrainer):
         """Using Pytorch Lightning `.fit` to train model, auto fills model and dataloaders
 
         Args:
-            load (bool | str, optional): 
+            load (bool | str, optional):
                 Whether to load most recent checkpoint file in checkpoint dir, or specified checkpoint file. Defaults to True.
-        """        
+        """
 
         file = self.load(load)
 
@@ -198,8 +228,8 @@ class EDITLightningTrainer(EDITTrainer):
             model=self.model,
             train_dataloaders=kwargs.pop("train_dataloaders", None),
             val_dataloaders=kwargs.pop("valid_dataloaders", None),
-            datamodule = self.datamodule,
-            ckpt_path = file,
+            datamodule=self.datamodule,
+            # ckpt_path = file,
             *args,
             **kwargs,
         )
@@ -210,15 +240,15 @@ class EDITLightningTrainer(EDITTrainer):
         Can either be PyTorch Lightning Checkpoint or torch checkpoint.
 
         Args:
-            file (str | bool, optional): 
+            file (str | bool, optional):
                 Path to checkpoint, or boolean to find latest file. Defaults to True.
-            only_state (bool, optional): 
+            only_state (bool, optional):
                 If only the model state should be loaded. Defaults to False.
-        """          
+        """
         import torch
 
         if isinstance(file, bool):
-            if file and self.checkpoint_path.exists():
+            if file and self.checkpoint_path.exists() and len(list(Path(self.checkpoint_path).iterdir())) > 0:
                 file = max(Path(self.checkpoint_path).iterdir(), key=os.path.getctime)
             else:
                 return
@@ -232,17 +262,28 @@ class EDITLightningTrainer(EDITTrainer):
                 new_state = {}
                 for key, variable in state.items():
                     if "model" in key or "net" in key:
-                        new_state[key.replace("model.", "").replace("net.", "")] = variable
+                        new_state[
+                            key.replace("model.", "").replace("net.", "")
+                        ] = variable
                     else:
                         new_state[key] = variable
                 state = new_state
 
             self.model.model.load_state_dict(state)
-            return
-        self.model = self.model.load_from_checkpoint(file)
+            return file
+
+        try:
+            self.model = self.model.load_from_checkpoint(file)
+        except (RuntimeError, KeyError) as e:
+            warnings.warn(
+                "A KeyError arose when loading from checkpoint, will attempt to load only the model state.",
+                RuntimeWarning,
+            )
+            return self.load(file=file, only_state=True)
+
         return file
 
-    def _predict_from_data(self, data : np.ndarray, **kwargs):
+    def _predict_from_data(self, data: np.ndarray, **kwargs):
         """
         Using the loaded model, and given data make a prediction
         """
@@ -265,7 +306,7 @@ class EDITLightningTrainer(EDITTrainer):
             batch_size=kwargs.pop("batch_size", batch_size),
             # num_workers=kwargs.pop("num_workers", self.num_workers), #Apparently this reproduces data on small scales
         )
-        warnings.filterwarnings("ignore", ".*does not have many workers.*")        
+        warnings.filterwarnings("ignore", ".*does not have many workers.*")
 
         prediction = tuple(
             map(
@@ -302,22 +343,21 @@ class EDITLightningTrainer(EDITTrainer):
                 latest_time = time
                 latest_item = item
         return latest_item
-    
+
     @functools.wraps(EDITTrainer.predict)
     def predict(self, *args, quiet: bool = False, **kwargs) -> tuple:
         with LoggingContext(quiet):
             if quiet:
                 self.load_trainer(enable_progress_bar=False)
             return super().predict(*args, **kwargs)
-        
+
     @functools.wraps(EDITTrainer.predict_recurrent)
     def predict_recurrent(self, *args, quiet: bool = False, **kwargs) -> tuple:
         with LoggingContext(quiet):
             if quiet:
                 self.load_trainer(enable_progress_bar=False)
             return super().predict_recurrent(*args, **kwargs)
-        
-    
+
     def __flatten_metrics(self, data: pd.DataFrame):
         return data
 
