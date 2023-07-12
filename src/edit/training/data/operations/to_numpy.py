@@ -52,6 +52,8 @@ class ToNumpy(DataOperation):
         attrs = dataset.attrs
 
         variables = list(dataset.data_vars)
+        var_attrs = {var: dataset[var].attrs for var in variables}
+
         shape = (len(variables), *dataset[variables[0]].shape)
 
         dims = [None] * (len(dataset.coords) + 1)
@@ -71,7 +73,7 @@ class ToNumpy(DataOperation):
 
         dims = list(('Variables', *dims))
 
-        return {"dims": dims, "coords": coords, "attrs": attrs, "shape": shape}
+        return {"dims": dims, "coords": coords, "attrs": attrs, "var_attrs": var_attrs, "shape": shape}
 
     def _set_records(self, datasets: tuple[xr.Dataset] | xr.Dataset) -> None:
         """Set and store records from given datasets
@@ -158,19 +160,19 @@ class ToNumpy(DataOperation):
         coords = dict(xarray_distill["coords"])
         variables = coords.pop("Variables")
 
-
         for i in range(numpy_array.shape[xarray_distill["dims"].index("Variables")]):
             data = np.take(
                 numpy_array, i, axis=xarray_distill["dims"].index("Variables")
             )
-            data_vars[variables[i]] = (coords, data)
+            data_vars[variables[i]] = (coords, data, xarray_distill["var_attrs"][variables[i]])
 
         try:
             ds = xr.Dataset(
                 data_vars=data_vars,
                 coords=coords,
-                attrs=xarray_distill.get("attrs",{}),
+                attrs=xarray_distill["attrs"],
             )
+
         except ValueError as e:
             raise ValueError(f"An error occurred converting data back to a NumPy array. Incoming shape is {numpy_array.shape}") from e
         return ds

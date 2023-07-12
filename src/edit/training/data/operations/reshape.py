@@ -1,8 +1,9 @@
 from __future__ import annotations
+import math
 
 import einops
 import numpy as np
-from scipy import interpolate
+import xarray as xr
 
 from edit.training.data.templates import (
     DataStep,
@@ -31,8 +32,9 @@ class Rearrange(DataOperation):
         self,
         index: DataStep,
         rearrange: str,
-        skip: bool = False,
         *rearrange_args,
+        skip: bool = False,
+        reverse_rearrange: str = None,
         rearrange_kwargs: dict = {},
         **kwargs,
     ) -> None:
@@ -55,6 +57,8 @@ class Rearrange(DataOperation):
                 String entry to einops.rearrange
             skip (bool, optional): 
                 Whether to skip data that cannot be rearranged. Defaults to False.
+            reverse_rearrange (str, optional):
+                Override for reverse operation, if not given flip rearrange. Defaults to None.
             *rearrange_args (Any, optional):
                 Extra arguments to be passed to the einops.rearrange call
             rearrange_kwargs (dict, optional):
@@ -62,6 +66,7 @@ class Rearrange(DataOperation):
         """        
         super().__init__(index, self._apply_rearrange, self._undo_rearrange, split_tuples=True, recognised_types=[np.ndarray], **kwargs)
         self.pattern = rearrange
+        self.reverse_pattern = reverse_rearrange
         self.rearrange_args = rearrange_args
         self.rearrange_kwargs = rearrange_kwargs
 
@@ -86,9 +91,13 @@ class Rearrange(DataOperation):
         return self.__rearrange(data, self.pattern)
 
     def _undo_rearrange(self, data: np.ndarray):
-        pattern = self.pattern.split("->")
-        pattern.reverse()
-        return self.__rearrange(data, "->".join(pattern))
+        if self.reverse_pattern:
+            pattern = self.reverse_pattern
+        else:
+            pattern = self.pattern.split("->")
+            pattern.reverse()
+            pattern = "->".join(pattern)
+        return self.__rearrange(data, pattern)
 
 
 @SequentialIterator
@@ -204,38 +213,70 @@ class Expand(DataOperation):
         return np.expand_dims(data, self.axis)
 
 class Flattener:
-    def __init__(self, shape_attempt: tuple = None) -> None:
-        self.shape = None
+    def __init__(self, flatten_dims, shape_attempt: tuple = None) -> None:
+        self._unflattenshape = None
+        self._fillshape = None
         self.shape_attempt = shape_attempt
 
+        if isinstance(flatten_dims, int) and flatten_dims < 1:
+            raise ValueError(f"'flatten_dims' cannot be smaller than 1.")
+        self.flatten_dims = flatten_dims
+
+    def _prod_shape(self, shape):
+        if isinstance(shape, np.ndarray):
+            shape = shape.shape
+        return math.prod(shape)
+
     def _configure_shape_attempt(self):
-        if not self.shape or not self.shape_attempt:
+        if not self._fillshape or not self.shape_attempt:
             return self.shape_attempt
         if not '...' in self.shape_attempt:
             return self.shape_attempt
+        
         shape_attempt = list(self.shape_attempt)
-        if not len(shape_attempt) == len(self.shape):
-            raise IndexError(f"Shapes must be the same length, not {shape_attempt} and {self.shape}")
+        if not len(shape_attempt) == len(self._fillshape):
+            raise IndexError(f"Shapes must be the same length, not {shape_attempt} and {self._unflattenshape}")
         
         while '...' in shape_attempt:
-            shape_attempt[shape_attempt.index('...')] = self.shape[shape_attempt.index('...')]
+            shape_attempt[shape_attempt.index('...')] = self._fillshape[shape_attempt.index('...')]
         
         return tuple(shape_attempt)
 
     def apply(self, data : np.ndarray) -> np.ndarray:
-        self.shape = data.shape
-        return data.flatten()
+        #if self._unflattenshape is None:
+        self._unflattenshape = data.shape
+        if self._fillshape is None:
+            self._fillshape = data.shape
+
+        if not self.flatten_dims:
+            self.flatten_dims = len(data.shape)
+    
+        self._unflattenshape = self._unflattenshape[-1 * self.flatten_dims:]
+        return data.reshape((*data.shape[: -1 * self.flatten_dims], self._prod_shape(self._unflattenshape)))
 
     def undo(self, data: np.ndarray) -> np.ndarray:
-        if self.shape is None:
+        if self._unflattenshape is None:
             raise RuntimeError(f"Shape not set, therefore cannot undo")
-        try:
-            return data.reshape(self.shape)
-        except ValueError as e:
-            if self.shape_attempt:
-                shape_attempt = self._configure_shape_attempt()
-                return data.reshape(shape_attempt)
-            raise e
+        
+        def _unflatten(data, shape):
+            while len(data.shape) > len(shape):
+                shape = (data[-len(shape)], *shape)
+            return data.reshape(shape)
+        
+        data_shape = data.shape
+        parsed_shape = data_shape[: -1 * min(1,(self.flatten_dims-1))] if len(data_shape) > 1 else data_shape
+        attempts = [(*parsed_shape, *self._unflattenshape), ]
+
+        if self.shape_attempt:
+            shape_attempt = self._configure_shape_attempt()
+            attempts.append((*parsed_shape, *shape_attempt[-1 * self.flatten_dims:]))
+
+        for attemp in attempts:
+            try:
+                return _unflatten(data, attemp)
+            except ValueError:
+                continue
+        raise ValueError(f"Unable to unflatten array of shape: {data.shape} with any of {attempts}")
 
 @SequentialIterator
 class Flatten(DataOperation):
@@ -256,23 +297,35 @@ class Flatten(DataOperation):
         If use this with [PatchingDataIndex][edit.training.data.operations.PatchingDataIndex], set `seperate_patch` to True
     """
 
-    def __init__(self, index: DataStep, seperate_patch: bool = False, shape_attempt: tuple = None) -> None:
+    def __init__(self, index: DataStep, flatten_dims: int = None, *, shape_attempt: tuple = None,) -> None:
         """DataOperation to flatten incoming data
 
         Args:
             index (DataStep): 
                 Underlying index to retrieve data from
-            seperate_patch (bool, optional): 
-                Separate patches so they aren't squashed. 
-                Use only if using [PatchingDataIndex][edit.training.data.operations.PatchingDataIndex]. Defaults to False.
+            flatten_dims (int, optional): 
+                Number of dimensions to flatten, counting from the end. If None, flatten all, with size being stored from first use. 
+                Is used for negative indexing, so for last three dims `flatten_dims` == 3, Defaults to None.
             shape_attempt (tuple, optional):
                 Reshape value to try if discovered shape fails. Used if data coming to be undone is different. 
                 Can have `'...'` as wildcards to get from discovered, Defaults to None.
 
-        ??? tip "Advanced Use"
+        Examples:
+            >>> incoming_data = np.zeros((5,4,3,2))
+            >>> flattener = Flatten([], flatten_dims = 2)
+            >>> flattener.apply_func(incoming_data).shape   
+            (5, 4, 6)
+            >>> flattener = Flatten([], flatten_dims = 3)
+            >>> flattener.apply_func(incoming_data).shape 
+            (5, 24)
+            >>> flattener = Flatten([], flatten_dims = None)
+            >>> flattener.apply_func(incoming_data).shape 
+            (120)
+                    
+        ??? tip "shape_attempt Advanced Use"
             If using a model which does not return a full sample, say an XGBoost model only returning the centre value, set `shape_attempt`.
 
-            If incoming data is of shape `(1, 1, 3, 3)`, and data for undoing is `(1, 1, 1, 1)` aka `(1)`, set `shape_attempt` to `('...','...',1,1)`
+            If incoming data is of shape `(1, 1, 3, 3)`, and data for undoing is `(1, 1, 1, 1)` aka `(1)`, set `shape_attempt` to `('...','...', 1, 1)`
 
             
             ```python title="Spatial Size Change"
@@ -298,12 +351,12 @@ class Flatten(DataOperation):
         """        
         super().__init__(index, apply_func=self._apply_flattening, undo_func=self._undo_flattening)
 
-        self.seperate_patch = seperate_patch
         self.shape_attempt = shape_attempt
+        self.flatten_dims = flatten_dims
         self._flatteners = []
 
 
-        self._info_ = dict(seperate_patch = seperate_patch, shape_attempt = shape_attempt)
+        self._info_ = dict(flatten_dims = flatten_dims, shape_attempt = shape_attempt)
 
     def _get_flatteners(self, number: int) -> tuple[Flattener]:
         """
@@ -314,7 +367,7 @@ class Flatten(DataOperation):
             if i < len(self._flatteners):
                 return_values.append(self._flatteners[i])
             else:
-                self._flatteners.append(Flattener(shape_attempt= self.shape_attempt))
+                self._flatteners.append(Flattener(shape_attempt= self.shape_attempt, flatten_dims = self.flatten_dims))
                 return_values.append(self._flatteners[-1])
 
         return return_values
@@ -329,25 +382,51 @@ class Flatten(DataOperation):
     def _undo_flattening(self, data):
         if isinstance(data, tuple):
             flatteners = self._get_flatteners(len(data))
-            if self.seperate_patch:
-                return tuple(np.stack(tuple(map(flatteners[i].undo, item))) for i, item in enumerate(data))
             return tuple(np.stack(flatteners[i].undo(item)) for i, item in enumerate(data))
         else:
-            if self.seperate_patch:
-                return np.stack(tuple(map(self._get_flatteners(1)[0].undo, data)))
             return self._get_flatteners(1)[0].undo(data)
 
 
-    def __getitem__(self, idx):
-        data = self.index[idx]
-        if self.apply_get and self.apply_func:
-            if isinstance(data, tuple):
-                flatteners = self._get_flatteners(len(data))
-                if self.seperate_patch:
-                    return tuple(np.stack(tuple(map(flatteners[i].apply, item))) for i, item in enumerate(data))
-                return tuple(np.stack(flatteners[i].apply(item)) for i, item in enumerate(data))
-            else:
-                if self.seperate_patch:
-                    return np.stack(tuple(map(self._get_flatteners(1)[0].apply, data)))
-                return self._get_flatteners(1)[0].apply(data)
-        return data
+@SequentialIterator
+class Dimensions(DataOperation):
+    def __init__(self, index: DataStep, dimensions: str | list[str], append: bool = True):
+        """
+        DataOperation to reorder Dimensions of an [xarray][xarray] object.
+
+        Not all dims have to be supplied, will automatically add remaining dims, 
+        or if append == False, prepend extra dims.
+
+        !!! Example
+            ```python
+            Dimensions(PipelineStep, dimensions = ['time'])
+
+            ## As this is decorated with @SequentialIterator, it can be partially initialised
+
+            partialDimensions = Dimensions(dimensions = ['time'])
+            partialDimensions(PipelineStep)
+            ```
+
+        Args:
+            index (DataStep): 
+                Underlying DataStep to get data from
+            dimensions (str | list[str]): 
+                Specified order of dimensions to tranpose dataset to
+            append (bool, optional): 
+                Append extra dims, if false, prepend dims. Defaults to True.
+        """
+        super().__init__(index, apply_func=self._order_dims, undo_func = None, recognised_types=[xr.Dataset, xr.DataArray], split_tuples=True)
+        
+        self.dimensions = dimensions if isinstance(dimensions, (list, tuple)) else [dimensions]
+        self.append = append
+        
+        self.__doc__ = "Reorder Dimensions"
+        self._info_  = dict(dimensions = dimensions, append = append)
+
+    def _order_dims(self, ds : xr.Dataset | xr.DataArray):
+        dims = ds.dims
+        dims = set(dims).difference(set(self.dimensions))
+        if self.append:
+            dims = [*self.dimensions, *dims]
+        else:
+            dims = [*dims, *self.dimensions]
+        return ds.transpose(*dims, missing_dims = 'warn')

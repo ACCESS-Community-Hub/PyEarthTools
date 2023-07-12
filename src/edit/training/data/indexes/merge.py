@@ -31,18 +31,20 @@ class MergeIndex(TrainingOperatorIndex):
 
     def __init__(
         self,
-        indexes: list | dict | OperatorIndex,
-        sample_interval: tuple[int, tuple[int]] = None,
+        indexes: list | dict | OperatorIndex = {},
+        *,
+        data_resolution: tuple[int, tuple[int]] = None,
         transforms: list | dict = TransformCollection(),
+        **kwargs,
     ):
         """OperatorIndex which interpolates any given indexes onto the same spatial grid
 
-        Will retrieve samples with `sample_interval` resolution.
+        Will retrieve samples with `data_resolution` resolution.
 
         Args:
             indexes (list | dict | OperatorIndex):
                 Indexes in which to interpolate together and return, can be fully defined or dictionary defined
-            sample_interval (tuple[int, tuple[int]], optional):
+            data_resolution (tuple[int, tuple[int]], optional):
                 Sample Interval to pass up, must be of pandas.to_timestep form.
                 E.g. (10,'H') - 10 Hours. Defaults to None.
             transforms (list | dict, optional):
@@ -53,11 +55,12 @@ class MergeIndex(TrainingOperatorIndex):
             transforms = get_transforms(transforms)
 
         base_transforms = TransformCollection(transforms)
+        indexes.update(kwargs)
 
         super().__init__(
             indexes,
             base_transforms=base_transforms,
-            data_resolution=sample_interval,
+            data_resolution=data_resolution,
             allow_multiple_index=True,
         )
 
@@ -65,7 +68,7 @@ class MergeIndex(TrainingOperatorIndex):
 
     def get(self, query_time, **kwargs) -> xr.Dataset:
         """
-        Get Data at given time from all given indexes, and interpolate as defined.
+        Get Data at given time from all given indexes, and merge as defined.
 
         Args:
             query_time (Any):
@@ -73,8 +76,9 @@ class MergeIndex(TrainingOperatorIndex):
 
         Returns:
             (xr.Dataset):
-                [xr.Dataset][xarray.Dataset] containing data from all indexes interpolated together
+                [xr.Dataset][xarray.Dataset] containing data from all indexes merged together
         """
 
-        return xr.merge([index(query_time, transforms=self.base_transforms, **kwargs) for index in self.index])
+        data = xr.merge([index(query_time, transforms=self.base_transforms, **kwargs) for index in self.index])
+        return data.transpose(*list(data.dims))
 

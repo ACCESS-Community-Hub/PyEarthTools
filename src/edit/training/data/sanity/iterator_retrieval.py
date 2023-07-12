@@ -78,6 +78,7 @@ class TimeoutException(Exception):
 
 def _get_data(iterator, num_samples: int = 2, index: int = None):
     samples = None
+
     if index:
         return iterator[index]
 
@@ -107,7 +108,7 @@ def signal_data(
             elif isinstance(iterator.ignore_sanity, str) and iterator.ignore_sanity in ignore_categories:
                 continue
 
-        if isinstance(iterator, list):
+        if isinstance(iterator, (tuple, list)):
             for item in iterator:
                 iterators.append(item)
             iterator = iterator[0]

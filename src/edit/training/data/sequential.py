@@ -138,7 +138,7 @@ def from_dict(data_specifications: dict | str | Path ) -> DataStep:
             Fully initialised DataStep's aka a Data Pipeline
     """    
 
-    if isinstance(data_specifications, str):
+    if isinstance(data_specifications, (Path, str)):
         with open(data_specifications, "r") as file:
             data_specifications = yaml.safe_load(file)
         if "data" in data_specifications:

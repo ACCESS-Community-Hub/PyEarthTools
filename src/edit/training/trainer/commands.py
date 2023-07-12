@@ -11,7 +11,11 @@ def entry_point():
     pass
 
 
-@entry_point.command(name="fit")
+@entry_point.command(name="fit", context_settings=dict(
+    ignore_unknown_options=True,
+    allow_extra_args=True,
+))
+@click.pass_context
 @click.argument(
     "yaml_file",
     type=click.Path(
@@ -19,21 +23,30 @@ def entry_point():
     ),
 )
 @click.option(
-    "--resume",
+    "--load",
     type=bool,
     default=True,
 )
-def fit(yaml_file: str | click.Path, resume: bool):
+def fit(ctx, yaml_file: str | click.Path, load: bool):
     """From Yaml Config, fit model.
 
     Args:
         yaml_file (str): Path to yaml config
-        resume (bool): Use existing model
+        load (bool): Use existing model
     """
     from edit.training.trainer.yaml import from_yaml
 
-    trainer = from_yaml(yaml_file)
-    trainer.fit(load=resume)
+    d = dict()
+    if len(ctx.args) > 1:
+        for i in range(0, len(ctx.args), 2):
+            if not str(ctx.args[i]).startswith('--'):
+                raise KeyError(f"{ctx.args[i]} is an invalid kwarg, ensure it starts with '--'")
+            d[str(ctx.args[i]).replace('--','')] = int(ctx.args[i+1]) if ctx.args[i+1].isdigit() else ctx.args[i+1]
+
+    extra_kwargs = d
+
+    trainer = from_yaml(yaml_file, **extra_kwargs)
+    trainer.fit(load=load)
 
 
 @entry_point.command(name="predict")

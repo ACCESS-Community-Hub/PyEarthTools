@@ -166,6 +166,7 @@ def get_transforms(sources: dict, order: list = None) -> list[edit.data.Transfor
         - `__main__.`
         - `edit.data.transform.`
         - `edit.data.`
+        - `edit.training.data.operations.transforms.`
 
     !!! tip "Multiple Tip"
         If two or more of the same [Transform][edit.data.transform] are wanted, add '[NUMBER]', to distiguish the key, this will be removed before import
@@ -214,7 +215,7 @@ def get_transforms(sources: dict, order: list = None) -> list[edit.data.Transfor
                 pass
 
             if not data_transform:
-                for alterations in ["__main__.", "", "edit.data.transform.", "edit.data."]:
+                for alterations in ["__main__.", "", "edit.data.transform.", "edit.data." , "edit.training.data.operations.transforms."]:
                     try:
                         data_transform = get_callable(alterations + transform)
                     except (ModuleNotFoundError, ImportError, AttributeError, ValueError):

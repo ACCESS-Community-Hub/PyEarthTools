@@ -31,7 +31,8 @@ class InterpolationIndex(TrainingOperatorIndex):
 
     def __init__(
         self,
-        indexes: list | dict | OperatorIndex,
+        indexes: list | dict | OperatorIndex = {},
+        *,
         sample_interval: tuple[int, tuple[int]] = None,
         override_if_wrong: bool = True,
         transforms: list | dict = TransformCollection(),
@@ -40,6 +41,7 @@ class InterpolationIndex(TrainingOperatorIndex):
         temporal: bool = False,
         temporal_reference: xr.Dataset = None,
         temporal_function: str | Callable = "mean",
+        **kwargs,
     ):
         """OperatorIndex which interpolates any given indexes onto the same spatial grid
 
@@ -81,6 +83,7 @@ class InterpolationIndex(TrainingOperatorIndex):
 
         base_transforms = TransformCollection(transforms)
 
+        indexes.update(kwargs)
         super().__init__(
             indexes,
             base_transforms=base_transforms,
@@ -137,7 +140,8 @@ class InterpolationIndex(TrainingOperatorIndex):
                 aggregation_function=self.temporal_function,
                 merge=True,
             )
-        return xr.merge(data)
+        data = xr.merge(data)
+        return data.transpose(*list(data.dims))
 
     @property
     def __doc__(self):

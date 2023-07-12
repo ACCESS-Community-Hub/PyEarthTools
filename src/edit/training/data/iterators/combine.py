@@ -76,3 +76,4 @@ class CombineDataIterator(DataIterator):
             if hasattr(self.index, "_formatted_name"):
                 formatted += f"\n{self.index._formatted_doc_()}"
         return formatted
+

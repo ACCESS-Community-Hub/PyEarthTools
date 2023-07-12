@@ -4,6 +4,7 @@ import importlib
 from .extremes import ExtremeLoss
 from .centre_weighted import centre_weighted
 from .rmse import RMSELoss
+from .structure import SSIMLoss
 
 from edit.training import modules
 

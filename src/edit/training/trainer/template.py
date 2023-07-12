@@ -2,13 +2,15 @@ from __future__ import annotations
 from abc import abstractmethod
 
 from pathlib import Path
+import warnings
 from typing import Any
 import numpy as np
 import xarray as xr
 
+from tqdm.auto import tqdm, trange
 
 from edit.training.data.templates import DataStep
-from edit.data import Collection
+from edit.data import Collection, IndexWarning
 
 
 class EDITTrainer:
@@ -74,7 +76,7 @@ class EDITTrainer:
         data_iterator: DataStep = None,
         load: bool | str = False,
         load_kwargs: dict = {},
-        fake_batch_dim: bool = False,
+        fake_batch_dim: bool = None,
         **kwargs,
     ) -> tuple[np.array] | tuple[xr.Dataset]:
         """Predict using the model a particular index
@@ -108,6 +110,11 @@ class EDITTrainer:
                 Either xarray datasets or np arrays, [truth data, predicted data]
         """    
         self.load(load,**load_kwargs)
+
+        if 'ToNumpy' in self.train_data.steps:
+            fake_batch_dim = True if fake_batch_dim is None else fake_batch_dim
+        if fake_batch_dim is None:
+            fake_batch_dim = False
 
         data_source = data_iterator or self.valid_data or self.train_data
         data = data_source[index]
@@ -152,6 +159,7 @@ class EDITTrainer:
         truth_step: int = 0,
         fake_batch_dim: bool = False,
         trim_time_dim: int = None,
+        verbose: bool = False,
         **kwargs,
     ) -> tuple[np.array] | tuple[xr.Dataset]:
         """Time wise recurrent prediction
@@ -163,6 +171,10 @@ class EDITTrainer:
         !!! Warning
             If number of patches is not divisible by the `batch_size`, issues may arise.
             Solution: batch_size = 1
+
+        ??? Tip 
+            If data is being converted using [ToNumpy][edit.training.data.operations.to_numpy] issues may arise with an invalid shape,
+            simply set `fake_batch_dim` to `True`
 
         Args:
             start_index (str):
@@ -181,6 +193,8 @@ class EDITTrainer:
                 If the batch dimension needs to be faked. Defaults to False.
             trim_time_dim (int, optional):
                 Number of sample in time to use of prediction. Defaults to None.
+            verbose (bool, optional):
+                Show progress of recurrent predictions. Defaults to False.
         Returns:
             (tuple[np.array] | tuple[xr.Dataset]):
                 Either xarray datasets or np arrays, [truth data, predicted data]
@@ -197,11 +211,16 @@ class EDITTrainer:
         elif load and Path(self.path).exists():
             self.load(True, **load_kwargs)
 
+        if 'ToNumpy' in self.train_data.steps:
+            fake_batch_dim = True if fake_batch_dim is None else fake_batch_dim
+        if fake_batch_dim is None:
+            fake_batch_dim = False
+
         predictions = []
         index = start_index
 
         # Begin Recurrence
-        for i in range(recurrence):
+        for i in trange(recurrence, disable = not verbose, desc = 'Predicting Recurrently'):
             if fake_batch_dim: # Fake the Batch Dimension, for use with ToNumpy
                 data = EDITTrainer._expand_dims(data)
 
@@ -234,41 +253,53 @@ class EDITTrainer:
                 )
 
             # Record Prediction
+            append_prediction = fixed_predictions
             if trim_time_dim:
-                predictions.append(fixed_predictions.isel(
+                append_prediction = fixed_predictions.isel(
                     time=slice(None, trim_time_dim)
-                ))
-            else:
-                predictions.append(fixed_predictions)
+                )
+            predictions.append(append_prediction)
+            index = append_prediction.time.values[-1]
 
             # Setup recurrent input data
             data = list(data)
-            input_data = input_data or data_source.undo(data)[0]
-            new_input = xr.merge((input_data, fixed_predictions))
-            if trim_time_dim:
-                new_input = new_input.isel(
-                    time=slice(trim_time_dim, len(input_data.time) + trim_time_dim)
-                )
-            else:
+
+            def add_predictions(input_data, prediction_data):
+                if trim_time_dim:
+                    prediction_data = prediction_data.isel(
+                        time=slice(None, trim_time_dim)
+                    )
+
+                new_input = xr.merge((input_data, prediction_data))
+
                 new_input = new_input.isel(
                     time=slice(-1 * len(input_data.time), None)
                 )
-            index = new_input.time.values[-1]
+                return new_input
+            # index = new_input.time.values[-1]
+            new_input_data = add_predictions(input_data or data_source.undo(data)[0], fixed_predictions)
+            new_input_data = data_source.apply((new_input_data, fixed_predictions))
 
-            new_input_data = data_source.apply(new_input)
             if isinstance(new_input_data, (list, tuple)):
                 new_input_data = new_input_data[0]
             data[0] = new_input_data
 
+        if verbose:
+            print(f"Merging Predictions")
 
         predictions = xr.merge(predictions)
 
         if truth_step is None:
             return predictions
+        
+        if verbose:
+            print(f"Recovering Truth")
 
-        return Collection(
-            self.train_data.step(truth_step)(predictions), predictions
-        )
+        with warnings.catch_warnings(action = 'ignore', category = IndexWarning):
+            truth_data = self.train_data.step(truth_step)(predictions)
+
+
+        return Collection(truth_data, predictions)
 
 
     ## Model State Functions 

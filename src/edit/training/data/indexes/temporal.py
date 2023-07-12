@@ -8,7 +8,7 @@ import xarray as xr
 
 from edit.data import FunctionTransform, Transform, TransformCollection
 from edit.data import DataIndex, OperatorIndex
-from edit.data.time import EDITDatetime, time_delta
+from edit.data.time import EDITDatetime, TimeDelta
 
 from edit.training.data.templates import DataIterator, DataStep, DataInterface, TrainingOperatorIndex, TrainingDataIndex
 from edit.training.data.sequential import Sequential, SequentialIterator
@@ -35,9 +35,11 @@ class TemporalIndex(TrainingDataIndex):
     def __init__(
         self,
         index: DataStep,
+        *,
         transforms: list[TransformCollection] | TransformCollection | str | dict = TransformCollection(),
         samples: tuple[int] | int = 1,
         sample_interval: int | tuple = [60, 'min'],
+        use_safe_series: bool = True,
         **kwargs,
     ) -> None:
         """TemporalIndex to add a time dimension to the loaded data.
@@ -51,8 +53,12 @@ class TemporalIndex(TrainingDataIndex):
             samples (tuple[int] | int, optional): 
                 Temporal Samples to retrieve, if tuple [prior,post], if int post. Defaults to [60, 'min'].
             sample_interval (int | tuple, optional): 
-                Interval between samples, must be in form of [TimeDelta][edit.data.time.time_delta].
+                Interval between samples, must be in form of [TimeDelta][edit.data.time.TimeDelta].
                 If int, default to minutes unit. Defaults to 1.
+            use_safe_series (bool, optional):
+
+            **kwargs (Any, Optional):
+                Extra kwargs to be passed to the retrieval calls.
         
         Raises:
             ValueError: 
@@ -63,15 +69,16 @@ class TemporalIndex(TrainingDataIndex):
 
         self.retrieval_kwargs = kwargs
         self.transforms = get_transforms(transforms)
+        self.use_safe_series = use_safe_series
 
         if isinstance(samples, list):
             samples = tuple(samples)
 
         self.samples = samples
         if isinstance(sample_interval, tuple) and isinstance(sample_interval[0], tuple):
-            self.sample_interval = tuple(map(time_delta, sample_interval))
+            self.sample_interval = tuple(map(TimeDelta, sample_interval))
         else:
-            self.sample_interval = time_delta(sample_interval)
+            self.sample_interval = TimeDelta(sample_interval)
 
         self._info_ = dict(samples = samples, sample_interval = sample_interval)
 
@@ -135,6 +142,8 @@ class TemporalIndex(TrainingDataIndex):
 
         timestep = EDITDatetime(timestep)
 
+        retrieval_func = index.safe_series if self.use_safe_series else index.series
+
         if self.samples == 1:
             data = index.single(
                 timestep, transforms=transforms, **self.retrieval_kwargs
@@ -146,7 +155,7 @@ class TemporalIndex(TrainingDataIndex):
             and self.samples > 1
             and isinstance(index, OperatorIndex)
         ):
-            data = index.safe_series(
+            data = retrieval_func(
                 timestep,
                 timestep + self.sample_interval * (self.samples),
                 interval=self.sample_interval,
@@ -162,7 +171,8 @@ class TemporalIndex(TrainingDataIndex):
                 interval = self.sample_interval
                 if isinstance(self.sample_interval, tuple):
                     interval = self.sample_interval[0]
-                data_prior = index.safe_series(
+
+                data_prior = retrieval_func(
                     timestep - interval * self.samples[0],
                     timestep,
                     interval=interval,
@@ -171,11 +181,10 @@ class TemporalIndex(TrainingDataIndex):
                     verbose=self.retrieval_kwargs.pop("verbose", False),
                     **self.retrieval_kwargs,
                 )
-
                 if isinstance(self.sample_interval, tuple):
                     interval = self.sample_interval[1]
 
-                data_next = index.safe_series(
+                data_next = retrieval_func(
                     timestep,  # + self.sample_interval,
                     timestep + interval * self.samples[1],
                     interval=interval,

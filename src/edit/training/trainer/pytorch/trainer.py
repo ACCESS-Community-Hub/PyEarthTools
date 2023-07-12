@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import copy
+import functools
+import logging
 import os
 from pathlib import Path
 import warnings
@@ -22,6 +24,17 @@ from edit.data import Collection
 from edit.training.trainer.template import EDITTrainer
 from edit.training.data.templates import DataIterator
 
+class LoggingContext():
+    def __init__(self, change: bool = True) -> None:
+        self.change = change
+    def __enter__(self, *args, **kwargs):
+        if self.change:
+            logging.getLogger("pytorch_lightning").setLevel(logging.ERROR)
+            warnings.simplefilter(action = 'ignore', category=UserWarning)
+    def __exit__(self, *args, **kwargs):
+        if self.change:
+            logging.getLogger("pytorch_lightning").setLevel(logging.INFO)
+            warnings.simplefilter(action = 'default', category=UserWarning)
 
 class EDITLightningTrainer(EDITTrainer):
     """
@@ -89,10 +102,10 @@ class EDITLightningTrainer(EDITTrainer):
             filename="model-{step}-{epoch:02d}",
             every_n_train_steps=500,
         )
-        callbacks = kwargs.pop("callbacks", [])
-        callbacks.append(checkpoint_callback)
-        callbacks.append(pl.callbacks.early_stopping.EarlyStopping(monitor="valid/loss", min_delta=0.00, patience=4, verbose=False, mode="min"))
-
+        self.callbacks = kwargs.pop("callbacks", [])
+        self.callbacks.append(checkpoint_callback)
+        self.callbacks.append(pl.callbacks.early_stopping.EarlyStopping(monitor="valid/loss", min_delta=0.00, patience=4, verbose=False, mode="min"))
+        
         self.log_path = Path(path)
         self.logger = None
 
@@ -117,18 +130,27 @@ class EDITLightningTrainer(EDITTrainer):
 
         kwargs["limit_val_batches"] = int(kwargs.pop("limit_val_batches", 10))
 
-        self.trainer = pl.Trainer(
-            default_root_dir=path,
-            callbacks=callbacks,
-            **kwargs,
-        )
-
         if isinstance(find_batch_size, str):
             find_batch_size = True if find_batch_size == 'True' else False
+        self.find_batch_size = find_batch_size
 
-        if find_batch_size:
+        self.trainer_kwargs = kwargs
+        self.trainer_kwargs.update(dict(default_root_dir = path))
+
+        self.load_trainer()
+
+    def load_trainer(self, **kwargs):
+        import pytorch_lightning as pl
+
+        trainer_kwargs = dict(self.trainer_kwargs)
+        trainer_kwargs.update(callbacks = list(self.callbacks), **kwargs)
+        
+        self.trainer = pl.Trainer(**trainer_kwargs)
+
+        if self.find_batch_size:
             tuner = pl.tuner.Tuner(self.trainer)
-            tuner.scale_batch_size(model, mode="power", datamodule=self.datamodule)
+            tuner.scale_batch_size(self.model, mode="power", datamodule=self.datamodule)
+
 
     def _get_data(self, *args, **kwargs):
         import pytorch_lightning as pl
@@ -170,13 +192,14 @@ class EDITLightningTrainer(EDITTrainer):
                 Whether to load most recent checkpoint file in checkpoint dir, or specified checkpoint file. Defaults to True.
         """        
 
-        self.load(load)
+        file = self.load(load)
 
         self.trainer.fit(
             model=self.model,
             train_dataloaders=kwargs.pop("train_dataloaders", None),
             val_dataloaders=kwargs.pop("valid_dataloaders", None),
             datamodule = self.datamodule,
+            ckpt_path = file,
             *args,
             **kwargs,
         )
@@ -217,6 +240,7 @@ class EDITLightningTrainer(EDITTrainer):
             self.model.model.load_state_dict(state)
             return
         self.model = self.model.load_from_checkpoint(file)
+        return file
 
     def _predict_from_data(self, data : np.ndarray, **kwargs):
         """
@@ -278,7 +302,22 @@ class EDITLightningTrainer(EDITTrainer):
                 latest_time = time
                 latest_item = item
         return latest_item
-
+    
+    @functools.wraps(EDITTrainer.predict)
+    def predict(self, *args, quiet: bool = False, **kwargs) -> tuple:
+        with LoggingContext(quiet):
+            if quiet:
+                self.load_trainer(enable_progress_bar=False)
+            return super().predict(*args, **kwargs)
+        
+    @functools.wraps(EDITTrainer.predict_recurrent)
+    def predict_recurrent(self, *args, quiet: bool = False, **kwargs) -> tuple:
+        with LoggingContext(quiet):
+            if quiet:
+                self.load_trainer(enable_progress_bar=False)
+            return super().predict_recurrent(*args, **kwargs)
+        
+    
     def __flatten_metrics(self, data: pd.DataFrame):
         return data
 
