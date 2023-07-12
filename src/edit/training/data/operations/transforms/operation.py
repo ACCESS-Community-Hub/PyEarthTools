@@ -27,17 +27,17 @@ class TransformOperation(DataOperation):
         partialTransformOperation(PipelineStep)
         ```
     """
-    def __init__(self, iterator: DataStep, transforms: Transform | dict, **kwargs) -> None:
+    def __init__(self, index: DataStep, transforms: Transform | dict, **kwargs) -> None:
         """
         DataOperation to apply Transforms
 
         Args:
-            iterator (DataStep): 
+            index (DataStep): 
                 Underlying DataStep to retrieve Data from.
             transforms (Transform | dict): 
                 Transforms to apply, either fully defined or dictionary defining the transform.
         """        
-        super().__init__(iterator, self._apply_transforms, undo_func=None, split_tuples=True, recognised_types=[xr.Dataset, xr.DataArray] **kwargs)
+        super().__init__(index, self._apply_transforms, undo_func=None, split_tuples=True, recognised_types=[xr.Dataset, xr.DataArray], **kwargs)
         self.transforms = get_transforms(transforms)
         self.__doc__ = f"Apply Transforms {self.transforms}"
         self._info_ = dict(transforms = transforms)

@@ -14,7 +14,7 @@ Collection of [DataOperations][edit.training.data.templates.DataOperation] for u
 | [TransformOperation][edit.training.data.operations.transforms]    | Apply [Transforms][edit.data.Transform] to data|
 """
 
-from edit.training.data.operations import reshape, values, filters, sampler, sort
+from edit.training.data.operations import reshape, values, filters, sampler, sort, select
 from edit.training.data.operations.patch import PatchingDataIndex
 from edit.training.data.operations.to_numpy import ToNumpy
 from edit.training.data.operations.transforms import TransformOperation

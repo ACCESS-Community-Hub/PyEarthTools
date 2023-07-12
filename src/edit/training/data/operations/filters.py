@@ -102,7 +102,7 @@ class DropAllNan(DataFilter):
         
         Returns:
             (bool): 
-        """      
+        """    
         if isinstance(data, (xr.Dataset, xr.DataArray)):
             data = np.isnan(data).all()
             if hasattr(data, "to_array"):

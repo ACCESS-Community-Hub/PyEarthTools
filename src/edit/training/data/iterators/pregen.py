@@ -44,8 +44,6 @@ class PregenerateIterator(DataIterator):
         Args:
             index (DataStep): 
                 Prior Pipeline step
-            seed (int, optional):
-                Random data selection seed. Defaults to 42.
         """        
         super().__init__(index, **kwargs)
         self.request_size = request_size

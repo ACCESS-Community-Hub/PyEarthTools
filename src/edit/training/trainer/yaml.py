@@ -153,7 +153,7 @@ def from_yaml(config: str | dict, **kwargs) -> EDITLightningTrainer:
                 else:
                     raise KeyError(f"Cannot parse {auto_match}")
             
-            config["trainer"]['path'] = Path(config["trainer"]['path'].replace(auto_match,"")) / '/'.join(parts)
+            config["trainer"]['path'] = str(Path(config["trainer"]['path'].replace(auto_match,"")) / '/'.join(parts))
         
         Path(config["trainer"]["path"]).mkdir(exist_ok=True, parents=True)
 
@@ -180,7 +180,6 @@ def from_yaml(config: str | dict, **kwargs) -> EDITLightningTrainer:
             #model = getattr(networks, model_name)
         #else:
             #model = get_callable("edit.training.models.networks." + model_name)
-
     model = model(**config["model"])
 
     trainer_class = EDITLightningTrainer
