@@ -15,7 +15,6 @@ import logging
 
 import sys
 
-sys.path.append("/g/data/kd24/mr1465/EDIT")
 import edit.data
 import edit.training
 

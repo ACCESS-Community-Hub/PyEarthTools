@@ -52,6 +52,7 @@ class EDITLightningTrainer(EDITTrainer):
         path: str = None,
         valid_data: DataLoader | DataIterator = None,
         find_batch_size: bool = False,
+        EarlyStopping: bool = True,
         **kwargs,
     ) -> None:
         """Pytorch Lightning Trainer Wrapper.
@@ -68,6 +69,8 @@ class EDITLightningTrainer(EDITTrainer):
                 Dataloader to use for validation. Defaults to None.
             find_batch_size (bool, optional):
                 Auto find the best batch size. Defaults to False.
+            EarlyStopping (bool, optional):
+                Add in EarlyStopping callback. Defaults to True
             **kwargs (Any, optional):
                 All passed to trainer __init__, will intercept 'logger' to update from str if given
 
@@ -114,15 +117,17 @@ class EDITLightningTrainer(EDITTrainer):
         )
         self.callbacks = kwargs.pop("callbacks", [])
         self.callbacks.append(checkpoint_callback)
-        self.callbacks.append(
-            pl.callbacks.early_stopping.EarlyStopping(
-                monitor="valid/loss",
-                min_delta=0.00,
-                patience=4,
-                verbose=False,
-                mode="min",
+        
+        if EarlyStopping:
+            self.callbacks.append(
+                pl.callbacks.early_stopping.EarlyStopping(
+                    monitor=EarlyStopping if isinstance(EarlyStopping, str) else "valid/loss",
+                    min_delta=0.00,
+                    patience=4,
+                    verbose=False,
+                    mode="min",
+                )
             )
-        )
 
         self.log_path = Path(path)
         self.logger = None
@@ -248,7 +253,11 @@ class EDITLightningTrainer(EDITTrainer):
         import torch
 
         if isinstance(file, bool):
-            if file and self.checkpoint_path.exists() and len(list(Path(self.checkpoint_path).iterdir())) > 0:
+            if (
+                file
+                and self.checkpoint_path.exists()
+                and len(list(Path(self.checkpoint_path).iterdir())) > 0
+            ):
                 file = max(Path(self.checkpoint_path).iterdir(), key=os.path.getctime)
             else:
                 return
@@ -283,7 +292,7 @@ class EDITLightningTrainer(EDITTrainer):
 
         return file
 
-    def _predict_from_data(self, data: np.ndarray, **kwargs):
+    def _predict_from_data(self, data: np.ndarray | tuple, **kwargs):
         """
         Using the loaded model, and given data make a prediction
         """

@@ -305,8 +305,8 @@ class EDITTrainer:
 
         with warnings.catch_warnings(action="ignore", category=IndexWarning):
             truth_step = self.train_data.step(truth_step)
-            if 'CachingIndex' in self.train_data.steps:
-                truth_step = self.train_data.step('CachingIndex')
+            if "CachingIndex" in self.train_data.steps:
+                truth_step = self.train_data.step("CachingIndex")
             truth_data = truth_step(predictions)
 
         return Collection(truth_data, predictions)
