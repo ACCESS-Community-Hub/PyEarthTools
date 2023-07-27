@@ -4,8 +4,8 @@
 # from typing import Union
 
 
-# from edit.training.data.templates import DataStep, DataIterator
-# from edit.training.data.sequential import Sequential, SequentialIterator
+# from edit.pipeline.templates import DataStep, DataIterator
+# from edit.pipeline.sequential import Sequential, SequentialIterator
 
 
 # def DALIPipeline()

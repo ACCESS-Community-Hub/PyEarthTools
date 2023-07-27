@@ -1,5 +1,5 @@
 """
-Provide a Machine Learning Model as an [edit.data.DataIndex][edit.data.DataIndex].
+Provide a Machine Learning Model as an [edit.data Index][edit.data.indexes].
 
 This will allow data to be retrieved as normal, with the user not having to worry about it being an ML Model
 """
@@ -9,23 +9,34 @@ import os
 from pathlib import Path
 from edit.data import DataIndex, CachingIndex
 
-from edit.training.data.context import PatchingUpdate
+from edit.pipeline.context import PatchingUpdate
 from edit.training.trainer import from_yaml, EDITLightningTrainer
 from edit.training.trainer.template import EDITTrainer
 
 
 class MLDataIndex(CachingIndex):
+<<<<<<< HEAD
+    def __init__(
+        self,
+        trainer: EDITTrainer,
+        stride_override: int = None,
+        cache: str | Path = None,
+        recurrent_config: dict = {},
+        **kwargs,
+    ):
+=======
     def __init__(self, trainer: EDITTrainer, stride_override: int = None, cache: str | Path = None, recurrent_config: dict = {}, **kwargs):
+>>>>>>> development
         """Setup ML Data Index from defined trainer
 
         !!! Info
-            This can be used just like a [DataIndex][edit.data.DataIndex] from [edit.data][edit.data.index],
+            This can be used just like an [Index][edit.data.indexes] from [edit.data][edit.data],
             so calling or indexing into this object work, as well as supplying transforms.
 
         Args:
-            trainer (EDITTrainer): 
+            trainer (EDITTrainer):
                 EDITTrainer to use to retrieve data
-            stride_override (int, optional): 
+            stride_override (int, optional):
                 Values to override stride with, if using `PatchingDataIndex`. Defaults to None.
             cache (str | Path, optional):
                 Location to cache outputs, if not supplied don't cache.
@@ -33,6 +44,17 @@ class MLDataIndex(CachingIndex):
                 Configuration if Model must be run recurrently
             **kwargs (dict, optional):
                 Any keyword arguments to pass to [DataIndex][edit.data.DataIndex]
+<<<<<<< HEAD
+        """
+        super().__init__(cache=cache, **kwargs)
+        self.trainer = trainer
+        self.stride_override = stride_override
+        self.recurrent_config = recurrent_config
+
+    def get(
+        self,
+        querytime: str,
+=======
         """        
         super().__init__(cache = cache, **kwargs)
         self.trainer = trainer
@@ -42,13 +64,20 @@ class MLDataIndex(CachingIndex):
     def get(
         self,
         querytime : str,
+>>>>>>> development
     ):  # transforms: Union[Callable, TransformCollection, Transform]= None
         """
         Get Data from given timestep
         """
         with PatchingUpdate(self.trainer, stride_size=self.stride_override):
             if self.recurrent_config:
+<<<<<<< HEAD
+                _, predicted_ds = self.trainer.predict_recurrent(
+                    querytime, **self.recurrent_config
+                )
+=======
                 _, predicted_ds = self.trainer.predict_recurrent(querytime, **self.recurrent_config)
+>>>>>>> development
             else:
                 _, predicted_ds = self.trainer.predict(querytime, undo=True)
 
@@ -79,28 +108,28 @@ class MLDataIndex(CachingIndex):
         stride_override: int = None,
         **kwargs,
     ):
-        """Setup ML Data Index from yaml file config and pretrained model 
+        """Setup ML Data Index from yaml file config and pretrained model
 
         Args:
-            yaml_config (str | Path): 
+            yaml_config (str | Path):
                 Path to yaml config
-            checkpoint_path (str, optional): 
+            checkpoint_path (str, optional):
                 Path to pretrained checkpoint. Defaults to None.
-            auto_load (bool, optional): 
+            auto_load (bool, optional):
                 Find latest `checkpoint_path` automatically . Defaults to False.
-            only_state (bool, optional): 
+            only_state (bool, optional):
                 Only load the state of the model. Defaults to False.
-            stride_override (int, optional): 
+            stride_override (int, optional):
                 Values to override stride with, if using `PatchingDataIndex`. Defaults to None.
 
         Raises:
-            RuntimeError: 
+            RuntimeError:
                 If no `checkpoint_path` is given
 
         Returns:
-            (MLDataIndex): 
+            (MLDataIndex):
                 MLDataIndex to use to get data with
-        """    
+        """
         trainer: EDITLightningTrainer
         trainer = from_yaml(
             yaml_config,
@@ -121,4 +150,4 @@ class MLDataIndex(CachingIndex):
         print(f"Loading {checkpoint_path}...")
         trainer.load(checkpoint_path, only_state=only_state)
 
-        return MLDataIndex(trainer, stride_override = stride_override)
+        return MLDataIndex(trainer, stride_override=stride_override)

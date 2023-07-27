@@ -7,9 +7,9 @@ setup(
     author="Harrison Cook",
     author_email="harrison.cook@bom.gov.au",
     url="www.bom.gov.au",
-    # packages=["edit"],
+    packages=["edit.training"],
     package_dir={"": "src"},
-    install_requires=["torch", "einops", "pytorch-lightning", 'scikit-learn', 'scipy'],
+    install_requires=["torch", "einops", "pytorch-lightning", "scikit-learn", "scipy", "onnx", "edit.pipeline"],
     entry_points={
         "console_scripts": ["edit_training=edit.training.trainer.commands:entry_point"]
     },

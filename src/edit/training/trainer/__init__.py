@@ -6,8 +6,9 @@
 
 ## EDIT Training Trainers
 
-Provide simple classes to combine the Data Pipeline defined in [edit.training.data][edit.training.data] and an ML model for training.
+Provide simple classes to combine the Data Pipeline defined in [edit.pipeline][edit.pipeline] and an ML model for training.
 """
+from edit.training.trainer.template import EDITTrainer
 
 from edit.training.trainer.pytorch.trainer import EDITLightningTrainer
 from edit.training.trainer.xgboost.trainer import EDITXGBoostTrainer

@@ -1,7 +1,7 @@
 """
 EDIT Training 
 
-Using [edit.data][edit.data.index] DataIndexes prepare data for training, 
+Using [edit.data][edit.data.indexes] DataIndexes prepare data for training, 
 and allow rapid distributed training of Machine Learning Models.
 
 ## Sections
@@ -57,7 +57,7 @@ Load ERA5, and feed it into a model
             operations.reshape.Rearrange:
                 rearrange: 'c t h w -> t c h w'
             ## Connect with Pytorch Iterables
-            loaders.PytorchIterable: {}
+            loader.PytorchIterable: {}
 
         Ranges:
             train_data:
@@ -86,23 +86,23 @@ Load ERA5, and feed it into a model
 
     ## Data Pipeline
     ### Retrieve 1 before and 1 after, at 60 min interval
-    datapipe = edit.training.data.iterators.TemporalInterface(ERA5, samples = [1,1], sample_interval = [60, 'minutes'])
+    datapipe = edit.pipeline.iterators.TemporalInterface(ERA5, samples = [1,1], sample_interval = [60, 'minutes'])
     ### Iterate 
-    datapipe = edit.training.data.iterators.Iterator(datapipe, catch = ['edit.data.DataNotFoundError', 'ValueError', 'OSError'])
+    datapipe = edit.pipeline.iterators.Iterator(datapipe, catch = ['edit.data.DataNotFoundError', 'ValueError', 'OSError'])
     ### Drop Data that is all nan's
-    datapipe = edit.training.data.operations.filters.DropAllNan(datapipe)
+    datapipe = edit.pipeline.operations.filters.DropAllNan(datapipe)
     ### Patch into 64 by 64 arrays
-    datapipe = edit.training.data.operations.PatchingDataIndex(datapipe, kernel_size = [64,64])
+    datapipe = edit.pipeline.operations.PatchingDataIndex(datapipe, kernel_size = [64,64])
     ### Fill all nan's with 0
-    datapipe = edit.training.data.operations.values.FillNa(datapipe)
+    datapipe = edit.pipeline.operations.values.FillNa(datapipe)
     ### Drop data with more than 50% 0's
-    datapipe = edit.training.data.operations.filters.DropValue(datapipe, value = 0,  percentage= 50)
+    datapipe = edit.pipeline.operations.filters.DropValue(datapipe, value = 0,  percentage= 50)
     ### Ensure no nan's
-    datapipe = edit.training.data.operations.filters.DropNan(datapipe)
+    datapipe = edit.pipeline.operations.filters.DropNan(datapipe)
     ### Rearrange axis
-    datapipe = edit.training.data.operations.reshape.Rearrange(datapipe, rearrange = 'c t h w -> t c h w')
+    datapipe = edit.pipeline.operations.reshape.Rearrange(datapipe, rearrange = 'c t h w -> t c h w')
     ### Connect to PyTorch Iterable
-    datapipe = edit.training.data.loaders.PytorchIterable(datapipe)
+    datapipe = edit.training.loader.PytorchIterable(datapipe)
 
     ## Model
     import Models.Architecture
@@ -117,8 +117,8 @@ Load ERA5, and feed it into a model
 
 """
 
-from edit.training import data, models, modules, trainer
-from edit.training.trainer import EDITLightningTrainer, from_yaml
+from edit.training import models, modules, trainer, loader
+from edit.training.trainer import EDITTrainer, EDITLightningTrainer, from_yaml
 
 if __name__ == "__main__":
     trainer.commands.entry_point()

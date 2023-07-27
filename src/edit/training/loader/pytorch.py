@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from torch.utils.data import IterableDataset
 
-from edit.training.data.templates import DataStep, DataIterator
-from edit.training.data.sequential import SequentialIterator
+from edit.pipeline.templates import DataStep, DataIterator
+from edit.pipeline.sequential import SequentialIterator
 
 
 @SequentialIterator
@@ -33,5 +33,5 @@ class PytorchIterable(DataStep, IterableDataset):
             yield i
 
     @property
-    def ignore_sanity(self):
+    def ignore_debug(self):
         return True

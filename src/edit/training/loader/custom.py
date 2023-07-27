@@ -3,10 +3,10 @@ from __future__ import annotations
 import numpy as np
 import warnings
 
-from edit.training.data.templates import DataStep, DataIterator
-from edit.training.data.sequential import SequentialIterator
+from edit.pipeline.templates import DataStep, DataIterator
+from edit.pipeline.sequential import SequentialIterator
 
-from edit.training.data.warnings import PipelineWarning
+from edit.pipeline.warnings import PipelineWarning
 
 
 @SequentialIterator
@@ -25,29 +25,32 @@ class CustomLoader(DataStep):
         partialCustomLoader(PipelineStep)
         ```
     """
+
     def __init__(self, index: DataStep, batch_size: int):
         """Custom DataLoader to batch data up
 
         Args:
-            index (DataStep): 
+            index (DataStep):
                 Underlying DataStep to get data from
-            batch_size (int): 
+            batch_size (int):
                 Batch size
 
         Raises:
-            TypeError: 
+            TypeError:
                 If `batch_size` is not an int
         """
         super().__init__(index)
 
         if not self == self.step(-1):
-            warnings.warn(f"{self} should be the last step in a DataPipeline.", PipelineWarning) 
+            warnings.warn(
+                f"{self} should be the last step in a DataPipeline.", PipelineWarning
+            )
 
         if not isinstance(batch_size, int):
             raise TypeError(f"'batch_size' must be int, not {type(batch_size)}")
         self.batch_size = batch_size
 
-        self._info_ = dict(batch_size = batch_size)
+        self._info_ = dict(batch_size=batch_size)
 
     def __getitem__(self, idx):
         return self.index(idx)
