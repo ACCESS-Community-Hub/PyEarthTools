@@ -33,5 +33,5 @@ class PytorchIterable(DataStep, IterableDataset):
             yield i
 
     @property
-    def ignore_sanity(self):
+    def ignore_debug(self):
         return True

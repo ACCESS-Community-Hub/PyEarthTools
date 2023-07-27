@@ -71,7 +71,6 @@ Allow a Trainer Configuration to be saved and loaded from a yaml file
 from __future__ import annotations
 
 from pathlib import Path
-import importlib
 
 import yaml
 import re
@@ -79,11 +78,12 @@ import re
 # import torch
 
 from edit.training.models import networks
+from edit.training.trainer.template import EDITTrainer
 from edit.training.trainer.pytorch.trainer import EDITLightningTrainer
 from edit.training.trainer.xgboost.trainer import EDITXGBoostTrainer
 
 import edit.pipeline
-from edit.pipeline.utils import get_callable
+from edit.utils.imports import dynamic_import
 
 TRAINER_ASSIGNMENT = {
     EDITLightningTrainer: ["pytorch", "lightning"],
@@ -99,7 +99,7 @@ def flip_dict(dict):
     return return_dict
 
 
-def from_yaml(config: str | dict, **kwargs) -> EDITLightningTrainer:
+def from_yaml(config: str | dict, **kwargs) -> EDITTrainer:
     """Load and create trainer from dictionary config or yaml file
 
     !!! Warning
@@ -111,7 +111,7 @@ def from_yaml(config: str | dict, **kwargs) -> EDITLightningTrainer:
         **kwargs (dict, optional):
             All passed into trainer config
     Returns:
-        (EDITTrainerWrapper):
+        (EDITTrainer):
             Loaded Trainer
     """
     yaml_file = None
@@ -153,12 +153,18 @@ def from_yaml(config: str | dict, **kwargs) -> EDITLightningTrainer:
                     parts = parts[parts.index(auto_parts[-1]) + 1 :]
                 else:
                     raise KeyError(f"Cannot parse {auto_match}")
+<<<<<<< HEAD
 
             config["trainer"]["path"] = str(
                 Path(config["trainer"]["path"].replace(auto_match, ""))
                 / "/".join(parts)
             )
 
+=======
+            
+            config["trainer"]['path'] = str(Path(config["trainer"]['path'].replace(auto_match,"")) / '/'.join(parts))
+        
+>>>>>>> development
         Path(config["trainer"]["path"]).mkdir(exist_ok=True, parents=True)
 
         with open(Path(config["trainer"]["path"]) / "config.yaml", "w") as file:
@@ -176,14 +182,26 @@ def from_yaml(config: str | dict, **kwargs) -> EDITLightningTrainer:
     model_name = config["model"].pop("Source")
     # try:
     try:
-        model = get_callable(model_name)
+        model = dynamic_import(model_name)
     except (ImportError, ModuleNotFoundError):
         raise ImportError(f"Could not find model: {model_name}")
+<<<<<<< HEAD
     # except (AttributeError, ModuleNotFoundError):
     # if hasattr(networks, model_name):
     # model = getattr(networks, model_name)
     # else:
+<<<<<<< Updated upstream
     # model = get_callable("edit.training.models.networks." + model_name)
+=======
+    #except (AttributeError, ModuleNotFoundError):
+        #if hasattr(networks, model_name):
+            #model = getattr(networks, model_name)
+        #else:
+            #model = get_callable("edit.training.models.networks." + model_name)
+>>>>>>> development
+=======
+    # model = dynamic_import("edit.training.models.networks." + model_name)
+>>>>>>> Stashed changes
     model = model(**config["model"])
 
     trainer_class = EDITLightningTrainer
@@ -195,7 +213,7 @@ def from_yaml(config: str | dict, **kwargs) -> EDITLightningTrainer:
             trainer_class = trainer_dict[trainer_type]
         else:
             try:
-                trainer_class = get_callable(trainer_type)
+                trainer_class = dynamic_import(trainer_type)
             except (ImportError, ModuleNotFoundError):
                 raise KeyError(f"Could not find trainer: {trainer_type}")
 

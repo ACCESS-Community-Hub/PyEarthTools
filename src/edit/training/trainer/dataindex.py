@@ -15,6 +15,7 @@ from edit.training.trainer.template import EDITTrainer
 
 
 class MLDataIndex(CachingIndex):
+<<<<<<< HEAD
     def __init__(
         self,
         trainer: EDITTrainer,
@@ -23,6 +24,9 @@ class MLDataIndex(CachingIndex):
         recurrent_config: dict = {},
         **kwargs,
     ):
+=======
+    def __init__(self, trainer: EDITTrainer, stride_override: int = None, cache: str | Path = None, recurrent_config: dict = {}, **kwargs):
+>>>>>>> development
         """Setup ML Data Index from defined trainer
 
         !!! Info
@@ -40,6 +44,7 @@ class MLDataIndex(CachingIndex):
                 Configuration if Model must be run recurrently
             **kwargs (dict, optional):
                 Any keyword arguments to pass to [DataIndex][edit.data.DataIndex]
+<<<<<<< HEAD
         """
         super().__init__(cache=cache, **kwargs)
         self.trainer = trainer
@@ -49,15 +54,30 @@ class MLDataIndex(CachingIndex):
     def get(
         self,
         querytime: str,
+=======
+        """        
+        super().__init__(cache = cache, **kwargs)
+        self.trainer = trainer
+        self.stride_override = stride_override
+        self.recurrent_config= recurrent_config
+
+    def get(
+        self,
+        querytime : str,
+>>>>>>> development
     ):  # transforms: Union[Callable, TransformCollection, Transform]= None
         """
         Get Data from given timestep
         """
         with PatchingUpdate(self.trainer, stride_size=self.stride_override):
             if self.recurrent_config:
+<<<<<<< HEAD
                 _, predicted_ds = self.trainer.predict_recurrent(
                     querytime, **self.recurrent_config
                 )
+=======
+                _, predicted_ds = self.trainer.predict_recurrent(querytime, **self.recurrent_config)
+>>>>>>> development
             else:
                 _, predicted_ds = self.trainer.predict(querytime, undo=True)
 

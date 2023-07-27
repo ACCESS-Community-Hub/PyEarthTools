@@ -57,7 +57,7 @@ Load ERA5, and feed it into a model
             operations.reshape.Rearrange:
                 rearrange: 'c t h w -> t c h w'
             ## Connect with Pytorch Iterables
-            loaders.PytorchIterable: {}
+            loader.PytorchIterable: {}
 
         Ranges:
             train_data:
@@ -102,7 +102,7 @@ Load ERA5, and feed it into a model
     ### Rearrange axis
     datapipe = edit.pipeline.operations.reshape.Rearrange(datapipe, rearrange = 'c t h w -> t c h w')
     ### Connect to PyTorch Iterable
-    datapipe = edit.pipeline.loaders.PytorchIterable(datapipe)
+    datapipe = edit.training.loader.PytorchIterable(datapipe)
 
     ## Model
     import Models.Architecture
@@ -117,8 +117,8 @@ Load ERA5, and feed it into a model
 
 """
 
-from edit.training import models, modules, trainer
-from edit.training.trainer import EDITLightningTrainer, from_yaml
+from edit.training import models, modules, trainer, loader
+from edit.training.trainer import EDITTrainer, EDITLightningTrainer, from_yaml
 
 if __name__ == "__main__":
     trainer.commands.entry_point()

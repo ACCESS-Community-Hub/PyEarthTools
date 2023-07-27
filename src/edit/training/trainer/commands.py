@@ -11,6 +11,7 @@ def entry_point():
     pass
 
 
+<<<<<<< HEAD
 @entry_point.command(
     name="fit",
     context_settings=dict(
@@ -18,6 +19,12 @@ def entry_point():
         allow_extra_args=True,
     ),
 )
+=======
+@entry_point.command(name="fit", context_settings=dict(
+    ignore_unknown_options=True,
+    allow_extra_args=True,
+))
+>>>>>>> development
 @click.pass_context
 @click.argument(
     "yaml_file",
@@ -42,6 +49,7 @@ def fit(ctx, yaml_file: str | click.Path, load: bool):
     d = dict()
     if len(ctx.args) > 1:
         for i in range(0, len(ctx.args), 2):
+<<<<<<< HEAD
             if not str(ctx.args[i]).startswith("--"):
                 raise KeyError(
                     f"{ctx.args[i]} is an invalid kwarg, ensure it starts with '--'"
@@ -49,6 +57,11 @@ def fit(ctx, yaml_file: str | click.Path, load: bool):
             d[str(ctx.args[i]).replace("--", "")] = (
                 int(ctx.args[i + 1]) if ctx.args[i + 1].isdigit() else ctx.args[i + 1]
             )
+=======
+            if not str(ctx.args[i]).startswith('--'):
+                raise KeyError(f"{ctx.args[i]} is an invalid kwarg, ensure it starts with '--'")
+            d[str(ctx.args[i]).replace('--','')] = int(ctx.args[i+1]) if ctx.args[i+1].isdigit() else ctx.args[i+1]
+>>>>>>> development
 
     extra_kwargs = d
 
