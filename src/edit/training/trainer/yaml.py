@@ -153,18 +153,12 @@ def from_yaml(config: str | dict, **kwargs) -> EDITTrainer:
                     parts = parts[parts.index(auto_parts[-1]) + 1 :]
                 else:
                     raise KeyError(f"Cannot parse {auto_match}")
-<<<<<<< HEAD
 
             config["trainer"]["path"] = str(
                 Path(config["trainer"]["path"].replace(auto_match, ""))
                 / "/".join(parts)
             )
 
-=======
-            
-            config["trainer"]['path'] = str(Path(config["trainer"]['path'].replace(auto_match,"")) / '/'.join(parts))
-        
->>>>>>> development
         Path(config["trainer"]["path"]).mkdir(exist_ok=True, parents=True)
 
         with open(Path(config["trainer"]["path"]) / "config.yaml", "w") as file:
@@ -185,23 +179,7 @@ def from_yaml(config: str | dict, **kwargs) -> EDITTrainer:
         model = dynamic_import(model_name)
     except (ImportError, ModuleNotFoundError):
         raise ImportError(f"Could not find model: {model_name}")
-<<<<<<< HEAD
-    # except (AttributeError, ModuleNotFoundError):
-    # if hasattr(networks, model_name):
-    # model = getattr(networks, model_name)
-    # else:
-<<<<<<< Updated upstream
-    # model = get_callable("edit.training.models.networks." + model_name)
-=======
-    #except (AttributeError, ModuleNotFoundError):
-        #if hasattr(networks, model_name):
-            #model = getattr(networks, model_name)
-        #else:
-            #model = get_callable("edit.training.models.networks." + model_name)
->>>>>>> development
-=======
-    # model = dynamic_import("edit.training.models.networks." + model_name)
->>>>>>> Stashed changes
+
     model = model(**config["model"])
 
     trainer_class = EDITLightningTrainer

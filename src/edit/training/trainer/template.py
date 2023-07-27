@@ -9,15 +9,11 @@ import xarray as xr
 
 from tqdm.auto import tqdm, trange
 
-<<<<<<< Updated upstream
-<<<<<<< HEAD
-=======
+
 import edit.pipeline
->>>>>>> Stashed changes
 from edit.pipeline.templates import DataStep
-=======
 from edit.training.data.templates import DataStep
->>>>>>> development
+
 from edit.data import Collection, IndexWarning
 
 
@@ -141,15 +137,12 @@ class EDITTrainer:
         if fake_batch_dim is None:
             fake_batch_dim = False
 
-<<<<<<< Updated upstream
         if 'ToNumpy' in self.train_data.steps:
             fake_batch_dim = True if fake_batch_dim is None else fake_batch_dim
         if fake_batch_dim is None:
             fake_batch_dim = False
 
         data_source = data_iterator or self.valid_data or self.train_data
-=======
->>>>>>> Stashed changes
         data = data_source[index]
         truth = data[1]
 
@@ -205,13 +198,8 @@ class EDITTrainer:
             If number of patches is not divisible by the `batch_size`, issues may arise.
             Solution: batch_size = 1
 
-<<<<<<< HEAD
         ??? Tip
             If data is being converted using [ToNumpy][edit.pipeline.operations.to_numpy] issues may arise with an invalid shape,
-=======
-        ??? Tip 
-            If data is being converted using [ToNumpy][edit.training.data.operations.to_numpy] issues may arise with an invalid shape,
->>>>>>> development
             simply set `fake_batch_dim` to `True`
 
         Args:
@@ -254,11 +242,7 @@ class EDITTrainer:
         elif load and Path(self.path).exists():
             self.load(True, **load_kwargs)
 
-<<<<<<< HEAD
         if "ToNumpy" in self.train_data.steps:
-=======
-        if 'ToNumpy' in self.train_data.steps:
->>>>>>> development
             fake_batch_dim = True if fake_batch_dim is None else fake_batch_dim
         if fake_batch_dim is None:
             fake_batch_dim = False
@@ -267,13 +251,8 @@ class EDITTrainer:
         index = start_index
 
         # Begin Recurrence
-<<<<<<< HEAD
         for i in trange(recurrence, disable=not verbose, desc="Predicting Recurrently"):
             if fake_batch_dim:  # Fake the Batch Dimension, for use with ToNumpy
-=======
-        for i in trange(recurrence, disable = not verbose, desc = 'Predicting Recurrently'):
-            if fake_batch_dim: # Fake the Batch Dimension, for use with ToNumpy
->>>>>>> development
                 data = EDITTrainer._expand_dims(data)
 
             input_data = None
@@ -317,7 +296,6 @@ class EDITTrainer:
 
             # Setup recurrent input data
             data = list(data)
-<<<<<<< HEAD
 
             def add_predictions(input_data, prediction_data):
                 if trim_time_dim:
@@ -336,25 +314,6 @@ class EDITTrainer:
             )
             new_input_data = data_source.apply((new_input_data, fixed_predictions))
 
-=======
-
-            def add_predictions(input_data, prediction_data):
-                if trim_time_dim:
-                    prediction_data = prediction_data.isel(
-                        time=slice(None, trim_time_dim)
-                    )
-
-                new_input = xr.merge((input_data, prediction_data))
-
-                new_input = new_input.isel(
-                    time=slice(-1 * len(input_data.time), None)
-                )
-                return new_input
-            # index = new_input.time.values[-1]
-            new_input_data = add_predictions(input_data or data_source.undo(data)[0], fixed_predictions)
-            new_input_data = data_source.apply((new_input_data, fixed_predictions))
-
->>>>>>> development
             if isinstance(new_input_data, (list, tuple)):
                 new_input_data = new_input_data[0]
             data[0] = new_input_data
@@ -374,20 +333,15 @@ class EDITTrainer:
             truth_data = self.train_data.step(truth_step)(predictions)
 
 
-<<<<<<< HEAD
         if verbose:
             print(f"Recovering Truth")
 
-<<<<<<< Updated upstream
         with warnings.catch_warnings(action="ignore", category=IndexWarning):
             truth_step = self.train_data.step(truth_step)
             if "CachingIndex" in self.train_data.steps:
                 truth_step = self.train_data.step("CachingIndex")
             truth_data = truth_step(predictions)
-=======
-        return Collection(truth_data, predictions)
->>>>>>> development
-=======
+
         try:
             with warnings.catch_warnings(action="ignore", category=IndexWarning):
                 truth_step = self.train_data.step(truth_step)
@@ -397,7 +351,6 @@ class EDITTrainer:
         except Exception as e:
             warnings.warn("An error occured getting truth data, setting to None {e}", RuntimeWarning)
             predictions = None
->>>>>>> Stashed changes
 
         return Collection(truth_data, predictions)
 

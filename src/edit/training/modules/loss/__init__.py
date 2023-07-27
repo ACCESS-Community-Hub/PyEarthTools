@@ -1,17 +1,10 @@
 import importlib
 
-<<<<<<< HEAD
 from edit.training.modules.loss.extremes import ExtremeLoss
 from edit.training.modules.loss.centre_weighted import centre_weighted
 from edit.training.modules.loss.rmse import RMSELoss
 from edit.training.modules.loss.structure import SSIMLoss
 from edit.training.modules.loss.component import ComponentLoss
-=======
-from .extremes import ExtremeLoss
-from .centre_weighted import centre_weighted
-from .rmse import RMSELoss
-from .structure import SSIMLoss
->>>>>>> development
 
 from edit.training import modules
 
