@@ -303,37 +303,49 @@ class EDITLightningTrainer(EDITTrainer):
 
         return file
 
-    def _predict_from_data(self, data: np.ndarray | tuple, **kwargs):
+    def _predict_from_data(self, data: np.ndarray | tuple, batch_size = None):
         """
         Using the loaded model, and given data make a prediction
         """
         from torch.utils.data import DataLoader, IterableDataset
 
         class FakeDataLoader(IterableDataset):
-            def __init__(self, data: tuple[np.ndarray]):
+            def __init__(self, data: np.ndarray | tuple[np.ndarray]):
                 self.data = data
 
             def __iter__(self):
-                for data in zip(*self.data):
-                    yield data
+                if isinstance(self.data, (list, tuple)):
+                    for data in zip(*self.data):
+                        yield data
+                else:
+                    for data in self.data:
+                        yield data
 
-        batch_size = self.batch_size
+        batch_size = batch_size or self.batch_size
         if isinstance(data, (list, tuple)):
             batch_size = min(self.batch_size, len(data[0]))
 
         fake_data = DataLoader(
             FakeDataLoader(data),
-            batch_size=kwargs.pop("batch_size", batch_size),
+            batch_size=batch_size,
             # num_workers=kwargs.pop("num_workers", self.num_workers), #Apparently this reproduces data on small scales
         )
         warnings.filterwarnings("ignore", ".*does not have many workers.*")
 
-        prediction = tuple(
-            map(
-                np.vstack,
-                zip(*self.trainer.predict(model=self.model, dataloaders=fake_data)),
+        predictions_raw = self.trainer.predict(model=self.model, dataloaders=fake_data)
+
+        if isinstance(predictions_raw[0], (list, tuple)):
+            prediction = tuple(
+                map(
+                    np.vstack,
+                    zip(*predictions_raw),
+                )
             )
-        )
+        else:
+            prediction = np.vstack(predictions_raw)
+
+        if len(prediction) == 1:
+            prediction = prediction[0]
 
         return prediction
 

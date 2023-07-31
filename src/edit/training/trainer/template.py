@@ -12,7 +12,6 @@ from tqdm.auto import tqdm, trange
 
 import edit.pipeline
 from edit.pipeline.templates import DataStep
-from edit.training.data.templates import DataStep
 
 from edit.data import Collection, IndexWarning
 
@@ -34,6 +33,16 @@ class EDITTrainer:
         self.train_data = train_data
         self.valid_data = valid_data
         self.path = path
+
+
+    @property
+    def pipeline(self):
+        """
+        Get pipeline used for this trainer.
+
+        Either valid_data if given or train_data
+        """
+        return self.valid_data or self.train_data
 
     def data(self, index: str, undo=False) -> np.array | xr.Dataset:
         """Get data which is fed into model
@@ -123,19 +132,15 @@ class EDITTrainer:
             (tuple[np.array] | tuple[xr.Dataset]):
                 Either xarray datasets or np arrays, [truth data, predicted data]
         """
-        data_source = data_iterator or self.valid_data or self.train_data
+        data_source = data_iterator or self.pipeline
 
         if 'Patch' in data_source.steps and 'patch_update' not in kwargs:    
             with edit.pipeline.context.PatchingUpdate(data_source, kernel_size = kwargs.pop('kernel_size', None), stride_size = kwargs.pop('stride_size', None)):
-                return self.predict(index, data_iterator=data_iterator, load = load, load_kwargs=load_kwargs, fake_batch_dim=fake_batch_dim, patch_update = True, **kwargs)
+                return self.predict(index, data_iterator=data_source, undo = undo, load = load, load_kwargs=load_kwargs, fake_batch_dim=fake_batch_dim, patch_update = True, **kwargs)
+        
         kwargs.pop('patch_update', None)
 
         self.load(load, **load_kwargs)
-
-        if "ToNumpy" in self.train_data.steps:
-            fake_batch_dim = True if fake_batch_dim is None else fake_batch_dim
-        if fake_batch_dim is None:
-            fake_batch_dim = False
 
         if 'ToNumpy' in self.train_data.steps:
             fake_batch_dim = True if fake_batch_dim is None else fake_batch_dim
@@ -144,7 +149,13 @@ class EDITTrainer:
 
         data_source = data_iterator or self.valid_data or self.train_data
         data = data_source[index]
-        truth = data[1]
+
+        truth = None
+        
+        if isinstance(data, (list, tuple)):
+            truth = data[1]
+        else:
+            truth = data
 
         if fake_batch_dim:
             data = EDITTrainer._expand_dims(data)
@@ -156,22 +167,27 @@ class EDITTrainer:
             data = EDITTrainer._squeeze_dims(data)
 
         if not undo:
-            return Collection(truth, prediction[1])
+            if isinstance(prediction, (tuple, list)):
+                prediction = prediction[1]
+            return Collection(truth, prediction)
 
         prediction = data_source.undo(prediction)
         if isinstance(prediction, (tuple, list)):
-            # truth_data = prediction[0]
             prediction = prediction[-1]
+        
+        truth = data_source.undo(data)
+        if isinstance(truth, (tuple, list)):
+            truth = truth[1]
 
         if not isinstance(prediction, xr.Dataset):
-            return Collection(data_source.undo(data)[1], prediction)
+            return Collection(truth, prediction)
 
         if "Coordinate 1" in prediction:
             prediction = prediction.rename({"Coordinate 1": "time"})
         if hasattr(data_source, "rebuild_time"):
             prediction = data_source.rebuild_time(prediction, index)
 
-        return Collection(data_source.undo(data)[1], prediction)
+        return Collection(truth, prediction)
 
     def predict_recurrent(
         self,
@@ -226,7 +242,8 @@ class EDITTrainer:
             (tuple[np.array] | tuple[xr.Dataset]):
                 Either xarray datasets or np arrays, [truth data, predicted data]
         """
-        data_source = data_iterator or self.valid_data or self.train_data
+        data_source = data_iterator or self.pipeline
+        
         if 'Patch' in data_source.steps and 'patch_update' not in kwargs:    
             with edit.pipeline.context.PatchingUpdate(data_source, kernel_size = kwargs.pop('kernel_size', None), stride_size = kwargs.pop('stride_size', None)):
                 return self.predict_recurrent(start_index, recurrence, data_iterator=data_iterator, load = load, load_kwargs=load_kwargs, truth_step=truth_step, fake_batch_dim=fake_batch_dim, trim_time_dim=trim_time_dim,verbose=verbose, patch_update = True, **kwargs)
@@ -330,23 +347,17 @@ class EDITTrainer:
             print(f"Recovering Truth")
 
         with warnings.catch_warnings(action = 'ignore', category = IndexWarning):
-            truth_data = self.train_data.step(truth_step)(predictions)
+            truth_data = data_source.step(truth_step)(predictions)
 
 
         if verbose:
             print(f"Recovering Truth")
 
-        with warnings.catch_warnings(action="ignore", category=IndexWarning):
-            truth_step = self.train_data.step(truth_step)
-            if "CachingIndex" in self.train_data.steps:
-                truth_step = self.train_data.step("CachingIndex")
-            truth_data = truth_step(predictions)
-
         try:
             with warnings.catch_warnings(action="ignore", category=IndexWarning):
-                truth_step = self.train_data.step(truth_step)
-                if "CachingIndex" in self.train_data.steps:
-                    truth_step = self.train_data.step("CachingIndex")
+                truth_step = data_source.step(truth_step)
+                if "CachingIndex" in data_source.steps:
+                    truth_step = data_source.step("CachingIndex")
                 truth_data = truth_step(predictions)
         except Exception as e:
             warnings.warn("An error occured getting truth data, setting to None {e}", RuntimeWarning)
