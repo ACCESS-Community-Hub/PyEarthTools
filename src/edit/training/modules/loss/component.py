@@ -1,21 +1,29 @@
 from torch import nn
+import torch
 import edit.training
 
 
 class ComponentLoss(nn.Module):
     """
     Loss function made of multiple components
+
+
+    Example
+        >>> loss = ComponentLoss([0.5, 0.5], MSELoss = {}, SSIMLoss = {})
+        # Even weighting of MSE and SSIM
     """
 
-    def __init__(self, weights: list[float] = None, **loss: dict[str, dict]) -> None:
+    def __init__(self, weights: list[float], **loss: dict[str, dict]) -> None:
         """
         Setup loss function
 
         Args:
-            weights (list[float], optional):
-                Weights for each loss function. Defaults to None.
+            weights (list[float]):
+                Weights for each loss function.
             loss (dict[str, dict], optional):
                 Loss name and init args
+                For each loss, the key will be used to find and load the loss, and the value used to initalise.
+                If no initalisation is required, set to {}
         """
         super().__init__()
 
@@ -23,6 +31,7 @@ class ComponentLoss(nn.Module):
             raise ValueError("Component losses cannot be empty")
 
         if weights is None:
+            raise TypeError(f"Weights must be provided")
             weights = []
             for key, value in loss.items():
                 if not isinstance(value, dict):
@@ -41,10 +50,10 @@ class ComponentLoss(nn.Module):
                 f"`weights` must contain the same number of elements as `loss`. {len(weights)} != {len(list(loss.keys()))}"
             )
 
+        self.weights = nn.Parameter(torch.Tensor(weights), False)
         self.losses = nn.ModuleList(
             edit.training.modules.get_loss(key, **value) for key, value in loss.items()
         )
-        self.weights = weights
 
     def forward(self, output, target):
         loss = None
