@@ -6,9 +6,10 @@ import einops
 
 class SSIMLoss(torch.nn.Module):
     """
-    Uses piqa.SSIM to create a structural similarity score, then convert to loss
+    Uses `piqa.SSIM` to create a structural similarity score, then convert to loss
 
-    Refer to [piqa.SSIM][https://piqa.readthedocs.io/en/stable/api/piqa.ssim.html#piqa.ssim.SSIM] for kwargs
+    See [piqa.SSIM][https://piqa.readthedocs.io/en/stable/api/piqa.ssim.html#piqa.ssim.SSIM]
+
     ```
     ssim = SSIM(output, target)
     loss = 1 - ssim
@@ -18,11 +19,32 @@ class SSIMLoss(torch.nn.Module):
     !!! Warning
         If used on 4D + batch data, each 3D slice as determined by the second dimension will be calculated
         then averaged.
+
     """
 
     def __init__(
         self, normalise: bool = False, format: str = None, **ssim_kwargs: dict
     ) -> None:
+        """
+        Create SSIM Loss
+
+        Args:
+            normalise (bool, optional): 
+                Whether to force the data to be between 0 and 1. Defaults to False.
+            format (str, optional): 
+                Format of data if not B T C H W. Defaults to None.
+            **kwargs (Any, optional):
+                All kwargs passed to [piqa.SSIM][https://piqa.readthedocs.io/en/stable/api/piqa.ssim.html#piqa.ssim.SSIM]
+
+        !!! Tip
+            Useful kwargs for piqa.SSIM
+            | kwarg | Description |
+            | ----- | ----------- |
+            | window_size (int) | The size of the window. |
+            | sigma (float) | The standard deviation of the window.|
+            | n_channels (int) | The number of channels |
+            | reduction (str) | Specifies the reduction to apply to the output: 'none', 'mean' or 'sum'.|
+        """        
         super().__init__()
         self.ssim = SSIM(**ssim_kwargs)
         self.normalise = normalise
