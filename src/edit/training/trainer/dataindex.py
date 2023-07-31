@@ -7,9 +7,8 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from edit.data import DataIndex, CachingIndex
+from edit.data import CachingIndex
 
-from edit.pipeline.context import PatchingUpdate
 from edit.training.trainer import from_yaml, EDITLightningTrainer
 from edit.training.trainer.template import EDITTrainer
 
@@ -18,8 +17,9 @@ class MLDataIndex(CachingIndex):
     def __init__(
         self,
         trainer: EDITTrainer,
-        stride_override: int = None,
+        data_resolution: tuple, 
         cache: str | Path = None,
+        predict_config: dict = dict(undo=True),
         recurrent_config: dict = {},
         **kwargs,
     ):
@@ -32,51 +32,53 @@ class MLDataIndex(CachingIndex):
         Args:
             trainer (EDITTrainer):
                 EDITTrainer to use to retrieve data
-            stride_override (int, optional):
-                Values to override stride with, if using `PatchingDataIndex`. Defaults to None.
+            data_resolution (tuple):
+                Resolution that the trainer operates at, in TimeDelta form. 
+                e.g. (1, 'day')
             cache (str | Path, optional):
                 Location to cache outputs, if not supplied don't cache.
+            predict_config (dict, optional):
+                Configuration for standard prediction.
             recurrent_config (dict, optional):
-                Configuration if Model must be run recurrently
+                Configuration if model must be run recurrently
             **kwargs (dict, optional):
                 Any keyword arguments to pass to [DataIndex][edit.data.DataIndex]
         """
-        super().__init__(cache=cache, **kwargs)
+        super().__init__(cache=cache, data_resolution = data_resolution, **kwargs)
         self.trainer = trainer
-        self.stride_override = stride_override
+        self.predict_config = predict_config
         self.recurrent_config = recurrent_config
 
-    def get(
+    def generate(
         self,
         querytime: str,
     ):  # transforms: Union[Callable, TransformCollection, Transform]= None
         """
         Get Data from given timestep
         """
-        with PatchingUpdate(self.trainer, stride_size=self.stride_override):
-            if self.recurrent_config:
-                _, predicted_ds = self.trainer.predict_recurrent(
-                    querytime, **self.recurrent_config
-                )
-            else:
-                _, predicted_ds = self.trainer.predict(querytime, undo=True)
-
-        return predicted_ds
+        predictions = None
+        if self.recurrent_config:
+            predictions = self.trainer.predict_recurrent(
+                querytime, **self.recurrent_config
+            )
+        else:
+            predictions = self.trainer.predict(querytime, **self.predict_config)
+        if isinstance(predictions, (list, tuple)):
+            predictions = predictions[1]
+        return predictions
 
     def input_data(self, querytime: str):
         """
         Get input data at given timestep
         """
-        with PatchingUpdate(self.trainer, stride_size=self.stride_override):
-            input_data = self.trainer.train_iterator.undo(
-                self.trainer.train_iterator[querytime]
-            )
+        input_data = self.trainer.pipeline.undo(
+            self.trainer.pipeline[querytime]
+        )
         return input_data
 
     @property
     def data(self):
-        with PatchingUpdate(self.trainer, stride_size=self.stride_override):
-            return self.trainer.train_data
+        return self.trainer.pipeline
 
     @staticmethod
     def from_yaml(

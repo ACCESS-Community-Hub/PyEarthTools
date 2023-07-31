@@ -118,7 +118,7 @@ Load ERA5, and feed it into a model
 """
 
 from edit.training import models, modules, trainer, loader
-from edit.training.trainer import EDITTrainer, EDITLightningTrainer, from_yaml
+from edit.training.trainer import EDITTrainer, EDITLightningTrainer, from_yaml, MLDataIndex
 
 if __name__ == "__main__":
     trainer.commands.entry_point()
