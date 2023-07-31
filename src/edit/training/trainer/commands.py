@@ -4,6 +4,7 @@ EDIT Trainer Commands
 from __future__ import annotations
 
 import click
+import sys
 
 
 @click.group(name="Trainer From Yaml")
@@ -30,7 +31,12 @@ def entry_point():
     type=bool,
     default=True,
 )
-def fit(ctx, yaml_file: str | click.Path, load: bool):
+@click.option(
+    "--paths",
+    type= list,
+    default = []
+)
+def fit(ctx, yaml_file: str | click.Path, load: bool, paths: list[str]):
     """From Yaml Config, fit model.
 
     Args:
@@ -38,6 +44,9 @@ def fit(ctx, yaml_file: str | click.Path, load: bool):
         load (bool): Use existing model
     """
     from edit.training.trainer.yaml import from_yaml
+
+    for path in paths:
+        sys.path.append(path)
 
     d = dict()
     if len(ctx.args) > 1:
