@@ -140,7 +140,7 @@ def from_yaml(config: str | dict, **kwargs) -> EDITTrainer:
             auto_parts: list[str] = auto_match.replace("%", "").split("_")
             if not yaml_file:
                 raise ValueError(f"Cannot fill %auto% if config file path not given.")
-            parts = Path(yaml_file).with_suffix("").parts
+            parts = Path(yaml_file).absolute().with_suffix("").parts
 
             if len(auto_parts) == 2:
                 neg = False
@@ -152,12 +152,13 @@ def from_yaml(config: str | dict, **kwargs) -> EDITTrainer:
                 elif auto_parts[-1] in parts:
                     parts = parts[parts.index(auto_parts[-1]) + 1 :]
                 else:
-                    raise KeyError(f"Cannot parse {auto_match}")
+                    raise KeyError(f"Cannot parse {auto_match}, Path was {Path(yaml_file).absolute()}")
 
             config["trainer"]["path"] = str(
                 Path(config["trainer"]["path"].replace(auto_match, ""))
                 / "/".join(parts)
             )
+
 
         Path(config["trainer"]["path"]).mkdir(exist_ok=True, parents=True)
 

@@ -83,9 +83,8 @@ class MLDataIndex(CachingIndex):
     @staticmethod
     def from_yaml(
         yaml_config: str | Path,
-        checkpoint_path: str = None,
+        checkpoint_path: str | bool = True,
         *,
-        auto_load: bool = False,
         only_state: bool = False,
         stride_override: int = None,
         **kwargs,
@@ -95,10 +94,8 @@ class MLDataIndex(CachingIndex):
         Args:
             yaml_config (str | Path):
                 Path to yaml config
-            checkpoint_path (str, optional):
-                Path to pretrained checkpoint. Defaults to None.
-            auto_load (bool, optional):
-                Find latest `checkpoint_path` automatically . Defaults to False.
+            checkpoint_path (str | bool, optional):
+                Path to pretrained checkpoint. Defaults to True.
             only_state (bool, optional):
                 Only load the state of the model. Defaults to False.
             stride_override (int, optional):
@@ -115,21 +112,10 @@ class MLDataIndex(CachingIndex):
         trainer: EDITLightningTrainer
         trainer = from_yaml(
             yaml_config,
-            strategy=kwargs.pop("strategy", "dp"),
+            strategy=kwargs.pop("strategy", "auto"),
             logger=kwargs.pop("logger", False),
             **kwargs,
         )
-
-        if auto_load and Path(trainer.checkpoint_path).exists() and not checkpoint_path:
-            checkpoint_path = max(
-                Path(trainer.checkpoint_path).iterdir(), key=os.path.getctime
-            )
-
-        if not checkpoint_path:
-            raise RuntimeError(
-                f"MLDataIndex must load a trained model, if no checkpoint_path given, use auto_load."
-            )
-        print(f"Loading {checkpoint_path}...")
         trainer.load(checkpoint_path, only_state=only_state)
 
         return MLDataIndex(trainer, stride_override=stride_override)
