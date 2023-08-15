@@ -17,7 +17,7 @@ class MLDataIndex(CachingIndex):
     def __init__(
         self,
         trainer: EDITTrainer,
-        data_resolution: tuple, 
+        data_interval: tuple, 
         cache: str | Path = None,
         predict_config: dict = dict(undo=True),
         recurrent_config: dict = {},
@@ -32,7 +32,7 @@ class MLDataIndex(CachingIndex):
         Args:
             trainer (EDITTrainer):
                 EDITTrainer to use to retrieve data
-            data_resolution (tuple):
+            data_interval (tuple):
                 Resolution that the trainer operates at, in TimeDelta form. 
                 e.g. (1, 'day')
             cache (str | Path, optional):
@@ -44,7 +44,7 @@ class MLDataIndex(CachingIndex):
             **kwargs (dict, optional):
                 Any keyword arguments to pass to [DataIndex][edit.data.DataIndex]
         """
-        super().__init__(cache=cache, data_resolution = data_resolution, **kwargs)
+        super().__init__(cache=cache, data_interval = data_interval, **kwargs)
         self.trainer = trainer
         self.predict_config = predict_config
         self.recurrent_config = recurrent_config

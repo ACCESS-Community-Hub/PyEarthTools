@@ -174,6 +174,8 @@ def from_yaml(config: str | dict, **kwargs) -> EDITTrainer:
     else:
         valid_data = None
 
+    if 'model' not in config:
+        raise KeyError(f"model could not be found in config. Ensure a model definition exists.")
     model_name = config["model"].pop("Source")
     # try:
     try:

@@ -113,12 +113,15 @@ Load ERA5, and feed it into a model
 
 
     ```
-
+    
 
 """
 
 from edit.training import models, modules, trainer, loader
 from edit.training.trainer import EDITTrainer, EDITLightningTrainer, from_yaml, MLDataIndex
+
+from_dict = from_yaml
+load = from_yaml
 
 if __name__ == "__main__":
     trainer.commands.entry_point()
