@@ -10,9 +10,18 @@ Provide simple classes to combine the Data Pipeline defined in [edit.pipeline][e
 """
 from edit.training.trainer.template import EDITTrainer
 
-from edit.training.trainer.pytorch.trainer import EDITLightningTrainer
-from edit.training.trainer.xgboost.trainer import EDITXGBoostTrainer
-from edit.training.trainer import commands
+
+try:
+    from edit.training.trainer.pytorch.trainer import EDITLightningTrainer
+except ImportError:
+    pass
+
+try:
+    from edit.training.trainer.xgboost.trainer import EDITXGBoostTrainer
+except ImportError:
+    pass
+
+from edit.training import commands
 from edit.training.trainer.yaml import from_yaml
 from edit.training.trainer.yaml import from_yaml as from_dict
 from edit.training.trainer.dataindex import MLDataIndex
