@@ -27,21 +27,22 @@ def entry_point():
     ),
 )
 @click.option(
-    "--load",
+    "--load/--new",
     type=bool,
     default=True,
+    help = 'Load model or not'
 )
 @click.option(
     "--paths",
     type= list,
-    default = []
+    default = [],
+    help = 'Paths to add to PythonPath'
 )
 def fit(ctx, yaml_file: str | click.Path, load: bool, paths: list[str]):
-    """From Yaml Config, fit model.
+    """
+    From Yaml Config, fit model.
 
-    Args:
-        yaml_file (str): Path to yaml config
-        load (bool): Use existing model
+    yaml_file (str): Path to yaml config
     """
     from edit.training.trainer.yaml import from_yaml
 
