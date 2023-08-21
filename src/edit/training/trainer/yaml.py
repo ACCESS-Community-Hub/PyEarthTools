@@ -75,9 +75,6 @@ from pathlib import Path
 import yaml
 import re
 
-# import torch
-
-from edit.training.models import networks
 from edit.training.trainer.template import EDITTrainer
 from edit.training.trainer.pytorch.trainer import EDITLightningTrainer
 from edit.training.trainer.xgboost.trainer import EDITXGBoostTrainer

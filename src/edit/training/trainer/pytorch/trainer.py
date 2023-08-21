@@ -39,17 +39,6 @@ class LoggingContext:
             logging.getLogger("pytorch_lightning").setLevel(logging.INFO)
             warnings.simplefilter(action="default", category=UserWarning)
 
-class LoggingContext():
-    def __init__(self, change: bool = True) -> None:
-        self.change = change
-    def __enter__(self, *args, **kwargs):
-        if self.change:
-            logging.getLogger("pytorch_lightning").setLevel(logging.ERROR)
-            warnings.simplefilter(action = 'ignore', category=UserWarning)
-    def __exit__(self, *args, **kwargs):
-        if self.change:
-            logging.getLogger("pytorch_lightning").setLevel(logging.INFO)
-            warnings.simplefilter(action = 'default', category=UserWarning)
 
 class EDITLightningTrainer(EDITTrainer):
     """
@@ -59,11 +48,11 @@ class EDITLightningTrainer(EDITTrainer):
     def __init__(
         self,
         model: "pl.LightningModule",
-        train_data: DataLoader | DataIterator,
+        train_data:  DataIterator,
         path: str,
-        valid_data: DataLoader | DataIterator = None,
+        valid_data:  DataIterator = None,
         find_batch_size: bool = False,
-        EarlyStopping: bool = True,
+        EarlyStopping: bool | str = True,
         **kwargs,
     ) -> None:
         """Pytorch Lightning Trainer Wrapper.
@@ -129,9 +118,9 @@ class EDITLightningTrainer(EDITTrainer):
         self.callbacks = kwargs.pop("callbacks", [])
         self.callbacks.append(checkpoint_callback)
         
-        if EarlyStopping:
+        if EarlyStopping and not (isinstance(EarlyStopping, str) and EarlyStopping == 'True'):
             self.callbacks.append(
-                pl.callbacks.early_stopping.EarlyStopping(
+                pl.callbacks.EarlyStopping(
                     monitor=EarlyStopping if isinstance(EarlyStopping, str) else "valid/loss",
                     min_delta=0.00,
                     patience=4,
