@@ -35,6 +35,7 @@ class EDITXGBoostTrainer(EDITTrainer):
         self.model = model
 
         self.path = Path(path)
+        self.path.mkdir(exist_ok=True,parents=True)
 
     def fit(self, num_batches: int = 2, load: bool = False, verbose: bool = True):
         if load:
@@ -52,13 +53,14 @@ class EDITXGBoostTrainer(EDITTrainer):
             print("Fitting model...")
             self.model.fit(*data, xgb_model)
             xgb_model = self.model.get_booster()
+        self.save()
 
     def _predict_from_data(self, data: tuple, **kwargs):
         # Handle Predictions
 
         (X, y) = data
         y_pred = self.model.predict(X)
-        if y_pred.shape == 1:
+        if y_pred.shape == (1,):
             y_pred = np.expand_dims(y_pred, -1)
 
         return X, y_pred
@@ -74,7 +76,7 @@ class EDITXGBoostTrainer(EDITTrainer):
         if path is None:
             path = Path(self.path)
 
-        self.model = xgboost.XGBRegressor()
+        # self.model = xgboost.XGBRegressor()
         self.model.load_model(path / "model.json")
 
     def save(self, path: str | Path = None):
@@ -150,34 +152,34 @@ class EDITXGBoostTrainer(EDITTrainer):
 
         # TODO view metrics instead of print.
 
-    def _plot_case(self, test_time: str = "20220303T0000", vmax: int = 255):
-        # Get preds for time
+    # def _plot_case(self, test_time: str = "20220303T0000", vmax: int = 255):
+    #     # Get preds for time
 
-        with edit.pipeline.context.PatchingUpdate(self, stride_size=[1, 1]):
-            truth, predictions = self.predict(test_time)
+    #     with edit.pipeline.context.PatchingUpdate(self, stride_size=[1, 1]):
+    #         truth, predictions = self.predict(test_time)
 
-        # Plot
-        fig, axs = plt.subplots(1, 3, figsize=(15, 4), layout="tight")
+    #     # Plot
+    #     fig, axs = plt.subplots(1, 3, figsize=(15, 4), layout="tight")
 
-        truth.cloud_optical_depth.plot(ax=axs[0], vmin=0, vmax=vmax)
-        axs[0].set_title("Truth")
-        predictions.cloud_optical_depth.plot(ax=axs[1], vmin=0, vmax=vmax)
-        axs[1].set_title("Prediction")
-        (predictions - truth).cloud_optical_depth.rename("error").plot(
-            ax=axs[2], vmin=-255, vmax=255
-        )
-        axs[2].set_title("Error")
-        fig.suptitle(test_time)
-        fig.savefig(self.path / f"example_view-{test_time}.jpg", dpi=300)
+    #     truth.cloud_optical_depth.plot(ax=axs[0], vmin=0, vmax=vmax)
+    #     axs[0].set_title("Truth")
+    #     predictions.cloud_optical_depth.plot(ax=axs[1], vmin=0, vmax=vmax)
+    #     axs[1].set_title("Prediction")
+    #     (predictions - truth).cloud_optical_depth.rename("error").plot(
+    #         ax=axs[2], vmin=-255, vmax=255
+    #     )
+    #     axs[2].set_title("Error")
+    #     fig.suptitle(test_time)
+    #     fig.savefig(self.path / f"example_view-{test_time}.jpg", dpi=300)
 
-        # Scatter
-        fig, ax = plt.subplots(1, 1)
-        ax.scatter(
-            truth.cloud_optical_depth.values.flatten(),
-            predictions.cloud_optical_depth.values.flatten(),
-            s=1,
-        )
-        fig.savefig(self.path / f"example_scatter-{test_time}.jpg", dpi=300)
+    #     # Scatter
+    #     fig, ax = plt.subplots(1, 1)
+    #     ax.scatter(
+    #         truth.cloud_optical_depth.values.flatten(),
+    #         predictions.cloud_optical_depth.values.flatten(),
+    #         s=1,
+    #     )
+    #     fig.savefig(self.path / f"example_scatter-{test_time}.jpg", dpi=300)
 
     def _view_tree(self):
         fig, ax = plt.subplots(1, 1, figsize=(15, 50))
@@ -208,27 +210,28 @@ class EDITXGBoostTrainer(EDITTrainer):
         fig.savefig(self.path / "f_scores.jpg", dpi=300, bbox_inches="tight")
 
     def get_feature_names(self):
-        self.train_data("2021-03-03 00:00")
-        variable_order = self.train_data.patching_config.Variables[0]
+        self.pipeline("2021-03-03 00:00")
+        variable_order = self.pipeline.patching_config.Variables[0]
 
-        config_path = Path(str(self.path) + ".yaml")
+        config = self.pipeline.save()
 
-        with open(config_path, "r") as file:
-            config = yaml.safe_load(file)
+        tsteps = config["edit.pipeline.indexes.temporal.TemporalIndex"]["samples"][0]
+        n_patches = config["edit.pipeline.operations.patch.Patch"]["kernel_size"]
+        if isinstance(n_patches, (tuple, list)):
+            n_patches = n_patches[0]
 
-        di_source = config["data"]["Source"]
-        tsteps = di_source["iterators.TemporalInterface"]["samples"][0]
-        n_patches = di_source["operations.PatchingDataIndex"]["kernel_size"][0]
-
-        tsteps_str = ["t_minus" + str(x * 10) for x in range(1, tsteps + 1)][::-1]
+        tsteps_str = ["t_minus" + str(x) for x in range(1, tsteps + 1)][::-1]
         lats_str = ["lat" + str(x) for x in range(1, n_patches + 1)]
         lons_str = ["lon" + str(x) for x in range(1, n_patches + 1)]
 
         feature_names = []
         for var in variable_order:
             for tstep in tsteps_str:
-                for lat in lats_str:
-                    for lon in lons_str:
-                        feature_names.append("_".join([var, tstep, lat, lon]))
+                if len(lats_str) > 1 or len(lons_str) > 1:
+                    for lat in lats_str:
+                        for lon in lons_str:
+                            feature_names.append("_".join([var, tstep, lat, lon]))
+                else:
+                    feature_names.append("_".join([var, tstep]))
 
         return feature_names

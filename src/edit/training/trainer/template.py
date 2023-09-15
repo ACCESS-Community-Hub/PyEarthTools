@@ -7,13 +7,15 @@ from typing import Any
 import numpy as np
 import xarray as xr
 
-from tqdm.auto import tqdm, trange
+from tqdm.auto import trange
 
 
 import edit.pipeline
 from edit.pipeline.templates import DataStep
 
 from edit.data import Collection, IndexWarning
+
+import edit.training
 
 
 class EDITTrainer:
@@ -29,20 +31,34 @@ class EDITTrainer:
         path: str | Path = None,
         **kwargs,
     ) -> None:
+        
         self.model = model
         self.train_data = train_data
         self.valid_data = valid_data
         self.path = path
 
 
+    ### 
+    ##  Data retrieval functions
+    ###
     @property
     def pipeline(self):
         """
         Get pipeline used for this trainer.
 
-        Either valid_data if given or train_data
+        Either `valid_data` if given or `train_data`
         """
         return self.valid_data or self.train_data
+    
+    def as_index(self, **kwargs):
+        """
+        Convert this trainer to an `MLDataIndex`
+
+        Passes across all kwargs
+        """
+        if isinstance(self.train_data, DataStep) and hasattr(self.train_data, '_interval'):
+            kwargs['data_interval'] = kwargs.get('data_interval', self.train_data._interval)
+        return edit.training.MLDataIndex(self, **kwargs)
 
     def data(self, index: str, undo=False) -> np.array | xr.Dataset:
         """Get data which is fed into model
@@ -65,9 +81,14 @@ class EDITTrainer:
         if isinstance(data, (tuple, list)):
             data = Collection(*data)
         return data
+    
+    ### 
+    ##  Abstract child to implement classes
+    ###
 
     @abstractmethod
     def fit(self):
+        """Abstract fit function which needs to be wrapped by the child."""
         raise NotImplementedError()
 
     @abstractmethod
@@ -79,17 +100,12 @@ class EDITTrainer:
             Function must return prediction as a [numpy array][np.array] of the same shape as target
         """
         raise NotImplementedError()
+    
 
-    def _expand_dims(data: np.ndarray | tuple | list) -> np.ndarray | tuple | list:
-        if isinstance(data, (list, tuple)):
-            return type(data)(map(EDITTrainer._expand_dims, data))
-        return np.expand_dims(data, axis=0)
 
-    def _squeeze_dims(data: np.ndarray | tuple | list) -> np.ndarray | tuple | list:
-        if isinstance(data, (list, tuple)):
-            return type(data)(map(EDITTrainer._squeeze_dims, data))
-        return np.squeeze(data, axis=0)
-
+    ###
+    ##  Prediction Wrappers
+    ###
     def predict(
         self,
         index: str,
@@ -99,6 +115,7 @@ class EDITTrainer:
         load: bool | str = False,
         load_kwargs: dict = {},
         fake_batch_dim: bool = None,
+        quiet: bool = False,
         **kwargs,
     ) -> tuple[np.array] | tuple[xr.Dataset]:
         """Predict using the model a particular index
@@ -114,13 +131,16 @@ class EDITTrainer:
 
             Solution: `batch_size = 1`
 
+        !!! Tip
+            If RuntimeError's arise with incorrect number of channels, try setting `fake_batch_dim`
+
         Args:
             index (str):
                 Index to get from the validation or training data loader or given `data_iterator`
             undo (bool, optional):
                 Rebuild Data using DataStep.undo. Defaults to True.
             data_iterator (DataIterator, optional):
-                Override for DataStep to us. Defaults to None.
+                Override for DataStep to use. Defaults to None.
             load (bool | str, optional):
                 Path to checkpoint, or boolean to find latest file. Defaults to False.
             load_kwargs (dict, optional):
@@ -142,12 +162,12 @@ class EDITTrainer:
 
         self.load(load, **load_kwargs)
 
-        if 'ToNumpy' in self.train_data.steps:
+        if 'ToNumpy' in self.train_data.steps or 'FakeData' in self.train_data.steps:
             fake_batch_dim = True if fake_batch_dim is None else fake_batch_dim
+
         if fake_batch_dim is None:
             fake_batch_dim = False
 
-        data_source = data_iterator or self.valid_data or self.train_data
         data = data_source[index]
 
         truth = None
@@ -201,6 +221,7 @@ class EDITTrainer:
         fake_batch_dim: bool = None,
         trim_time_dim: int = None,
         verbose: bool = True,
+        quiet: bool = False,
         **kwargs,
     ) -> tuple[np.array] | tuple[xr.Dataset]:
         """Time wise recurrent prediction
@@ -308,7 +329,7 @@ class EDITTrainer:
                 append_prediction = fixed_predictions.isel(
                     time=slice(None, trim_time_dim)
                 )
-            predictions.append(append_prediction)
+            predictions.append(type(append_prediction)(append_prediction))
             index = append_prediction.time.values[-1]
 
             # Setup recurrent input data
@@ -365,6 +386,18 @@ class EDITTrainer:
 
         return Collection(truth_data, predictions)
 
+    ## Prediction Utilities
+    def _expand_dims(data: np.ndarray | tuple | list) -> np.ndarray | tuple | list:
+        if isinstance(data, (list, tuple)):
+            return type(data)(map(EDITTrainer._expand_dims, data))
+        return np.expand_dims(data, axis=0)
+
+    def _squeeze_dims(data: np.ndarray | tuple | list) -> np.ndarray | tuple | list:
+        if isinstance(data, (list, tuple)):
+            return type(data)(map(EDITTrainer._squeeze_dims, data))
+        return np.squeeze(data, axis=0)
+    
+
     ## Model State Functions
     @abstractmethod
     def load(self, path: str | Path | bool):
@@ -373,3 +406,20 @@ class EDITTrainer:
     @abstractmethod
     def save(self, path: str | Path):
         raise NotImplementedError
+
+    ###
+    ##  Utility Functions
+    ###
+    def __repr__(self):
+        pipeline = self.pipeline
+        model = self.model
+
+        repr_string = []
+        repr_string.append(f"===== EDIT Trainer Class of {self.__class__} =====")
+        repr_string.append("Model:")
+        repr_string.append(f"{repr(model)}")
+        repr_string.append("Pipeline:")
+        repr_string.append(f"{repr(pipeline)}")
+
+        return '\n'.join(repr_string)
+        

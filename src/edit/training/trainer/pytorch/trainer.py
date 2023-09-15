@@ -122,7 +122,7 @@ class EDITLightningTrainer(EDITTrainer):
             self.callbacks.append(
                 pl.callbacks.EarlyStopping(
                     monitor=EarlyStopping if isinstance(EarlyStopping, str) else "valid/loss",
-                    min_delta=0.00,
+                    min_delta=0.05,
                     patience=4,
                     verbose=False,
                     mode="min",
@@ -219,7 +219,7 @@ class EDITLightningTrainer(EDITTrainer):
             raise AttributeError(f"{self!r} has no attribute {key!r}")
         return getattr(self.trainer, key)
 
-    def fit(self, load: bool = True, *args, **kwargs):
+    def fit(self, load: bool = True, **kwargs):
         """Using Pytorch Lightning `.fit` to train model, auto fills model and dataloaders
 
         Args:
@@ -229,13 +229,17 @@ class EDITLightningTrainer(EDITTrainer):
 
         file = self.load(load)
 
+        data_config = {}
+        if "train_dataloaders" in kwargs:
+            data_config["train_dataloaders"] = kwargs.pop("train_dataloaders")
+            data_config["valid_dataloaders"] = kwargs.pop("None")
+        else:
+            data_config = {'datamodule': self.datamodule}
+
         self.trainer.fit(
             model=self.model,
-            train_dataloaders=kwargs.pop("train_dataloaders", None),
-            val_dataloaders=kwargs.pop("valid_dataloaders", None),
-            datamodule=self.datamodule,
             # ckpt_path = file,
-            *args,
+            **data_config,
             **kwargs,
         )
 
@@ -364,18 +368,21 @@ class EDITLightningTrainer(EDITTrainer):
                 latest_time = time
                 latest_item = item
         return latest_item
+
     @functools.wraps(EDITTrainer.predict)
     def predict(self, *args, quiet: bool = False, **kwargs) -> tuple:
         with LoggingContext(quiet):
             if quiet:
                 self.load_trainer(enable_progress_bar=False)
             return super().predict(*args, **kwargs)
+        
     @functools.wraps(EDITTrainer.predict_recurrent)
     def predict_recurrent(self, *args, quiet: bool = True, **kwargs) -> tuple:
         with LoggingContext(quiet):
             if quiet:
                 self.load_trainer(enable_progress_bar=False)
             return super().predict_recurrent(*args, **kwargs)
+        
     def __flatten_metrics(self, data: pd.DataFrame):
         return data
 

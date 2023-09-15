@@ -5,7 +5,6 @@ This will allow data to be retrieved as normal, with the user not having to worr
 """
 from __future__ import annotations
 
-import os
 from pathlib import Path
 from edit.data import CachingIndex
 
@@ -33,7 +32,7 @@ class MLDataIndex(CachingIndex):
             trainer (EDITTrainer):
                 EDITTrainer to use to retrieve data
             data_interval (tuple):
-                Resolution that the trainer operates at, in TimeDelta form. 
+                Resolution that the trainer operates at, in `TimeDelta` form. 
                 e.g. (1, 'day')
             cache (str | Path, optional):
                 Location to cache outputs, if not supplied don't cache.
@@ -59,10 +58,11 @@ class MLDataIndex(CachingIndex):
         predictions = None
         if self.recurrent_config:
             predictions = self.trainer.predict_recurrent(
-                querytime, **self.recurrent_config
+                querytime, **self.recurrent_config, quiet = True
             )
         else:
-            predictions = self.trainer.predict(querytime, **self.predict_config)
+            predictions = self.trainer.predict(querytime, **self.predict_config, quiet = True)
+
         if isinstance(predictions, (list, tuple)):
             predictions = predictions[1]
         return predictions
