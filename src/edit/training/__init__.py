@@ -117,8 +117,14 @@ Load ERA5, and feed it into a model
 
 """
 
-from edit.training import models, modules, trainer, loader
+from edit.training import trainer, loader
 from edit.training.trainer import from_yaml, MLDataIndex
+
+try:
+    from edit.training import modules
+    from edit.training.trainer import EDITLightningTrainer as LightningTrainer
+except ImportError:
+    pass
 
 ## Dynamic imports depending on modules loaded
 try:

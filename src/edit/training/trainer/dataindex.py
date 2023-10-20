@@ -6,20 +6,27 @@ This will allow data to be retrieved as normal, with the user not having to worr
 from __future__ import annotations
 
 from pathlib import Path
-from edit.data import CachingIndex
+from typing import Any
+
+from edit.data import EDITDatetime, Transform, TransformCollection, TimeDelta
+from edit.data.indexes import BaseCacheIndex, TimeIndex
 
 from edit.training.trainer import from_yaml, EDITLightningTrainer
 from edit.training.trainer.template import EDITTrainer
 
 
-class MLDataIndex(CachingIndex):
+class MLDataIndex(BaseCacheIndex, TimeIndex):
     def __init__(
         self,
         trainer: EDITTrainer,
+        *,
         data_interval: tuple, 
         cache: str | Path = None,
         predict_config: dict = dict(undo=True),
         recurrent_config: dict = {},
+        offsetInterval: bool = False,
+        post_transforms: Transform | TransformCollection = TransformCollection(),
+        override: bool = False,
         **kwargs,
     ):
         """Setup ML Data Index from defined trainer
@@ -40,6 +47,8 @@ class MLDataIndex(CachingIndex):
                 Configuration for standard prediction.
             recurrent_config (dict, optional):
                 Configuration if model must be run recurrently
+            offsetInterval (bool, optional):
+                Whether to offset time by interval. Defaults to False.
             **kwargs (dict, optional):
                 Any keyword arguments to pass to [DataIndex][edit.data.DataIndex]
         """
@@ -48,6 +57,13 @@ class MLDataIndex(CachingIndex):
         self.predict_config = predict_config
         self.recurrent_config = recurrent_config
 
+        self.post_transforms = post_transforms
+
+        self.offsetInterval = offsetInterval
+        self.override = override
+
+    
+
     def generate(
         self,
         querytime: str,
@@ -55,6 +71,12 @@ class MLDataIndex(CachingIndex):
         """
         Get Data from given timestep
         """
+        if self.offsetInterval:
+            if self.data_interval and isinstance(self.offsetInterval, bool):
+                querytime = type(querytime)(EDITDatetime(querytime) + self.data_interval)
+            else:
+                querytime = type(querytime)(EDITDatetime(querytime) + TimeDelta(self.offsetInterval))
+
         predictions = None
         if self.recurrent_config:
             predictions = self.trainer.predict_recurrent(
@@ -65,7 +87,15 @@ class MLDataIndex(CachingIndex):
 
         if isinstance(predictions, (list, tuple)):
             predictions = predictions[1]
+        
+        if hasattr(self, 'base_transforms'):
+            predictions = self.base_transforms(predictions)
+        predictions = self.post_transforms(predictions)
+
         return predictions
+
+    def filesystem(self, *args, force_generate: bool = False, **kwargs) -> Path:
+        return super().filesystem(*args, force_generate=self.override, **kwargs)
 
     def input_data(self, querytime: str):
         """
@@ -119,3 +149,4 @@ class MLDataIndex(CachingIndex):
         trainer.load(checkpoint_path, only_state=only_state)
 
         return MLDataIndex(trainer, stride_override=stride_override)
+

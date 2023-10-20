@@ -76,16 +76,18 @@ import yaml
 import re
 
 from edit.training.trainer.template import EDITTrainer
-from edit.training.trainer.pytorch.trainer import EDITLightningTrainer
-from edit.training.trainer.xgboost.trainer import EDITXGBoostTrainer
+
+from edit.training.trainer.pytorch import trainer 
 
 import edit.pipeline
 from edit.utils.imports import dynamic_import
 
-TRAINER_ASSIGNMENT = {
-    EDITLightningTrainer: ["pytorch", "lightning"],
-    EDITXGBoostTrainer: ["xgboost"],
-}
+TRAINER_ASSIGNMENT = {}
+if hasattr(trainer, 'EDITXGBoostTrainer'):
+    TRAINER_ASSIGNMENT['EDITXGBoostTrainer'] = ['xgboost']
+if hasattr(trainer, 'EDITLightningTrainer'):
+    TRAINER_ASSIGNMENT['EDITLightningTrainer'] = ["pytorch", "lightning"]
+
 
 
 def flip_dict(dict):

@@ -7,7 +7,10 @@ Collection of Dataloaders to use at the end of the pipeline to get data for ML
 | [CustomLoader][edit.training.loader.custom]     | Basic Custom DataLoader to batch data |
 """
 
-from edit.training.loader.pytorch import PytorchIterable
+try:
+    from edit.training.loader.pytorch import PytorchIterable
+except ImportError:
+    pass
 from edit.training.loader.custom import CustomLoader
 
 # from .dali import DALILoader

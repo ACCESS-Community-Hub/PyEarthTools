@@ -3,10 +3,10 @@ from __future__ import annotations
 from torch.utils.data import IterableDataset
 
 from edit.pipeline.templates import DataStep, DataIterator
-from edit.pipeline.sequential import SequentialIterator
+from edit.pipeline.sequential import SequentialDecorator
 
 
-@SequentialIterator
+@SequentialDecorator
 class PytorchIterable(DataStep, IterableDataset):
     """
     Connect Data Pipeline with PyTorch IterableDataset
@@ -15,7 +15,7 @@ class PytorchIterable(DataStep, IterableDataset):
         ```python
         PytorchIterable(PipelineStep)
 
-        ## As this is decorated with @SequentialIterator, it can be partially initialised
+        ## As this is decorated with @SequentialDecorator, it can be partially initialised
 
         partialPytorchIterable = PytorchIterable()
         partialPytorchIterable(PipelineStep)

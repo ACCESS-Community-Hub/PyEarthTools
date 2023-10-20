@@ -5,12 +5,12 @@
 
 
 # from edit.pipeline.templates import DataStep, DataIterator
-# from edit.pipeline.sequential import Sequential, SequentialIterator
+# from edit.pipeline.sequential import Sequential, SequentialDecorator
 
 
 # def DALIPipeline()
 
-# @SequentialIterator
+# @SequentialDecorator
 # class DALILoader(DataStep):
 #     def __init__(self, index: DataStep | DataIterator) -> None:
 #         super().__init__(index = index)

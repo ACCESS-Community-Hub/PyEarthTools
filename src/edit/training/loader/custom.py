@@ -4,12 +4,12 @@ import numpy as np
 import warnings
 
 from edit.pipeline.templates import DataStep, DataIterator
-from edit.pipeline.sequential import SequentialIterator
+from edit.pipeline.sequential import SequentialDecorator
 
 from edit.pipeline.warnings import PipelineWarning
 
 
-@SequentialIterator
+@SequentialDecorator
 class CustomLoader(DataStep):
     """
     DataLoader to batch data
@@ -19,7 +19,7 @@ class CustomLoader(DataStep):
         ```python
         CustomLoader(PipelineStep, batch_size = 16)
 
-        ## As this is decorated with @SequentialIterator, it can be partially initialised
+        ## As this is decorated with @SequentialDecorator, it can be partially initialised
 
         partialCustomLoader = CustomLoader(batch_size = 16)
         partialCustomLoader(PipelineStep)

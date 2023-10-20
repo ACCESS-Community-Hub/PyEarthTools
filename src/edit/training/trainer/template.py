@@ -6,16 +6,18 @@ import warnings
 from typing import Any
 import numpy as np
 import xarray as xr
+import logging
 
 from tqdm.auto import trange
-
 
 import edit.pipeline
 from edit.pipeline.templates import DataStep
 
-from edit.data import Collection, IndexWarning
+from edit.data import Collection, IndexWarning, patterns
 
 import edit.training
+
+LOG = logging.getLogger(__name__)
 
 
 class EDITTrainer:
@@ -170,13 +172,7 @@ class EDITTrainer:
 
         data = data_source[index]
 
-        truth = None
-        
-        if isinstance(data, (list, tuple)):
-            truth = data[1]
-        else:
-            truth = data
-
+    
         if fake_batch_dim:
             data = EDITTrainer._expand_dims(data)
 
@@ -189,6 +185,7 @@ class EDITTrainer:
         if not undo:
             if isinstance(prediction, (tuple, list)):
                 prediction = prediction[1]
+            truth = data[1] if isinstance(data, (list, tuple)) else data
             return Collection(truth, prediction)
 
         prediction = data_source.undo(prediction)
@@ -204,8 +201,9 @@ class EDITTrainer:
 
         if "Coordinate 1" in prediction:
             prediction = prediction.rename({"Coordinate 1": "time"})
+            
         if hasattr(data_source, "rebuild_time"):
-            prediction = data_source.rebuild_time(prediction, index)
+            truth, prediction = map(lambda x: data_source.rebuild_time(x, index, offset = 0), (truth, prediction))
 
         return Collection(truth, prediction)
 
@@ -217,11 +215,14 @@ class EDITTrainer:
         data_iterator: DataStep = None,
         load: bool = False,
         load_kwargs: dict = {},
-        truth_step: int = 0,
+        truth_step: int | None = None,
         fake_batch_dim: bool = None,
         trim_time_dim: int = None,
         verbose: bool = True,
         quiet: bool = False,
+        cache: bool | str | Path = False,
+        save_location: str | Path | None = None,
+        use_output: bool = False,
         **kwargs,
     ) -> tuple[np.array] | tuple[xr.Dataset]:
         """Time wise recurrent prediction
@@ -235,10 +236,6 @@ class EDITTrainer:
             If number of patches is not divisible by the `batch_size`, issues may arise.
             Solution: batch_size = 1
 
-        ??? Tip
-            If data is being converted using [ToNumpy][edit.pipeline.operations.to_numpy] issues may arise with an invalid shape,
-            simply set `fake_batch_dim` to `True`
-
         Args:
             start_index (str):
                 Starting Index of Prediction
@@ -250,14 +247,22 @@ class EDITTrainer:
                 Resume from checkpoint. Defaults to False.
             load_kwargs (dict, optional):
                 Keyword arguments to pass to loading function
-            truth_step (int, optional):
-                Data Pipeline step to use to retrieve Truth data. Defaults to 0
+            truth_step (int | None, optional):
+                Data Pipeline step to use to retrieve Truth data. Defaults to None
             fake_batch_dim (bool, optional):
                 If the batch dimension needs to be faked. Defaults to False.
             trim_time_dim (int, optional):
                 Number of sample in time to use of prediction. Defaults to None.
             verbose (bool, optional):
                 Show progress of recurrent predictions. Defaults to True.
+            cache (bool | str | Path, optional):
+                Whether to cache intermediate data to directory, if True, set up temp directory. Defaults to False.
+            save_location (str | Path, optional):
+                Location to save merged data, if not given, and `cache` is, all data will be loaded into memory than returned. 
+                Therefore, if large datasets are in use, and `cache` given, it is best to set this as well.
+                Defaults to None
+            use_output (bool, optional):
+                Whether to use output directly for input, skips extra `.undo` and `.apply` calls. Defaults to False.
             
         Returns:
             (tuple[np.array] | tuple[xr.Dataset]):
@@ -288,6 +293,15 @@ class EDITTrainer:
         predictions = []
         index = start_index
 
+        cache_pattern, save_pattern = None, None
+        if cache:
+            if isinstance(cache, bool) and cache:
+                cache = None
+            cache_pattern = patterns.ArgumentExpansion(cache or 'temp', extension='.nc', filename_as_arguments = False)
+        
+        if save_location:
+            save_pattern = patterns.Direct(root_dir = save_location or 'temp', extension='.nc')
+
         # Begin Recurrence
         for i in trange(recurrence, disable=not verbose, desc="Predicting Recurrently"):
             if fake_batch_dim:  # Fake the Batch Dimension, for use with ToNumpy
@@ -304,6 +318,8 @@ class EDITTrainer:
 
             # Separate components
             if isinstance(fixed_predictions, (tuple, list)):
+                prediction = prediction[-1]
+
                 input_data = fixed_predictions[0]
                 fixed_predictions = fixed_predictions[-1]
 
@@ -312,9 +328,9 @@ class EDITTrainer:
                     f"Unable to recurrently merge data of type {type(fixed_predictions)}"
                 )
 
-            # Rebuild Time Dimension
-            if "Coordinate 1" in fixed_predictions:
-                fixed_predictions = fixed_predictions.rename({"Coordinate 1": "time"})
+            # # Rebuild Time Dimension
+            # if "Coordinate 1" in fixed_predictions:
+            #     fixed_predictions = fixed_predictions.rename({"Coordinate 1": "time"})
 
             if hasattr(data_source, "rebuild_time"):
                 fixed_predictions = data_source.rebuild_time(
@@ -323,67 +339,96 @@ class EDITTrainer:
                     offset=1 if i >= 1 else 0,
                 )
 
-            # Record Prediction
-            append_prediction = fixed_predictions
+            # ## Save out input, and fixed predictions
+            # if cache_pattern is not None:
+            #     cache_pattern.save(fixed_predictions, i, 'fixed')
+            #     cache_pattern.save(input_data, i, 'input')
+
+            #     fixed_predictions = cache_pattern(i, 'fixed')
+            #     input_data = cache_pattern(i, 'input')
+
+            ## Record Prediction
+            append_prediction = type(fixed_predictions)(fixed_predictions)
             if trim_time_dim:
                 append_prediction = fixed_predictions.isel(
                     time=slice(None, trim_time_dim)
                 )
-            predictions.append(type(append_prediction)(append_prediction))
+
             index = append_prediction.time.values[-1]
 
+            if cache_pattern is not None:
+                cache_pattern.save(append_prediction, i,)
+                # append_prediction = cache_pattern(i)
+                predictions.append(cache_pattern.search(i))
+
+            else:
+                predictions.append(append_prediction)
+
             # Setup recurrent input data
-            data = list(data)
+            if use_output:
+                data[0] = prediction
+            else:
+                data = list(data)
 
-            def add_predictions(input_data, prediction_data):
-                if trim_time_dim:
-                    prediction_data = prediction_data.isel(
-                        time=slice(None, trim_time_dim)
-                    )
+                def add_predictions(input_data, prediction_data):
+                    if trim_time_dim:
+                        prediction_data = prediction_data.isel(
+                            time=slice(None, trim_time_dim)
+                        )
 
-                new_input = xr.merge((input_data, prediction_data))
+                    new_input = xr.merge((input_data, prediction_data))
 
-                new_input = new_input.isel(time=slice(-1 * len(input_data.time), None))
-                return new_input
+                    new_input = new_input.isel(time=slice(-1 * len(input_data.time), None))
+                    return new_input
 
-            # index = new_input.time.values[-1]
-            new_input_data = add_predictions(
-                input_data or data_source.undo(data)[0], fixed_predictions
-            )
-            new_input_data = data_source.apply((new_input_data, fixed_predictions))
+                # index = new_input.time.values[-1]
+                new_input_data = add_predictions(
+                    input_data or data_source.undo(data)[0], fixed_predictions
+                )
+                new_input_data = data_source.apply((new_input_data, fixed_predictions))
 
-            if isinstance(new_input_data, (list, tuple)):
-                new_input_data = new_input_data[0]
-            data[0] = new_input_data
+                if isinstance(new_input_data, (list, tuple)):
+                    new_input_data = new_input_data[0]
+                data[0] = new_input_data                
 
-        if verbose:
-            print(f"Merging Predictions")
+        LOG.info("Merging Predictions")
 
-        predictions = xr.merge(predictions)
+        try:
+            import dask
+            dask.config.set({"array.slicing.split_large_chunks": False})
+        except (ModuleNotFoundError, ImportError):
+            pass                
+
+        if cache_pattern:
+            predictions = xr.open_mfdataset(predictions, chunks = 'auto')
+        else:
+            predictions = xr.concat(predictions, dim = 'time')
+        
+        if save_location:
+            save_pattern.save(predictions, start_index)
+            predictions = save_pattern(start_index)            
+
+        if hasattr(cache_pattern, 'temp_dir') and cache_pattern.temp_dir:
+            if not save_pattern:
+                predictions = predictions.compute()
+            cache_pattern.cleanup(safe = True)
 
         if truth_step is None:
             return predictions
-        
-        if verbose:
-            print(f"Recovering Truth")
 
-        with warnings.catch_warnings(action = 'ignore', category = IndexWarning):
-            truth_data = data_source.step(truth_step)(predictions)
-
-
-        if verbose:
-            print(f"Recovering Truth")
+        LOG.info("Recovering Truth")
 
         try:
-            with warnings.catch_warnings(action="ignore", category=IndexWarning):
+            with warnings.catch_warnings():
+                warnings.simplefilter(action="ignore", category=IndexWarning)
                 truth_step = data_source.step(truth_step)
-                if "CachingIndex" in data_source.steps:
-                    truth_step = data_source.step("CachingIndex")
+                # if "CachingIndex" in data_source.steps:
+                #     truth_step = data_source.step("CachingIndex")
                 truth_data = truth_step(predictions)
         except Exception as e:
-            warnings.warn("An error occured getting truth data, setting to None {e}", RuntimeWarning)
-            predictions = None
-
+            warnings.warn(f"An error occured getting truth data, setting to None\n. {e}", RuntimeWarning)
+            truth_data = None
+        
         return Collection(truth_data, predictions)
 
     ## Prediction Utilities

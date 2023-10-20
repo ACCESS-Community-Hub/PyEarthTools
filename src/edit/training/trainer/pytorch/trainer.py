@@ -268,6 +268,10 @@ class EDITLightningTrainer(EDITTrainer):
 
         warnings.warn(f"Loading checkpoint: {file}", UserWarning)
 
+        ## If model has implementation, let it handle it.
+        if hasattr(self.model, 'load'):
+            return self.model.load(file)
+
         if only_state:
             state = torch.load(file)
             if "state_dict" in state:
