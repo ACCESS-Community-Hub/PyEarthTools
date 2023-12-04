@@ -21,6 +21,7 @@ except ModuleNotFoundError:
     TENSORBOARD_INSTALLED = False
 
 from edit.data import Collection
+import edit.training
 from edit.training.trainer.template import EDITTrainer
 from edit.pipeline.templates import DataIterator
 
@@ -75,6 +76,10 @@ class EDITLightningTrainer(EDITTrainer):
                 All passed to trainer __init__, will intercept 'logger' to update from str if given
 
         """
+        if 'PytorchIterable' not in train_data.steps:
+            train_data = edit.training.loader.PytorchIterable(train_data)
+            valid_data = edit.training.loader.PytorchIterable(valid_data) if valid_data else valid_data
+
         super().__init__(model, train_data=train_data, valid_data=valid_data, path=path)
 
         import pytorch_lightning as pl
@@ -227,12 +232,12 @@ class EDITLightningTrainer(EDITTrainer):
                 Whether to load most recent checkpoint file in checkpoint dir, or specified checkpoint file. Defaults to True.
         """
 
-        file = self.load(load)
+        self.load(load)
 
         data_config = {}
         if "train_dataloaders" in kwargs:
             data_config["train_dataloaders"] = kwargs.pop("train_dataloaders")
-            data_config["valid_dataloaders"] = kwargs.pop("None")
+            data_config["valid_dataloaders"] = kwargs.pop("valid_dataloaders", None)
         else:
             data_config = {'datamodule': self.datamodule}
 
@@ -255,25 +260,31 @@ class EDITLightningTrainer(EDITTrainer):
                 If only the model state should be loaded. Defaults to False.
         """
         import torch
+        file_to_load: str | Path | None = None
 
         if isinstance(file, bool):
+            if not file:
+                return
+            
             if (
-                file
-                and self.checkpoint_path.exists()
+                self.checkpoint_path.exists()
                 and len(list(Path(self.checkpoint_path).iterdir())) > 0
             ):
-                file = max(Path(self.checkpoint_path).iterdir(), key=os.path.getctime)
+                file_to_load = max(Path(self.checkpoint_path).iterdir(), key=os.path.getctime)
             else:
+                warnings.warn(f"No file located to load from.\nSearched {self.checkpoint_path}", UserWarning)
                 return
+        else:
+            file_to_load = str(file)
 
-        warnings.warn(f"Loading checkpoint: {file}", UserWarning)
+        warnings.warn(f"Loading checkpoint: {file_to_load}", UserWarning)
 
         ## If model has implementation, let it handle it.
         if hasattr(self.model, 'load'):
-            return self.model.load(file)
+            return self.model.load(file_to_load)
 
         if only_state:
-            state = torch.load(file)
+            state = torch.load(file_to_load)
             if "state_dict" in state:
                 state = state["state_dict"]
                 new_state = {}
@@ -290,7 +301,7 @@ class EDITLightningTrainer(EDITTrainer):
             return file
 
         try:
-            self.model = self.model.load_from_checkpoint(file)
+            self.model = self.model.load_from_checkpoint(file_to_load)
         except (RuntimeError, KeyError) as e:
             warnings.warn(
                 "A KeyError arose when loading from checkpoint, will attempt to load only the model state.",
@@ -298,8 +309,12 @@ class EDITLightningTrainer(EDITTrainer):
             )
             return self.load(file=file, only_state=True)
 
-        return file
+        return file_to_load
 
+    def save(self, path: str, directory: str | Path | None = None):
+        directory = directory or self.checkpoint_path
+        self.trainer.save_checkpoint(Path(directory) / path)
+        
     def _predict_from_data(self, data: np.ndarray | tuple, batch_size = None):
         """
         Using the loaded model, and given data make a prediction
@@ -340,10 +355,6 @@ class EDITLightningTrainer(EDITTrainer):
             )
         else:
             prediction = np.vstack(predictions_raw)
-
-        if len(prediction) == 1:
-            prediction = prediction[0]
-
         return prediction
 
     def _find_latest_path(self, path: str | Path, file: bool = True) -> Path:

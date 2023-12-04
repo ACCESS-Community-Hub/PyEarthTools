@@ -24,7 +24,7 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         cache: str | Path = None,
         predict_config: dict = dict(undo=True),
         recurrent_config: dict = {},
-        offsetInterval: bool = False,
+        offsetInterval: bool | tuple | TimeDelta = False,
         post_transforms: Transform | TransformCollection = TransformCollection(),
         override: bool = False,
         **kwargs,
@@ -62,28 +62,33 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         self.offsetInterval = offsetInterval
         self.override = override
 
+    def offset_time(self, time) -> EDITDatetime:
+        time = EDITDatetime(time)
+        if self.offsetInterval:
+            if self.data_interval and isinstance(self.offsetInterval, bool):
+                time = EDITDatetime(time) + self.data_interval
+            else:
+                time = EDITDatetime(time) + TimeDelta(self.offsetInterval)
+        return time
     
 
     def generate(
         self,
-        querytime: str,
+        querytime: str | EDITDatetime,
     ):  # transforms: Union[Callable, TransformCollection, Transform]= None
         """
         Get Data from given timestep
         """
-        if self.offsetInterval:
-            if self.data_interval and isinstance(self.offsetInterval, bool):
-                querytime = type(querytime)(EDITDatetime(querytime) + self.data_interval)
-            else:
-                querytime = type(querytime)(EDITDatetime(querytime) + TimeDelta(self.offsetInterval))
+        querytime = self.offset_time(querytime)
 
+        querytime = querytime.at_resolution(self.data_resolution)
         predictions = None
         if self.recurrent_config:
             predictions = self.trainer.predict_recurrent(
-                querytime, **self.recurrent_config, quiet = True
+                querytime, interval = self.recurrent_config.pop('interval', self.data_interval), **self.recurrent_config, quiet = True,
             )
         else:
-            predictions = self.trainer.predict(querytime, **self.predict_config, quiet = True)
+            predictions = self.trainer.predict(querytime, interval = self.predict_config.pop('interval', self.data_interval), **self.predict_config, quiet = True)
 
         if isinstance(predictions, (list, tuple)):
             predictions = predictions[1]
@@ -94,13 +99,18 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
 
         return predictions
 
-    def filesystem(self, *args, force_generate: bool = False, **kwargs) -> Path:
-        return super().filesystem(*args, force_generate=self.override, **kwargs)
+    def filesystem(self, *args, **kwargs) -> Path:
+        if self.override:
+            with self.toggle_generate:
+                return super().filesystem(*args, **kwargs)
+        return super().filesystem(*args, **kwargs)
 
     def input_data(self, querytime: str):
         """
         Get input data at given timestep
         """
+        querytime = self.offset_time(querytime)
+
         input_data = self.trainer.pipeline.undo(
             self.trainer.pipeline[querytime]
         )
@@ -113,10 +123,11 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
     @staticmethod
     def from_yaml(
         yaml_config: str | Path,
+        data_interval: tuple,
         checkpoint_path: str | bool = True,
         *,
         only_state: bool = False,
-        stride_override: int = None,
+        stride_override: int | None = None,
         **kwargs,
     ):
         """Setup ML Data Index from yaml file config and pretrained model
@@ -124,6 +135,9 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         Args:
             yaml_config (str | Path):
                 Path to yaml config
+            data_interval (tuple):
+                Resolution that the trainer operates at, in `TimeDelta` form. 
+                e.g. (1, 'day')
             checkpoint_path (str | bool, optional):
                 Path to pretrained checkpoint. Defaults to True.
             only_state (bool, optional):
@@ -139,7 +153,7 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
             (MLDataIndex):
                 MLDataIndex to use to get data with
         """
-        trainer: EDITLightningTrainer
+        trainer: EDITTrainer
         trainer = from_yaml(
             yaml_config,
             strategy=kwargs.pop("strategy", "auto"),
@@ -148,5 +162,5 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         )
         trainer.load(checkpoint_path, only_state=only_state)
 
-        return MLDataIndex(trainer, stride_override=stride_override)
+        return MLDataIndex(trainer, data_interval = data_interval, stride_override=stride_override)
 

@@ -71,34 +71,35 @@ Allow a Trainer Configuration to be saved and loaded from a yaml file
 from __future__ import annotations
 
 from pathlib import Path
+from collections import OrderedDict
 
 import yaml
 import re
 
 from edit.training.trainer.template import EDITTrainer
 
-from edit.training.trainer.pytorch import trainer 
+from edit.training import trainer
 
 import edit.pipeline
 from edit.utils.imports import dynamic_import
 
-TRAINER_ASSIGNMENT = {}
-if hasattr(trainer, 'EDITXGBoostTrainer'):
-    TRAINER_ASSIGNMENT['EDITXGBoostTrainer'] = ['xgboost']
-if hasattr(trainer, 'EDITLightningTrainer'):
-    TRAINER_ASSIGNMENT['EDITLightningTrainer'] = ["pytorch", "lightning"]
+TRAINER_ASSIGNMENT = OrderedDict()
+if hasattr(trainer, "EDITLightningTrainer"):
+    TRAINER_ASSIGNMENT[trainer.EDITLightningTrainer] = ["pytorch", "lightning"]
+if hasattr(trainer, "EDITXGBoostTrainer"):
+    TRAINER_ASSIGNMENT[trainer.EDITXGBoostTrainer] = ["xgboost"]
 
 
-
-def flip_dict(dict):
-    return_dict = {}
+def flip_dict(dict: dict) -> dict:
+    """Flip a dictionary of lists"""
+    return_dict = OrderedDict()
     for k, v in dict.items():
         for i in v:
             return_dict[i] = k
     return return_dict
 
 
-def from_yaml(config: str | dict, **kwargs) -> EDITTrainer:
+def from_yaml(config: str | Path | dict, **kwargs) -> EDITTrainer:
     """Load and create trainer from dictionary config or yaml file
 
     !!! Warning
@@ -153,11 +154,7 @@ def from_yaml(config: str | dict, **kwargs) -> EDITTrainer:
                 else:
                     raise KeyError(f"Cannot parse {auto_match}, Path was {Path(yaml_file).absolute()}")
 
-            config["trainer"]["path"] = str(
-                Path(config["trainer"]["path"].replace(auto_match, ""))
-                / "/".join(parts)
-            )
-
+            config["trainer"]["path"] = str(Path(config["trainer"]["path"].replace(auto_match, "")) / "/".join(parts))
 
         Path(config["trainer"]["path"]).mkdir(exist_ok=True, parents=True)
 
@@ -173,7 +170,7 @@ def from_yaml(config: str | dict, **kwargs) -> EDITTrainer:
     else:
         valid_data = None
 
-    if 'model' not in config:
+    if "model" not in config:
         raise KeyError(f"model could not be found in config. Ensure a model definition exists.")
     model_name = config["model"].pop("Source")
     # try:
@@ -184,8 +181,11 @@ def from_yaml(config: str | dict, **kwargs) -> EDITTrainer:
 
     model = model(**config["model"])
 
-    trainer_class = EDITLightningTrainer
     trainer_dict = flip_dict(TRAINER_ASSIGNMENT)
+    if len(TRAINER_ASSIGNMENT.keys()) == 0:
+        raise ImportError(f"Could not find any trainer to use, they were unable to be imported.")
+
+    trainer_class = flip_dict(TRAINER_ASSIGNMENT)[list(flip_dict(TRAINER_ASSIGNMENT).keys())[0]]
 
     if "type" in config["trainer"]:
         trainer_type = config["trainer"].pop("type")
@@ -198,9 +198,7 @@ def from_yaml(config: str | dict, **kwargs) -> EDITTrainer:
                 raise KeyError(f"Could not find trainer: {trainer_type}")
 
         if trainer_class is None:
-            raise KeyError(
-                f"Trainer type {trainer_type} not recognised. Use {trainer_dict.keys()} or import path."
-            )
+            raise KeyError(f"Trainer type {trainer_type} not recognised. Use {trainer_dict.keys()} or import path.")
 
     return trainer_class(
         model=model,

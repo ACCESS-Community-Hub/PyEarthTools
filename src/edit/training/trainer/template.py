@@ -13,7 +13,7 @@ from tqdm.auto import trange
 import edit.pipeline
 from edit.pipeline.templates import DataStep
 
-from edit.data import Collection, IndexWarning, patterns
+from edit.data import Collection, LabelledCollection, IndexWarning, patterns, TimeDelta
 
 import edit.training
 
@@ -29,8 +29,8 @@ class EDITTrainer:
         self,
         model,
         train_data: DataStep,
-        valid_data: DataStep = None,
-        path: str | Path = None,
+        valid_data: DataStep | None = None,
+        path: str | Path | None = None,
         **kwargs,
     ) -> None:
         
@@ -62,7 +62,7 @@ class EDITTrainer:
             kwargs['data_interval'] = kwargs.get('data_interval', self.train_data._interval)
         return edit.training.MLDataIndex(self, **kwargs)
 
-    def data(self, index: str, undo=False) -> np.array | xr.Dataset:
+    def data(self, index: str, undo=False) -> np.ndarray | xr.Dataset | Collection:
         """Get data which is fed into model
 
         Args:
@@ -94,7 +94,7 @@ class EDITTrainer:
         raise NotImplementedError()
 
     @abstractmethod
-    def _predict_from_data(self, data: Any, **kwargs) -> np.array:
+    def _predict_from_data(self, data: Any, **kwargs) -> np.ndarray:
         """
         Must be implemented by a child class to actually predict from data
 
@@ -113,13 +113,13 @@ class EDITTrainer:
         index: str,
         *,
         undo: bool = True,
-        data_iterator: DataStep = None,
+        data_iterator: DataStep | None = None,
         load: bool | str = False,
         load_kwargs: dict = {},
-        fake_batch_dim: bool = None,
+        fake_batch_dim: bool | None = None,
         quiet: bool = False,
         **kwargs,
-    ) -> tuple[np.array] | tuple[xr.Dataset]:
+    ) -> np.ndarray | xr.Dataset:
         """Predict using the model a particular index
 
         Uses [edit.pipeline][edit.pipeline] to get data at given index.
@@ -171,7 +171,6 @@ class EDITTrainer:
             fake_batch_dim = False
 
         data = data_source[index]
-
     
         if fake_batch_dim:
             data = EDITTrainer._expand_dims(data)
@@ -184,13 +183,20 @@ class EDITTrainer:
 
         if not undo:
             if isinstance(prediction, (tuple, list)):
-                prediction = prediction[1]
-            truth = data[1] if isinstance(data, (list, tuple)) else data
-            return Collection(truth, prediction)
+                prediction = prediction[-1]
+            return prediction
+
+        if isinstance(data, (tuple, list)) and not isinstance(prediction, (tuple, list)):
+            prediction = (*data[:-1], prediction)
 
         prediction = data_source.undo(prediction)
+
         if isinstance(prediction, (tuple, list)):
             prediction = prediction[-1]
+        if hasattr(data_source, "rebuild_time"):
+            prediction = data_source.rebuild_time(prediction, index, offset = 0)
+        
+        return prediction # Just return prediction
         
         truth = data_source.undo(data)
         if isinstance(truth, (tuple, list)):
@@ -211,6 +217,7 @@ class EDITTrainer:
         self,
         start_index: str,
         recurrence: int,
+        interval: str | TimeDelta | tuple | int | None = None,
         *,
         data_iterator: DataStep = None,
         load: bool = False,
@@ -224,7 +231,7 @@ class EDITTrainer:
         save_location: str | Path | None = None,
         use_output: bool = False,
         **kwargs,
-    ) -> tuple[np.array] | tuple[xr.Dataset]:
+    ) -> tuple[np.ndarray] | tuple[xr.Dataset] | Collection:
         """Time wise recurrent prediction
 
         Uses [edit.pipeline][edit.pipeline] to get data at given index.
@@ -268,20 +275,28 @@ class EDITTrainer:
             (tuple[np.array] | tuple[xr.Dataset]):
                 Either xarray datasets or np arrays, [truth data, predicted data]
         """
+        def select_if_tuple(item, index: int):
+            if isinstance(item, (list, tuple)):
+                return item[index]
+            return item
+        
         data_source = data_iterator or self.pipeline
         
+        if isinstance(interval, (str, tuple, int)):
+            interval = TimeDelta(interval)
+            
+
         if 'Patch' in data_source.steps and 'patch_update' not in kwargs:    
             with edit.pipeline.context.PatchingUpdate(data_source, kernel_size = kwargs.pop('kernel_size', None), stride_size = kwargs.pop('stride_size', None)):
                 return self.predict_recurrent(start_index, recurrence, data_iterator=data_iterator, load = load, load_kwargs=load_kwargs, truth_step=truth_step, fake_batch_dim=fake_batch_dim, trim_time_dim=trim_time_dim,verbose=verbose, patch_update = True, **kwargs)
         kwargs.pop('patch_update', None)
 
         # Retrieve Initial Input Data
-        data = list(data_source[start_index])
+        data = data_source[start_index]
 
         # Load Model
         if isinstance(load, str):
             self.load(load, **load_kwargs)
-
         elif load and Path(self.path).exists():
             self.load(True, **load_kwargs)
 
@@ -313,6 +328,9 @@ class EDITTrainer:
             if fake_batch_dim:  # Squeeze again if faking the batch dim
                 prediction = EDITTrainer._squeeze_dims(prediction)
                 data = EDITTrainer._squeeze_dims(data)
+            
+            # if not isinstance(prediction, (tuple, list)):
+            #     prediction = (*(data[:-1] if isinstance(data, (tuple, list)) else [data]), prediction)
 
             fixed_predictions = data_source.undo(prediction)  # Undo Pipeline
 
@@ -328,16 +346,16 @@ class EDITTrainer:
                     f"Unable to recurrently merge data of type {type(fixed_predictions)}"
                 )
 
-            # # Rebuild Time Dimension
-            # if "Coordinate 1" in fixed_predictions:
-            #     fixed_predictions = fixed_predictions.rename({"Coordinate 1": "time"})
-
             if hasattr(data_source, "rebuild_time"):
                 fixed_predictions = data_source.rebuild_time(
                     fixed_predictions,
                     index,
                     offset=1 if i >= 1 else 0,
                 )
+            elif interval is not None:
+                encoding = fixed_predictions['time'].encoding
+                fixed_predictions['time'] = fixed_predictions.time + interval * ((i+1) if use_output else 1)
+                fixed_predictions['time'].encoding.update(encoding)
 
             # ## Save out input, and fixed predictions
             # if cache_pattern is not None:
@@ -366,10 +384,12 @@ class EDITTrainer:
 
             # Setup recurrent input data
             if use_output:
-                data[0] = prediction
+                if isinstance(data, (tuple, list)):
+                    data = list(data)
+                    data[0] = prediction
+                else:
+                    data = prediction
             else:
-                data = list(data)
-
                 def add_predictions(input_data, prediction_data):
                     if trim_time_dim:
                         prediction_data = prediction_data.isel(
@@ -383,13 +403,16 @@ class EDITTrainer:
 
                 # index = new_input.time.values[-1]
                 new_input_data = add_predictions(
-                    input_data or data_source.undo(data)[0], fixed_predictions
+                    input_data or select_if_tuple(data_source.undo(data), 0), fixed_predictions
                 )
                 new_input_data = data_source.apply((new_input_data, fixed_predictions))
 
-                if isinstance(new_input_data, (list, tuple)):
-                    new_input_data = new_input_data[0]
-                data[0] = new_input_data                
+                new_input_data = select_if_tuple(new_input_data, 0)
+                if isinstance(data, (tuple, list)):
+                    data = list(data)
+                    data[0] = new_input_data
+                else:
+                    data  = new_input_data                
 
         LOG.info("Merging Predictions")
 
@@ -413,6 +436,7 @@ class EDITTrainer:
                 predictions = predictions.compute()
             cache_pattern.cleanup(safe = True)
 
+        return predictions # Just return prediction
         if truth_step is None:
             return predictions
 
@@ -421,22 +445,24 @@ class EDITTrainer:
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter(action="ignore", category=IndexWarning)
-                truth_step = data_source.step(truth_step)
+                truth_pipe_step = data_source.step(truth_step)
                 # if "CachingIndex" in data_source.steps:
                 #     truth_step = data_source.step("CachingIndex")
-                truth_data = truth_step(predictions)
+                truth_data = truth_pipe_step(predictions)
         except Exception as e:
             warnings.warn(f"An error occured getting truth data, setting to None\n. {e}", RuntimeWarning)
             truth_data = None
         
-        return Collection(truth_data, predictions)
+        return LabelledCollection(truth = truth_data, predictions = predictions)
 
     ## Prediction Utilities
+    @staticmethod
     def _expand_dims(data: np.ndarray | tuple | list) -> np.ndarray | tuple | list:
         if isinstance(data, (list, tuple)):
             return type(data)(map(EDITTrainer._expand_dims, data))
         return np.expand_dims(data, axis=0)
 
+    @staticmethod
     def _squeeze_dims(data: np.ndarray | tuple | list) -> np.ndarray | tuple | list:
         if isinstance(data, (list, tuple)):
             return type(data)(map(EDITTrainer._squeeze_dims, data))
@@ -445,7 +471,7 @@ class EDITTrainer:
 
     ## Model State Functions
     @abstractmethod
-    def load(self, path: str | Path | bool):
+    def load(self, path: str | Path | bool, **kwargs):
         raise NotImplementedError
 
     @abstractmethod
