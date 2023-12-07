@@ -318,7 +318,7 @@ class EDITTrainer:
             save_pattern = patterns.Direct(root_dir = save_location or 'temp', extension='.nc')
 
         # Begin Recurrence
-        for i in trange(recurrence, disable=not verbose, desc="Predicting Recurrently"):
+        for i in trange(int(recurrence), disable=not verbose, desc="Predicting Recurrently"):
             if fake_batch_dim:  # Fake the Batch Dimension, for use with ToNumpy
                 data = EDITTrainer._expand_dims(data)
 

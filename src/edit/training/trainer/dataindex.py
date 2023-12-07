@@ -97,6 +97,8 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
             predictions = self.base_transforms(predictions)
         predictions = self.post_transforms(predictions)
 
+        self._save_catalog()
+
         return predictions
 
     def filesystem(self, *args, **kwargs) -> Path:
