@@ -11,14 +11,14 @@ from typing import Any
 from edit.data import EDITDatetime, Transform, TransformCollection, TimeDelta
 from edit.data.indexes import BaseCacheIndex, TimeIndex
 
-from edit.training.trainer import from_yaml, EDITLightningTrainer
-from edit.training.trainer.template import EDITTrainer
+import edit.training.trainer
+from edit.training.trainer import from_yaml
 
 
 class MLDataIndex(BaseCacheIndex, TimeIndex):
     def __init__(
         self,
-        trainer: EDITTrainer,
+        trainer: edit.training.trainer.EDIT_Inference,
         *,
         data_interval: tuple, 
         cache: str | Path = None,
@@ -84,7 +84,7 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         querytime = querytime.at_resolution(self.data_resolution)
         predictions = None
         if self.recurrent_config:
-            predictions = self.trainer.predict_recurrent(
+            predictions = self.trainer.recurrent(
                 querytime, interval = self.recurrent_config.pop('interval', self.data_interval), **self.recurrent_config, quiet = True,
             )
         else:
@@ -96,6 +96,8 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         if hasattr(self, 'base_transforms'):
             predictions = self.base_transforms(predictions)
         predictions = self.post_transforms(predictions)
+
+        self._save_catalog()
 
         return predictions
 
