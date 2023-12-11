@@ -76,8 +76,6 @@ from collections import OrderedDict
 import yaml
 import re
 
-from edit.training.trainer.template import EDITTrainer
-
 from edit.training import trainer
 
 import edit.pipeline
@@ -85,7 +83,7 @@ from edit.utils.imports import dynamic_import
 
 TRAINER_ASSIGNMENT = OrderedDict()
 if hasattr(trainer, "EDITLightningTrainer"):
-    TRAINER_ASSIGNMENT[trainer.EDITLightningTrainer] = ["pytorch", "lightning"]
+    TRAINER_ASSIGNMENT[trainer.lightning.Training] = ["pytorch", "lightning"]
 if hasattr(trainer, "EDITXGBoostTrainer"):
     TRAINER_ASSIGNMENT[trainer.EDITXGBoostTrainer] = ["xgboost"]
 
@@ -99,7 +97,7 @@ def flip_dict(dict: dict) -> dict:
     return return_dict
 
 
-def from_yaml(config: str | Path | dict, **kwargs) -> EDITTrainer:
+def from_yaml(config: str | Path | dict, **kwargs):
     """Load and create trainer from dictionary config or yaml file
 
     !!! Warning
