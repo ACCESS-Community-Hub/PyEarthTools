@@ -7,7 +7,7 @@ and allow rapid distributed training of Machine Learning Models.
 """
 
 from edit.training import loader, trainer
-from edit.training.trainer import MLDataIndex
+from edit.training.trainer import MLDataIndex, from_yaml
 
 try:
     from edit.training import modules
