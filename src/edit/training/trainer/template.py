@@ -1,5 +1,7 @@
 from __future__ import annotations
-from abc import abstractmethod
+from abc import abstractmethod, ABCMeta
+import functools
+import math
 
 from pathlib import Path
 import warnings
@@ -16,82 +18,13 @@ from edit.pipeline.templates import DataStep
 from edit.data import Collection, LabelledCollection, IndexWarning, patterns, TimeDelta
 
 import edit.training
+from edit.training.trainer.dataindex import MLDataIndex
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger('edit.training')
 
-
-class EDITTrainer:
-    """
-    Template for EDITTrainer Wrapper
-    """
-
-    def __init__(
-        self,
-        model,
-        train_data: DataStep,
-        valid_data: DataStep | None = None,
-        path: str | Path | None = None,
-        **kwargs,
-    ) -> None:
-        
-        self.model = model
-        self.train_data = train_data
-        self.valid_data = valid_data
-        self.path = path
-
-
-    ### 
-    ##  Data retrieval functions
-    ###
-    @property
-    def pipeline(self):
-        """
-        Get pipeline used for this trainer.
-
-        Either `valid_data` if given or `train_data`
-        """
-        return self.valid_data or self.train_data
-    
-    def as_index(self, **kwargs):
-        """
-        Convert this trainer to an `MLDataIndex`
-
-        Passes across all kwargs
-        """
-        if isinstance(self.train_data, DataStep) and hasattr(self.train_data, '_interval'):
-            kwargs['data_interval'] = kwargs.get('data_interval', self.train_data._interval)
-        return edit.training.MLDataIndex(self, **kwargs)
-
-    def data(self, index: str, undo=False) -> np.ndarray | xr.Dataset | Collection:
-        """Get data which is fed into model
-
-        Args:
-            index (str):
-                Index to retrieve at
-            undo (bool, optional):
-                Rebuild Data using DataStep.undo. Defaults to False.
-
-        Returns:
-            (np.array | xr.Dataset):
-                Retrieved Data
-        """
-        data = self.train_data[index]
-
-        if undo:
-            data = self.train_data.undo(data)
-
-        if isinstance(data, (tuple, list)):
-            data = Collection(*data)
-        return data
-    
-    ### 
-    ##  Abstract child to implement classes
-    ###
-
-    @abstractmethod
-    def fit(self):
-        """Abstract fit function which needs to be wrapped by the child."""
-        raise NotImplementedError()
+class EDIT_Inference(metaclass = ABCMeta):
+    def __init__(self, pipeline: DataStep):
+        self.pipeline = pipeline
 
     @abstractmethod
     def _predict_from_data(self, data: Any, **kwargs) -> np.ndarray:
@@ -103,7 +36,73 @@ class EDITTrainer:
         """
         raise NotImplementedError()
     
+    @abstractmethod
+    def predict(self, idx: Any, *args, **kwargs):
+        raise NotImplementedError()
+    
+    @abstractmethod
+    def recurrent(self, idx: Any, steps: int, *args, **kwargs):
+        raise NotImplementedError()
+    
+    @functools.wraps(MLDataIndex)
+    def as_index(self, **kwargs):
+        """
+        Convert this trainer to an `MLDataIndex`
 
+        Passes across all kwargs
+        """
+        if isinstance(self.pipeline, DataStep) and hasattr(self.pipeline, '_interval'):
+            kwargs['data_interval'] = kwargs.get('data_interval', self.pipeline._interval)
+        return edit.training.MLDataIndex(self, **kwargs)
+    
+    def data(self, idx: Any, undo=False) -> np.ndarray | xr.Dataset | Collection:
+        """
+        Get data from pipeline
+
+        Args:
+            index (str):
+                Index to retrieve at
+            undo (bool, optional):
+                Rebuild Data using DataStep.undo. Defaults to False.
+
+        Returns:
+            (np.array | xr.Dataset):
+                Retrieved Data
+        """
+        data = self.pipeline[idx]
+
+        if undo:
+            data = self.pipeline.undo(data)
+
+        if isinstance(data, (tuple, list)):
+            data = Collection(*data)
+        return data
+    
+    ## Model State Functions
+    @abstractmethod
+    def load(self, path: str | Path | bool, **kwargs):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def save(self, path: str | Path, **kwargs):
+        raise NotImplementedError()
+
+
+    def __repr__(self):
+        repr_string = []
+        repr_string.append(f"===== {self.__class__.__module__} {self.__class__.__name__} =====")
+        repr_string.append("Pipeline:")
+        repr_string.append(f"{repr(self.pipeline)}")
+
+        return '\n'.join(repr_string)
+        
+class EDIT_Training(EDIT_Inference):
+    @abstractmethod
+    def fit(self):
+        """Abstract fit function which needs to be wrapped by the child."""
+        raise NotImplementedError()   
+    
+class EDIT_AutoInference(EDIT_Inference):
 
     ###
     ##  Prediction Wrappers
@@ -164,7 +163,7 @@ class EDITTrainer:
 
         self.load(load, **load_kwargs)
 
-        if 'ToNumpy' in self.train_data.steps or 'FakeData' in self.train_data.steps:
+        if 'ToNumpy' in self.pipeline.steps or 'FakeData' in self.pipeline.steps:
             fake_batch_dim = True if fake_batch_dim is None else fake_batch_dim
 
         if fake_batch_dim is None:
@@ -173,13 +172,13 @@ class EDITTrainer:
         data = data_source[index]
     
         if fake_batch_dim:
-            data = EDITTrainer._expand_dims(data)
+            data = EDIT_AutoInference._expand_dims(data)
 
         prediction = self._predict_from_data(data, **kwargs)
 
         if fake_batch_dim:
-            prediction = EDITTrainer._squeeze_dims(prediction)
-            data = EDITTrainer._squeeze_dims(data)
+            prediction = EDIT_AutoInference._squeeze_dims(prediction)
+            data = EDIT_AutoInference._squeeze_dims(data)
 
         if not undo:
             if isinstance(prediction, (tuple, list)):
@@ -198,22 +197,22 @@ class EDITTrainer:
         
         return prediction # Just return prediction
         
-        truth = data_source.undo(data)
-        if isinstance(truth, (tuple, list)):
-            truth = truth[1]
+        # truth = data_source.undo(data)
+        # if isinstance(truth, (tuple, list)):
+        #     truth = truth[1]
 
-        if not isinstance(prediction, xr.Dataset):
-            return Collection(truth, prediction)
+        # if not isinstance(prediction, xr.Dataset):
+        #     return Collection(truth, prediction)
 
-        if "Coordinate 1" in prediction:
-            prediction = prediction.rename({"Coordinate 1": "time"})
+        # if "Coordinate 1" in prediction:
+        #     prediction = prediction.rename({"Coordinate 1": "time"})
             
-        if hasattr(data_source, "rebuild_time"):
-            truth, prediction = map(lambda x: data_source.rebuild_time(x, index, offset = 0), (truth, prediction))
+        # if hasattr(data_source, "rebuild_time"):
+        #     truth, prediction = map(lambda x: data_source.rebuild_time(x, index, offset = 0), (truth, prediction))
 
-        return Collection(truth, prediction)
+        # return Collection(truth, prediction)
 
-    def predict_recurrent(
+    def recurrent(
         self,
         start_index: str,
         recurrence: int,
@@ -300,7 +299,7 @@ class EDITTrainer:
         elif load and Path(self.path).exists():
             self.load(True, **load_kwargs)
 
-        if "ToNumpy" in self.train_data.steps:
+        if "ToNumpy" in self.pipeline.steps:
             fake_batch_dim = True if fake_batch_dim is None else fake_batch_dim
         if fake_batch_dim is None:
             fake_batch_dim = False
@@ -318,16 +317,16 @@ class EDITTrainer:
             save_pattern = patterns.Direct(root_dir = save_location or 'temp', extension='.nc')
 
         # Begin Recurrence
-        for i in trange(int(recurrence), disable=not verbose, desc="Predicting Recurrently"):
+        for i in trange(math.ceil(recurrence), disable=not verbose, desc="Predicting Recurrently"):
             if fake_batch_dim:  # Fake the Batch Dimension, for use with ToNumpy
-                data = EDITTrainer._expand_dims(data)
+                data = EDIT_AutoInference._expand_dims(data)
 
             input_data = None
             prediction = self._predict_from_data(data, **kwargs)  # Prediction
 
             if fake_batch_dim:  # Squeeze again if faking the batch dim
-                prediction = EDITTrainer._squeeze_dims(prediction)
-                data = EDITTrainer._squeeze_dims(data)
+                prediction = EDIT_AutoInference._squeeze_dims(prediction)
+                data = EDIT_AutoInference._squeeze_dims(data)
             
             # if not isinstance(prediction, (tuple, list)):
             #     prediction = (*(data[:-1] if isinstance(data, (tuple, list)) else [data]), prediction)
@@ -437,60 +436,37 @@ class EDITTrainer:
             cache_pattern.cleanup(safe = True)
 
         return predictions # Just return prediction
-        if truth_step is None:
-            return predictions
+        # if truth_step is None:
+        #     return predictions
 
-        LOG.info("Recovering Truth")
+        # LOG.info("Recovering Truth")
 
-        try:
-            with warnings.catch_warnings():
-                warnings.simplefilter(action="ignore", category=IndexWarning)
-                truth_pipe_step = data_source.step(truth_step)
-                # if "CachingIndex" in data_source.steps:
-                #     truth_step = data_source.step("CachingIndex")
-                truth_data = truth_pipe_step(predictions)
-        except Exception as e:
-            warnings.warn(f"An error occured getting truth data, setting to None\n. {e}", RuntimeWarning)
-            truth_data = None
+        # try:
+        #     with warnings.catch_warnings():
+        #         warnings.simplefilter(action="ignore", category=IndexWarning)
+        #         truth_pipe_step = data_source.step(truth_step)
+        #         # if "CachingIndex" in data_source.steps:
+        #         #     truth_step = data_source.step("CachingIndex")
+        #         truth_data = truth_pipe_step(predictions)
+        # except Exception as e:
+        #     warnings.warn(f"An error occured getting truth data, setting to None\n. {e}", RuntimeWarning)
+        #     truth_data = None
         
-        return LabelledCollection(truth = truth_data, predictions = predictions)
+        # return LabelledCollection(truth = truth_data, predictions = predictions)
 
     ## Prediction Utilities
     @staticmethod
     def _expand_dims(data: np.ndarray | tuple | list) -> np.ndarray | tuple | list:
         if isinstance(data, (list, tuple)):
-            return type(data)(map(EDITTrainer._expand_dims, data))
+            return type(data)(map(EDIT_AutoInference._expand_dims, data))
         return np.expand_dims(data, axis=0)
 
     @staticmethod
     def _squeeze_dims(data: np.ndarray | tuple | list) -> np.ndarray | tuple | list:
         if isinstance(data, (list, tuple)):
-            return type(data)(map(EDITTrainer._squeeze_dims, data))
+            return type(data)(map(EDIT_AutoInference._squeeze_dims, data))
         return np.squeeze(data, axis=0)
     
 
-    ## Model State Functions
-    @abstractmethod
-    def load(self, path: str | Path | bool, **kwargs):
-        raise NotImplementedError
-
-    @abstractmethod
-    def save(self, path: str | Path):
-        raise NotImplementedError
-
-    ###
-    ##  Utility Functions
-    ###
-    def __repr__(self):
-        pipeline = self.pipeline
-        model = self.model
-
-        repr_string = []
-        repr_string.append(f"===== EDIT Trainer Class of {self.__class__} =====")
-        repr_string.append("Model:")
-        repr_string.append(f"{repr(model)}")
-        repr_string.append("Pipeline:")
-        repr_string.append(f"{repr(pipeline)}")
-
-        return '\n'.join(repr_string)
-        
+class EDIT_AutoInference_Training(EDIT_AutoInference, EDIT_Training):
+    pass
