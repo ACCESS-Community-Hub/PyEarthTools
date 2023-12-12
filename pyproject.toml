@@ -49,6 +49,9 @@ onnx = [
   "onnx",
   "onnxruntime",
 ]
+onnx_gpu = [
+  "onnxruntime_gpu",
+]
 all = [
   "edit.training[pytorch]",
   "edit.training[xgboost]",
