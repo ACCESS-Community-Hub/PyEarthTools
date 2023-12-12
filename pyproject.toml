@@ -37,7 +37,6 @@ version = {attr = "edit.training.__version__"}
 pytorch = [
   "pytorch-lightning",
   "tensorboard",
-  "onnx",
   "torch", 
   "piqa",
 ]
