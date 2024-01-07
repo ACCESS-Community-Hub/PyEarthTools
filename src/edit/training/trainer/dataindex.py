@@ -21,7 +21,7 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         trainer: edit.training.trainer.EDIT_Inference,
         *,
         data_interval: tuple, 
-        cache: str | Path = None,
+        cache: str | Path | None = None,
         predict_config: dict = dict(undo=True),
         recurrent_config: dict = {},
         offsetInterval: bool | tuple | TimeDelta = False,
@@ -96,9 +96,6 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         if hasattr(self, 'base_transforms'):
             predictions = self.base_transforms(predictions)
         predictions = self.post_transforms(predictions)
-
-        self._save_catalog()
-
         return predictions
 
     def filesystem(self, *args, **kwargs) -> Path:

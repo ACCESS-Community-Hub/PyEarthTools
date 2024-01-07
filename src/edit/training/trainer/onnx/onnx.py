@@ -22,6 +22,7 @@ class Inference(EDIT_Inference):
         Get an onnx inference session for a given model number
         """
         import onnxruntime as ort
+        
         # Set the behaviour of onnxruntime
         sess_options = ort.SessionOptions(**options) if options else ort.SessionOptions()
         sess_options.enable_cpu_mem_arena=False
@@ -29,7 +30,7 @@ class Inference(EDIT_Inference):
         sess_options.enable_mem_reuse = False
 
         # Increase the number for faster inference and more memory consumption
-        sess_options.intra_op_num_threads = 16
+        sess_options.intra_op_num_threads = kwargs.pop('intra_op_num_threads', 16)
 
         # Set the behaviour of cuda provider
         cuda_provider_options = {'arena_extend_strategy':'kSameAsRequested',}
