@@ -277,7 +277,7 @@ class Training(Inference, EDIT_Training):
     def __init__(
         self,
         model: "pl.LightningModule",
-        pipeline:  DataIterator,
+        pipeline:  DataIterator | 'torch.data.DataLoader',
         path: str,
         valid_data:  DataIterator | None = None,
         *,
@@ -307,15 +307,15 @@ class Training(Inference, EDIT_Training):
                 All passed to trainer __init__, will intercept 'logger' to update from str if given
 
         """
-        if 'PytorchIterable' not in pipeline.steps:
+        if isinstance(pipeline, DataStep) and 'PytorchIterable' not in pipeline.steps:
             pipeline = edit.training.loader.PytorchIterable(pipeline)
             valid_data = edit.training.loader.PytorchIterable(valid_data) if valid_data else valid_data
 
-        super().__init__(valid_data or pipeline, model = model, path=path, batch_size= batch_size, num_workers= num_workers)
-        torch.set_float32_matmul_precision("high")
+        super().__init__(model, valid_data or pipeline, path=path, batch_size= batch_size, num_workers= num_workers)
 
         import pytorch_lightning as pl
         import torch
+        torch.set_float32_matmul_precision("high")
 
         self.datamodule = self._get_data(
             batch_size,
