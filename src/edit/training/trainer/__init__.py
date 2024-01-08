@@ -12,7 +12,7 @@ from edit.training.trainer.yaml import from_yaml
 from edit.training.trainer.yaml import from_yaml as from_dict
 
 
-from edit.training.trainer.template import EDIT_AutoInference, EDIT_AutoInference_Training, EDIT_Inference, EDIT_Training
+from edit.training.trainer.template import EDIT_AutoInference, EDIT_AutoInference_Training, EDIT_Inference, EDIT_Training, parse_recurrent
 
 try:
     from edit.training.trainer import lightning

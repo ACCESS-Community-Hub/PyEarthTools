@@ -5,7 +5,7 @@ import math
 
 from pathlib import Path
 import warnings
-from typing import Any
+from typing import Any, Callable
 import numpy as np
 import xarray as xr
 import logging
@@ -21,6 +21,43 @@ import edit.training
 from edit.training.trainer.dataindex import MLDataIndex
 
 LOG = logging.getLogger('edit.training')
+
+def parse_recurrent(interval: int = 1):
+    """
+    Parse kwargs given to a recurrent function.
+
+    Converts to `steps`, number of model steps to run
+
+    !!! Supported
+        | Kwarg | Description |
+        | ----- | ----------- |
+        | steps | Default value, number of steps of model, all are converted to this |
+        | time  | Time value given in same units as interval |
+    
+    !!! Examples
+        ```python
+        @parse_recurrent(interval = 6) # 6 hour interval
+        def func(*args, steps, **kwargs):
+            ....
+        func(steps = 10) # Nothing, run 10 steps
+        func(time = 48) # Time of 48 hours, becomes `steps = 8`
+        ```
+
+    Args:
+        interval (int, optional): 
+            Time interval to convert with. Defaults to 1.
+    """
+    def decorator(func: Callable):
+        @functools.wraps(func)
+        def parse(*args, **kwargs):
+            if 'steps' in kwargs:
+                pass
+            elif 'time' in kwargs:
+                time = kwargs.pop('time')
+                kwargs['steps'] = math.ceil(time / interval)
+            return func(*args, **kwargs)
+        return parse
+    return decorator
 
 class EDIT_Inference(metaclass = ABCMeta):
     def __init__(self, pipeline: DataStep):
@@ -215,7 +252,7 @@ class EDIT_AutoInference(EDIT_Inference):
     def recurrent(
         self,
         start_index: str,
-        recurrence: int,
+        steps: int,
         interval: str | TimeDelta | tuple | int | None = None,
         *,
         data_iterator: DataStep = None,
@@ -245,7 +282,7 @@ class EDIT_AutoInference(EDIT_Inference):
         Args:
             start_index (str):
                 Starting Index of Prediction
-            recurrence (int):
+            steps (int):
                 Number of times to recur
             data_iterator (DataIterator, optional):
                 Override for initial data retrieval. Defaults to None.
@@ -287,7 +324,7 @@ class EDIT_AutoInference(EDIT_Inference):
 
         if 'Patch' in data_source.steps and 'patch_update' not in kwargs:    
             with edit.pipeline.context.PatchingUpdate(data_source, kernel_size = kwargs.pop('kernel_size', None), stride_size = kwargs.pop('stride_size', None)):
-                return self.predict_recurrent(start_index, recurrence, data_iterator=data_iterator, load = load, load_kwargs=load_kwargs, truth_step=truth_step, fake_batch_dim=fake_batch_dim, trim_time_dim=trim_time_dim,verbose=verbose, patch_update = True, **kwargs)
+                return self.predict_recurrent(start_index, steps, data_iterator=data_iterator, load = load, load_kwargs=load_kwargs, truth_step=truth_step, fake_batch_dim=fake_batch_dim, trim_time_dim=trim_time_dim,verbose=verbose, patch_update = True, **kwargs)
         kwargs.pop('patch_update', None)
 
         # Retrieve Initial Input Data
@@ -316,8 +353,8 @@ class EDIT_AutoInference(EDIT_Inference):
         if save_location:
             save_pattern = patterns.Direct(root_dir = save_location or 'temp', extension='.nc')
 
-        # Begin Recurrence
-        for i in trange(math.ceil(recurrence), disable=not verbose, desc="Predicting Recurrently"):
+        # Begin steps
+        for i in trange(math.ceil(steps), disable=not verbose, desc="Predicting Recurrently"):
             if fake_batch_dim:  # Fake the Batch Dimension, for use with ToNumpy
                 data = EDIT_AutoInference._expand_dims(data)
 
