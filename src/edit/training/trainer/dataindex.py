@@ -49,6 +49,10 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
                 Configuration if model must be run recurrently
             offsetInterval (bool, optional):
                 Whether to offset time by interval. Defaults to False.
+            post_transforms (Transform | TransformCollection, optional):
+                Transforms to apply post generation. Defaults to TransformCollection().
+            override (bool, optional):
+                Override any generated data. Defaults to False.
             **kwargs (dict, optional):
                 Any keyword arguments to pass to [DataIndex][edit.data.DataIndex]
         """
@@ -60,9 +64,24 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         self.post_transforms = post_transforms
 
         self.offsetInterval = offsetInterval
-        self.override = override
+        self.to_override = override
 
-    def offset_time(self, time) -> EDITDatetime:
+    def offset_time(self, time: str | EDITDatetime) -> EDITDatetime:
+        """
+        Offset the time given
+
+        Controlled by how the init args are set.
+        If `offsetInterval` is a bool and True, offset by interval
+        Otherwise offset by `offsetInterval`.
+
+        Args:
+            time (str | EDITDatetime): 
+                Time to offset
+
+        Returns:
+            (EDITDatetime): 
+                Offset time
+        """
         time = EDITDatetime(time)
         if self.offsetInterval:
             if self.data_interval and isinstance(self.offsetInterval, bool):
@@ -98,13 +117,13 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         predictions = self.post_transforms(predictions)
         return predictions
 
-    def filesystem(self, *args, **kwargs) -> Path:
-        if self.override:
-            with self.toggle_generate:
+    def filesystem(self, *args, **kwargs) -> Path | dict | list:
+        if self.to_override:
+            with self.override:
                 return super().filesystem(*args, **kwargs)
         return super().filesystem(*args, **kwargs)
 
-    def input_data(self, querytime: str):
+    def input_data(self, querytime: str | EDITDatetime) -> 'xarray.Dataset':
         """
         Get input data at given timestep
         """
@@ -117,6 +136,7 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
 
     @property
     def data(self):
+        """Get Data Pipeline"""
         return self.trainer.pipeline
 
     @staticmethod
