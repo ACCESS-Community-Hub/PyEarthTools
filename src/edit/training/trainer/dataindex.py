@@ -22,8 +22,8 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         *,
         data_interval: tuple, 
         cache: str | Path | None = None,
-        predict_config: dict = dict(undo=True),
-        recurrent_config: dict = {},
+        predict_config: dict[str, Any] = dict(undo=True),
+        recurrent_config: dict[str, Any] = {},
         offsetInterval: bool | tuple | TimeDelta = False,
         post_transforms: Transform | TransformCollection = TransformCollection(),
         override: bool = False,
@@ -56,7 +56,10 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
             **kwargs (dict, optional):
                 Any keyword arguments to pass to [DataIndex][edit.data.DataIndex]
         """
-        super().__init__(cache=cache, data_interval = data_interval, **kwargs)
+        super().__init__(cache=cache, **kwargs)
+
+        self.set_interval(data_interval)
+
         self.trainer = trainer
         self.predict_config = predict_config
         self.recurrent_config = recurrent_config
@@ -104,10 +107,10 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         predictions = None
         if self.recurrent_config:
             predictions = self.trainer.recurrent(
-                querytime, interval = self.recurrent_config.pop('interval', self.data_interval), **self.recurrent_config, quiet = True,
+                querytime, **self.recurrent_config,
             )
         else:
-            predictions = self.trainer.predict(querytime, interval = self.predict_config.pop('interval', self.data_interval), **self.predict_config, quiet = True)
+            predictions = self.trainer.predict(querytime, **self.predict_config)
 
         if isinstance(predictions, (list, tuple)):
             predictions = predictions[1]
@@ -172,7 +175,6 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
             (MLDataIndex):
                 MLDataIndex to use to get data with
         """
-        trainer: EDITTrainer
         trainer = from_yaml(
             yaml_config,
             strategy=kwargs.pop("strategy", "auto"),
