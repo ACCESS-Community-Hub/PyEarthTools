@@ -11,12 +11,35 @@ from edit.training.trainer import EDIT_Inference, EDIT_AutoInference
 class Inference(EDIT_Inference):
     _loaded_sessions = {}
 
-    def load_onnx(self, session_name: str, path: str | Path | None = None, options: dict | None = None, **kwargs):
+    def load_onnx(self, session_name: str, path: str | Path | None = None, options: dict | None = None, **kwargs) -> 'onnxruntime.InferenceSession':
+        """
+        Load an onnx session, and cache it
+
+        A session can be retrieved after it is loaded, by just passing `session_name`
+
+        Args:
+            session_name (str): 
+                Name of onnx session, used for caching
+            path (str | Path | None, optional): 
+                Path to onnx file. Needed if session not already loaded. Defaults to None.
+            options (dict | None, optional): 
+                Options to pass to onnx session. Defaults to None.
+            kwargs (Any, optional):
+                All kwargs passes to `onnxruntime.InferenceSession`
+
+        Raises:
+            RuntimeError: 
+                If `path` not set, and session not already loaded
+
+        Returns:
+            (onnxruntime.InferenceSession): 
+                Loaded onnx session
+        """        
         if session_name in self._loaded_sessions:
             return self._loaded_sessions[session_name]
         
         if path is None:
-            raise RuntimeError(f"`path` cannot be None, as model has not been previously loaded")
+            raise RuntimeError(f"`path` cannot be None, as session has not been previously loaded")
         
         """
         Get an onnx inference session for a given model number
@@ -30,18 +53,42 @@ class Inference(EDIT_Inference):
         sess_options.enable_mem_reuse = False
 
         # Increase the number for faster inference and more memory consumption
-        sess_options.intra_op_num_threads = kwargs.pop('intra_op_num_threads', 16)
+        sess_options.intra_op_num_threads = kwargs.pop('intra_op_num_threads', 8)
 
         # Set the behaviour of cuda provider
         cuda_provider_options = {'arena_extend_strategy':'kSameAsRequested',}
 
-        session = ort.InferenceSession(path, sess_options=sess_options, providers=kwargs.pop('providers', [('CUDAExecutionProvider', cuda_provider_options)]), **kwargs)
+        session = ort.InferenceSession(path, sess_options=sess_options, providers=kwargs.pop('providers', [('CUDAExecutionProvider', cuda_provider_options), 'CPUExecutionProvider']), **kwargs)
         LOG.debug(f"{session_name} loaded from {path}.")
         
         self._loaded_sessions[session_name] = session
         return self._loaded_sessions[session_name]
+    
+    def onnx(self, session_name : str) -> 'onnxruntime.InferenceSession':
+        """
+        Convenience function for `load_onnx`.
 
-    def load(self, path: str | Path | bool, **kwargs):
+        Uses just `session_name` expecting it to be loaded already
+
+        Args:
+            session_name (str): 
+                Name of onnx session
+
+        Raises:
+            KeyError: 
+                If session not already loaded
+
+        Returns:
+            (onnxruntime.InferenceSession): 
+                Loaded onnx session
+        """
+        try:
+            return self.load_onnx(session_name)
+        except ValueError:
+            pass
+        raise KeyError(f"Onnx session has not been loaded, cannot retrieve session. {session_name}")
+
+    def load(self, path: str | Path, **kwargs):
         self.model = self.load_onnx('model', path, **kwargs)
 
     def save(self, path: str | Path, **kwargs):
@@ -53,5 +100,5 @@ class AutoInference(Inference, EDIT_AutoInference):
         """
         Expects model to have been loaded under session name 'model'
         """
-        session = self.load_onnx('model')
+        session = self.onnx('model')
         return session.run(None, data, *args, **kwargs)

@@ -43,4 +43,6 @@ Commands:
   predict  Using Yaml Config & Checkpoint, predict at index
 ```
 
-Currently, a fit and predict command have been created
+Currently, a fit and predict command have been created.
+
+

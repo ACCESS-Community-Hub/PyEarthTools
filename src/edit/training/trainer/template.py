@@ -29,6 +29,7 @@ def parse_recurrent(interval: int = 1):
     Converts to `steps`, number of model steps to run
 
     !!! Supported
+
         | Kwarg | Description |
         | ----- | ----------- |
         | steps | Default value, number of steps of model, all are converted to this |
