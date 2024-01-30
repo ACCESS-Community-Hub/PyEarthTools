@@ -51,11 +51,14 @@ class PytorchIterable(DataIterator, IterableDataset):
                     continue
                 if i >= len(samples):
                     continue
+                self._current_index = samples[i]
 
                 data = self.get_catch(samples[i])
                 if data is None:
                     continue
                 yield data
+        self._current_index = None
+        
 
     @property
     def ignore_debug(self):
