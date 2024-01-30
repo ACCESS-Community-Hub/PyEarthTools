@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import copy
 import functools
 import logging
 import os
@@ -13,13 +12,6 @@ import tempfile
 
 import xarray as xr
 import matplotlib.pyplot as plt
-import pytorch_lightning as pl
-
-TENSORBOARD_INSTALLED = True
-try:
-    import tensorboard
-except ModuleNotFoundError:
-    TENSORBOARD_INSTALLED = False
 
 import edit.training
 from edit.training.trainer.template import EDIT_AutoInference, EDIT_Training
@@ -353,6 +345,12 @@ class Training(Inference, EDIT_Training):
 
         if "logger" not in kwargs:
             kwargs["logger"] = "tensorboard"
+
+        TENSORBOARD_INSTALLED = True
+        try:
+            import tensorboard
+        except ModuleNotFoundError:
+            TENSORBOARD_INSTALLED = False
 
         if "logger" in kwargs and isinstance(kwargs["logger"], str):
             self.logger = str(kwargs.pop("logger")).lower()
