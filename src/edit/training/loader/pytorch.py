@@ -1,13 +1,14 @@
 from __future__ import annotations
+import math
 
-from torch.utils.data import IterableDataset
+from torch.utils.data import IterableDataset, get_worker_info
 
 from edit.pipeline.templates import DataStep, DataIterator
 from edit.pipeline.sequential import SequentialDecorator
 
 
 @SequentialDecorator
-class PytorchIterable(DataStep, IterableDataset):
+class PytorchIterable(DataIterator, IterableDataset):
     """
     Connect Data Pipeline with PyTorch IterableDataset
 
@@ -25,12 +26,36 @@ class PytorchIterable(DataStep, IterableDataset):
     def __init__(self, index: DataStep | DataIterator) -> None:
         super().__init__(index=index)
 
-    def __getitem__(self, idx):
-        return self.index[idx]
+    def validate(self) -> bool:
+        super_validate = super().validate()
+        return super_validate and 'ToNumpy' in self.steps
 
     def __iter__(self):
-        for i in self.index:
-            yield i
+        samples = [t for t in self.generator]
+        worker_info = get_worker_info()
+
+        if worker_info is None:  # single-process data loading, return the full iterator
+            for i in samples:
+                data = self.get_catch(i)
+                if data is None:
+                    continue
+                yield data
+
+        else:  # in a worker process
+            # split workload
+            worker_id = worker_info.id
+            num_workers = worker_info.num_workers
+
+            for i in range(len(samples)):
+                if not i % num_workers == worker_id:
+                    continue
+                if i >= len(samples):
+                    continue
+
+                data = self.get_catch(samples[i])
+                if data is None:
+                    continue
+                yield data
 
     @property
     def ignore_debug(self):
