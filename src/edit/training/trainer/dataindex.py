@@ -118,6 +118,17 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         if hasattr(self, 'base_transforms'):
             predictions = self.base_transforms(predictions)
         predictions = self.post_transforms(predictions)
+        
+        try:
+            import edit.data
+            attrs = edit.data.transform.attributes.set_attributes(
+                purpose = "Research Use Only. NOT FOR FORECAST GUIDANCE.",
+                contact = "For further information or support, contact the Data Science and Emerging Technologies Team."
+                credit = "Generated with `edit`, a research endeavour under the DSET team, and Project 3.1.",
+                )
+            predictions = attrs(predictions)
+        except Exception:
+            pass
         return predictions
 
     def filesystem(self, *args, **kwargs) -> Path | dict | list:
