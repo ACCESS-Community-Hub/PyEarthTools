@@ -19,6 +19,7 @@ ATTRIBUTE_MARK = edit.data.transform.attributes.set_attributes(
     purpose = "Research Use Only.",
     contact = "For further information or support, contact the Data Science and Emerging Technologies Team.",
     credit = "Generated with `edit`, a research endeavour under the DSET team, and Project 3.1.",
+    apply_on = 'dataset',
     )
 
 class MLDataIndex(BaseCacheIndex, TimeIndex):
@@ -123,12 +124,10 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         
         if hasattr(self, 'base_transforms'):
             predictions = self.base_transforms(predictions)
+            
         predictions = self.post_transforms(predictions)
+        predictions = ATTRIBUTE_MARK(predictions)
         
-        try:
-            predictions = ATTRIBUTE_MARK(predictions)
-        except Exception:
-            pass
         return predictions
 
     def filesystem(self, *args, **kwargs) -> Path | dict | list:
