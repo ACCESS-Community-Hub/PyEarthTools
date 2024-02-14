@@ -61,15 +61,15 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
             override (bool, optional):
                 Override any generated data. Defaults to False.
             **kwargs (dict, optional):
-                Any keyword arguments to pass to [DataIndex][edit.data.DataIndex]
+                Any keyword arguments to pass to [BaseCacheIndex][edit.data.BaseCacheIndex]
         """
-        super().__init__(cache=cache, **kwargs)
+        super().__init__(cache=cache, **dict(kwargs))
 
         self.set_interval(data_interval)
 
         self.trainer = trainer
-        self.predict_config = predict_config
-        self.recurrent_config = recurrent_config
+        self.predict_config = dict(predict_config)
+        self.recurrent_config = dict(recurrent_config)
 
         self.post_transforms = post_transforms
 
@@ -112,6 +112,10 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
 
         querytime = querytime.at_resolution(self.data_resolution)
         predictions = None
+        if hasattr(self, '__mark'):
+            raise Exception
+        self.__mark = None
+
         if self.recurrent_config:
             predictions = self.trainer.recurrent(
                 querytime, **self.recurrent_config,
