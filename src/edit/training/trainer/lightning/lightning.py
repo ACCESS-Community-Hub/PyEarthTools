@@ -34,9 +34,8 @@ class LoggingContext:
 
 
 class Inference(EDIT_AutoInference):
-    def __init__(self, model: pl.LightningModule, pipeline: DataStep, *, path: str | Path = 'temp', batch_size: int = 1, num_workers: int = 0):
+    def __init__(self, model: 'pytorch_lightning.LightningModule', pipeline: DataStep, *, path: str | Path = 'temp', batch_size: int = 1, num_workers: int = 0, **kwargs):
         super().__init__(pipeline)
-        self.trainer = None
 
         self.model = model
         self.batch_size = batch_size
@@ -50,14 +49,17 @@ class Inference(EDIT_AutoInference):
         if isinstance(path, str) and path == 'temp':
             path = tempfile.TemporaryDirectory().name
         self.path = path
+        self.trainer_kwargs = kwargs
 
-        self.trainer = self.load_trainer()
 
+    @functools.cached_property
+    def trainer(self):
+        return self.load_trainer()
         
     def load_trainer(self, logger = False, **kwargs):
         import pytorch_lightning as pl
         
-        trainer_kwargs = dict(getattr(self, 'trainer_kwargs', {}))
+        trainer_kwargs = self.trainer_kwargs
         trainer_kwargs.update(dict(default_root_dir=self.path))
         trainer_kwargs.update(kwargs)
 
@@ -65,7 +67,7 @@ class Inference(EDIT_AutoInference):
 
         return trainer
     
-    def load(self, file: str | bool = True, only_state: bool = False):
+    def load(self, file: str | bool = True, only_state: bool = False) -> Path | None:
         """Load Model from Checkpoint File.
 
         Can either be PyTorch Lightning Checkpoint or torch checkpoint.
@@ -75,6 +77,10 @@ class Inference(EDIT_AutoInference):
                 Path to checkpoint, or boolean to find latest file. Defaults to True.
             only_state (bool, optional):
                 If only the model state should be loaded. Defaults to False.
+
+        Returns:
+            (Path | None):
+                Path of checkpoint being loaded, or None if no path found.
         """
         import torch
         file_to_load: str | Path | None = None
@@ -162,6 +168,8 @@ class Inference(EDIT_AutoInference):
         warnings.filterwarnings("ignore", ".*does not have many workers.*")
 
         predictions_raw = self.trainer.predict(model=self.model, dataloaders=fake_data)
+        if predictions_raw is None:
+            raise RuntimeError(f"Predictions were None, cannot parse, try runninng prediction on only one gpu.")
 
         if isinstance(predictions_raw[0], (list, tuple)):
             prediction = tuple(
@@ -261,6 +269,14 @@ class Inference(EDIT_AutoInference):
                 latest_item = item
         return latest_item
     
+    def __repr__(self):
+        repr_string = [super().__repr__()]
+        
+        repr_string.append("\nModel:")
+        repr_string.append(f"{repr(self.model)}")
+
+        return '\n'.join(repr_string)
+    
 class Training(Inference, EDIT_Training):
     """
     Pytorch Lightning Trainer Wrapper.
@@ -274,7 +290,7 @@ class Training(Inference, EDIT_Training):
         valid_data:  DataIterator | None = None,
         *,
         batch_size: int = 1,
-        num_workers: int = 0,
+        num_workers: int | None = None,
         find_batch_size: bool = False,
         EarlyStopping: bool | str = True,
         **kwargs,
@@ -340,7 +356,7 @@ class Training(Inference, EDIT_Training):
                 )
             )
 
-        self.log_path = Path(path)
+        self.log_path = Path(self.path)
         self.logger = None
 
         if "logger" not in kwargs:
@@ -362,11 +378,11 @@ class Training(Inference, EDIT_Training):
 
             if self.logger == "tensorboard":
                 kwargs["logger"] = pl.loggers.TensorBoardLogger(
-                    path, name=kwargs.pop("name", None)
+                    self.path, name=kwargs.pop("name", None)
                 )
 
             elif self.logger == "csv":
-                kwargs["logger"] = pl.loggers.CSVLogger(path, name="csv_logs")
+                kwargs["logger"] = pl.loggers.CSVLogger(self.path, name="csv_logs")
                 self.log_path = self.log_path / "csv_logs"
 
         kwargs["limit_val_batches"] = int(kwargs.pop("limit_val_batches", 10))
@@ -375,10 +391,8 @@ class Training(Inference, EDIT_Training):
             find_batch_size = True if find_batch_size == "True" else False
         self.find_batch_size = find_batch_size
 
-        self.trainer_kwargs = kwargs
+        self.trainer_kwargs.update(kwargs)
         self.trainer_kwargs.update(callbacks = self.callbacks)
-
-        self.trainer = self.load_trainer()
 
     def load_trainer(self, **kwargs):
         import pytorch_lightning as pl

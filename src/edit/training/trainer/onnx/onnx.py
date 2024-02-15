@@ -3,10 +3,11 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from edit.training.trainer import EDIT_Inference, EDIT_AutoInference
+
 import logging
 LOG = logging.getLogger(__name__)
 
-from edit.training.trainer import EDIT_Inference, EDIT_AutoInference
 
 class Inference(EDIT_Inference):
     _loaded_sessions = {}
@@ -53,13 +54,16 @@ class Inference(EDIT_Inference):
         sess_options.enable_mem_reuse = False
 
         # Increase the number for faster inference and more memory consumption
-        sess_options.intra_op_num_threads = kwargs.pop('intra_op_num_threads', 8)
+        sess_options.intra_op_num_threads = kwargs.pop('intra_op_num_threads', 16)
 
         # Set the behaviour of cuda provider
         cuda_provider_options = {'arena_extend_strategy':'kSameAsRequested',}
 
-        session = ort.InferenceSession(path, sess_options=sess_options, providers=kwargs.pop('providers', [('CUDAExecutionProvider', cuda_provider_options), 'CPUExecutionProvider']), **kwargs)
-        LOG.debug(f"{session_name} loaded from {path}.")
+        if ort.get_device() != 'GPU':
+            LOG.warn(f"Onnx Runtime is running on {ort.get_device()!s}, this may slow down inference time.")
+
+        session = ort.InferenceSession(path, sess_options=sess_options, providers=kwargs.pop('providers', [('CUDAExecutionProvider', cuda_provider_options)]), **kwargs)
+        LOG.debug(f"Onnx model: {session_name} loaded from {path!s}.")
         
         self._loaded_sessions[session_name] = session
         return self._loaded_sessions[session_name]

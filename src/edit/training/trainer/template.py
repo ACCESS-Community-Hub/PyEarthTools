@@ -15,14 +15,14 @@ from tqdm.auto import trange
 import edit.pipeline
 from edit.pipeline.templates import DataStep
 
-from edit.data import Collection, LabelledCollection, IndexWarning, patterns, TimeDelta
+from edit.data import Collection, LabelledCollection, IndexWarning, patterns, TimeDelta, EDITDatetime
 
 import edit.training
 from edit.training.trainer.dataindex import MLDataIndex
 
 LOG = logging.getLogger('edit.training')
 
-def parse_recurrent(interval: int = 1):
+def parse_recurrent(interval: int | TimeDelta = 1):
     """
     Parse kwargs given to a recurrent function.
 
@@ -34,6 +34,7 @@ def parse_recurrent(interval: int = 1):
         | ----- | ----------- |
         | steps | Default value, number of steps of model, all are converted to this |
         | time  | Time value given in same units as interval |
+        | to_time  | Time to predict up to, uses `interval` to get steps from current. |
     
     !!! Examples
         ```python
@@ -45,7 +46,7 @@ def parse_recurrent(interval: int = 1):
         ```
 
     Args:
-        interval (int, optional): 
+        interval (int | TimeDelta, optional): 
             Time interval to convert with. Defaults to 1.
     """
     def decorator(func: Callable):
@@ -56,6 +57,9 @@ def parse_recurrent(interval: int = 1):
             elif 'time' in kwargs:
                 time = kwargs.pop('time')
                 kwargs['steps'] = math.ceil(time / interval)
+            elif 'to_time' in kwargs:
+                to_time = kwargs.pop('time')
+                kwargs['steps'] = math.ceil((EDITDatetime('current') - to_time) / interval)
             return func(*args, **kwargs)
         return parse
     return decorator
@@ -249,19 +253,19 @@ class EDIT_AutoInference(EDIT_Inference):
         #     truth, prediction = map(lambda x: data_source.rebuild_time(x, index, offset = 0), (truth, prediction))
 
         # return Collection(truth, prediction)
-
+    
     def recurrent(
         self,
         start_index: str,
         steps: int,
         interval: str | TimeDelta | tuple | int | None = None,
         *,
-        data_iterator: DataStep = None,
+        data_iterator: DataStep | None = None,
         load: bool = False,
         load_kwargs: dict = {},
         truth_step: int | None = None,
-        fake_batch_dim: bool = None,
-        trim_time_dim: int = None,
+        fake_batch_dim: bool | None = None,
+        trim_time_dim: int | None = None,
         verbose: bool = True,
         quiet: bool = False,
         cache: bool | str | Path = False,
