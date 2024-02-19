@@ -102,7 +102,7 @@ class EDITXGBoostTrainer(EDITTrainer):
         try:
             print("Plotting case study time...")
             self._plot_case()
-        except:
+        except Exception:
             print("Couldn't do case study")
 
         # Stats

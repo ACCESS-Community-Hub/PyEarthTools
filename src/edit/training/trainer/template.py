@@ -214,13 +214,13 @@ class EDIT_AutoInference(EDIT_Inference):
         data = data_source[index]
     
         if fake_batch_dim:
-            data = EDIT_AutoInference._expand_dims(data)
+            data = expand_dims(data)
 
         prediction = self._predict_from_data(data, **kwargs)
 
         if fake_batch_dim:
-            prediction = EDIT_AutoInference._squeeze_dims(prediction)
-            data = EDIT_AutoInference._squeeze_dims(data)
+            prediction = squeeze_dims(prediction)
+            data = squeeze_dims(data)
 
         if not undo:
             if isinstance(prediction, (tuple, list)):
@@ -272,7 +272,7 @@ class EDIT_AutoInference(EDIT_Inference):
         save_location: str | Path | None = None,
         use_output: bool = False,
         **kwargs,
-    ) -> tuple[np.ndarray] | tuple[xr.Dataset] | Collection:
+    ) -> np.ndarray | xr.Dataset:
         """Time wise recurrent prediction
 
         Uses [edit.pipeline][edit.pipeline] to get data at given index.
@@ -325,21 +325,18 @@ class EDIT_AutoInference(EDIT_Inference):
         
         if isinstance(interval, (str, tuple, int)):
             interval = TimeDelta(interval)
-            
 
         if 'Patch' in data_source.steps and 'patch_update' not in kwargs:    
             with edit.pipeline.context.PatchingUpdate(data_source, kernel_size = kwargs.pop('kernel_size', None), stride_size = kwargs.pop('stride_size', None)):
-                return self.predict_recurrent(start_index, steps, data_iterator=data_iterator, load = load, load_kwargs=load_kwargs, truth_step=truth_step, fake_batch_dim=fake_batch_dim, trim_time_dim=trim_time_dim,verbose=verbose, patch_update = True, **kwargs)
+                return self.recurrent(start_index, steps, data_iterator=data_iterator, load = load, load_kwargs=load_kwargs, truth_step=truth_step, fake_batch_dim=fake_batch_dim, trim_time_dim=trim_time_dim,verbose=verbose, patch_update = True, **kwargs)
         kwargs.pop('patch_update', None)
 
         # Retrieve Initial Input Data
         data = data_source[start_index]
 
         # Load Model
-        if isinstance(load, str):
+        if load:
             self.load(load, **load_kwargs)
-        elif load and Path(self.path).exists():
-            self.load(True, **load_kwargs)
 
         if "ToNumpy" in self.pipeline.steps:
             fake_batch_dim = True if fake_batch_dim is None else fake_batch_dim
@@ -361,14 +358,14 @@ class EDIT_AutoInference(EDIT_Inference):
         # Begin steps
         for i in trange(math.ceil(steps), disable=not verbose, desc="Predicting Recurrently"):
             if fake_batch_dim:  # Fake the Batch Dimension, for use with ToNumpy
-                data = EDIT_AutoInference._expand_dims(data)
+                data = expand_dims(data)
 
             input_data = None
             prediction = self._predict_from_data(data, **kwargs)  # Prediction
 
             if fake_batch_dim:  # Squeeze again if faking the batch dim
-                prediction = EDIT_AutoInference._squeeze_dims(prediction)
-                data = EDIT_AutoInference._squeeze_dims(data)
+                prediction = squeeze_dims(prediction)
+                data = squeeze_dims(data)
             
             # if not isinstance(prediction, (tuple, list)):
             #     prediction = (*(data[:-1] if isinstance(data, (tuple, list)) else [data]), prediction)
@@ -496,19 +493,17 @@ class EDIT_AutoInference(EDIT_Inference):
         
         # return LabelledCollection(truth = truth_data, predictions = predictions)
 
-    ## Prediction Utilities
-    @staticmethod
-    def _expand_dims(data: np.ndarray | tuple | list) -> np.ndarray | tuple | list:
-        if isinstance(data, (list, tuple)):
-            return type(data)(map(EDIT_AutoInference._expand_dims, data))
-        return np.expand_dims(data, axis=0)
+## Prediction Utilities
+def expand_dims(data: np.ndarray | tuple | list) -> np.ndarray | tuple | list:
+    if isinstance(data, (list, tuple)):
+        return type(data)(map(expand_dims, data))
+    return np.expand_dims(data, axis=0)
 
-    @staticmethod
-    def _squeeze_dims(data: np.ndarray | tuple | list) -> np.ndarray | tuple | list:
-        if isinstance(data, (list, tuple)):
-            return type(data)(map(EDIT_AutoInference._squeeze_dims, data))
-        return np.squeeze(data, axis=0)
-    
+def squeeze_dims(data: np.ndarray | tuple | list) -> np.ndarray | tuple | list:
+    if isinstance(data, (list, tuple)):
+        return type(data)(map(squeeze_dims, data))
+    return np.squeeze(data, axis=0)
+
 
 class EDIT_AutoInference_Training(EDIT_AutoInference, EDIT_Training):
     pass

@@ -59,9 +59,12 @@ class Inference(EDIT_AutoInference):
     def load_trainer(self, logger = False, **kwargs):
         import pytorch_lightning as pl
         
-        trainer_kwargs = self.trainer_kwargs
+        trainer_kwargs = dict(self.trainer_kwargs)
         trainer_kwargs.update(dict(default_root_dir=self.path))
         trainer_kwargs.update(kwargs)
+
+        if not kwargs.get('enable_progress_bar', True):
+            trainer_kwargs['callbacks'] = list(t for t in trainer_kwargs.pop('callbacks', []) if not t.__class__.__name__ == 'TQDMProgressBar')
 
         trainer = pl.Trainer(logger = trainer_kwargs.pop('logger', logger), **trainer_kwargs)
 
@@ -124,7 +127,7 @@ class Inference(EDIT_AutoInference):
             return file
 
         try:
-            self.model = self.model.load_from_checkpoint(file_to_load)
+            self.model = type(self.model).load_from_checkpoint(file_to_load)
         except (RuntimeError, KeyError) as e:
             warnings.warn(
                 "A KeyError arose when loading from checkpoint, will attempt to load only the model state.",
@@ -138,7 +141,7 @@ class Inference(EDIT_AutoInference):
         directory = directory or self.checkpoint_path
         self.trainer.save_checkpoint(Path(directory) / path)
 
-    def _predict_from_data(self, data: np.ndarray | tuple, batch_size = None):
+    def _predict_from_data(self, data: np.ndarray | tuple[np.ndarray, np.ndarray], batch_size = None):
         """
         Using the loaded model, and given data make a prediction
         """
@@ -182,14 +185,12 @@ class Inference(EDIT_AutoInference):
             prediction = np.vstack(predictions_raw)
         return prediction
     
-    @functools.wraps(EDIT_AutoInference.predict)
     def predict(self, *args, quiet: bool = False, **kwargs):
         with LoggingContext(quiet):
             if quiet:
                 self.trainer = self.load_trainer(enable_progress_bar=False)
             return super().predict(*args, **kwargs)
         
-    @functools.wraps(EDIT_AutoInference.recurrent)
     def recurrent(self, *args, quiet: bool = True, **kwargs):
         with LoggingContext(quiet):
             if quiet:
@@ -286,9 +287,9 @@ class Training(Inference, EDIT_Training):
         self,
         model: "pl.LightningModule",
         pipeline:  DataIterator | 'torch.data.DataLoader',
+        *,
         path: str,
         valid_data:  DataIterator | None = None,
-        *,
         batch_size: int = 1,
         num_workers: int | None = None,
         find_batch_size: bool = False,
@@ -392,7 +393,7 @@ class Training(Inference, EDIT_Training):
         self.find_batch_size = find_batch_size
 
         self.trainer_kwargs.update(kwargs)
-        self.trainer_kwargs.update(callbacks = self.callbacks)
+        self.trainer_kwargs.update(callbacks = list(self.callbacks))
 
     def load_trainer(self, **kwargs):
         import pytorch_lightning as pl
