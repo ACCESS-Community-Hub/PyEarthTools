@@ -270,7 +270,7 @@ class EDIT_AutoInference(EDIT_Inference):
         quiet: bool = False,
         cache: bool | str | Path = False,
         save_location: str | Path | None = None,
-        use_output: bool = False,
+        use_output: bool = True,
         **kwargs,
     ) -> np.ndarray | xr.Dataset:
         """Time wise recurrent prediction
@@ -310,7 +310,7 @@ class EDIT_AutoInference(EDIT_Inference):
                 Therefore, if large datasets are in use, and `cache` given, it is best to set this as well.
                 Defaults to None
             use_output (bool, optional):
-                Whether to use output directly for input, skips extra `.undo` and `.apply` calls. Defaults to False.
+                Whether to use output directly for input, skips extra `.undo` and `.apply` calls. Defaults to True.
             
         Returns:
             (tuple[np.array] | tuple[xr.Dataset]):

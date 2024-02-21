@@ -8,10 +8,11 @@ import warnings
 
 import numpy as np
 import pandas as pd
-import tempfile
 
 import xarray as xr
 import matplotlib.pyplot as plt
+
+from edit.data.patterns.utils import parse_root_dir
 
 import edit.training
 from edit.training.trainer.template import EDIT_AutoInference, EDIT_Training
@@ -46,17 +47,16 @@ class Inference(EDIT_AutoInference):
             num_workers=num_workers,
         )
 
-        if isinstance(path, str) and path == 'temp':
-            path = tempfile.TemporaryDirectory().name
-        self.path = path
+        self.path, _ = parse_root_dir(path)
+        self.pipeline.save(Path(self.path) / 'pipeline.yaml')
         self.trainer_kwargs = kwargs
 
 
     @functools.cached_property
-    def trainer(self):
+    def trainer(self) -> 'pytorch_lightning.Trainer':
         return self.load_trainer()
         
-    def load_trainer(self, logger = False, **kwargs):
+    def load_trainer(self, logger = False, **kwargs) -> 'pytorch_lightning.Trainer':
         import pytorch_lightning as pl
         
         trainer_kwargs = dict(self.trainer_kwargs)
@@ -70,7 +70,7 @@ class Inference(EDIT_AutoInference):
 
         return trainer
     
-    def load(self, file: str | bool = True, only_state: bool = False) -> Path | None:
+    def load(self, file: str | bool = True, only_state: bool = False) -> Path | str | None:
         """Load Model from Checkpoint File.
 
         Can either be PyTorch Lightning Checkpoint or torch checkpoint.
@@ -86,7 +86,7 @@ class Inference(EDIT_AutoInference):
                 Path of checkpoint being loaded, or None if no path found.
         """
         import torch
-        file_to_load: str | Path | None = None
+        file_to_load: str | Path
 
         if isinstance(file, bool):
             if not file:
@@ -104,6 +104,7 @@ class Inference(EDIT_AutoInference):
             file_to_load = str(file)
 
         warnings.warn(f"Loading checkpoint: {file_to_load}", UserWarning)
+        
 
         ## If model has implementation, let it handle it.
         if hasattr(self.model, 'load'):
@@ -124,7 +125,7 @@ class Inference(EDIT_AutoInference):
                 state = new_state
 
             self.model.model.load_state_dict(state)
-            return file
+            return file_to_load
 
         try:
             self.model = type(self.model).load_from_checkpoint(file_to_load)
@@ -433,7 +434,7 @@ class Training(Inference, EDIT_Training):
         return data
 
     def graph(
-        self, x: str = "step", y: str = "train/loss", path: str | Path = None
+        self, x: str = "step", y: str = "train/loss", path: str | Path | None = None
     ) -> plt.Axes:
         """Create Plots of metrics file
 
