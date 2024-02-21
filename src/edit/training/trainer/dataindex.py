@@ -6,6 +6,7 @@ This will allow data to be retrieved as normal, with the user not having to worr
 from __future__ import annotations
 
 from pathlib import Path
+import yaml
 from typing import Any
 
 import edit.data
@@ -29,11 +30,12 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         *,
         data_interval: tuple, 
         cache: str | Path | None = None,
-        predict_config: dict[str, Any] = dict(undo=True),
-        recurrent_config: dict[str, Any] = {},
+        predict_config: dict[str, Any] | None = None,
+        recurrent_config: dict[str, Any] | None = None,
         offsetInterval: bool | tuple | TimeDelta = False,
-        post_transforms: Transform | TransformCollection = TransformCollection(),
+        post_transforms: Transform | TransformCollection | None = None,
         override: bool = False,
+        data_attributes: str | Path | None = None,
         **kwargs,
     ):
         """Setup ML Data Index from defined trainer
@@ -56,10 +58,12 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
                 Configuration if model must be run recurrently
             offsetInterval (bool, optional):
                 Whether to offset time by interval. Defaults to False.
-            post_transforms (Transform | TransformCollection, optional):
-                Transforms to apply post generation. Defaults to TransformCollection().
+            post_transforms (Transform | TransformCollection | None, optional):
+                Transforms to apply post generation. Defaults to None.
             override (bool, optional):
                 Override any generated data. Defaults to False.
+            data_attributes (str | Path | None, optional):
+                Path to yaml file specifying attributes to set.
             **kwargs (dict, optional):
                 Any keyword arguments to pass to [BaseCacheIndex][edit.data.BaseCacheIndex]
         """
@@ -68,10 +72,20 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         self.set_interval(data_interval)
 
         self.trainer = trainer
+
+        if predict_config is None:
+            predict_config = {}
         self.predict_config = dict(predict_config)
+
+        if recurrent_config is None:
+            recurrent_config = {}
         self.recurrent_config = dict(recurrent_config)
 
+        if post_transforms is None:
+            post_transforms = TransformCollection()
         self.post_transforms = post_transforms
+
+        self.data_attributes = data_attributes
 
         self.offsetInterval = offsetInterval
         self.to_override = override
@@ -98,23 +112,22 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
                 time = EDITDatetime(time) + self.data_interval
             else:
                 time = EDITDatetime(time) + TimeDelta(self.offsetInterval)
-        return time
+        return EDITDatetime(time)
     
 
     def generate(
         self,
         querytime: str | EDITDatetime,
-    ):  # transforms: Union[Callable, TransformCollection, Transform]= None
+    ) -> Any: 
         """
         Get Data from given timestep
         """
         querytime = self.offset_time(querytime)
 
-        querytime = querytime.at_resolution(self.data_resolution)
+        if self.data_resolution is not None:
+            querytime = querytime.at_resolution(self.data_resolution)
+
         predictions = None
-        if hasattr(self, '__mark'):
-            raise Exception
-        self.__mark = None
 
         if self.recurrent_config:
             predictions = self.trainer.recurrent(
@@ -132,24 +145,17 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         predictions = self.post_transforms(predictions)
         predictions = ATTRIBUTE_MARK(predictions)
         
+        if self.data_attributes is not None:
+            attrs = yaml.safe_load(str(self.data_attributes))
+            predictions = edit.data.transform.attributes.set_attributes(attrs, apply_on = 'dataset')(predictions)
+            
         return predictions
 
-    def filesystem(self, *args, **kwargs) -> Path | dict | list:
+    def filesystem(self, *args, **kwargs) -> Path | dict[str, str | Path] | list[str | Path]:
         if self.to_override:
             with self.override:
                 return super().filesystem(*args, **kwargs)
         return super().filesystem(*args, **kwargs)
-
-    def input_data(self, querytime: str | EDITDatetime) -> 'xarray.Dataset':
-        """
-        Get input data at given timestep
-        """
-        querytime = self.offset_time(querytime)
-
-        input_data = self.trainer.pipeline.undo(
-            self.trainer.pipeline[querytime]
-        )
-        return input_data
 
     @property
     def data(self):
