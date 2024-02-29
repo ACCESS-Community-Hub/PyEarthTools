@@ -268,7 +268,7 @@ class EDIT_AutoInference(EDIT_Inference):
         trim_time_dim: int | None = None,
         verbose: bool = True,
         quiet: bool = False,
-        cache: bool | str | Path = False,
+        cache: bool | str | Path | None = False,
         save_location: str | Path | None = None,
         use_output: bool = True,
         **kwargs,
@@ -349,8 +349,8 @@ class EDIT_AutoInference(EDIT_Inference):
         cache_pattern, save_pattern = None, None
         if cache:
             if isinstance(cache, bool) and cache:
-                cache = None
-            cache_pattern = patterns.ArgumentExpansion(cache or 'temp', extension='.nc', filename_as_arguments = False)
+                cache = 'temp'
+            cache_pattern = patterns.ArgumentExpansion(cache, extension='.nc', filename_as_arguments = False)
         
         if save_location:
             save_pattern = patterns.Direct(root_dir = save_location or 'temp', extension='.nc')

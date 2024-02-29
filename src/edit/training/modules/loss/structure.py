@@ -23,7 +23,7 @@ class SSIMLoss(torch.nn.Module):
     """
 
     def __init__(
-        self, normalise: bool = False, format: str = None, **ssim_kwargs: dict
+        self, normalise: bool = False, format: str | None = None, **ssim_kwargs: dict
     ) -> None:
         """
         Create SSIM Loss
@@ -33,7 +33,7 @@ class SSIMLoss(torch.nn.Module):
                 Whether to force the data to be between 0 and 1. Defaults to False.
             format (str, optional): 
                 Format of data if not B T C H W. Defaults to None.
-            **kwargs (Any, optional):
+            **ssim_kwargs (Any, optional):
                 All kwargs passed to [piqa.SSIM][https://piqa.readthedocs.io/en/stable/api/piqa.ssim.html#piqa.ssim.SSIM]
 
         !!! Tip

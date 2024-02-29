@@ -115,7 +115,7 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         return EDITDatetime(time)
     
 
-    def generate(
+    def _generate(
         self,
         querytime: str | EDITDatetime,
     ) -> Any: 
@@ -148,7 +148,6 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         if self.data_attributes is not None:
             attrs = yaml.safe_load(str(self.data_attributes))
             predictions = edit.data.transform.attributes.set_attributes(attrs, apply_on = 'dataset')(predictions)
-            
         return predictions
 
     def filesystem(self, *args, **kwargs) -> Path | dict[str, str | Path] | list[str | Path]:
