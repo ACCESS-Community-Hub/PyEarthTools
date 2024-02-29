@@ -20,7 +20,8 @@ from edit.data import Collection, LabelledCollection, IndexWarning, patterns, Ti
 import edit.training
 from edit.training.trainer.dataindex import MLDataIndex
 
-LOG = logging.getLogger('edit.training')
+LOG = logging.getLogger("edit.training")
+
 
 def parse_recurrent(interval: int | TimeDelta = 1):
     """
@@ -35,7 +36,7 @@ def parse_recurrent(interval: int | TimeDelta = 1):
         | steps | Default value, number of steps of model, all are converted to this |
         | time  | Time value given in same units as interval |
         | to_time  | Time to predict up to, uses `interval` to get steps from current. |
-    
+
     !!! Examples
         ```python
         @parse_recurrent(interval = 6) # 6 hour interval
@@ -46,25 +47,29 @@ def parse_recurrent(interval: int | TimeDelta = 1):
         ```
 
     Args:
-        interval (int | TimeDelta, optional): 
+        interval (int | TimeDelta, optional):
             Time interval to convert with. Defaults to 1.
     """
+
     def decorator(func: Callable):
         @functools.wraps(func)
         def parse(*args, **kwargs):
-            if 'steps' in kwargs:
+            if "steps" in kwargs:
                 pass
-            elif 'time' in kwargs:
-                time = kwargs.pop('time')
-                kwargs['steps'] = math.ceil(time / interval)
-            elif 'to_time' in kwargs:
-                to_time = kwargs.pop('time')
-                kwargs['steps'] = math.ceil((EDITDatetime('current') - to_time) / interval)
+            elif "time" in kwargs:
+                time = kwargs.pop("time")
+                kwargs["steps"] = math.ceil(time / interval)
+            elif "to_time" in kwargs:
+                to_time = kwargs.pop("time")
+                kwargs["steps"] = math.ceil((EDITDatetime("current") - to_time) / interval)
             return func(*args, **kwargs)
+
         return parse
+
     return decorator
 
-class EDIT_Inference(metaclass = ABCMeta):
+
+class EDIT_Inference(metaclass=ABCMeta):
     def __init__(self, pipeline: DataStep):
         self.pipeline = pipeline
 
@@ -77,15 +82,15 @@ class EDIT_Inference(metaclass = ABCMeta):
             Function must return prediction as a [numpy array][np.array] of the same shape as target
         """
         raise NotImplementedError()
-    
+
     @abstractmethod
     def predict(self, idx: Any, *args, **kwargs):
         raise NotImplementedError()
-    
+
     @abstractmethod
     def recurrent(self, idx: Any, steps: int, *args, **kwargs):
         raise NotImplementedError()
-    
+
     @functools.wraps(MLDataIndex)
     def as_index(self, **kwargs):
         """
@@ -93,10 +98,10 @@ class EDIT_Inference(metaclass = ABCMeta):
 
         Passes across all kwargs
         """
-        if isinstance(self.pipeline, DataStep) and hasattr(self.pipeline, '_interval'):
-            kwargs['data_interval'] = kwargs.get('data_interval', self.pipeline._interval)
+        if isinstance(self.pipeline, DataStep) and hasattr(self.pipeline, "_interval"):
+            kwargs["data_interval"] = kwargs.get("data_interval", self.pipeline._interval)
         return edit.training.MLDataIndex(self, **kwargs)
-    
+
     def data(self, idx: Any, undo=False) -> np.ndarray | xr.Dataset | Collection:
         """
         Get data from pipeline
@@ -119,7 +124,7 @@ class EDIT_Inference(metaclass = ABCMeta):
         if isinstance(data, (tuple, list)):
             data = Collection(*data)
         return data
-    
+
     ## Model State Functions
     @abstractmethod
     def load(self, path: str | Path | bool, **kwargs):
@@ -129,23 +134,23 @@ class EDIT_Inference(metaclass = ABCMeta):
     def save(self, path: str | Path, **kwargs):
         raise NotImplementedError()
 
-
     def __repr__(self):
         repr_string = []
         repr_string.append(f"===== {self.__class__.__module__} {self.__class__.__name__} =====")
         repr_string.append("Pipeline:")
         repr_string.append(f"{repr(self.pipeline)}")
 
-        return '\n'.join(repr_string)
-        
+        return "\n".join(repr_string)
+
+
 class EDIT_Training(EDIT_Inference):
     @abstractmethod
     def fit(self):
         """Abstract fit function which needs to be wrapped by the child."""
-        raise NotImplementedError()   
-    
-class EDIT_AutoInference(EDIT_Inference):
+        raise NotImplementedError()
 
+
+class EDIT_AutoInference(EDIT_Inference):
     ###
     ##  Prediction Wrappers
     ###
@@ -197,22 +202,33 @@ class EDIT_AutoInference(EDIT_Inference):
         """
         data_source = data_iterator or self.pipeline
 
-        if 'Patch' in data_source.steps and 'patch_update' not in kwargs:    
-            with edit.pipeline.context.PatchingUpdate(data_source, kernel_size = kwargs.pop('kernel_size', None), stride_size = kwargs.pop('stride_size', None)):
-                return self.predict(index, data_iterator=data_source, undo = undo, load = load, load_kwargs=load_kwargs, fake_batch_dim=fake_batch_dim, patch_update = True, **kwargs)
-        
-        kwargs.pop('patch_update', None)
+        if "Patch" in data_source.steps and "patch_update" not in kwargs:
+            with edit.pipeline.context.PatchingUpdate(
+                data_source, kernel_size=kwargs.pop("kernel_size", None), stride_size=kwargs.pop("stride_size", None)
+            ):
+                return self.predict(
+                    index,
+                    data_iterator=data_source,
+                    undo=undo,
+                    load=load,
+                    load_kwargs=load_kwargs,
+                    fake_batch_dim=fake_batch_dim,
+                    patch_update=True,
+                    **kwargs,
+                )
+
+        kwargs.pop("patch_update", None)
 
         self.load(load, **load_kwargs)
 
-        if 'ToNumpy' in self.pipeline.steps or 'FakeData' in self.pipeline.steps:
+        if "ToNumpy" in self.pipeline.steps or "FakeData" in self.pipeline.steps:
             fake_batch_dim = True if fake_batch_dim is None else fake_batch_dim
 
         if fake_batch_dim is None:
             fake_batch_dim = False
 
         data = data_source[index]
-    
+
         if fake_batch_dim:
             data = expand_dims(data)
 
@@ -235,10 +251,10 @@ class EDIT_AutoInference(EDIT_Inference):
         if isinstance(prediction, (tuple, list)):
             prediction = prediction[-1]
         if hasattr(data_source, "rebuild_time"):
-            prediction = data_source.rebuild_time(prediction, index, offset = 0)
-        
-        return prediction # Just return prediction
-        
+            prediction = data_source.rebuild_time(prediction, index, offset=0)
+
+        return prediction  # Just return prediction
+
         # truth = data_source.undo(data)
         # if isinstance(truth, (tuple, list)):
         #     truth = truth[1]
@@ -248,12 +264,12 @@ class EDIT_AutoInference(EDIT_Inference):
 
         # if "Coordinate 1" in prediction:
         #     prediction = prediction.rename({"Coordinate 1": "time"})
-            
+
         # if hasattr(data_source, "rebuild_time"):
         #     truth, prediction = map(lambda x: data_source.rebuild_time(x, index, offset = 0), (truth, prediction))
 
         # return Collection(truth, prediction)
-    
+
     def recurrent(
         self,
         start_index: str,
@@ -306,30 +322,45 @@ class EDIT_AutoInference(EDIT_Inference):
             cache (bool | str | Path, optional):
                 Whether to cache intermediate data to directory, if True, set up temp directory. Defaults to False.
             save_location (str | Path, optional):
-                Location to save merged data, if not given, and `cache` is, all data will be loaded into memory than returned. 
+                Location to save merged data, if not given, and `cache` is, all data will be loaded into memory than returned.
                 Therefore, if large datasets are in use, and `cache` given, it is best to set this as well.
                 Defaults to None
             use_output (bool, optional):
                 Whether to use output directly for input, skips extra `.undo` and `.apply` calls. Defaults to True.
-            
+
         Returns:
             (tuple[np.array] | tuple[xr.Dataset]):
                 Either xarray datasets or np arrays, [truth data, predicted data]
         """
+
         def select_if_tuple(item, index: int):
             if isinstance(item, (list, tuple)):
                 return item[index]
             return item
-        
+
         data_source = data_iterator or self.pipeline
-        
+
         if isinstance(interval, (str, tuple, int)):
             interval = TimeDelta(interval)
 
-        if 'Patch' in data_source.steps and 'patch_update' not in kwargs:    
-            with edit.pipeline.context.PatchingUpdate(data_source, kernel_size = kwargs.pop('kernel_size', None), stride_size = kwargs.pop('stride_size', None)):
-                return self.recurrent(start_index, steps, data_iterator=data_iterator, load = load, load_kwargs=load_kwargs, truth_step=truth_step, fake_batch_dim=fake_batch_dim, trim_time_dim=trim_time_dim,verbose=verbose, patch_update = True, **kwargs)
-        kwargs.pop('patch_update', None)
+        if "Patch" in data_source.steps and "patch_update" not in kwargs:
+            with edit.pipeline.context.PatchingUpdate(
+                data_source, kernel_size=kwargs.pop("kernel_size", None), stride_size=kwargs.pop("stride_size", None)
+            ):
+                return self.recurrent(
+                    start_index,
+                    steps,
+                    data_iterator=data_iterator,
+                    load=load,
+                    load_kwargs=load_kwargs,
+                    truth_step=truth_step,
+                    fake_batch_dim=fake_batch_dim,
+                    trim_time_dim=trim_time_dim,
+                    verbose=verbose,
+                    patch_update=True,
+                    **kwargs,
+                )
+        kwargs.pop("patch_update", None)
 
         # Retrieve Initial Input Data
         data = data_source[start_index]
@@ -349,11 +380,11 @@ class EDIT_AutoInference(EDIT_Inference):
         cache_pattern, save_pattern = None, None
         if cache:
             if isinstance(cache, bool) and cache:
-                cache = 'temp'
-            cache_pattern = patterns.ArgumentExpansion(cache, extension='.nc', filename_as_arguments = False)
-        
+                cache = "temp"
+            cache_pattern = patterns.ArgumentExpansion(cache, extension=".nc", filename_as_arguments=False)
+
         if save_location:
-            save_pattern = patterns.Direct(root_dir = save_location or 'temp', extension='.nc')
+            save_pattern = patterns.Direct(root_dir=save_location or "temp", extension=".nc")
 
         # Begin steps
         for i in trange(math.ceil(steps), disable=not verbose, desc="Predicting Recurrently"):
@@ -366,7 +397,7 @@ class EDIT_AutoInference(EDIT_Inference):
             if fake_batch_dim:  # Squeeze again if faking the batch dim
                 prediction = squeeze_dims(prediction)
                 data = squeeze_dims(data)
-            
+
             # if not isinstance(prediction, (tuple, list)):
             #     prediction = (*(data[:-1] if isinstance(data, (tuple, list)) else [data]), prediction)
 
@@ -380,9 +411,7 @@ class EDIT_AutoInference(EDIT_Inference):
                 fixed_predictions = fixed_predictions[-1]
 
             if not isinstance(fixed_predictions, xr.Dataset):
-                raise TypeError(
-                    f"Unable to recurrently merge data of type {type(fixed_predictions)}"
-                )
+                raise TypeError(f"Unable to recurrently merge data of type {type(fixed_predictions)}")
 
             if hasattr(data_source, "rebuild_time"):
                 fixed_predictions = data_source.rebuild_time(
@@ -391,9 +420,9 @@ class EDIT_AutoInference(EDIT_Inference):
                     offset=1 if i >= 1 else 0,
                 )
             elif interval is not None:
-                encoding = fixed_predictions['time'].encoding
-                fixed_predictions['time'] = fixed_predictions.time + interval * ((i+1) if use_output else 1)
-                fixed_predictions['time'].encoding.update(encoding)
+                encoding = fixed_predictions["time"].encoding
+                fixed_predictions["time"] = fixed_predictions.time + interval * ((i + 1) if use_output else 1)
+                fixed_predictions["time"].encoding.update(encoding)
 
             # ## Save out input, and fixed predictions
             # if cache_pattern is not None:
@@ -406,14 +435,15 @@ class EDIT_AutoInference(EDIT_Inference):
             ## Record Prediction
             append_prediction = type(fixed_predictions)(fixed_predictions)
             if trim_time_dim:
-                append_prediction = fixed_predictions.isel(
-                    time=slice(None, trim_time_dim)
-                )
+                append_prediction = fixed_predictions.isel(time=slice(None, trim_time_dim))
 
             index = append_prediction.time.values[-1]
 
             if cache_pattern is not None:
-                cache_pattern.save(append_prediction, i,)
+                cache_pattern.save(
+                    append_prediction,
+                    i,
+                )
                 # append_prediction = cache_pattern(i)
                 predictions.append(cache_pattern.search(i))
 
@@ -428,11 +458,10 @@ class EDIT_AutoInference(EDIT_Inference):
                 else:
                     data = prediction
             else:
+
                 def add_predictions(input_data, prediction_data):
                     if trim_time_dim:
-                        prediction_data = prediction_data.isel(
-                            time=slice(None, trim_time_dim)
-                        )
+                        prediction_data = prediction_data.isel(time=slice(None, trim_time_dim))
 
                     new_input = xr.merge((input_data, prediction_data))
 
@@ -450,31 +479,32 @@ class EDIT_AutoInference(EDIT_Inference):
                     data = list(data)
                     data[0] = new_input_data
                 else:
-                    data  = new_input_data                
+                    data = new_input_data
 
         LOG.info("Merging Predictions")
 
         try:
             import dask
+
             dask.config.set({"array.slicing.split_large_chunks": False})
         except (ModuleNotFoundError, ImportError):
-            pass                
+            pass
 
         if cache_pattern:
-            predictions = xr.open_mfdataset(predictions, chunks = 'auto')
+            predictions = xr.open_mfdataset(predictions, chunks="auto")
         else:
-            predictions = xr.concat(predictions, dim = 'time')
-        
+            predictions = xr.concat(predictions, dim="time")
+
         if save_location:
             save_pattern.save(predictions, start_index)
-            predictions = save_pattern(start_index)            
+            predictions = save_pattern(start_index)
 
-        if hasattr(cache_pattern, 'temp_dir') and cache_pattern.temp_dir:
+        if hasattr(cache_pattern, "temp_dir") and cache_pattern.temp_dir:
             if not save_pattern:
                 predictions = predictions.compute()
-            cache_pattern.cleanup(safe = True)
+            cache_pattern.cleanup(safe=True)
 
-        return predictions # Just return prediction
+        return predictions  # Just return prediction
         # if truth_step is None:
         #     return predictions
 
@@ -490,14 +520,16 @@ class EDIT_AutoInference(EDIT_Inference):
         # except Exception as e:
         #     warnings.warn(f"An error occured getting truth data, setting to None\n. {e}", RuntimeWarning)
         #     truth_data = None
-        
+
         # return LabelledCollection(truth = truth_data, predictions = predictions)
+
 
 ## Prediction Utilities
 def expand_dims(data: np.ndarray | tuple | list) -> np.ndarray | tuple | list:
     if isinstance(data, (list, tuple)):
         return type(data)(map(expand_dims, data))
     return np.expand_dims(data, axis=0)
+
 
 def squeeze_dims(data: np.ndarray | tuple | list) -> np.ndarray | tuple | list:
     if isinstance(data, (list, tuple)):

@@ -35,7 +35,7 @@ class EDITXGBoostTrainer(EDITTrainer):
         self.model = model
 
         self.path = Path(path)
-        self.path.mkdir(exist_ok=True,parents=True)
+        self.path.mkdir(exist_ok=True, parents=True)
 
     def fit(self, num_batches: int = 2, load: bool = False, verbose: bool = True):
         if load:
@@ -137,9 +137,7 @@ class EDITXGBoostTrainer(EDITTrainer):
 
         metrics = {}
         metrics["mae"] = sklearn.metrics.mean_absolute_error(y, y_pred).astype(float)
-        metrics["rmse"] = np.sqrt(sklearn.metrics.mean_squared_error(y, y_pred)).astype(
-            float
-        )
+        metrics["rmse"] = np.sqrt(sklearn.metrics.mean_squared_error(y, y_pred)).astype(float)
         metrics["bias"] = np.mean(y_pred - y).astype(float)
         metrics["corr"] = sklearn.metrics.r2_score(y, y_pred).astype(float)
         # metrics['mgd'] = sklearn.metrics.mean_gamma_deviance(y, y_pred)
@@ -187,9 +185,7 @@ class EDITXGBoostTrainer(EDITTrainer):
         xgboost.plot_tree(self.model.get_booster(), rankdir="LR", ax=ax)
         fig.savefig(self.path / "tree.jpg", dpi=300)
 
-    def _feature_importance(
-        self, feature_names: np.array | None, max_num_features: int = 40
-    ):
+    def _feature_importance(self, feature_names: np.array | None, max_num_features: int = 40):
         # Importance
 
         if feature_names:

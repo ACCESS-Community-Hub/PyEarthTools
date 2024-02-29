@@ -17,18 +17,19 @@ import edit.training.trainer
 from edit.training.trainer import from_yaml
 
 ATTRIBUTE_MARK = edit.data.transform.attributes.set_attributes(
-    purpose = "Research Use Only.",
-    contact = "For further information or support, contact the Data Science and Emerging Technologies Team.",
-    credit = "Generated with `edit`, a research endeavour under the DSET team, and Project 3.1.",
-    apply_on = 'dataset',
-    )
+    purpose="Research Use Only.",
+    contact="For further information or support, contact the Data Science and Emerging Technologies Team.",
+    credit="Generated with `edit`, a research endeavour under the DSET team, and Project 3.1.",
+    apply_on="dataset",
+)
+
 
 class MLDataIndex(BaseCacheIndex, TimeIndex):
     def __init__(
         self,
         trainer: edit.training.trainer.EDIT_Inference,
         *,
-        data_interval: tuple, 
+        data_interval: tuple,
         cache: str | Path | None = None,
         predict_config: dict[str, Any] | None = None,
         recurrent_config: dict[str, Any] | None = None,
@@ -48,7 +49,7 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
             trainer (EDITTrainer):
                 EDITTrainer to use to retrieve data
             data_interval (tuple):
-                Resolution that the trainer operates at, in `TimeDelta` form. 
+                Resolution that the trainer operates at, in `TimeDelta` form.
                 e.g. (1, 'day')
             cache (str | Path, optional):
                 Location to cache outputs, if not supplied don't cache.
@@ -99,11 +100,11 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         Otherwise offset by `offsetInterval`.
 
         Args:
-            time (str | EDITDatetime): 
+            time (str | EDITDatetime):
                 Time to offset
 
         Returns:
-            (EDITDatetime): 
+            (EDITDatetime):
                 Offset time
         """
         time = EDITDatetime(time)
@@ -113,12 +114,11 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
             else:
                 time = EDITDatetime(time) + TimeDelta(self.offsetInterval)
         return EDITDatetime(time)
-    
 
     def _generate(
         self,
         querytime: str | EDITDatetime,
-    ) -> Any: 
+    ) -> Any:
         """
         Get Data from given timestep
         """
@@ -131,23 +131,24 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
 
         if self.recurrent_config:
             predictions = self.trainer.recurrent(
-                querytime, **self.recurrent_config,
+                querytime,
+                **self.recurrent_config,
             )
         else:
             predictions = self.trainer.predict(querytime, **self.predict_config)
 
         if isinstance(predictions, (list, tuple)):
             predictions = predictions[1]
-        
-        if hasattr(self, 'base_transforms'):
+
+        if hasattr(self, "base_transforms"):
             predictions = self.base_transforms(predictions)
-            
+
         predictions = self.post_transforms(predictions)
         predictions = ATTRIBUTE_MARK(predictions)
-        
+
         if self.data_attributes is not None:
             attrs = yaml.safe_load(str(self.data_attributes))
-            predictions = edit.data.transform.attributes.set_attributes(attrs, apply_on = 'dataset')(predictions)
+            predictions = edit.data.transform.attributes.set_attributes(attrs, apply_on="dataset")(predictions)
         return predictions
 
     def filesystem(self, *args, **kwargs) -> Path | dict[str, str | Path] | list[str | Path]:
@@ -177,7 +178,7 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
             yaml_config (str | Path):
                 Path to yaml config
             data_interval (tuple):
-                Resolution that the trainer operates at, in `TimeDelta` form. 
+                Resolution that the trainer operates at, in `TimeDelta` form.
                 e.g. (1, 'day')
             checkpoint_path (str | bool, optional):
                 Path to pretrained checkpoint. Defaults to True.
@@ -202,5 +203,4 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         )
         trainer.load(checkpoint_path, only_state=only_state)
 
-        return MLDataIndex(trainer, data_interval = data_interval, stride_override=stride_override)
-
+        return MLDataIndex(trainer, data_interval=data_interval, stride_override=stride_override)

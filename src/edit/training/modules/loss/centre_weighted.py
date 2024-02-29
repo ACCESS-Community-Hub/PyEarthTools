@@ -55,7 +55,7 @@ class centre_weighted(nn.Module):
         min_value: float = 0,
         max_value: float = 1,
         dimensions: tuple[int] = [-2, -1],
-        **kwargs
+        **kwargs,
     ):
         """
         Centre weighted loss function.
@@ -109,9 +109,7 @@ class centre_weighted(nn.Module):
         -------
             np.array of weights
         """
-        return np.fromfunction(self.centre_func, shape).clip(
-            self.min_value, self.max_value
-        )
+        return np.fromfunction(self.centre_func, shape).clip(self.min_value, self.max_value)
 
     def forward(self, output, target):
         weight = torch.Tensor(self.make_weight_array(target.shape)).to(target)

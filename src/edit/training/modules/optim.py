@@ -36,24 +36,18 @@ else:
             >>>     scheduler.step()
         """
 
-        def __init__(
-            self, optimizer, schedulers, milestones, last_epoch=-1, verbose=False
-        ):
+        def __init__(self, optimizer, schedulers, milestones, last_epoch=-1, verbose=False):
             for scheduler_idx in range(1, len(schedulers)):
                 if schedulers[scheduler_idx].optimizer != schedulers[0].optimizer:
                     raise ValueError(
                         "Sequential Schedulers expects all schedulers to belong to the same optimizer, but "
-                        "got schedulers at index {} and {} to be different".format(
-                            0, scheduler_idx
-                        )
+                        "got schedulers at index {} and {} to be different".format(0, scheduler_idx)
                     )
             if len(milestones) != len(schedulers) - 1:
                 raise ValueError(
                     "Sequential Schedulers expects number of schedulers provided to be one more "
                     "than the number of milestone points, but got number of schedulers {} and the "
-                    "number of milestones to be equal to {}".format(
-                        len(schedulers), len(milestones)
-                    )
+                    "number of milestones to be equal to {}".format(len(schedulers), len(milestones))
                 )
             self.optimizer = optimizer
             self._schedulers = schedulers
@@ -75,11 +69,7 @@ else:
             is not the optimizer.
             The wrapped scheduler states will also be saved.
             """
-            state_dict = {
-                key: value
-                for key, value in self.__dict__.items()
-                if key not in ("optimizer", "_schedulers")
-            }
+            state_dict = {key: value for key, value in self.__dict__.items() if key not in ("optimizer", "_schedulers")}
             state_dict["_schedulers"] = [None] * len(self._schedulers)
 
             for idx, s in enumerate(self._schedulers):

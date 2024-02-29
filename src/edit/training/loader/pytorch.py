@@ -28,7 +28,7 @@ class PytorchIterable(DataIterator, IterableDataset):
 
     def validate(self) -> bool:
         super_validate = super().validate()
-        return super_validate and 'ToNumpy' in self.steps
+        return super_validate and "ToNumpy" in self.steps
 
     def __iter__(self):
         samples = [t for t in self.generator]
@@ -58,7 +58,6 @@ class PytorchIterable(DataIterator, IterableDataset):
                     continue
                 yield data
         self._current_index = None
-        
 
     @property
     def ignore_debug(self):

@@ -42,9 +42,7 @@ class CustomLoader(DataStep):
         super().__init__(index)
 
         if not self == self.step(-1):
-            warnings.warn(
-                f"{self} should be the last step in a DataPipeline.", PipelineWarning
-            )
+            warnings.warn(f"{self} should be the last step in a DataPipeline.", PipelineWarning)
 
         if not isinstance(batch_size, int):
             raise TypeError(f"'batch_size' must be int, not {type(batch_size)}")

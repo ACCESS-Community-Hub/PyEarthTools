@@ -35,9 +35,7 @@ class ComponentLoss(nn.Module):
             weights = []
             for key, value in loss.items():
                 if not isinstance(value, dict):
-                    raise TypeError(
-                        f"Each loss must contain a dict for init args, cannot be {type(value)} "
-                    )
+                    raise TypeError(f"Each loss must contain a dict for init args, cannot be {type(value)} ")
 
                 if isinstance(value, dict) and "weight" not in value:
                     raise KeyError(
@@ -51,9 +49,7 @@ class ComponentLoss(nn.Module):
             )
 
         self.weights = nn.Parameter(torch.Tensor(weights), False)
-        self.losses = nn.ModuleList(
-            edit.training.modules.get_loss(key, **value) for key, value in loss.items()
-        )
+        self.losses = nn.ModuleList(edit.training.modules.get_loss(key, **value) for key, value in loss.items())
 
     def forward(self, output, target):
         loss = None
