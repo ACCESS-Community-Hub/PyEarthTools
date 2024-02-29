@@ -37,9 +37,7 @@ class ExtremeLoss(nn.Module):
         mean_square_difference = torch.mean(square_difference)
         root_mean_square_difference = torch.sqrt(mean_square_difference)
 
-        relative_mean_square_difference = torch.div(
-            root_mean_square_difference, mean_target
-        )
+        relative_mean_square_difference = torch.div(root_mean_square_difference, mean_target)
 
         min_output = torch.min(output)
         min_target = torch.min(target)

@@ -22,18 +22,16 @@ class SSIMLoss(torch.nn.Module):
 
     """
 
-    def __init__(
-        self, normalise: bool = False, format: str = None, **ssim_kwargs: dict
-    ) -> None:
+    def __init__(self, normalise: bool = False, format: str | None = None, **ssim_kwargs: dict) -> None:
         """
         Create SSIM Loss
 
         Args:
-            normalise (bool, optional): 
+            normalise (bool, optional):
                 Whether to force the data to be between 0 and 1. Defaults to False.
-            format (str, optional): 
+            format (str, optional):
                 Format of data if not B T C H W. Defaults to None.
-            **kwargs (Any, optional):
+            **ssim_kwargs (Any, optional):
                 All kwargs passed to [piqa.SSIM][https://piqa.readthedocs.io/en/stable/api/piqa.ssim.html#piqa.ssim.SSIM]
 
         !!! Tip
@@ -44,7 +42,7 @@ class SSIMLoss(torch.nn.Module):
             | sigma (float) | The standard deviation of the window.|
             | n_channels (int) | The number of channels |
             | reduction (str) | Specifies the reduction to apply to the output: 'none', 'mean' or 'sum'.|
-        """        
+        """
         super().__init__()
         self.ssim = SSIM(**ssim_kwargs)
         self.normalise = normalise

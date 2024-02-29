@@ -8,14 +8,17 @@ import warnings
 
 import numpy as np
 import pandas as pd
-import tempfile
 
 import xarray as xr
 import matplotlib.pyplot as plt
 
+from edit.data.patterns.utils import parse_root_dir
+
 import edit.training
 from edit.training.trainer.template import EDIT_AutoInference, EDIT_Training
 from edit.pipeline.templates import DataIterator, DataStep
+
+from edit.utils.context import PrintOnError
 
 
 class LoggingContext:
@@ -34,7 +37,16 @@ class LoggingContext:
 
 
 class Inference(EDIT_AutoInference):
-    def __init__(self, model: 'pytorch_lightning.LightningModule', pipeline: DataStep, *, path: str | Path = 'temp', batch_size: int = 1, num_workers: int = 0, **kwargs):
+    def __init__(
+        self,
+        model: "pytorch_lightning.LightningModule",
+        pipeline: DataStep,
+        *,
+        path: str | Path = "temp",
+        batch_size: int = 1,
+        num_workers: int = 0,
+        **kwargs,
+    ):
         super().__init__(pipeline)
 
         self.model = model
@@ -46,28 +58,31 @@ class Inference(EDIT_AutoInference):
             num_workers=num_workers,
         )
 
-        if isinstance(path, str) and path == 'temp':
-            path = tempfile.TemporaryDirectory().name
-        self.path = path
+        self.path, _ = parse_root_dir(path)
+        self.pipeline.save(Path(self.path) / "pipeline.yaml")
         self.trainer_kwargs = kwargs
 
-
     @functools.cached_property
-    def trainer(self):
+    def trainer(self) -> "pytorch_lightning.Trainer":
         return self.load_trainer()
-        
-    def load_trainer(self, logger = False, **kwargs):
+
+    def load_trainer(self, logger=False, **kwargs) -> "pytorch_lightning.Trainer":
         import pytorch_lightning as pl
-        
-        trainer_kwargs = self.trainer_kwargs
+
+        trainer_kwargs = dict(self.trainer_kwargs)
         trainer_kwargs.update(dict(default_root_dir=self.path))
         trainer_kwargs.update(kwargs)
 
-        trainer = pl.Trainer(logger = trainer_kwargs.pop('logger', logger), **trainer_kwargs)
+        if not kwargs.get("enable_progress_bar", True):
+            trainer_kwargs["callbacks"] = list(
+                t for t in trainer_kwargs.pop("callbacks", []) if not t.__class__.__name__ == "TQDMProgressBar"
+            )
+
+        trainer = pl.Trainer(logger=trainer_kwargs.pop("logger", logger), **trainer_kwargs)
 
         return trainer
-    
-    def load(self, file: str | bool = True, only_state: bool = False) -> Path | None:
+
+    def load(self, file: str | bool = True, only_state: bool = False) -> Path | str | None:
         """Load Model from Checkpoint File.
 
         Can either be PyTorch Lightning Checkpoint or torch checkpoint.
@@ -83,16 +98,14 @@ class Inference(EDIT_AutoInference):
                 Path of checkpoint being loaded, or None if no path found.
         """
         import torch
-        file_to_load: str | Path | None = None
+
+        file_to_load: str | Path
 
         if isinstance(file, bool):
             if not file:
                 return
-            
-            if (
-                self.checkpoint_path.exists()
-                and len(list(Path(self.checkpoint_path).iterdir())) > 0
-            ):
+
+            if self.checkpoint_path.exists() and len(list(Path(self.checkpoint_path).iterdir())) > 0:
                 file_to_load = max(Path(self.checkpoint_path).iterdir(), key=os.path.getctime)
             else:
                 warnings.warn(f"No file located to load from.\nSearched {self.checkpoint_path}", UserWarning)
@@ -103,7 +116,7 @@ class Inference(EDIT_AutoInference):
         warnings.warn(f"Loading checkpoint: {file_to_load}", UserWarning)
 
         ## If model has implementation, let it handle it.
-        if hasattr(self.model, 'load'):
+        if hasattr(self.model, "load"):
             return self.model.load(file_to_load)
 
         if only_state:
@@ -113,18 +126,16 @@ class Inference(EDIT_AutoInference):
                 new_state = {}
                 for key, variable in state.items():
                     if "model" in key or "net" in key:
-                        new_state[
-                            key.replace("model.", "").replace("net.", "")
-                        ] = variable
+                        new_state[key.replace("model.", "").replace("net.", "")] = variable
                     else:
                         new_state[key] = variable
                 state = new_state
 
             self.model.model.load_state_dict(state)
-            return file
+            return file_to_load
 
         try:
-            self.model = self.model.load_from_checkpoint(file_to_load)
+            self.model = type(self.model).load_from_checkpoint(file_to_load)
         except (RuntimeError, KeyError) as e:
             warnings.warn(
                 "A KeyError arose when loading from checkpoint, will attempt to load only the model state.",
@@ -138,7 +149,7 @@ class Inference(EDIT_AutoInference):
         directory = directory or self.checkpoint_path
         self.trainer.save_checkpoint(Path(directory) / path)
 
-    def _predict_from_data(self, data: np.ndarray | tuple, batch_size = None):
+    def _predict_from_data(self, data: np.ndarray | tuple[np.ndarray, np.ndarray], batch_size=None):
         """
         Using the loaded model, and given data make a prediction
         """
@@ -181,15 +192,13 @@ class Inference(EDIT_AutoInference):
         else:
             prediction = np.vstack(predictions_raw)
         return prediction
-    
-    @functools.wraps(EDIT_AutoInference.predict)
+
     def predict(self, *args, quiet: bool = False, **kwargs):
         with LoggingContext(quiet):
             if quiet:
                 self.trainer = self.load_trainer(enable_progress_bar=False)
             return super().predict(*args, **kwargs)
-        
-    @functools.wraps(EDIT_AutoInference.recurrent)
+
     def recurrent(self, *args, quiet: bool = True, **kwargs):
         with LoggingContext(quiet):
             if quiet:
@@ -200,9 +209,7 @@ class Inference(EDIT_AutoInference):
         import pytorch_lightning as pl
 
         class EDITDataModule(pl.LightningDataModule):
-            def __init__(
-                self, batch_size, train_data, valid_data=None, num_workers=0
-            ) -> None:
+            def __init__(self, batch_size, train_data, valid_data=None, num_workers=0) -> None:
                 super().__init__()
                 self.batch_size = batch_size
                 self.num_workers = num_workers
@@ -214,7 +221,7 @@ class Inference(EDIT_AutoInference):
 
                 if isinstance(self.train_data, DataLoader):
                     return self.train_data
-                
+
                 return DataLoader(
                     self.train_data,
                     batch_size=self.batch_size,
@@ -227,7 +234,7 @@ class Inference(EDIT_AutoInference):
 
                 if isinstance(self.valid_data, DataLoader):
                     return self.valid_data
-                
+
                 return DataLoader(
                     self.valid_data or self.train_data,
                     batch_size=self.batch_size,
@@ -268,15 +275,16 @@ class Inference(EDIT_AutoInference):
                 latest_time = time
                 latest_item = item
         return latest_item
-    
+
     def __repr__(self):
         repr_string = [super().__repr__()]
-        
+
         repr_string.append("\nModel:")
         repr_string.append(f"{repr(self.model)}")
 
-        return '\n'.join(repr_string)
-    
+        return "\n".join(repr_string)
+
+
 class Training(Inference, EDIT_Training):
     """
     Pytorch Lightning Trainer Wrapper.
@@ -285,10 +293,10 @@ class Training(Inference, EDIT_Training):
     def __init__(
         self,
         model: "pl.LightningModule",
-        pipeline:  DataIterator | 'torch.data.DataLoader',
-        path: str,
-        valid_data:  DataIterator | None = None,
+        pipeline: DataIterator | "torch.data.DataLoader",
         *,
+        path: str,
+        valid_data: DataIterator | None = None,
         batch_size: int = 1,
         num_workers: int | None = None,
         find_batch_size: bool = False,
@@ -315,14 +323,15 @@ class Training(Inference, EDIT_Training):
                 All passed to trainer __init__, will intercept 'logger' to update from str if given
 
         """
-        if isinstance(pipeline, DataStep) and 'PytorchIterable' not in pipeline.steps:
+        if isinstance(pipeline, DataStep) and "PytorchIterable" not in pipeline.steps:
             pipeline = edit.training.loader.PytorchIterable(pipeline)
             valid_data = edit.training.loader.PytorchIterable(valid_data) if valid_data else valid_data
 
-        super().__init__(model, valid_data or pipeline, path=path, batch_size= batch_size, num_workers= num_workers)
+        super().__init__(model, valid_data or pipeline, path=path, batch_size=batch_size, num_workers=num_workers)
 
         import pytorch_lightning as pl
         import torch
+
         torch.set_float32_matmul_precision("high")
 
         self.datamodule = self._get_data(
@@ -344,8 +353,8 @@ class Training(Inference, EDIT_Training):
 
         self.callbacks = kwargs.pop("callbacks", [])
         self.callbacks.append(checkpoint_callback)
-        
-        if EarlyStopping and not (isinstance(EarlyStopping, str) and EarlyStopping == 'True'):
+
+        if EarlyStopping and not (isinstance(EarlyStopping, str) and EarlyStopping == "True"):
             self.callbacks.append(
                 pl.callbacks.EarlyStopping(
                     monitor=EarlyStopping if isinstance(EarlyStopping, str) else "valid/loss",
@@ -377,9 +386,7 @@ class Training(Inference, EDIT_Training):
                 kwargs["logger"] = "csv"
 
             if self.logger == "tensorboard":
-                kwargs["logger"] = pl.loggers.TensorBoardLogger(
-                    self.path, name=kwargs.pop("name", None)
-                )
+                kwargs["logger"] = pl.loggers.TensorBoardLogger(self.path, name=kwargs.pop("name", None))
 
             elif self.logger == "csv":
                 kwargs["logger"] = pl.loggers.CSVLogger(self.path, name="csv_logs")
@@ -392,7 +399,7 @@ class Training(Inference, EDIT_Training):
         self.find_batch_size = find_batch_size
 
         self.trainer_kwargs.update(kwargs)
-        self.trainer_kwargs.update(callbacks = self.callbacks)
+        self.trainer_kwargs.update(callbacks=list(self.callbacks))
 
     def load_trainer(self, **kwargs):
         import pytorch_lightning as pl
@@ -419,8 +426,9 @@ class Training(Inference, EDIT_Training):
             data_config["train_dataloaders"] = kwargs.pop("train_dataloaders")
             data_config["valid_dataloaders"] = kwargs.pop("valid_dataloaders", None)
         else:
-            data_config = {'datamodule': self.datamodule}
+            data_config = {"datamodule": self.datamodule}
 
+        # with PrintOnError(lambda: f"An error arose getting: {self.pipeline.current_index}"):
         self.trainer.fit(
             model=self.model,
             # ckpt_path = file,
@@ -431,9 +439,7 @@ class Training(Inference, EDIT_Training):
     def __flatten_metrics(self, data: pd.DataFrame):
         return data
 
-    def graph(
-        self, x: str = "step", y: str = "train/loss", path: str | Path = None
-    ) -> plt.Axes:
+    def graph(self, x: str = "step", y: str = "train/loss", path: str | Path | None = None) -> plt.Axes:
         """Create Plots of metrics file
 
         Args:
@@ -453,9 +459,7 @@ class Training(Inference, EDIT_Training):
                 Matplotlib Axes of metrics plot
         """
         if self.logger == "tensorboard":
-            raise KeyError(
-                f"Model was logged with TensorBoard, run `tensorboard --logdir [dir]` in cmd to view"
-            )
+            raise KeyError(f"Model was logged with TensorBoard, run `tensorboard --logdir [dir]` in cmd to view")
 
         metrics = None
         for folder in Path(path or self.log_path).iterdir():
@@ -472,9 +476,7 @@ class Training(Inference, EDIT_Training):
                 metrics = pd.concat([metrics, pd.read_csv(csv_file)])
 
         if metrics is None:
-            raise FileNotFoundError(
-                f"No metrics.csv files could be found at {path or self.log_path!r}"
-            )
+            raise FileNotFoundError(f"No metrics.csv files could be found at {path or self.log_path!r}")
 
         metrics = self.__flatten_metrics(metrics)
         ax = metrics.sort_values(x).plot(y=y, x=x)
@@ -483,8 +485,9 @@ class Training(Inference, EDIT_Training):
 
         return ax
 
+
 __all__ = [
-    'Inference',
-    'Training',
-    'LoggingContext',
+    "Inference",
+    "Training",
+    "LoggingContext",
 ]

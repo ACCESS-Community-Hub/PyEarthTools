@@ -6,6 +6,7 @@ This will allow data to be retrieved as normal, with the user not having to worr
 from __future__ import annotations
 
 from pathlib import Path
+import yaml
 from typing import Any
 
 import edit.data
@@ -16,24 +17,26 @@ import edit.training.trainer
 from edit.training.trainer import from_yaml
 
 ATTRIBUTE_MARK = edit.data.transform.attributes.set_attributes(
-    purpose = "Research Use Only.",
-    contact = "For further information or support, contact the Data Science and Emerging Technologies Team.",
-    credit = "Generated with `edit`, a research endeavour under the DSET team, and Project 3.1.",
-    apply_on = 'dataset',
-    )
+    purpose="Research Use Only.",
+    contact="For further information or support, contact the Data Science and Emerging Technologies Team.",
+    credit="Generated with `edit`, a research endeavour under the DSET team, and Project 3.1.",
+    apply_on="dataset",
+)
+
 
 class MLDataIndex(BaseCacheIndex, TimeIndex):
     def __init__(
         self,
         trainer: edit.training.trainer.EDIT_Inference,
         *,
-        data_interval: tuple, 
+        data_interval: tuple,
         cache: str | Path | None = None,
-        predict_config: dict[str, Any] = dict(undo=True),
-        recurrent_config: dict[str, Any] = {},
+        predict_config: dict[str, Any] | None = None,
+        recurrent_config: dict[str, Any] | None = None,
         offsetInterval: bool | tuple | TimeDelta = False,
-        post_transforms: Transform | TransformCollection = TransformCollection(),
+        post_transforms: Transform | TransformCollection | None = None,
         override: bool = False,
+        data_attributes: str | Path | None = None,
         **kwargs,
     ):
         """Setup ML Data Index from defined trainer
@@ -46,7 +49,7 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
             trainer (EDITTrainer):
                 EDITTrainer to use to retrieve data
             data_interval (tuple):
-                Resolution that the trainer operates at, in `TimeDelta` form. 
+                Resolution that the trainer operates at, in `TimeDelta` form.
                 e.g. (1, 'day')
             cache (str | Path, optional):
                 Location to cache outputs, if not supplied don't cache.
@@ -56,10 +59,12 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
                 Configuration if model must be run recurrently
             offsetInterval (bool, optional):
                 Whether to offset time by interval. Defaults to False.
-            post_transforms (Transform | TransformCollection, optional):
-                Transforms to apply post generation. Defaults to TransformCollection().
+            post_transforms (Transform | TransformCollection | None, optional):
+                Transforms to apply post generation. Defaults to None.
             override (bool, optional):
                 Override any generated data. Defaults to False.
+            data_attributes (str | Path | None, optional):
+                Path to yaml file specifying attributes to set.
             **kwargs (dict, optional):
                 Any keyword arguments to pass to [BaseCacheIndex][edit.data.BaseCacheIndex]
         """
@@ -68,10 +73,20 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         self.set_interval(data_interval)
 
         self.trainer = trainer
+
+        if predict_config is None:
+            predict_config = {}
         self.predict_config = dict(predict_config)
+
+        if recurrent_config is None:
+            recurrent_config = {}
         self.recurrent_config = dict(recurrent_config)
 
+        if post_transforms is None:
+            post_transforms = TransformCollection()
         self.post_transforms = post_transforms
+
+        self.data_attributes = data_attributes
 
         self.offsetInterval = offsetInterval
         self.to_override = override
@@ -85,11 +100,11 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         Otherwise offset by `offsetInterval`.
 
         Args:
-            time (str | EDITDatetime): 
+            time (str | EDITDatetime):
                 Time to offset
 
         Returns:
-            (EDITDatetime): 
+            (EDITDatetime):
                 Offset time
         """
         time = EDITDatetime(time)
@@ -98,58 +113,49 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
                 time = EDITDatetime(time) + self.data_interval
             else:
                 time = EDITDatetime(time) + TimeDelta(self.offsetInterval)
-        return time
-    
+        return EDITDatetime(time)
 
-    def generate(
+    def _generate(
         self,
         querytime: str | EDITDatetime,
-    ):  # transforms: Union[Callable, TransformCollection, Transform]= None
+    ) -> Any:
         """
         Get Data from given timestep
         """
         querytime = self.offset_time(querytime)
 
-        querytime = querytime.at_resolution(self.data_resolution)
+        if self.data_resolution is not None:
+            querytime = querytime.at_resolution(self.data_resolution)
+
         predictions = None
-        if hasattr(self, '__mark'):
-            raise Exception
-        self.__mark = None
 
         if self.recurrent_config:
             predictions = self.trainer.recurrent(
-                querytime, **self.recurrent_config,
+                querytime,
+                **self.recurrent_config,
             )
         else:
             predictions = self.trainer.predict(querytime, **self.predict_config)
 
         if isinstance(predictions, (list, tuple)):
             predictions = predictions[1]
-        
-        if hasattr(self, 'base_transforms'):
+
+        if hasattr(self, "base_transforms"):
             predictions = self.base_transforms(predictions)
-            
+
         predictions = self.post_transforms(predictions)
         predictions = ATTRIBUTE_MARK(predictions)
-        
+
+        if self.data_attributes is not None:
+            attrs = yaml.safe_load(str(self.data_attributes))
+            predictions = edit.data.transform.attributes.set_attributes(attrs, apply_on="dataset")(predictions)
         return predictions
 
-    def filesystem(self, *args, **kwargs) -> Path | dict | list:
+    def filesystem(self, *args, **kwargs) -> Path | dict[str, str | Path] | list[str | Path]:
         if self.to_override:
             with self.override:
                 return super().filesystem(*args, **kwargs)
         return super().filesystem(*args, **kwargs)
-
-    def input_data(self, querytime: str | EDITDatetime) -> 'xarray.Dataset':
-        """
-        Get input data at given timestep
-        """
-        querytime = self.offset_time(querytime)
-
-        input_data = self.trainer.pipeline.undo(
-            self.trainer.pipeline[querytime]
-        )
-        return input_data
 
     @property
     def data(self):
@@ -172,7 +178,7 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
             yaml_config (str | Path):
                 Path to yaml config
             data_interval (tuple):
-                Resolution that the trainer operates at, in `TimeDelta` form. 
+                Resolution that the trainer operates at, in `TimeDelta` form.
                 e.g. (1, 'day')
             checkpoint_path (str | bool, optional):
                 Path to pretrained checkpoint. Defaults to True.
@@ -197,5 +203,4 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         )
         trainer.load(checkpoint_path, only_state=only_state)
 
-        return MLDataIndex(trainer, data_interval = data_interval, stride_override=stride_override)
-
+        return MLDataIndex(trainer, data_interval=data_interval, stride_override=stride_override)

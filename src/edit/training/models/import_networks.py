@@ -46,9 +46,7 @@ class Networks:
 
     def __getattr__(self, key):
         if key not in self._networks.values():
-            raise AttributeError(
-                f"module 'edit.training.models.networks' has no attribute {key!r}"
-            )
+            raise AttributeError(f"module 'edit.training.models.networks' has no attribute {key!r}")
 
         importlib.invalidate_caches()
         # warnings.resetwarnings()

@@ -22,22 +22,10 @@ def entry_point():
 @click.pass_context
 @click.argument(
     "yaml_file",
-    type=click.Path(
-        exists=True, file_okay=True, dir_okay=False, readable=True, resolve_path=True
-    ),
+    type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, resolve_path=True),
 )
-@click.option(
-    "--load/--new",
-    type=bool,
-    default=True,
-    help = 'Load model or not'
-)
-@click.option(
-    "--paths",
-    type= list,
-    default = [],
-    help = 'Paths to add to PythonPath'
-)
+@click.option("--load/--new", type=bool, default=True, help="Load model or not")
+@click.option("--paths", type=list, default=[], help="Paths to add to PythonPath")
 def fit(ctx, yaml_file: str | click.Path, load: bool, paths: list[str]):
     """
     From Yaml Config, fit model.
@@ -53,9 +41,7 @@ def fit(ctx, yaml_file: str | click.Path, load: bool, paths: list[str]):
     if len(ctx.args) > 1:
         for i in range(0, len(ctx.args), 2):
             if not str(ctx.args[i]).startswith("--"):
-                raise KeyError(
-                    f"{ctx.args[i]} is an invalid kwarg, ensure it starts with '--'"
-                )
+                raise KeyError(f"{ctx.args[i]} is an invalid kwarg, ensure it starts with '--'")
             d[str(ctx.args[i]).replace("--", "")] = (
                 int(ctx.args[i + 1]) if ctx.args[i + 1].isdigit() else ctx.args[i + 1]
             )
@@ -69,17 +55,13 @@ def fit(ctx, yaml_file: str | click.Path, load: bool, paths: list[str]):
 @entry_point.command(name="predict")
 @click.argument(
     "yaml_file",
-    type=click.Path(
-        exists=True, file_okay=True, dir_okay=False, readable=True, resolve_path=True
-    ),
+    type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, resolve_path=True),
 )
 @click.argument("index", type=str)
 @click.argument("save_file", type=click.Path())
 @click.option(
     "--checkpoint",
-    type=click.Path(
-        exists=True, file_okay=True, dir_okay=False, readable=True, resolve_path=True
-    ),
+    type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, resolve_path=True),
     default=None,
 )
 @click.option("--stride_size", type=int, default=None)
@@ -116,9 +98,7 @@ def predict(
         if not recurrence:
             predictions = trainer.predict(index, load=resume, undo=True)[-1]
         else:
-            predictions = trainer.predict_recurrent(
-                index, undo=True, load=resume, recurrence=recurrence
-            )
+            predictions = trainer.predict_recurrent(index, undo=True, load=resume, recurrence=recurrence)
 
     predictions.to_netcdf(save_file)
 

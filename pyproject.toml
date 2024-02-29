@@ -22,7 +22,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "edit.pipeline",
+    "edit-pipeline",
     "einops", 
     "scikit-learn", 
     "scipy", 
@@ -52,8 +52,8 @@ onnx_gpu = [
   "onnxruntime_gpu",
 ]
 all = [
-  "edit.training[pytorch]",
-  "edit.training[xgboost]",
+  "edit-training[pytorch]",
+  "edit-training[xgboost]",
 ]
 
 
@@ -63,7 +63,7 @@ documentation = "https://git.nci.org.au/bom/dset/edit-package/documentation"
 repository = "https://git.nci.org.au/bom/dset/edit-package/training"
 
 [project.scripts]
-edit-training = "edit.training.commands:entry_point"
+edit-training = "edit-training.commands:entry_point"
 
 [tool.isort]
 profile = "black"
