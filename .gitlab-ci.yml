@@ -1,0 +1,106 @@
+image: continuumio/miniconda3
+
+before_script:
+  - python --version  # For debugging
+  - pip install virtualenv
+  - virtualenv venv
+  - source venv/bin/activate
+
+stages:
+    - lint
+    # - test # Need to setup full package registry to allow
+    - release
+
+variables:
+  PYCOV_DIR: ""
+  CONDA_ENV_FILE: ""
+  LINE_LENGTH: 120
+  YAMLLINT_CONFIG_FILE: ".yamllint.yml"
+
+workflow:
+  rules:
+    # Run the pipeline for merge requests
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    # Do not run the pipeline for commits to open merge requests
+    - if: "$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "main"
+
+.conda_setup:
+  before_script:
+    #- yum install make -y
+    #- source /miniconda/bin/activate
+
+.protected_branches_rules:
+  rules:
+    # If the target branch is protected, be more stringent on whether the stages must
+    # pass
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_PROTECTED == "true"'
+      allow_failure: false
+    - if: $CI_COMMIT_BRANCH == "main"
+      allow_failure: false
+    - allow_failure: true
+
+# pytest:
+#   tags: [docker]
+#   extends:
+#     - .conda_setup
+#     - .protected_branches_rules
+#   stage: test
+#   needs: []
+#   script:
+#     - conda config --set ssl_verify false
+#     - mamba env create -f "$CONDA_ENV_FILE"
+#     - ENV_NAME=$(cat "$CONDA_ENV_FILE" | awk '/name:/ {print $2}')
+#     - conda activate $ENV_NAME
+#     - mamba install pytest pytest-cov coverage
+#     - echo "--- Running pytest ---"
+#     - |
+#       if make -n pytest 1>/dev/null 2>/dev/null; then
+#         echo "--- using make command ---"
+#         echo "path: $PATH"
+#         echo "python path: $PYTHONPATH"
+#         make pytest
+#       else
+#         python -m pytest "$CI_PROJECT_DIR" --cov="$PYCOV_DIR"
+#         coverage xml -o coverage.xml
+#       fi
+#   artifacts:
+#     paths:
+#       - coverage.xml
+#     reports:
+#       coverage_report:
+#         coverage_format: cobertura
+#         path: build/cobertura.xml
+#     expire_in: 1 week
+
+black:
+  tags: [docker]
+  extends:
+    - .conda_setup
+    - .protected_branches_rules
+  stage: lint
+  needs: []
+  script:
+    - conda install -y -q black
+    - echo "--- Running black over python code ---"
+    - |
+      if make -n black 1>/dev/null 2>/dev/null; then
+        echo "-- using make command ---"
+        make black
+      else
+        black --check --diff --line-length $LINE_LENGTH $CI_PROJECT_DIR
+      fi
+
+package_release:
+  tags: [docker]
+  stage: release
+  image: python:latest
+  rules:
+    - if: $CI_COMMIT_BRANCH == "donotrelease"#"main"
+  variables:
+    REGISTER_ID: 1562 # EDIT Package Registry
+  script:
+    - pip install build twine
+    - python -m build
+    - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url ${CI_API_V4_URL}/projects/${REGISTER_ID}/packages/pypi dist/*
