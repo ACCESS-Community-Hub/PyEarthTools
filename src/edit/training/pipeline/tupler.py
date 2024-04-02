@@ -6,4 +6,16 @@
 # be held liable for any claim, damages or other liability arising 
 # from the use of the software.
 
-from edit.training.trainer.onnx.onnx import Inference
+from edit.pipeline import SequentialDecorator, DataOperation
+
+
+@SequentialDecorator
+class Tupler(DataOperation):
+    """Make input tuple, with another element"""
+
+    def __init__(self, *args, item=[]):
+        super().__init__(*args, apply_func=self._func_apply, undo_func=None)
+        self.item = item
+
+    def _func_apply(self, *args):
+        return (*args, self.item)

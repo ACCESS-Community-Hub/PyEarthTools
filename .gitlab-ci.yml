@@ -10,6 +10,7 @@ stages:
     - lint
     # - test # Need to setup full package registry to allow
     - release
+    - trigger
 
 variables:
   PYCOV_DIR: ""
@@ -84,13 +85,7 @@ black:
   script:
     - conda install -y -q black
     - echo "--- Running black over python code ---"
-    - |
-      if make -n black 1>/dev/null 2>/dev/null; then
-        echo "-- using make command ---"
-        make black
-      else
-        black --check --diff --line-length $LINE_LENGTH $CI_PROJECT_DIR
-      fi
+    - black --check --diff --line-length $LINE_LENGTH $CI_PROJECT_DIR
 
 package_release:
   tags: [docker]
@@ -104,3 +99,11 @@ package_release:
     - pip install build twine
     - python -m build
     - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url ${CI_API_V4_URL}/projects/${REGISTER_ID}/packages/pypi dist/*
+
+trigger_job:
+  stage: trigger
+  trigger:
+    project: bom/dset/software-environments/edit-environment
+    branch: latest
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
