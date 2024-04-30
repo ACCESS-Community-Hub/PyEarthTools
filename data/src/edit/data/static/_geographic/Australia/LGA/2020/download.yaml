@@ -1,0 +1,6 @@
+---
+url: >
+  https://www.abs.gov.au/ausstats/subscriber.nsf/log?openagent&1270055003_lga_2020_aust_shp.zip&
+  1270.0.55.003&Data%20Cubes&D18F1308CA028E03CA258588001CC896&0&June%202020&16.06.2020&Latest
+save_name: LGADATA.zip
+zip: true

@@ -1,0 +1,363 @@
+/* CSS stylesheet for displaying edit objects in jupyterlab.
+ *
+ */
+
+ :root {
+  --object-font-color0: var(--jp-content-font-color0, rgba(0, 0, 0, 1));
+  --object-font-color2: var(--jp-content-font-color2, rgba(0, 0, 0, 0.54));
+  --object-font-color3: var(--jp-content-font-color3, rgba(0, 0, 0, 0.38));
+  --object-border-color: var(--jp-border-color2, #e0e0e0);
+  --object-disabled-color: var(--jp-layout-color3, #249e13);
+  --object-background-color: var(--jp-layout-color0, white);
+  --object-background-color-row-even: var(--jp-layout-color1, rgb(169, 159, 159));
+  --object-background-color-row-odd: var(--jp-layout-color2, rgb(202, 233, 219));
+}
+
+html[theme=dark],
+body[data-theme=dark],
+body.vscode-dark {
+  --object-font-color0: rgb(212, 67, 174);
+  --object-font-color2: rgba(255, 255, 255, 0.54);
+  --object-font-color3: rgba(236, 217, 217, 0.932);
+  --object-border-color: #1F1F1F;
+  --object-disabled-color: #473b3b;
+  --object-background-color: #d9c4e4;
+  --object-background-color-row-even: #242121;
+  --object-background-color-row-odd: rgb(91, 83, 83)
+}
+
+.object-wrap {
+  display: block !important;
+  min-width: 300px;
+  max-width: 700px;
+}
+
+.object-text-repr-fallback {
+  /* fallback to plain text repr when CSS is not injected (untrusted notebook) */
+  display: none;
+}
+
+.object-header {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  margin-bottom: 4px;
+  border-bottom: solid 1px var(--object-border-color);
+}
+
+.object-header > div,
+.object-header > ul {
+  display: inline;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.object-header > li {
+  display: grid;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-left: 0 !important;
+  grid-template-columns: 150px auto auto 1fr 20px 20px;
+}
+
+.object-obj-type,
+.object-array-name {
+  margin-left: 2px;
+  margin-right: 15px;
+}
+
+.object-obj-type {
+  color: var(--object-font-color2);
+}
+
+.object-sections {
+  padding-left: 0 !important;
+  display: grid;
+  grid-template-columns: 200px auto auto 1fr 20px 20px;
+}
+
+.object-section-item {
+  display:contents;
+}
+
+.object-section-item input {
+  display: none;
+}
+
+.object-section-item input + label {
+  color: var(--object-disabled-color);
+}
+
+.object-section-item input:enabled + label {
+  cursor: pointer;
+  color: var(--object-font-color2);
+}
+
+.object-section-item input:enabled + label:hover {
+  color: var(--object-font-color0);
+}
+
+.object-section-summary {
+  grid-column: 1;
+  color: var(--object-font-color2);
+  font-weight: 500;
+  padding-bottom: 0%;
+}
+
+.object-section-summary > span {
+  display: inline-block;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
+.object-section-summary-in:disabled + label {
+  color: var(--object-font-color2);
+}
+
+.object-section-summary-in + label:before {
+  display: inline-block;
+  content: '►';
+  font-size: 11px;
+  width: 15px;
+  text-align: center;
+}
+
+.object-section-summary-in:disabled + label:before {
+  color: var(--object-disabled-color);
+}
+
+.object-section-summary-in:checked + label:before {
+  content: '▼';
+}
+
+.object-section-summary-in:checked + label > span {
+  display: none;
+}
+
+.object-section-summary,
+.object-section-inline-details {
+  padding-top: 2px;
+  padding-bottom: 0px;
+}
+
+.object-section-inline-details {
+  grid-column: 2 / -1;
+}
+
+.object-section-details {
+  display: none;
+  grid-column: 1 / -1;
+  margin-bottom: 5px;
+  padding-left: 10px;
+
+}
+
+.object-section-summary-in:checked ~ .object-section-details {
+  display: contents;
+}
+
+.object-array-wrap {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 20px auto;
+}
+
+.object-array-wrap > label {
+  grid-column: 1;
+  vertical-align: top;
+}
+
+.object-preview {
+  color: var(--object-font-color3);
+}
+
+.object-array-preview,
+.object-array-data {
+  padding: 0 5px !important;
+  grid-column: 2;
+}
+
+.object-array-data,
+.object-array-in:checked ~ .object-array-preview {
+  display: none;
+}
+
+.object-array-in:checked ~ .object-array-data,
+.object-array-preview {
+  display: inline-block;
+}
+
+.object-dim-list {
+  display: inline-block !important;
+  list-style: none;
+  padding: 0 !important;
+  margin: 0;
+}
+
+.object-dim-list li {
+  display: inline-block;
+  padding: 0;
+  margin: 0;
+}
+
+.object-dim-list:before {
+  content: '(';
+}
+
+.object-dim-list:after {
+  content: ')';
+}
+
+.object-dim-list li:not(:last-child):after {
+  content: ',';
+  padding-right: 5px;
+}
+
+.object-has-index {
+  font-weight: bold;
+}
+
+.object-var-list,
+.object-var-item {
+  display: contents;
+}
+
+.object-var-item > div,
+.object-var-item label,
+.object-var-item > .object-var-name span {
+  background-color: var(--object-background-color-row-even);
+  margin-bottom: 0;
+}
+
+.object-var-item > .object-var-name:hover span {
+  padding-right: 5px;
+}
+
+.object-var-list > li:nth-child(odd) > div,
+.object-var-list > li:nth-child(odd) > label,
+.object-var-list > li:nth-child(odd) > .object-var-name span {
+  background-color: var(--object-background-color-row-odd);
+}
+
+.object-var-name {
+  grid-column: 1;
+}
+
+.object-var-dims {
+  grid-column: 2;
+}
+
+.object-var-dtype {
+  grid-column: 3;
+  text-align: right;
+  color: var(--object-font-color2);
+}
+
+.object-var-preview {
+  grid-column: 4;
+}
+
+.object-index-preview {
+  grid-column: 2 / 5;
+  color: var(--object-font-color2);
+}
+
+.object-var-name,
+.object-var-dims,
+.object-var-dtype,
+.object-preview,
+.object-attrs dt {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 10px;
+}
+
+.object-var-name:hover,
+.object-var-dims:hover,
+.object-var-dtype:hover,
+.object-attrs dt:hover {
+  overflow: visible;
+  width: auto;
+  z-index: 1;
+}
+
+.object-var-attrs,
+.object-var-data,
+.object-index-data {
+  display: none;
+  background-color: var(--object-background-color) !important;
+  padding-bottom: 5px !important;
+}
+
+.object-var-attrs-in:checked ~ .object-var-attrs,
+.object-var-data-in:checked ~ .object-var-data,
+.object-index-data-in:checked ~ .object-index-data {
+  display: block;
+}
+
+.object-var-data > table {
+  float: right;
+}
+
+.object-var-name span,
+.object-var-data,
+.object-index-name div,
+.object-index-data,
+.object-attrs {
+  padding-left: 25px !important;
+}
+
+.object-attrs,
+.object-var-attrs,
+.object-var-data,
+.object-index-data {
+  grid-column: 1 / -1;
+}
+
+dl.object-attrs {
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 125px auto;
+}
+
+.object-attrs dt,
+.object-attrs dd {
+  padding: 0;
+  margin: 0;
+  float: left;
+  padding-right: 10px;
+  width: auto;
+}
+
+.object-attrs dt {
+  font-weight: normal;
+  grid-column: 1;
+}
+
+.object-attrs dt:hover span {
+  display: inline-block;
+  background: var(--object-background-color);
+  padding-right: 10px;
+}
+
+.object-attrs dd {
+  grid-column: 2;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.object-icon-database,
+.object-icon-storm,
+.object-icon-dots,
+.object-icon-file-text2,
+.object-no-icon {
+  display: inline-block;
+  vertical-align: middle;
+  width: 1em;
+  height: 1.5em !important;
+  stroke-width: 0;
+  stroke: currentColor;
+  fill: currentColor;
+}
+
