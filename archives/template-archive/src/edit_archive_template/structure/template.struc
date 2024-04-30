@@ -1,0 +1,33 @@
+# Structure file, very useful for CMIP style data
+
+# If order not given will just use arg order
+order:
+ - product_1
+ - product_2 
+ - product_3
+
+# Uses dictionary depth as elements
+
+bom:
+  access:
+    - g
+    - c
+ukmo:
+  UM:
+    - experimental
+  ai_model:
+    - experimental
+ecmwf:
+  ifs: 
+    - hres
+  aifs:
+    - experimental
+
+
+# This allows the StructuredTemplate to be called with a limited set of init args if possible
+# i.e.
+# StructuredTemplate('bom', product_3 = 'g')
+# With `product_2` == `access` as there is no other optional
+
+# Otherwise, with `ukmo`, `product_2` will need to be given
+# StructuredTemplate('ukmo', product_2 = 'UM', product_3 = 'g')
