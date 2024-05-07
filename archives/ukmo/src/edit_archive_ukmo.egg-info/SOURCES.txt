@@ -1,0 +1,11 @@
+MANIFEST.in
+README.md
+pyproject.toml
+src/edit_archive_ukmo/__init__.py
+src/edit_archive_ukmo/mass.py
+src/edit_archive_ukmo/um.py
+src/edit_archive_ukmo.egg-info/PKG-INFO
+src/edit_archive_ukmo.egg-info/SOURCES.txt
+src/edit_archive_ukmo.egg-info/dependency_links.txt
+src/edit_archive_ukmo.egg-info/requires.txt
+src/edit_archive_ukmo.egg-info/top_level.txt

@@ -94,6 +94,7 @@ def auto_import() -> None:
 
         for method, value in import_config.items():  # Check all conditions
             result = getattr(ImportTest, _strip_name(method))(value)
+            print(method, value, result)
             test_results[method] = f"{value} = {result}"
 
             to_import = to_import and result
