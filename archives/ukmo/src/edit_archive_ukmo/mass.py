@@ -1,5 +1,7 @@
 """
 MASS Access
+
+Provides a generic class to assist in getting data from MASS
 """
 
 from __future__ import annotations
@@ -13,35 +15,69 @@ import tempfile
 from pathlib import Path
 import uuid
 
-from edit.data.indexes import CachingIndex
+from edit.data.indexes import BaseCacheIndex
 from edit.data import IndexWarning, DataNotFoundError
+from edit.data.transform import Transform, TransformCollection
 
 
-class MASS(CachingIndex, metaclass = ABCMeta):
+class MASS(BaseCacheIndex, metaclass = ABCMeta):
     """
     Core `MASS` to be implemented by any data class accessing MASS.
-    Subclasses from the `CachingIndex` to provide automated generation, and saving if a `cache` is specified.
+    Subclasses from the `BaseCacheIndex` to provide automated generation, and saving if a `cache` is specified.
+    
+    A subclass must also inherit from other indexes to provide the more complex indexing functions, usually this will be `edit.data.indexes.ArchiveIndex`.
 
     By default, all data is cached to a temporary directory.
 
     A child class must implement `._mass_filepath`
     """
-
-    def __init__(self, *args, **kwargs):
+    _interim_temp_dir = None
+    
+    def __init__(
+        self, 
+        *args, 
+        pre_save_transforms: Transform | TransformCollection = TransformCollection(), 
+        **kwargs
+        ):
+        """
+        Setup MASS Indexer
+        
+        All other kwargs go up to `BaseCacheIndex`.
+        
+        Args:
+            pre_save_transforms (Transform | TransformCollection, optional):
+                Transformations to be applied after conversion to netcdf, but before saving to cache.
+                Defaults to TransformCollection().
+            
+        """
         kwargs["cache"] = kwargs.pop("cache", "temp")
         kwargs["pattern"] = kwargs.pop("pattern", "TemporalExpandedDateVariable")
-        
+
         super().__init__(*args, **kwargs)
+        
         if not hasattr(self, "catalog"):
             self.make_catalog()
         self._save_catalog(self.catalog, 'index')
+        self.pre_save_transforms = TransformCollection() + pre_save_transforms
         
-    @cached_property
+    @property
     def _interim_dir(self):
-        if self.cache is None:
-            return tempfile.TemporaryDirectory()
-        return self.cache 
-        return tempfile.TemporaryDirectory(dir = str(Path(self.cache))) # to be moved back when done testing
+        """Interim directory to save pp files and select files"""
+        
+        if self._interim_temp_dir is not None:
+            return self._interim_temp_dir.name
+        
+        dir = str(Path(self.cache)) if self.cache is not None else None
+        self._interim_temp_dir = tempfile.TemporaryDirectory(dir = dir, prefix = '._download_')
+        Path(self._interim_temp_dir.name).mkdir(exist_ok = True, parents = True)
+        return self._interim_temp_dir.name
+    
+    @_interim_dir.deleter
+    def _interim_dir(self):
+        if self._interim_temp_dir is None:
+            return
+        self._interim_temp_dir.cleanup()
+        del self._interim_temp_dir
 
     def _iris_post(self, iris_data):
         """
@@ -50,16 +86,25 @@ class MASS(CachingIndex, metaclass = ABCMeta):
         ## Provide an implementation in the child class
         return iris_data
     
-    def _convert_to_xarray(self, iris_temp_path) -> xr.Dataset:
+    def _convert_to_netcdf(self, iris_temp_path) -> str:
         """
-        Convert an iris data file on disk to an xarray object
+        Convert an iris data file on disk to netcdf
+        
+        Returns:
+            (str):
+                Path to netcdf object. Will be stored in `_interim_dir,
+                and deleted when this object is.            
         """
         import iris
+        try:
+            iris.FUTURE.save_split_attrs = True
+        except Exception:
+            pass
         
-        temp = Path(self._interim_dir) / (str(uuid.uuid4().hex) + '.nc') #tempfile.TemporaryFile(suffix = '.nc', dir = self._interim_dir.name).name
+        temp = Path(self._interim_dir) / (str(uuid.uuid4().hex) + '.nc')
         # issue with runaway disk usage
         iris.save(self._iris_post(iris.load(iris_temp_path)), temp)
-        return xr.open_dataset(temp)
+        return temp
         
     @abstractmethod
     def _mass_filepath(self, querytime: str) -> str | tuple | dict[str, str | tuple[str, dict]] | list[str | tuple[str, dict]]:
@@ -76,7 +121,7 @@ class MASS(CachingIndex, metaclass = ABCMeta):
         """
         Get mass formatted select arguments
         
-        Key, values of select args, if val is tuple, will be stringified.
+        Key, values of select args, if val is tuple, will be stringified 'correctly'.
         """        
         if select_args is None or len(select_args) == 0:
             return None
@@ -89,7 +134,7 @@ class MASS(CachingIndex, metaclass = ABCMeta):
                 if len(val) == 1:
                     val = val[0]
                 else:
-                    val = f"({','.join(val)})"
+                    val = f"({','.join(map(str, val))})"
             select_args[key] = val
 
         return f"begin\n" + '\n'.join(f"{key}={value}" for key,value in select_args.items()) +"\nend\n"
@@ -120,29 +165,42 @@ class MASS(CachingIndex, metaclass = ABCMeta):
         else:
             command = f'moo get -f {filepath} {iris_temp_path}'
                     
-        subprocess.run(command.split(' '), check = True, capture_output=True)
-        return self._convert_to_xarray(iris_temp_path)   
+        output = subprocess.run(command.split(' '), check = False, capture_output=True)
+        try:
+            output.check_returncode()
+            return self._convert_to_netcdf(iris_temp_path)   
+        except subprocess.CalledProcessError:
+            pass
+        raise IndexError(f"Retrieval from MASS raised an error. Ran {command!r}. \nstderr:\n{str(output.stderr)}")
+                                                             
+
     
-    def _generate(self, *args, **kwargs):
+    def _generate(self, *args, **kwargs) -> xr.Dataset:
         """
-        Generate data from mass
+        Generate data from MASS
+        
+        Uses `_retrieve_from_mass` to get paths and select file.
+        
+        Returns:
+            (xr.Dataset):
+                Generated dataset to be cached to disk.
         """
         mass_path: str | dict | list = self._mass_filepath(*args, **kwargs)
         
         retrieve = lambda path, select : self._retrieve_from_mass(path, self._format_select(select))
+        open_xarray = lambda paths: xr.open_mfdataset(paths, preprocess = self.pre_save_transforms)
         split_select = lambda user_input: user_input if isinstance(user_input, tuple) else (user_input, None)
         
         if isinstance(mass_path, str):
-            return retrieve(mass_path, None)
+            return self.pre_save_transforms(xr.open_dataset(retrieve(mass_path, None)))
         elif isinstance(mass_path, list):
-            return xr.merge([retrieve(*split_select(mass_path[i])) for i in range(len(mass_path))])
+            return open_xarray([retrieve(*split_select(mass_path[i])) for i in len(mass_path)])
         elif isinstance(mass_path, dict):
-            return xr.merge([retrieve(*split_select(mass_path[k])) for k in mass_path.keys()])
+            return open_xarray([retrieve(*split_select(mass_path[k])) for k in list(mass_path.keys())])
         else:
-            raise TypeError('No')
+            raise TypeError(f"Cannot parse filepaths: {mass_path!r}. Should be str, list or dictionary.")
             
         return xr_obj
     
     def __del__(self):
-        pass
-        # self._interim_dir.cleanup()
+        del self._interim_dir

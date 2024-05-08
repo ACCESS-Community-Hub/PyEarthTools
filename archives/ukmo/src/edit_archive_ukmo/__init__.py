@@ -1,4 +1,14 @@
+"""
+UKMO Archive
 
+Implemented:
+
+| Name | Description |
+| ---- | ----------- |
+| UnifiedModel | Specific UM index for MASS |
+| MASS | Generic MASS superclass |
+
+"""
 import edit.data
 from edit.data.archive import register_archive
 
