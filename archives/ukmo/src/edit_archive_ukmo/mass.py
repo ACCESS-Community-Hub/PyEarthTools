@@ -153,8 +153,9 @@ class MASS(BaseCacheIndex, metaclass = ABCMeta):
             
         """
         import subprocess
-
-        iris_temp_path = Path(self._interim_dir) / (str(uuid.uuid4().hex) + '.pp')
+        
+        download_extension = str(filepath).split('.')[-1]
+        iris_temp_path = Path(self._interim_dir) / (str(uuid.uuid4().hex) + f".{download_extension}")
         
         if select_values is not None:
             select_file = open(Path(self._interim_dir) / f'select_{str(uuid.uuid4().hex)}.txt', 'w')
@@ -168,7 +169,10 @@ class MASS(BaseCacheIndex, metaclass = ABCMeta):
         output = subprocess.run(command.split(' '), check = False, capture_output=True)
         try:
             output.check_returncode()
+            if 'nc' in download_extension:
+                return iris_temp_path
             return self._convert_to_netcdf(iris_temp_path)   
+        
         except subprocess.CalledProcessError:
             pass
         raise IndexError(f"Retrieval from MASS raised an error. Ran {command!r}. \nstderr:\n{str(output.stderr)}")
@@ -193,14 +197,12 @@ class MASS(BaseCacheIndex, metaclass = ABCMeta):
         
         if isinstance(mass_path, str):
             return self.pre_save_transforms(xr.open_dataset(retrieve(mass_path, None)))
-        elif isinstance(mass_path, list):
+        if isinstance(mass_path, list):
             return open_xarray([retrieve(*split_select(mass_path[i])) for i in len(mass_path)])
-        elif isinstance(mass_path, dict):
+        if isinstance(mass_path, dict):
             return open_xarray([retrieve(*split_select(mass_path[k])) for k in list(mass_path.keys())])
-        else:
-            raise TypeError(f"Cannot parse filepaths: {mass_path!r}. Should be str, list or dictionary.")
-            
-        return xr_obj
-    
+        
+        raise TypeError(f"Cannot parse filepaths: {mass_path!r}. Should be str, list or dictionary.")
+                
     def __del__(self):
         del self._interim_dir

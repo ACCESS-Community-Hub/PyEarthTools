@@ -16,6 +16,7 @@ import edit_archive_ukmo
 
 ROOT_DIRECTORIES = {
     "UM": "moose:/opfc/atm/global/prod{spec}",
+    "UMProcessed": "moose:/opfc/atm/global/lev1/",
 }
 
 register_archive('ROOT_DIRECTORIES')(ROOT_DIRECTORIES)
