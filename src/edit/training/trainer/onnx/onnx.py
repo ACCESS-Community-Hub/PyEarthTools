@@ -72,7 +72,8 @@ class Inference(EDIT_Inference):
         }
 
         if ort.get_device() != "GPU":
-            LOG.warn(f"Onnx Runtime is running on {ort.get_device()!s}, this may slow down inference time.")
+            LOG.warn(f"Onnx Runtime is running on {ort.get_device()!s}, this may slow down inference time. (With {session_name}).")
+            kwargs['providers'] =  kwargs.pop('providers', ['CPUExecutionProvider'])
 
         session = ort.InferenceSession(
             path,
