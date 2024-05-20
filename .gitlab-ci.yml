@@ -82,7 +82,7 @@ black:
   stage: lint
   needs: []
   script:
-    - conda install -y -q black
+    - conda install -y -q black=24.3.0
     - echo "--- Running black over python code ---"
     - |
       if make -n black 1>/dev/null 2>/dev/null; then
@@ -97,7 +97,7 @@ package_release:
   stage: release
   image: python:latest
   rules:
-    - if: $CI_COMMIT_BRANCH == "donotrelease"#"main"
+    - if: $CI_COMMIT_BRANCH == "donotrelease" #"main"
   variables:
     REGISTER_ID: 1562 # EDIT Package Registry
   script:
