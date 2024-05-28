@@ -29,4 +29,4 @@ load = from_yaml
 if __name__ == "__main__":
     trainer.commands.entry_point()
 
-__version__ = "2024.04.01"
+__version__ = "2024.05.01"
