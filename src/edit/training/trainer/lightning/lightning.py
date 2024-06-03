@@ -114,7 +114,7 @@ class Inference(EDIT_AutoInference):
                 return
 
             if self.checkpoint_path.exists() and len(list(Path(self.checkpoint_path).iterdir())) > 0:
-                file_to_load = max(Path(self.checkpoint_path).iterdir(), key=os.path.getctime)
+                file_to_load = max(Path(self.checkpoint_path).iterdir(), key=os.path.getmtime)
             else:
                 warnings.warn(f"No file located to load from.\nSearched {self.checkpoint_path}", UserWarning)
                 return
