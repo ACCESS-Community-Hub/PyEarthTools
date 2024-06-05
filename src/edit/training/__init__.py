@@ -14,7 +14,7 @@ and allow rapid distributed training of Machine Learning Models.
 
 """
 
-from edit.training import loader, trainer
+from edit.training import loader, trainer, variable
 from edit.training.trainer import MLDataIndex, from_yaml
 
 try:
