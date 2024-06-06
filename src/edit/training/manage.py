@@ -1,5 +1,10 @@
+"""
+Variable management
+
+"""
+
 from __future__ import annotations
-from typing import Any, overload, Union, Optional, Callable, TypeVar, Hashable, Generic
+from typing import Any, overload, Union, Optional, Callable, TypeVar
 
 import xarray as xr
 import numpy as np
@@ -17,10 +22,8 @@ COMBINE_FUNCTIONS: dict[type, Callable[[tuple], Any]] = {
     torch.Tensor: torch.concat,
     list: (lambda x: itertools.chain(*x)),
 }
-T = TypeVar("T", str, Hashable)
 
-
-class Variables(Generic[T]):
+class Variables():
     """
     Variable management class.
 
@@ -399,13 +402,17 @@ class Variables(Generic[T]):
 
         return data_dict[category]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """Repr function"""
         def spacing(k, v, spacing = 20):
             return f"{k}{''.join([' '] * (spacing - len(k)))}{v!r}"
 
+        category_info = '\n'.join('\t'+ spacing(n, self.categories[n]) for n in self.names_from_order())
+        
         return (
-            f"Variables - ({self.order}):\n"
-            f"{'\n'.join('\t'+ spacing(n, self.categories[n]) for n in self.names_from_order())}"  # type: ignore
+            f"{super().__repr__()}\n"
+            f"Variables - ({self.order}):\n" 
+            f"{category_info}"
         )
 
     def length_of_order(self, order: str) -> int:

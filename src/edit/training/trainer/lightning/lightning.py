@@ -45,6 +45,8 @@ class LoggingContext:
 
 
 class Inference(EDIT_AutoInference):
+    _loaded_file = None
+
     def __init__(
         self,
         model: "pytorch_lightning.LightningModule",
@@ -122,6 +124,7 @@ class Inference(EDIT_AutoInference):
             file_to_load = str(file)
 
         warnings.warn(f"Loading checkpoint: {file_to_load}", UserWarning)
+        self._loaded_file = file_to_load
 
         ## If model has implementation, let it handle it.
         if hasattr(self.model, "load"):
@@ -150,7 +153,8 @@ class Inference(EDIT_AutoInference):
                 RuntimeWarning,
             )
             return self.load(file=file, only_state=True)
-
+        
+        
         return file_to_load
 
     def save(self, path: str, directory: str | Path | None = None):
@@ -297,6 +301,7 @@ class Training(Inference, EDIT_Training):
     """
     Pytorch Lightning Trainer Wrapper.
     """
+    _loaded_file = None
 
     def __init__(
         self,
@@ -439,7 +444,7 @@ class Training(Inference, EDIT_Training):
         # with PrintOnError(lambda: f"An error arose getting: {self.pipeline.current_index}"):
         self.trainer.fit(
             model=self.model,
-            # ckpt_path = file,
+            ckpt_path = self._loaded_file,
             **data_config,
             **kwargs,
         )
