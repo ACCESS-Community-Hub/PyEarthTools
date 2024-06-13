@@ -23,7 +23,8 @@ COMBINE_FUNCTIONS: dict[type, Callable[[tuple], Any]] = {
     list: (lambda x: itertools.chain(*x)),
 }
 
-class Variables():
+
+class Variables:
     """
     Variable management class.
 
@@ -62,7 +63,13 @@ class Variables():
     order: str
     categories: dict[str, list[str] | int]
 
-    def __init__(self, variables: Optional[Union[Variables, dict[str, list[str] | int]]] = None, *, order: Optional[str] = None, **kwargs):
+    def __init__(
+        self,
+        variables: Optional[Union[Variables, dict[str, list[str] | int]]] = None,
+        *,
+        order: Optional[str] = None,
+        **kwargs,
+    ):
         """
         Setup Variable Manager
 
@@ -81,10 +88,12 @@ class Variables():
 
         if order is None:
             order = "".join(str(k)[0].upper() for k in kwargs.keys())
-        
+
         self.order = order.upper()
         if not all((k[0].upper() in order for k in kwargs)):
-            raise ValueError(f"Not all categories represented in the order. {list(kwargs.keys())!s} cannot work with {order!r}.")
+            raise ValueError(
+                f"Not all categories represented in the order. {list(kwargs.keys())!s} cannot work with {order!r}."
+            )
 
         self.categories = kwargs
 
@@ -240,12 +249,10 @@ class Variables():
         return {key: data[val] for key, val in self.np_slices(order=order).items()}
 
     @overload
-    def add(self, data: D, incoming: tuple[D], category: tuple[str], order: Optional[str] = None) -> D:
-        ...
+    def add(self, data: D, incoming: tuple[D], category: tuple[str], order: Optional[str] = None) -> D: ...
 
     @overload
-    def add(self, data: D, incoming: D, category: str, order: Optional[str] = None) -> D:
-        ...
+    def add(self, data: D, incoming: D, category: str, order: Optional[str] = None) -> D: ...
 
     def add(self, data: D, incoming: tuple[D] | D, category: tuple[str] | str, order: Optional[str] = None) -> D:
         """
@@ -357,12 +364,10 @@ class Variables():
         return COMBINE_FUNCTIONS[type(data)](tuple(data_dict[na] for na in removed_order))
 
     @overload
-    def extract(self, data: D, category: tuple[str, ...], order: Optional[str] = None) -> tuple[D, ...]:
-        ...
+    def extract(self, data: D, category: tuple[str, ...], order: Optional[str] = None) -> tuple[D, ...]: ...
 
     @overload
-    def extract(self, data: D, category: str, order: Optional[str] = None) -> D:
-        ...
+    def extract(self, data: D, category: str, order: Optional[str] = None) -> D: ...
 
     def extract(self, data: D, category: tuple[str, ...] | str, order: Optional[str] = None) -> D | tuple[D, ...]:
         """
@@ -404,16 +409,13 @@ class Variables():
 
     def __repr__(self) -> str:
         """Repr function"""
-        def spacing(k, v, spacing = 20):
+
+        def spacing(k, v, spacing=20):
             return f"{k}{''.join([' '] * (spacing - len(k)))}{v!r}"
 
-        category_info = '\n'.join('\t'+ spacing(n, self.categories[n]) for n in self.names_from_order())
-        
-        return (
-            f"{super().__repr__()}\n"
-            f"Variables - ({self.order}):\n" 
-            f"{category_info}"
-        )
+        category_info = "\n".join("\t" + spacing(n, self.categories[n]) for n in self.names_from_order())
+
+        return f"{super().__repr__()}\n" f"Variables - ({self.order}):\n" f"{category_info}"
 
     def length_of_order(self, order: str) -> int:
         """
@@ -443,7 +445,9 @@ class Variables():
         if not error:
             return length == data_length
         elif not length == data_length:
-            raise ValueError(f"Expected length and data length differed. {length} != {data_length}. \nExpected order {order or self.order} - {self.categories}.")
+            raise ValueError(
+                f"Expected length and data length differed. {length} != {data_length}. \nExpected order {order or self.order} - {self.categories}."
+            )
         return True
 
     def length(self, category: str | list[str] | tuple[str, ...]) -> int:

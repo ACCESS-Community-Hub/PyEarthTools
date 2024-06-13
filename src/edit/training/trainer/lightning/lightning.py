@@ -153,8 +153,7 @@ class Inference(EDIT_AutoInference):
                 RuntimeWarning,
             )
             return self.load(file=file, only_state=True)
-        
-        
+
         return file_to_load
 
     def save(self, path: str, directory: str | Path | None = None):
@@ -301,6 +300,7 @@ class Training(Inference, EDIT_Training):
     """
     Pytorch Lightning Trainer Wrapper.
     """
+
     _loaded_file = None
 
     def __init__(
@@ -444,7 +444,7 @@ class Training(Inference, EDIT_Training):
         # with PrintOnError(lambda: f"An error arose getting: {self.pipeline.current_index}"):
         self.trainer.fit(
             model=self.model,
-            ckpt_path = str(self._loaded_file),
+            ckpt_path=str(self._loaded_file),
             **data_config,
             **kwargs,
         )

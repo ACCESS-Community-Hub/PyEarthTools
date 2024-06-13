@@ -531,7 +531,9 @@ class EDIT_AutoInference(EDIT_Inference):
 
         # return LabelledCollection(truth = truth_data, predictions = predictions)
 
-DATATYPE = TypeVar('DATATYPE', np.ndarray, tuple[np.ndarray, ...], list[np.ndarray])
+
+DATATYPE = TypeVar("DATATYPE", np.ndarray, tuple[np.ndarray, ...], list[np.ndarray])
+
 
 ## Prediction Utilities
 def expand_dims(data: DATATYPE) -> DATATYPE:
