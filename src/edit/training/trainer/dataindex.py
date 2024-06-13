@@ -1,3 +1,11 @@
+# Copyright Commonwealth of Australia, Bureau of Meteorology 2024.
+# This software is provided under license 'as is', without warranty
+# of any kind including, but not limited to, fitness for a particular
+# purpose. The user assumes the entire risk as to the use and
+# performance of the software. In no event shall the copyright holder
+# be held liable for any claim, damages or other liability arising
+# from the use of the software.
+
 """
 Provide a Machine Learning Model as an [edit.data Index][edit.data.indexes].
 
@@ -16,7 +24,7 @@ from edit.data.indexes import BaseCacheIndex, TimeIndex
 import edit.training.trainer
 from edit.training.trainer import from_yaml
 
-ATTRIBUTE_MARK = edit.data.transform.attributes.set_attributes(
+ATTRIBUTE_MARK = edit.data.transforms.attributes.set_attributes(
     purpose="Research Use Only.",
     contact="For further information or support, contact the Data Science and Emerging Technologies Team.",
     credit="Generated with `edit`, a research endeavour under the DSET team, and Project 3.1.",
@@ -148,7 +156,7 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
 
         if self.data_attributes is not None:
             attrs = yaml.safe_load(str(self.data_attributes))
-            predictions = edit.data.transform.attributes.set_attributes(attrs, apply_on="dataset")(predictions)
+            predictions = edit.data.transforms.attributes.set_attributes(attrs, apply_on="dataset")(predictions)
         return predictions
 
     def filesystem(self, *args, **kwargs) -> Path | dict[str, str | Path] | list[str | Path]:

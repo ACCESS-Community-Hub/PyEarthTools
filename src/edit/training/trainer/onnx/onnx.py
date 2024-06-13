@@ -1,3 +1,11 @@
+# Copyright Commonwealth of Australia, Bureau of Meteorology 2024.
+# This software is provided under license 'as is', without warranty
+# of any kind including, but not limited to, fitness for a particular
+# purpose. The user assumes the entire risk as to the use and
+# performance of the software. In no event shall the copyright holder
+# be held liable for any claim, damages or other liability arising
+# from the use of the software.
+
 from __future__ import annotations
 from pathlib import Path
 from typing import Any
@@ -64,7 +72,10 @@ class Inference(EDIT_Inference):
         }
 
         if ort.get_device() != "GPU":
-            LOG.warn(f"Onnx Runtime is running on {ort.get_device()!s}, this may slow down inference time.")
+            LOG.warn(
+                f"Onnx Runtime is running on {ort.get_device()!s}, this may slow down inference time. (With {session_name})."
+            )
+            kwargs["providers"] = kwargs.pop("providers", ["CPUExecutionProvider"])
 
         session = ort.InferenceSession(
             path,

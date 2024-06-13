@@ -6,14 +6,16 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
-import torch
+from edit.pipeline import SequentialDecorator, DataOperation
 
 
-class RMSELoss(torch.nn.MSELoss):
-    def __init__(self) -> None:
-        super().__init__()
-        self.MSELoss = torch.nn.MSELoss()
+@SequentialDecorator
+class Tupler(DataOperation):
+    """Make input tuple, with another element"""
 
-    def forward(self, output, target):
-        mseloss = self.MSELoss(output, target)
-        return torch.sqrt(mseloss)
+    def __init__(self, *args, item=[]):
+        super().__init__(*args, apply_func=self._func_apply, undo_func=None)
+        self.item = item
+
+    def _func_apply(self, *args):
+        return (*args, self.item)

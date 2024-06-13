@@ -1,3 +1,11 @@
+# Copyright Commonwealth of Australia, Bureau of Meteorology 2024.
+# This software is provided under license 'as is', without warranty
+# of any kind including, but not limited to, fitness for a particular
+# purpose. The user assumes the entire risk as to the use and
+# performance of the software. In no event shall the copyright holder
+# be held liable for any claim, damages or other liability arising
+# from the use of the software.
+
 from __future__ import annotations
 from abc import abstractmethod, ABCMeta
 import functools
@@ -5,7 +13,7 @@ import math
 
 from pathlib import Path
 import warnings
-from typing import Any, Callable
+from typing import Any, Callable, TypeVar
 import numpy as np
 import xarray as xr
 import logging
@@ -524,14 +532,17 @@ class EDIT_AutoInference(EDIT_Inference):
         # return LabelledCollection(truth = truth_data, predictions = predictions)
 
 
+DATATYPE = TypeVar("DATATYPE", np.ndarray, tuple[np.ndarray, ...], list[np.ndarray])
+
+
 ## Prediction Utilities
-def expand_dims(data: np.ndarray | tuple | list) -> np.ndarray | tuple | list:
+def expand_dims(data: DATATYPE) -> DATATYPE:
     if isinstance(data, (list, tuple)):
         return type(data)(map(expand_dims, data))
     return np.expand_dims(data, axis=0)
 
 
-def squeeze_dims(data: np.ndarray | tuple | list) -> np.ndarray | tuple | list:
+def squeeze_dims(data: DATATYPE) -> DATATYPE:
     if isinstance(data, (list, tuple)):
         return type(data)(map(squeeze_dims, data))
     return np.squeeze(data, axis=0)

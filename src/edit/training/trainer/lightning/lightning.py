@@ -1,3 +1,11 @@
+# Copyright Commonwealth of Australia, Bureau of Meteorology 2024.
+# This software is provided under license 'as is', without warranty
+# of any kind including, but not limited to, fitness for a particular
+# purpose. The user assumes the entire risk as to the use and
+# performance of the software. In no event shall the copyright holder
+# be held liable for any claim, damages or other liability arising
+# from the use of the software.
+
 from __future__ import annotations
 
 import functools
@@ -37,6 +45,8 @@ class LoggingContext:
 
 
 class Inference(EDIT_AutoInference):
+    _loaded_file = None
+
     def __init__(
         self,
         model: "pytorch_lightning.LightningModule",
@@ -106,7 +116,7 @@ class Inference(EDIT_AutoInference):
                 return
 
             if self.checkpoint_path.exists() and len(list(Path(self.checkpoint_path).iterdir())) > 0:
-                file_to_load = max(Path(self.checkpoint_path).iterdir(), key=os.path.getctime)
+                file_to_load = max(Path(self.checkpoint_path).iterdir(), key=os.path.getmtime)
             else:
                 warnings.warn(f"No file located to load from.\nSearched {self.checkpoint_path}", UserWarning)
                 return
@@ -114,6 +124,7 @@ class Inference(EDIT_AutoInference):
             file_to_load = str(file)
 
         warnings.warn(f"Loading checkpoint: {file_to_load}", UserWarning)
+        self._loaded_file = file_to_load
 
         ## If model has implementation, let it handle it.
         if hasattr(self.model, "load"):
@@ -290,6 +301,8 @@ class Training(Inference, EDIT_Training):
     Pytorch Lightning Trainer Wrapper.
     """
 
+    _loaded_file = None
+
     def __init__(
         self,
         model: "pl.LightningModule",
@@ -343,7 +356,7 @@ class Training(Inference, EDIT_Training):
 
         self.checkpoint_path = (Path(self.path) / "Checkpoints").resolve()
         checkpoint_callback = pl.callbacks.ModelCheckpoint(
-            save_top_k=5,
+            save_top_k=10,
             monitor="step",
             mode="max",
             dirpath=self.checkpoint_path,
@@ -358,9 +371,9 @@ class Training(Inference, EDIT_Training):
             self.callbacks.append(
                 pl.callbacks.EarlyStopping(
                     monitor=EarlyStopping if isinstance(EarlyStopping, str) else "valid/loss",
-                    min_delta=0.05,
-                    patience=4,
-                    verbose=False,
+                    min_delta=0.02,
+                    patience=6,
+                    verbose=True,
                     mode="min",
                 )
             )
@@ -431,7 +444,7 @@ class Training(Inference, EDIT_Training):
         # with PrintOnError(lambda: f"An error arose getting: {self.pipeline.current_index}"):
         self.trainer.fit(
             model=self.model,
-            # ckpt_path = file,
+            ckpt_path=str(self._loaded_file),
             **data_config,
             **kwargs,
         )
