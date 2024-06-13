@@ -356,7 +356,7 @@ class Training(Inference, EDIT_Training):
 
         self.checkpoint_path = (Path(self.path) / "Checkpoints").resolve()
         checkpoint_callback = pl.callbacks.ModelCheckpoint(
-            save_top_k=5,
+            save_top_k=10,
             monitor="step",
             mode="max",
             dirpath=self.checkpoint_path,
@@ -371,9 +371,9 @@ class Training(Inference, EDIT_Training):
             self.callbacks.append(
                 pl.callbacks.EarlyStopping(
                     monitor=EarlyStopping if isinstance(EarlyStopping, str) else "valid/loss",
-                    min_delta=0.05,
-                    patience=4,
-                    verbose=False,
+                    min_delta=0.02,
+                    patience=6,
+                    verbose=True,
                     mode="min",
                 )
             )
@@ -444,7 +444,7 @@ class Training(Inference, EDIT_Training):
         # with PrintOnError(lambda: f"An error arose getting: {self.pipeline.current_index}"):
         self.trainer.fit(
             model=self.model,
-            ckpt_path = self._loaded_file,
+            ckpt_path = str(self._loaded_file),
             **data_config,
             **kwargs,
         )
