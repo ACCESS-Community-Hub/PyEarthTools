@@ -32,10 +32,11 @@ class Stack(Joiner):
     def unjoin(self, sample: Any) -> tuple:
         return super().unjoin(sample)
 
+
 class Concatenate(Joiner):
     """
     Concatenate a tuple of np.ndarray's
-    
+
     Currently cannot undo this operation
     """
 

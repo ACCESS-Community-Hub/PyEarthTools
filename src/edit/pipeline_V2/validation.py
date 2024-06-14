@@ -30,7 +30,7 @@ def filter_steps(
             else:
                 error_msg = f"Filtering pipeline steps {error_msg}."
             raise PipelineTypeError(error_msg)
-        
+
         if invalid_types is not None and isinstance(s, invalid_types):
             error_msg = f"found an invalid type.\n {type(s)} in invalid {invalid_types}."
             if responsible:

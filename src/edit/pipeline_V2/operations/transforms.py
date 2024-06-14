@@ -43,7 +43,7 @@ class Transforms(Operation):
         """
         super().__init__(split_tuples=True, recursively_split_tuples=True)
         self.record_initialisation()
-        
+
         self._transforms = edit.data.TransformCollection() + (transforms if transforms is not None else [])
         self._apply_transforms = edit.data.TransformCollection() + (apply if apply is not None else [])
         self._undo_transforms = edit.data.TransformCollection() + (undo if undo is not None else [])

@@ -18,7 +18,7 @@ T = TypeVar("T", xr.Dataset, xr.DataArray)
 class Merge(Joiner):
     """
     Merge a tuple of xarray object's.
-    
+
     Currently cannot undo this operation
     """
 
@@ -38,7 +38,7 @@ class Merge(Joiner):
 class Concatenate(Joiner):
     """
     Concatenate a tuple of xarray object's
-    
+
     Currently cannot undo this operation
     """
 

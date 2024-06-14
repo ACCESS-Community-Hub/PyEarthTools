@@ -32,12 +32,12 @@ __all___ = ["PipelineIndex", "Pipeline", "PipelineMod"]
 
 def parse_to_graph_name(step: Union[Index, PipelineStep], parent: Optional[list[str]]) -> dict[str, Any]:
     """Parse step to useful name and attrs"""
-    shape = 'oval'
+    shape = "oval"
     if isinstance(step, Index):
-        shape = 'rect'
+        shape = "rect"
     # elif parent is not None and len(parent) > 1:
     #     shape = 'triangle'
-    return {"label": step.__class__.__name__, 'shape': shape}
+    return {"label": step.__class__.__name__, "shape": shape}
 
 
 class PipelineIndex(PipelineRecordingMixin, metaclass=ABCMeta):
@@ -106,7 +106,7 @@ class PipelineIndex(PipelineRecordingMixin, metaclass=ABCMeta):
                     _, prior_step = step._get_tree(prior_step, graph=c)
             else:
                 node_name = f"{step.__class__.__name__}_{uuid.uuid4()!s}"
-                graph.node(node_name, **parse_to_graph_name(step, parent = prior_step))
+                graph.node(node_name, **parse_to_graph_name(step, parent=prior_step))
 
                 if prior_step is not None:
                     if isinstance(prior_step, list):
@@ -186,8 +186,8 @@ class Pipeline(PipelineIndex):
     @steps.setter
     def steps(
         self,
-        val: tuple[Union[
-            VALID_PIPELINE_TYPES, PipelineMod, tuple[Union[VALID_PIPELINE_TYPES, PipelineMod], ...]],
+        val: tuple[
+            Union[VALID_PIPELINE_TYPES, PipelineMod, tuple[Union[VALID_PIPELINE_TYPES, PipelineMod], ...]],
             ...,
         ],
     ):
@@ -289,9 +289,9 @@ class Pipeline(PipelineIndex):
         if self.iterator is None:
             raise ValueError("Cannot iterate over pipeline if iterator is not set.")
         return tuple(i for i in self.iterator)
-    
-    def copy(self, **overrides: Any) -> 'Self': # type: ignore
-        __args = self.initialisation['__args']
+
+    def copy(self, **overrides: Any) -> "Self":  # type: ignore
+        __args = self.initialisation["__args"]
         # Fix issue with copy resulting in a pipeline becoming a branch
         # if len(__args) == 1 and isinstance(__args[0], tuple):
         #     overrides['__args'] = __args[0]

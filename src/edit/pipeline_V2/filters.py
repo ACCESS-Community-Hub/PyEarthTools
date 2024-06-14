@@ -103,6 +103,7 @@ class FilterWarningContext:
             self._count = 0
             self._messages = []
 
+
 class TypeFilter(Filter):
     """
     Filter if type is wrong

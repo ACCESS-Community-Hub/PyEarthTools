@@ -25,6 +25,7 @@ from edit.pipeline_V2.warnings import PipelineWarning
 from edit.pipeline_V2.validation import filter_steps
 from edit.pipeline_V2.exceptions import PipelineRuntimeError
 
+
 def get_key_from_steps(key: str, steps: tuple[Any, ...]):
     result = False
     if key in steps:
@@ -34,11 +35,12 @@ def get_key_from_steps(key: str, steps: tuple[Any, ...]):
         steps = tuple(l_steps)
     return result, steps
 
+
 def expand_pipeline(original: PipelineBranchPoint, length: int) -> list[Pipeline]:
     """
     Expand `PipelineBranchPoint` to size of `length`.
 
-    Will use % to retrieve original, so if `original` has two pipelines and a length of 
+    Will use % to retrieve original, so if `original` has two pipelines and a length of
     4 needed, would be pipeline index correspondant to
     >>> [0,1,0,1]
     """
@@ -66,7 +68,7 @@ class PipelineBranchPoint(PipelineIndex, Operation, ParallelEnabledMixin):
         `map_copy`:
             Acts like `map` but will make copies of the pipelines to match incoming sample.
             Once one sample has been seen, and all copies made, becomes a `map`.
-            If multiple branches, will use % to create more, so if it has has two pipelines and a length of 
+            If multiple branches, will use % to create more, so if it has has two pipelines and a length of
             4 needed, would be pipeline index correspondant to
             >>> [0,1,0,1]
 
@@ -80,22 +82,24 @@ class PipelineBranchPoint(PipelineIndex, Operation, ParallelEnabledMixin):
 
     def __init__(
         self,
-        *steps: Union[tuple[Union[Index, Pipeline, PipelineStep, Literal["map", "map_copy"]], ...], Index, PipelineStep, Pipeline],
+        *steps: Union[
+            tuple[Union[Index, Pipeline, PipelineStep, Literal["map", "map_copy"]], ...], Index, PipelineStep, Pipeline
+        ],
     ):
         super().__init__()  # type: ignore
         self.record_initialisation()
 
         __incoming_steps = []
 
-        self._map_copy, steps = get_key_from_steps('map_copy', steps)
-        self._map, steps = get_key_from_steps('map', steps)
+        self._map_copy, steps = get_key_from_steps("map_copy", steps)
+        self._map, steps = get_key_from_steps("map", steps)
 
         for i, sub in enumerate(steps):
             if isinstance(sub, PipelineIndex):
                 sub = sub.steps
 
             filter_steps(
-                sub if isinstance(sub, tuple) else (sub, ),
+                sub if isinstance(sub, tuple) else (sub,),
                 (tuple, Index, Pipeline, PipelineIndex, PipelineStep),
                 # invalid_types=(Filter,),
                 responsible="PipelineBranchPoint",
@@ -117,7 +121,6 @@ class PipelineBranchPoint(PipelineIndex, Operation, ParallelEnabledMixin):
     @sub_pipelines.setter
     def sub_pipelines(self, val):
         self._sub_pipeline = val
-
 
     def __getitem__(self, idx: Any) -> tuple:
         """Get result from each branch"""
@@ -148,7 +151,7 @@ class PipelineBranchPoint(PipelineIndex, Operation, ParallelEnabledMixin):
         if self._map or self._map_copy:
             if not isinstance(sample, tuple):
                 raise PipelineRuntimeError(f"Cannot map sample to branches as it is not a tuple. {type(sample)}.")
-            
+
             if not len(sample) == len(self.sub_pipelines):
                 if self._map:
                     raise PipelineRuntimeError(
@@ -156,7 +159,7 @@ class PipelineBranchPoint(PipelineIndex, Operation, ParallelEnabledMixin):
                     )
                 elif self._map_copy:
                     self.sub_pipelines = expand_pipeline(self, len(sample))
-                                
+
             for s, pipe in zip(sample, self.sub_pipelines):
                 sub_samples.append(
                     self.parallel_interface.submit(self._steps_function, s, steps=pipe.steps, func_name="apply")
@@ -181,7 +184,7 @@ class PipelineBranchPoint(PipelineIndex, Operation, ParallelEnabledMixin):
 
         if not isinstance(sample, tuple):  # If not tuple, provide it to all pipelines
             sample = tuple([sample] * len(self.sub_pipelines))
-        
+
         if self._map_copy and not len(sample) == len(self.sub_pipelines):
             self.sub_pipelines = expand_pipeline(self, len(sample))
 
@@ -241,16 +244,18 @@ class PipelineBranchPoint(PipelineIndex, Operation, ParallelEnabledMixin):
                 graph.edge(prior_step, branch_name)
             prior_step = [branch_name]
 
-        if self._map_copy and False: # Disabling until a better visualisation is made
+        if self._map_copy and False:  # Disabling until a better visualisation is made
             sub_pipe = self.sub_pipelines[0]
             name = f"cluster_{uuid.uuid4()!s}" if len(sub_pipe.flattened_steps) > 1 and False else f"{uuid.uuid4()!s}"
             with graph.subgraph(name=name) as c:  # type: ignore
                 _, prior_steps = sub_pipe._get_tree(prior_step, graph=c)
             final_steps.extend(prior_steps)
-            
+
         else:
             for sub_pipes in self.sub_pipelines:
-                name = f"cluster_{uuid.uuid4()!s}" if len(sub_pipes.flattened_steps) > 1 and False else f"{uuid.uuid4()!s}"
+                name = (
+                    f"cluster_{uuid.uuid4()!s}" if len(sub_pipes.flattened_steps) > 1 and False else f"{uuid.uuid4()!s}"
+                )
                 with graph.subgraph(name=name) as c:  # type: ignore
                     _, prior_steps = sub_pipes._get_tree(prior_step, graph=c)
                 final_steps.extend(prior_steps)

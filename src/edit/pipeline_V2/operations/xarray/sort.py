@@ -46,7 +46,7 @@ class Sort(Operation):
 
         super().__init__(
             split_tuples=True,
-            operation='apply',
+            operation="apply",
             recognised_types=(xr.Dataset, xr.DataArray),
         )
         self.record_initialisation()

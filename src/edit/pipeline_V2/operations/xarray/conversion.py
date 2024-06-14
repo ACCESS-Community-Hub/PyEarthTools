@@ -41,7 +41,7 @@ class ToNumpy(Operation):
                 Defaults to None.
         """
         super().__init__(
-            recognised_types= {'apply': (xr.Dataset, xr.DataArray, tuple), 'undo': (np.ndarray,)},
+            recognised_types={"apply": (xr.Dataset, xr.DataArray, tuple), "undo": (np.ndarray,)},
             split_tuples=False,
         )
         self.record_initialisation()
@@ -53,8 +53,8 @@ class ToNumpy(Operation):
         if reference_dataset:
             self._numpy_converter.convert_xarray_to_numpy(xr.open_dataset(reference_dataset), replace=True)
 
-    def apply_func(self, sample: Union[tuple[XARRAY_OBJECTS,...], XARRAY_OBJECTS]):
+    def apply_func(self, sample: Union[tuple[XARRAY_OBJECTS, ...], XARRAY_OBJECTS]):
         return self._numpy_converter.convert_xarray_to_numpy(sample, replace=True)
 
-    def undo_func(self, sample: Union[tuple[np.ndarray,...], np.ndarray]):
+    def undo_func(self, sample: Union[tuple[np.ndarray, ...], np.ndarray]):
         return self._numpy_converter.convert_numpy_to_xarray(sample, pop=False)
