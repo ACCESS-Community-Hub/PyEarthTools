@@ -10,6 +10,8 @@
 from abc import abstractmethod, ABCMeta
 from typing import Optional, Type, Union
 
+import warnings
+
 from edit.pipeline_V2 import config
 from edit.pipeline_V2.step import PipelineStep
 from edit.pipeline_V2.exceptions import PipelineFilterException
@@ -87,20 +89,19 @@ class FilterWarningContext:
         pass
 
     def __exit__(self, exc_type, exc_val, traceback):
-        if isinstance(exc_type, PipelineFilterException):
+        if exc_type == PipelineFilterException:
             self._count += 1
-            self._messages.append(exc_val)
+            self._messages.append(str(exc_val))
 
         if self._count >= self._max_exceptions:
             str_msg = "\n".join(self._messages)
-
-            import warnings
 
             warnings.warn(
                 f"{self._count} PipelineFilterException's have occured.\nRaised the following messages:\n{str_msg}",
                 PipelineWarning,
             )
-
+            self._count = 0
+            self._messages = []
 
 class TypeFilter(Filter):
     """

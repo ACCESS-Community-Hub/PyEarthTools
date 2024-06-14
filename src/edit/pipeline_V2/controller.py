@@ -319,7 +319,8 @@ class Pipeline(PipelineIndex):
                 with filter_count:
                     sample = self[idx]
             except PipelineFilterException:
-                print('Error')
+                continue
+                # pass
             try:
                 if isinstance(sample, iterators.IterateResults):
                     for sub_sample in sample.iterate_over_object():

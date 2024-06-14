@@ -202,7 +202,8 @@ class PipelineBranchPoint(PipelineIndex, Operation, ParallelEnabledMixin):
         result = tuple(self.parallel_interface.collect(sub_samples))
 
         if all(len(pipe.steps) == 1 and isinstance(pipe.steps[0], Index) for pipe in self.sub_pipelines):
-            return result[0]
+            if all(map(lambda x: result[0] == x, result[1:])):
+                return result[0]
         return result
 
     def apply_func(self, sample):  # pragma: no cover

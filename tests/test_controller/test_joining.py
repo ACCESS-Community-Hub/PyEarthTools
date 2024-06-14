@@ -61,7 +61,7 @@ def test_branch_with_join_undo_pass():
         MultiplicationOperation(10),
         AdditionJoin(),
     )
-    assert pipe.undo(pipe[1]) == (3, 3)
+    assert pipe.undo(pipe[1]) == 3
 
 
 def test_branch_with_join_undo():
