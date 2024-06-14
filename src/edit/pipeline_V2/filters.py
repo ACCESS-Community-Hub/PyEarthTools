@@ -76,7 +76,7 @@ class FilterWarningContext:
     """
     Filter Warning context
 
-    Will count how many `PipelineFilterException` have been thrown, and warn if over `config.MAX_FILTER_EXCEPTIONS`.
+    Will count how many `PipelineFilterException` have been thrown, and warn if over `max_exceptions`.
     """
 
     def __init__(self, max_exceptions: Optional[int] = None):

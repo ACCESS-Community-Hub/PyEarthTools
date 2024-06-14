@@ -324,9 +324,10 @@ class SequenceRetrieval(IdxModifier):
             merge_kwargs (Optional[dict[str, Any]], optional):
                 Optional extra kwargs for the merge function. Defaults to None.
         """
+        samples = self._convert(self._parse_samples(samples))
 
         super().__init__(
-            self._convert(self._parse_samples(samples)),
+            samples,
             merge=self._merge_level,
             merge_function=merge_function,
             merge_kwargs=merge_kwargs,

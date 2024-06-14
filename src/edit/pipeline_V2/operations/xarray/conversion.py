@@ -47,6 +47,7 @@ class ToNumpy(Operation):
         self.record_initialisation()
 
         self._numpy_converter = NumpyConverter()
+        self._saved_records = saved_records
 
         if saved_records:
             self._numpy_converter.load_records(saved_records)
@@ -54,7 +55,10 @@ class ToNumpy(Operation):
             self._numpy_converter.convert_xarray_to_numpy(xr.open_dataset(reference_dataset), replace=True)
 
     def apply_func(self, sample: Union[tuple[XARRAY_OBJECTS, ...], XARRAY_OBJECTS]):
-        return self._numpy_converter.convert_xarray_to_numpy(sample, replace=True)
+        result = self._numpy_converter.convert_xarray_to_numpy(sample, replace=True)
+        if self._saved_records:
+            self._numpy_converter.save_records(self._saved_records)
+        return result
 
     def undo_func(self, sample: Union[tuple[np.ndarray, ...], np.ndarray]):
         return self._numpy_converter.convert_numpy_to_xarray(sample, pop=False)

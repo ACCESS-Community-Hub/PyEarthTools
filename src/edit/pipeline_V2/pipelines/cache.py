@@ -17,7 +17,7 @@ from hashlib import sha512
 import shutil
 
 import edit.data
-from edit.data.patterns import PatternIndex, PatternTimeIndex
+from edit.data.patterns import PatternIndex
 
 from edit.pipeline_V2.controller import PipelineMod
 from edit.pipeline_V2.warnings import PipelineWarning

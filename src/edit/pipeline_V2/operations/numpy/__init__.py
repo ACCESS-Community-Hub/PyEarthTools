@@ -15,6 +15,7 @@ from edit.pipeline_V2.operations.numpy import (
     select,
     split,
     values,
+    normallsation,
 )
 
 __all__ = [
@@ -25,4 +26,5 @@ __all__ = [
     "select",
     "split",
     "values",
+    "normallsation",
 ]

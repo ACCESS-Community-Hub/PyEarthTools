@@ -7,7 +7,11 @@
 # from the use of the software.
 
 
-from typing import Any
+from typing import Any, Optional
+import warnings
+
+from edit.pipeline_V2 import config
+from edit.pipeline_V2.warnings import PipelineWarning
 
 
 class PipelineException(Exception):
@@ -62,3 +66,36 @@ class PipelineTypeError(PipelineException, TypeError):
 
 class PipelineRuntimeError(PipelineException, RuntimeError):
     """Pipeline Runtime Error"""
+
+
+class ExceptionIgnoreContext:
+    """
+    Ignore Exceptions
+
+    Will count how many `Exceptions` have been thrown, and warn if over `max_exceptions`.
+    """
+
+    def __init__(self, exceptions: tuple[Exception, ...], max_exceptions: Optional[int] = None):
+
+        self._max_exceptions = max_exceptions or config.MAX_FILTER_EXCEPTIONS
+        self._count = 0
+        self._messages = []
+        self._exceptions = exceptions
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_val, traceback):
+        if exc_type in self._exceptions:
+            self._count += 1
+            self._messages.append(str(exc_val))
+
+        if self._count >= self._max_exceptions:
+            str_msg = "\n".join(self._messages)
+
+            warnings.warn(
+                f"{self._count} exception's have occured.\nRaised the following messages:\n{str_msg}",
+                PipelineWarning,
+            )
+            self._count = 0
+            self._messages = []

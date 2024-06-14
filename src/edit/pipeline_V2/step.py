@@ -21,8 +21,14 @@ from edit.pipeline_V2.parallel import ParallelEnabledMixin
 
 
 class PipelineStep(PipelineRecordingMixin, ParallelEnabledMixin, metaclass=ABCMeta):
-    split_tuples = False
-    recognised_types: dict[str, Union[tuple[Type, ...], tuple[Type]]] = {}
+    """
+    Core step of a pipeline
+    """
+
+    split_tuples: Union[dict[str, bool], bool] = False
+    recognised_types: dict[str, Union[tuple[Type, ...], tuple[Type]]]
+
+    _import: Optional[str] = None  # Module to import to find this class
 
     def __init__(
         self,

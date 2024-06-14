@@ -10,6 +10,7 @@ from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 
 from typing import Any, ContextManager, Literal, Union, Optional
+from pathlib import Path
 
 import graphviz
 
@@ -20,7 +21,7 @@ from edit.pipeline_V2.recording import PipelineRecordingMixin
 from edit.pipeline_V2 import samplers, iterators, filters
 from edit.pipeline_V2.step import PipelineStep
 from edit.pipeline_V2.operation import Operation
-from edit.pipeline_V2.exceptions import PipelineFilterException
+from edit.pipeline_V2.exceptions import PipelineFilterException, ExceptionIgnoreContext
 
 
 PIPELINE_TYPES = Union[Index, PipelineStep]
@@ -72,9 +73,9 @@ class PipelineIndex(PipelineRecordingMixin, metaclass=ABCMeta):
 
         return tuple(flatten(self.complete_steps))
 
-    def __repr__(self) -> str:
-        pipeline_repr = f"{self.__class__.__name__} consisting of:\n"
-        return pipeline_repr + "\n".join(f" - {x!r}" for x in self.steps)
+    # def __repr__(self) -> str:
+    #     pipeline_repr = f"{self.__class__.__name__} consisting of:\n"
+    #     return pipeline_repr + "\n".join(f" - {x!r}" for x in self.steps)
 
     @abstractmethod
     def __getitem__(self, idx):
@@ -123,8 +124,22 @@ class PipelineIndex(PipelineRecordingMixin, metaclass=ABCMeta):
         """Get graphical view of Pipeline"""
         return self._get_tree(parent=None, graph=graphviz.Digraph())[0]
 
-    def _repr_html_(self):
-        return super()._repr_html_()
+    def save(self, path: Optional[Union[str, Path]] = None) -> Union[str, None]:
+        """
+        Save `Pipeline`
+
+        Args:
+            path (Optional[Union[str, Path]], optional):
+                File to save to. If not given return save str. Defaults to None.
+
+        Returns:
+            (Union[str, None]):
+                If `path` is None, `pipeline` in save form else None.
+        """
+        return edit.pipeline_V2.save(self, path)
+
+    # def _repr_html_(self):
+    #     return super()._repr_html_()
 
     def _ipython_display_(self):
         """Override for repr of `Pipeline`, shows initialisation arguments and graph"""
@@ -141,6 +156,7 @@ class Pipeline(PipelineIndex):
     _sampler: samplers.Sampler
     _iterator: Optional[iterators.Iterator]
     _steps: tuple[Union[Index, PipelineStep, PipelineIndex, tuple[VALID_PIPELINE_TYPES, ...]], ...]
+    _exceptions_to_ignore: Optional[tuple[Exception, ...]]
 
     def __init__(
         self,
@@ -152,6 +168,7 @@ class Pipeline(PipelineIndex):
         ],
         iterator: Optional[Union[iterators.Iterator, tuple[iterators.Iterator, ...]]] = None,
         sampler: Optional[Union[samplers.Sampler, tuple[samplers.Sampler, ...]]] = None,
+        exceptions_to_ignore: Optional[tuple[Exception, ...]] = None,
         **kwargs,
     ):
         super().__init__(*steps, **kwargs)
@@ -159,6 +176,7 @@ class Pipeline(PipelineIndex):
 
         self.iterator = iterator
         self.sampler = sampler
+        self._exceptions_to_ignore = exceptions_to_ignore
 
     @property
     def complete_steps(self) -> tuple:
@@ -290,13 +308,6 @@ class Pipeline(PipelineIndex):
             raise ValueError("Cannot iterate over pipeline if iterator is not set.")
         return tuple(i for i in self.iterator)
 
-    def copy(self, **overrides: Any) -> "Self":  # type: ignore
-        __args = self.initialisation["__args"]
-        # Fix issue with copy resulting in a pipeline becoming a branch
-        # if len(__args) == 1 and isinstance(__args[0], tuple):
-        #     overrides['__args'] = __args[0]
-        return super().copy(**overrides)
-
     def __len__(self):
         """Length without any filtering applied"""
         return len(self.iteration_order)
@@ -312,15 +323,16 @@ class Pipeline(PipelineIndex):
 
         next(sampler)
         filter_count: ContextManager[None] = filters.FilterWarningContext()
+        exception_count: ContextManager[None] = ExceptionIgnoreContext(self._exceptions_to_ignore or tuple())
 
         for idx in self.iterator:
             sample = None
-            try:
-                with filter_count:
-                    sample = self[idx]
-            except PipelineFilterException:
-                continue
-                # pass
+            with exception_count:
+                try:
+                    with filter_count:
+                        sample = self[idx]
+                except PipelineFilterException:
+                    continue
             try:
                 if isinstance(sample, iterators.IterateResults):
                     for sub_sample in sample.iterate_over_object():
@@ -338,16 +350,60 @@ class Pipeline(PipelineIndex):
             if check(remaining):
                 yield remaining
 
-    # def __getattr__(self, key: str):
-    #     raise AttributeError()
+    def step(
+        self, id: Union[str, int], count: Optional[int] = -1
+    ) -> Union[Index, Pipeline, Operation, tuple[Union[Index, Pipeline, Operation], ...]]:
+        """Get step correspondant to `id`
 
-    # TODO
-    def step(self, id: Union[str, int]):
-        pass
+        If `str` flattens steps and retrieves the first `count` found,
+        otherwise if `int`, gets step at the `idx`
+
+        If `count` is None, give back first found not in tuple, or if -1 return all.
+        """
+        if isinstance(id, str):
+            matches = []
+            for step in self.flattened_steps:
+                if id == step.__class__.__name__:
+                    if count is None:
+                        return step
+                    matches.append(step)
+                    if not count == -1 and len(matches) >= count:
+                        return tuple(matches)
+
+            if len(matches) > 0:
+                return tuple(matches)
+
+        elif isinstance(id, int):
+            return self.complete_steps[id]
+
+        raise TypeError(f"Cannot find step for {id!r}.")
+
+    def __add__(self, other: Pipeline):
+        """
+        Combine pipelines
+
+        Will set `self` steps first then `other`.
+
+        But if other init kwargs were set, take from `other` if given.
+        """
+        if not isinstance(other, Pipeline):
+            return NotImplemented
+
+        init = dict(self.initialisation)
+        other_init = dict(other.initialisation)
+
+        args = (*init.pop("__args", []), *other_init.pop("__args", []))
+
+        new_init = dict(init)
+        new_init.update({key: val for key, val in other_init.items() if val is not None})
+
+        return Pipeline(*args, **new_init)
 
 
 class PipelineMod(Pipeline):
     """Variant of Pipeline to be subclassed for modification"""
+
+    _edit_repr = {"ignore": ["args"]}
 
     def _get_tree(
         self, parent: Optional[list[str]] = None, graph: Optional[graphviz.Digraph] = None
@@ -382,5 +438,7 @@ class PipelineMod(Pipeline):
 
         return tuple(expanded_steps)
 
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}"
+    def _ipython_display_(self):
+        from IPython.core.display import display, HTML
+
+        display(HTML(self._repr_html_()))

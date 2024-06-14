@@ -23,7 +23,6 @@ class Rearrange(Operation):
 
     def __init__(
         self,
-        *rearrange_args,
         rearrange: str,
         skip: bool = False,
         reverse_rearrange: Optional[str] = None,
@@ -49,8 +48,6 @@ class Rearrange(Operation):
                 Whether to skip data that cannot be rearranged. Defaults to False.
             reverse_rearrange (Optional[str], optional):
                 Override for reverse operation, if not given flip rearrange. Defaults to None.
-            *rearrange_args (Any, optional):
-                Extra arguments to be passed to the `einops.rearrange` call
             rearrange_kwargs ( Optional[dict[str, Any]], optional):
                 Extra keyword arguments to be passed to the einops.rearrange call. Defaults to {}.
         """
@@ -63,14 +60,13 @@ class Rearrange(Operation):
 
         self.pattern = rearrange
         self.reverse_pattern = reverse_rearrange
-        self.rearrange_args = rearrange_args
         self.rearrange_kwargs = rearrange_kwargs or {}
 
         self.skip = skip
 
     def __rearrange(self, data: np.ndarray, pattern: str, catch=True):
         try:
-            return einops.rearrange(data, pattern, *self.rearrange_args, **self.rearrange_kwargs)
+            return einops.rearrange(data, pattern, **self.rearrange_kwargs)
         except einops.EinopsError as excep:
             if not catch:
                 if self.skip:

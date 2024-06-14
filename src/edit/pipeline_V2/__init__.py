@@ -10,7 +10,8 @@ from edit.pipeline_V2 import config
 
 config = config.conf()
 
-from edit.pipeline_V2.controller import Pipeline
+from edit.pipeline_V2.save import save, load
+from edit.pipeline_V2.controller import Pipeline, PipelineMod, PipelineIndex
 
 from edit.pipeline_V2.operation import Operation
 
@@ -43,4 +44,4 @@ __all__ = [
     "operations",
     "pipelines",
 ]
-__version__ = "2024.04.01"
+__version__ = "2024.06.01"

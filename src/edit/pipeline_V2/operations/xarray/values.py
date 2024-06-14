@@ -162,3 +162,45 @@ class ForceNormalised(Operation):
         for func in (func for func in [self._force_min, self._force_max] if func is not None):
             sample = func.apply_func(sample)
         return sample
+
+
+class Derive(Operation):
+    """Derive variables within the dataset
+
+    Uses `edit.data.transforms.derive`.
+    """
+
+    def __init__(
+        self,
+        derivation: Optional[dict[str, Union[str, tuple[str, dict[str, Any]]]]] = None,
+        *,
+        drop: bool = True,
+        **derivations: Union[str, tuple[str, dict[str, Any]]],
+    ):
+        """
+        Derivation step
+
+        Args:
+            derivation (Optional[dict[str, Union[str, tuple[str, dict[str, Any]]]]], optional):
+                Equation configuration. If str, equation is evaluated.
+                If tuple, first element is assumed to be equation, and the second a
+                dictionary to update the new vars attributes with. Defaults to None.
+            drop (bool, optional):
+                Drop derived variables on `undo`. Defaults to True.
+            **derivations (Union[str, tuple[str, dict[str, Any]]]):
+                Kwarg form of `derivation`.
+        """
+        super().__init__(split_tuples=True, recursively_split_tuples=True, recognised_types=(xr.DataArray, xr.Dataset))
+        self.record_initialisation()
+
+        derivation = derivation or {}
+        derivation.update(derivations)
+
+        self._derive = edit.data.transforms.derive(derivation)
+        self._drop = edit.data.transform.variables.drop(list(derivation.keys())) if drop else None
+
+    def apply_func(self, sample):
+        return self._derive(sample)
+
+    def undo_func(self, sample):
+        return self._drop(sample) if self._drop else sample
