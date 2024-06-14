@@ -1,8 +1,9 @@
 from typing import Any
 
 
-class conf():
+class conf:
     """Config class for edit.pipeline_V2"""
+
     RUN_PARALLEL: bool = True
     DASK_CONFIG: dict[str, Any] = {}
-
+    MAX_FILTER_EXCEPTIONS = 10

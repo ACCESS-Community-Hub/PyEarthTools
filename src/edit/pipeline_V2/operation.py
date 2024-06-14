@@ -1,0 +1,130 @@
+# Copyright Commonwealth of Australia, Bureau of Meteorology 2024.
+# This software is provided under license 'as is', without warranty
+# of any kind including, but not limited to, fitness for a particular
+# purpose. The user assumes the entire risk as to the use and
+# performance of the software. In no event shall the copyright holder
+# be held liable for any claim, damages or other liability arising
+# from the use of the software.
+
+from __future__ import annotations
+
+from typing import Literal, Optional, Type, Union
+import warnings
+
+from edit.pipeline_V2.step import PipelineStep
+
+from edit.pipeline_V2.decorators import potentialabstractmethod
+from edit.pipeline_V2.exceptions import PipelineRuntimeError
+
+__all__ = ["Operation"]
+
+
+class Operation(PipelineStep):
+    """Pipeline Operation"""
+
+    def __init__(
+        self,
+        *,
+        split_tuples: Literal["apply", "undo", True, False] = False,
+        recursively_split_tuples: bool = False,
+        operation: Literal["apply", "undo", "both"] = "both",
+        recognised_types: Optional[
+            Union[
+                tuple[Type, ...],
+                Type,
+                dict[Literal["apply", "undo"], Union[tuple[Type, ...], Type]],
+            ]
+        ] = None,
+        response_on_type: Literal["warn", "exception", "ignore", "filter"] = "exception",
+        **kwargs,
+    ):
+        """
+        Base `Pipeline` Operation,
+
+        Allows for tuple spliting, and type checking
+
+        Args:
+            split_tuples (Literal['apply', 'undo', True, False], optional):
+                Split tuples on associated actions, if bool, apply to all functions. Defaults to False.
+            recursively_split_tuples (bool, optional):
+                Recursively split tuples. Defaults to False.
+            operation (Literal['apply', 'undo', 'both'], optional):
+                Function call to apply `self` to. Defaults to "both".
+            recognised_types (Optional[Union[tuple[Type, ...], Type, dict[str, Union[tuple[Type, ...], Type]]] ], optional):
+                Types recognised, can be dictionary to reference different types per function Defaults to None.
+            response_on_type (Literal['warn', 'exception', 'ignore', 'filter'], optional):
+                Response when invalid type found. Defaults to "exception".
+        """
+        if isinstance(split_tuples, str):
+            func_name = {"apply": "apply_func", "undo": "undo_func"}
+            _split_tuples = {func_name[split_tuples]: True}
+        else:
+            _split_tuples = split_tuples
+
+        if recognised_types is not None:
+            if isinstance(recognised_types, dict):
+                recognised_types = {
+                    key: val if isinstance(val, tuple) else (val,) for key, val in recognised_types.items()
+                }
+            else:
+                recognised_types = recognised_types if isinstance(recognised_types, tuple) else (recognised_types,)
+                recognised_types = {"apply": recognised_types, "undo": recognised_types}
+
+        super().__init__(
+            split_tuples=_split_tuples,
+            recursively_split_tuples=recursively_split_tuples,
+            recognised_types=recognised_types,  # type: ignore
+            response_on_type=response_on_type,
+            **kwargs,
+        )
+
+        self._operation: dict[Literal["apply", "undo"], bool] = {
+            "apply": operation in ["both", "apply"],
+            "undo": operation in ["both", "undo"],
+        }
+        self._check_functions()
+
+    def _check_functions(self):
+        """
+        Check `potentialabstractmethod`'s if they are needed and are implemented.
+        """
+        if self._operation["apply"] and getattr(self.apply_func, "__ispotentialabstractmethod__", False):
+            raise PipelineRuntimeError(
+                f"Can't instantiate {self.__class__.__qualname__} as `apply_func` is not implemented and is expected."
+            )
+
+        if self._operation["undo"] and getattr(self.undo_func, "__ispotentialabstractmethod__", False):
+            raise PipelineRuntimeError(
+                f"Can't instantiate {self.__class__.__qualname__} as `undo_func` is not implemented and is expected."
+            )
+
+    # def __add__(self, other):
+    #     pass
+
+    def run(self, sample):
+        return self.apply(sample)
+
+    def apply(self, sample):
+        """Run the `apply_func` on sample, splitting tuples if needed"""
+        if not self._operation["apply"]:
+            return sample
+        self.check_type(sample, func_name="apply")
+        return self._split_tuples_call(sample, _function="apply_func")
+
+    def undo(self, sample):
+        """Run the `undo_func` on sample, splitting tuples if needed"""
+        if not self._operation["undo"]:
+            return sample
+        self.check_type(sample, func_name="undo")
+        return self._split_tuples_call(sample, _function="undo_func")
+
+    @potentialabstractmethod
+    def apply_func(self, sample):
+        return sample
+
+    @potentialabstractmethod
+    def undo_func(self, sample):
+        return sample
+
+    def __str__(self):
+        return str(self.__class__.__name__)
