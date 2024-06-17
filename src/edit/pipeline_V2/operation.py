@@ -13,13 +13,13 @@ import warnings
 
 from edit.pipeline_V2.step import PipelineStep
 
-from edit.pipeline_V2.decorators import potentialabstractmethod
+from edit.pipeline_V2.decorators import potentialabstractmethod, PotentialABC
 from edit.pipeline_V2.exceptions import PipelineRuntimeError
 
 __all__ = ["Operation"]
 
 
-class Operation(PipelineStep):
+class Operation(PipelineStep, PotentialABC):
     """Pipeline Operation"""
 
     def __init__(
@@ -82,24 +82,8 @@ class Operation(PipelineStep):
             "apply": operation in ["both", "apply"],
             "undo": operation in ["both", "undo"],
         }
-        self._check_functions()
 
-    def _check_functions(self):
-        """
-        Check `potentialabstractmethod`'s if they are needed and are implemented.
-        """
-        if self._operation["apply"] and getattr(self.apply_func, "__ispotentialabstractmethod__", False):
-            raise PipelineRuntimeError(
-                f"Can't instantiate {self.__class__.__qualname__} as `apply_func` is not implemented and is expected."
-            )
-
-        if self._operation["undo"] and getattr(self.undo_func, "__ispotentialabstractmethod__", False):
-            raise PipelineRuntimeError(
-                f"Can't instantiate {self.__class__.__qualname__} as `undo_func` is not implemented and is expected."
-            )
-
-    # def __add__(self, other):
-    #     pass
+        self.check_abstractions([{'apply': 'apply_func', 'undo': 'undo_func'}[key] for key, val in self._operation.items() if val])
 
     def run(self, sample):
         return self.apply(sample)
