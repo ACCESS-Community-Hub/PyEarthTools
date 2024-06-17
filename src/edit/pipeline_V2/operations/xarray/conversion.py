@@ -18,7 +18,9 @@ from edit.utils.data import NumpyConverter
 from edit.pipeline_V2.operation import Operation
 
 XARRAY_OBJECTS = Union[xr.Dataset, xr.DataArray]
+FILE_TYPES = Union[str, Path]
 
+__all__ = ['ToNumpy']
 
 class ToNumpy(Operation):
     """
@@ -26,16 +28,16 @@ class ToNumpy(Operation):
     """
 
     def __init__(
-        self, reference_dataset: Optional[Union[str, Path]] = None, saved_records: Optional[Union[str, Path]] = None
+        self, reference_dataset: Optional[FILE_TYPES] = None, saved_records: Optional[FILE_TYPES] = None
     ):
         """DataOperation to convert data to [np.array][numpy.ndarray]
 
         Args:
-            reference_dataset (Optional[Union[str, Path]], optional):
+            reference_dataset (Optional[FILE_TYPES], optional):
                 Reference dataset to run through numpy converter to initialise converter.
                 Will be overwritten when this is given a dataset.
                 Defaults to None.
-            saved_records (Optional[Union[str, Path]], optional):
+            saved_records (Optional[FILE_TYPES], optional):
                 Saved records to set numpy converter with.
                 Will be overwritten when this is given a dataset.
                 Defaults to None.
@@ -48,6 +50,9 @@ class ToNumpy(Operation):
 
         self._numpy_converter = NumpyConverter()
         self._saved_records = saved_records
+
+        if reference_dataset and saved_records:
+            raise ValueError(f"Cannot provide both `reference_dataset` and `saved_records`.")
 
         if saved_records:
             self._numpy_converter.load_records(saved_records)
