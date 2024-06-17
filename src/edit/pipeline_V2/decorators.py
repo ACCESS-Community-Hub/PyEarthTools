@@ -8,6 +8,8 @@
 
 from typing import Callable
 
+from edit.pipeline_V2.exceptions import PipelineRuntimeError
+
 
 def potentialabstractmethod(func: Callable):
     """A decorator indicating potential abstract methods.
@@ -24,3 +26,25 @@ def potentialabstractmethod(func: Callable):
     """
     setattr(func, "__ispotentialabstractmethod__", True)
     return func
+
+class PotentialABC:
+    """
+    Check if `potentialabstractmethod` are needed and if so are implemented.
+    """
+    def check_abstractions(self, required_methods: list[str]):
+        """
+        Check `potentialabstractmethod`'s
+
+        Args:
+            required_methods (list[str]): 
+                List of method to check
+
+        Raises:
+            PipelineRuntimeError: 
+                If method was not implemented.
+        """        
+        for method in required_methods:
+            if getattr(getattr(self, method), "__ispotentialabstractmethod__", False):
+                raise PipelineRuntimeError(
+                    f"Can't instantiate {self.__class__.__qualname__!s} as `{method}` is not implemented and is expected."
+                )
