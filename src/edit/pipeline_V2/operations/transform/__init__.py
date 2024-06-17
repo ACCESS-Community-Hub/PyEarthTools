@@ -6,26 +6,8 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
-from edit.pipeline_V2.operations.numpy.join import Stack, Concatenate, VStack, HStack
 
-from edit.pipeline_V2.operations.numpy import (
-    augment,
-    filters,
-    reshape,
-    select,
-    split,
-    values,
-    normallsation,
-)
+"""Pipeline specific transforms"""
 
-__all__ = [
-    "Stack",
-    "Concatenate",
-    "augment",
-    "filters",
-    "reshape",
-    "select",
-    "split",
-    "values",
-    "normallsation",
-]
+from edit.pipeline_V2.operations.transform.add_variables import TimeOfYear
+from edit.pipeline_V2.operations.transform.add_coordinates import AddCoordinates

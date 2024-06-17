@@ -94,11 +94,11 @@ class Squish(Operation):
 
     """
 
-    def __init__(self, axis: int) -> None:
+    def __init__(self, axis: Union[tuple[int, ...], int]) -> None:
         """Squish Dimension of Data
 
         Args:
-            axis (int):
+            axis (Union[tuple[int, ...], int]):
                 Axis to squish at
         """
         super().__init__(
@@ -128,11 +128,11 @@ class Expand(Operation):
 
     """
 
-    def __init__(self, axis: int) -> None:
+    def __init__(self, axis: Union[tuple[int, ...], int]) -> None:
         """Expand Dimension of Data
 
         Args:
-            axis (int):
+            axis (Union[tuple[int, ...], int]):
                 Axis to expand at
         """
         super().__init__(

@@ -32,6 +32,41 @@ class Stack(Joiner):
     def unjoin(self, sample: Any) -> tuple:
         return super().unjoin(sample)
 
+class VStack(Joiner):
+    """
+    Vertically Stack a tuple of np.ndarray's
+
+    Currently cannot undo this operation
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.record_initialisation()
+
+    def join(self, sample: tuple[Any, ...]) -> np.ndarray:
+        """Join sample"""
+        return np.vstack(sample,)  # type: ignore
+
+    def unjoin(self, sample: Any) -> tuple:
+        return super().unjoin(sample)
+
+class HStack(Joiner):
+    """
+    Horizontally Stack a tuple of np.ndarray's
+
+    Currently cannot undo this operation
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.record_initialisation()
+
+    def join(self, sample: tuple[Any, ...]) -> np.ndarray:
+        """Join sample"""
+        return np.hstack(sample,)  # type: ignore
+
+    def unjoin(self, sample: Any) -> tuple:
+        return super().unjoin(sample)
 
 class Concatenate(Joiner):
     """
