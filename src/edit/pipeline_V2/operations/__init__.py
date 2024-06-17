@@ -7,7 +7,8 @@
 # from the use of the software.
 
 
-__all__ = ["xarray", "numpy", "Transforms"]
+__all__ = ["xarray", "numpy", "transform", "Transforms"]
 
 from edit.pipeline_V2.operations import xarray, numpy
 from edit.pipeline_V2.operations.transforms import Transforms
+from edit.pipeline_V2.operations import transform
