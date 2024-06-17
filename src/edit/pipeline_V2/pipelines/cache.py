@@ -10,7 +10,6 @@ from __future__ import annotations
 
 from typing import Any, Optional, Union, Literal
 import warnings
-import functools
 
 from pathlib import Path
 from hashlib import sha512
@@ -21,12 +20,28 @@ from edit.data.patterns import PatternIndex
 
 from edit.pipeline_V2.controller import PipelineMod
 from edit.pipeline_V2.warnings import PipelineWarning
+from edit.pipeline_V2.exceptions import PipelineRuntimeError
 
 CACHE_HASH_NAME = ".cache_hash"
-# PIPELINE_SAVE_NAME = "pipeline.yaml"
+PIPELINE_SAVE_NAME = "pipeline.yaml"
 
 
 class Cache(PipelineMod):
+    """
+    An `edit.pipeline_V2` implementation of the `CachingIndex` from `edit.data`.
+
+    Allows for samples to be cached to disk when using the pipeline.
+
+    Will save according to the `pattern` and `idx` used to retrieve data.
+
+    Examples:
+        >>> era_index = edit.data.archive.ERA5.sample()
+        >>> pipeline = edit.pipeline_V2.Pipeline(
+                era_index,
+                edit.pipeline_V2.pipelines.Cache('temp')
+            )
+        >>> pipeline['2000-01-01T00'] # Data will be cached
+    """
     _cache: edit.data.indexes.FunctionalCacheIndex
 
     def __init__(
@@ -37,6 +52,27 @@ class Cache(PipelineMod):
         cache_validity: Literal["trust", "delete", "warn", "keep", "override"] = "warn",
         **kwargs,
     ):
+        """
+        Pipeline step to cache samples
+
+        Args:
+            cache (str | Path, optional):
+                Path to cache data to. Defaults to None.
+            pattern (str | PatternIndex, optional):
+                Pattern to use to cache data, if str use `pattern_kwargs` to initialise. Defaults to None.
+            pattern_kwargs (dict[str, Any], optional):
+                Kwargs to initalise the pattern with. Defaults to {}.
+            cache_validity (Literal['trust','delete','warn','keep','override'], optional):
+                Behaviour of cache validity checking.
+                | Value | Behaviour |
+                | ----- | --------- |
+                | 'trust' | Trust the cache even if the hash is different |
+                | 'warn'  | Warn if the hash is different |
+                | 'keep'  | Keep the cache, and raise an exception if the hash is different |
+                | 'override' | Override the cache data when generating data, removes the caching benefit. |
+                | 'delete'   | Delete the cache if the hash is different. Will ask for input, include 'F' to force. |
+                Defaults to 'warn'.
+        """        
         super().__init__()
         self.record_initialisation()
 
@@ -50,14 +86,24 @@ class Cache(PipelineMod):
         )
 
     def _generate(self, idx):
-        return super().__getitem__(idx)
+        return self.parent_pipeline()[idx]
 
     def __getitem__(self, idx):
+        """
+        Get a sample from the cache, will generate it if it doesn't exist in the cache.
+        """
+        if self.save_cache_hash():
+            self.save_pipeline()
+            
         return self._cache[idx]
 
     @property
     def cache(self) -> edit.data.indexes.FunctionalCacheIndex:
         return self._cache
+    
+    @property
+    def root_dir(self) -> Path:
+        return self.cache.pattern.root_dir
 
     """
     Hashing and pipeline saving
@@ -66,37 +112,35 @@ class Cache(PipelineMod):
     @property
     def cache_hash_file(self) -> Path:
         """Get the hash file name"""
-        return Path(self.cache) / CACHE_HASH_NAME
+        return Path(self.root_dir) / CACHE_HASH_NAME
 
     @property
     def pipeline_save_file(self) -> Path:
         """Get the pipeline save file name"""
-        return Path(self.cache) / PIPELINE_SAVE_NAME
+        return Path(self.root_dir) / PIPELINE_SAVE_NAME
 
-    def make_cache_hash(self):
+    def save_cache_hash(self) -> bool:
         """
         Attempt to make cache hash, if fails do nothing and try again later.
+
+        Will return `bool` indicating if saving hash was successfull.
+            True -> Valid hash
+            False -> Invalid hash, either unable to write or different
         """
-        if self.cache_hash_made:
-            return
         try:
-            self.cache_validity()
+            return self.cache_validity()
         except Exception as e:
             warnings.warn(f"Cache hash could not be made yet. \n{e}", PipelineWarning)
-        self.cache_hash_made = True
+            return False
 
-    def make_pipeline_save(self):
+    def save_pipeline(self):
         """
         Attempt to make pipeline file, if fails do nothing and try again later.
         """
-        if self.pipeline_save_made:
-            return
-
         try:
-            self.save(self.pipeline_save_file)
+            self.as_pipeline().save(self.pipeline_save_file)
         except Exception as e:
-            warnings.warn(f"Pipeline file could not be made yet. \n{e}", PipelineWarning)
-        self.pipeline_save_made = True
+            warnings.warn(f"Pipeline file could not be made. \n{e}", PipelineWarning)
 
     def cache_validity(self) -> bool:
         """
@@ -106,39 +150,42 @@ class Cache(PipelineMod):
             self._save_hash()
             return True
 
-        if not self._get_saved_cache():
+        if not self._get_saved_hash():
             self._save_hash()
-            self.pipeline_save_made = False
-            self.make_pipeline_save()
+            self.save_pipeline()
             return False
 
-        cache_validity = self.hash == self._get_saved_cache()
+        cache_validity = self.hash == self._get_saved_hash()
 
-        if cache_validity or self.cache is None:
+
+        if cache_validity or self.root_dir is None:
             return True
 
         if self.cache_behaviour == "trust":
             self._save_hash()
+            return True
         elif self.cache_behaviour == "override":
             self._save_hash()
+            return True
         elif self.cache_behaviour == "keep":
-            raise PipelineException(
+            raise PipelineRuntimeError(
                 "The saved cache hash is not equal to the current hash.\n"
                 "Data may be incorrect. If this data can be trusted, change "
                 "'cache_validity' to 'trust' or 'warn', or if it needs to be deleted, "
                 "set to 'delete', or 'override'."
-                f"\nAt location {str(self.cache)!r}"
+                f"\nAt location {str(self.root_dir)!r}"
             )
         elif self.cache_behaviour == "warn":
             warnings.warn(
-                "The saved hash and current hash are not the same. "
+                "The saved hash and current hash are not the same.\n"
                 "Therefore, data loaded from the cache may not be what is expected.\n"
                 "If this cache is valid, pass 'cache_validity' = 'trust' once, to trust this cache.\n"
                 "If not, pass 'cache_validity' = 'delete' or 'override', to delete the cache "
                 "or override it respectively."
-                f"\nAt location {str(self.cache)!r}",
+                f"\nAt location {str(self.root_dir)!r}",
                 PipelineWarning,
             )
+            return False
 
         elif "delete" in self.cache_behaviour:
             if not "F" in self.cache_behaviour:
@@ -146,8 +193,8 @@ class Cache(PipelineMod):
                     warnings.warn(f"Skipping delete.", UserWarning)
                     return False
 
-            warnings.warn(f"Deleting all data underneath '{self.cache}'.", UserWarning)
-            shutil.rmtree(self.cache)
+            warnings.warn(f"Deleting all data underneath '{self.root_dir}'.", UserWarning)
+            shutil.rmtree(self.root_dir)
             self._save_hash()
         else:
             raise ValueError(f"Cannot parse 'cache_validity' of {self.cache_behaviour}")
@@ -157,10 +204,11 @@ class Cache(PipelineMod):
         """Save the hash"""
         if not self.cache_hash_file.parent.exists():
             self.cache_hash_file.parent.mkdir(exist_ok=True, parents=True)
+
         with open(self.cache_hash_file, "w") as file:
             file.write(self.hash)
 
-    def _get_saved_cache(self):
+    def _get_saved_hash(self):
         """Get the saved hash"""
         with open(self.cache_hash_file, "r") as file:
             return file.read()
@@ -175,31 +223,5 @@ class Cache(PipelineMod):
         """
         Get sha512 hash of underlying index
         """
-        if isinstance(self.index, DataStep):
-            conf: dict[str, dict] = {
-                f"{step.__class__}-{num}": step._info_ for num, step in enumerate(self.index._get_steps_for_repr_())
-            }
-        elif isinstance(self.index, (Catalog, CatalogEntry)):
-            conf = self.index.to_dict()
-        elif isinstance(self.index, Index):
-            conf = self.index.catalog.to_dict()
-        else:
-            raise ValueError(
-                f"Could not convert `index` {type(self.index)!r} into configuration dictionary to make hash of."
-            )
-
-        def order_dicts(dictionary: Any) -> Any:
-            if not isinstance(dictionary, dict):
-                return dictionary
-
-            sorted_keys = list(dictionary.keys())
-            sorted_keys.sort()
-            for key in sorted_keys:
-                dictionary[key] = order_dicts(dictionary[key])
-            return dictionary
-
-        conf["CacheConfig"] = self.catalog.to_dict()
-
-        conf = order_dicts(conf)
-        configuration = tuple((f"{key}:{value}" for key, value in conf.items()))
+        configuration = self.as_pipeline().save()
         return sha512(bytes(str(configuration), "utf-8")).hexdigest()

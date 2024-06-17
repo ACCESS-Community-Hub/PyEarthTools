@@ -42,7 +42,7 @@ class IdxOverride(PipelineMod):
         self.record_initialisation()
 
     def __getitem__(self, *_, **__):
-        return super().__getitem__(self._index)
+        return self.parent_pipeline()[self._index]
 
 
 class IdxModifier(PipelineMod, ParallelEnabledMixin):
@@ -158,7 +158,7 @@ class IdxModifier(PipelineMod, ParallelEnabledMixin):
 
         Will descend through nested tuples.
         """
-        super_get = super().__getitem__
+        super_get = self.parent_pipeline().__getitem__
 
         samples = []
         for m in mod:
@@ -179,7 +179,7 @@ class IdxModifier(PipelineMod, ParallelEnabledMixin):
         return samples
 
     def __getitem__(self, idx: Any):
-        super_get = super().__getitem__
+        super_get = self.parent_pipeline().__getitem__
 
         if not isinstance(self._modification, tuple):
             return super_get(idx + self._modification)

@@ -9,6 +9,7 @@
 from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 
+import functools
 from typing import Any, ContextManager, Literal, Union, Optional
 from pathlib import Path
 
@@ -42,6 +43,7 @@ def parse_to_graph_name(step: Union[Index, PipelineStep], parent: Optional[list[
 
 
 class PipelineIndex(PipelineRecordingMixin, metaclass=ABCMeta):
+    """Root PipelineIndex"""
     _edit_repr = {"ignore": ["args"], "expand_attr": ["Steps@flattened_steps"]}
 
     def __init__(
@@ -58,27 +60,9 @@ class PipelineIndex(PipelineRecordingMixin, metaclass=ABCMeta):
         """Get steps in pipeline"""
         return self.steps
 
-    @property
-    def flattened_steps(self) -> tuple:
-        """Flat tuple of steps contained within this `PipelineIndex`"""
-
-        def flatten(to_flatten):
-            if isinstance(to_flatten, (tuple, list)):
-                if len(to_flatten) == 0:
-                    return []
-                first, rest = to_flatten[0], to_flatten[1:]
-                return flatten(first) + flatten(rest)
-            else:
-                return [to_flatten]
-
-        return tuple(flatten(self.complete_steps))
-
-    # def __repr__(self) -> str:
-    #     pipeline_repr = f"{self.__class__.__name__} consisting of:\n"
-    #     return pipeline_repr + "\n".join(f" - {x!r}" for x in self.steps)
-
     @abstractmethod
     def __getitem__(self, idx):
+        """Retrieve sample from pipeline"""
         pass
 
     def _get_tree(
@@ -120,39 +104,19 @@ class PipelineIndex(PipelineRecordingMixin, metaclass=ABCMeta):
         prior_step = prior_step or []
         return graph, prior_step
 
-    def graph(self) -> graphviz.Digraph:
-        """Get graphical view of Pipeline"""
-        return self._get_tree(parent=None, graph=graphviz.Digraph())[0]
 
-    def save(self, path: Optional[Union[str, Path]] = None) -> Union[str, None]:
-        """
-        Save `Pipeline`
-
-        Args:
-            path (Optional[Union[str, Path]], optional):
-                File to save to. If not given return save str. Defaults to None.
-
-        Returns:
-            (Union[str, None]):
-                If `path` is None, `pipeline` in save form else None.
-        """
-        return edit.pipeline_V2.save(self, path)
-
-    # def _repr_html_(self):
-    #     return super()._repr_html_()
-
-    def _ipython_display_(self):
-        """Override for repr of `Pipeline`, shows initialisation arguments and graph"""
-        from IPython.core.display import display, HTML
-
-        display(HTML(self._repr_html_()))
-        if len(self.flattened_steps) > 1:
-            display(HTML("<h2>Graph</h2>"))
-            display(self.graph())
-
-
-# Integrate with `edit.data`
 class Pipeline(PipelineIndex):
+    """
+    Core of `edit.pipeline_V2`, 
+
+    Provides a way to set a sequence of operations to be applied to samples / data retrieved from `edit.data`.
+
+    Examples
+    >>> edit.pipeline_V2.Pipeline(
+            edit.data.download.cds.ERA5('tcwv'),
+            edit.pipeline_V2.operations.xarray.conversion.ToNumpy(),
+    )
+    """
     _sampler: samplers.Sampler
     _iterator: Optional[iterators.Iterator]
     _steps: tuple[Union[Index, PipelineStep, PipelineIndex, tuple[VALID_PIPELINE_TYPES, ...]], ...]
@@ -164,13 +128,23 @@ class Pipeline(PipelineIndex):
             VALID_PIPELINE_TYPES,
             PipelineIndex,
             PipelineMod,
-            tuple[Union[VALID_PIPELINE_TYPES, Literal["map"]], ...],
+            tuple[Union[VALID_PIPELINE_TYPES, Literal["map", "map_copy"]], ...],
         ],
         iterator: Optional[Union[iterators.Iterator, tuple[iterators.Iterator, ...]]] = None,
         sampler: Optional[Union[samplers.Sampler, tuple[samplers.Sampler, ...]]] = None,
         exceptions_to_ignore: Optional[tuple[Exception, ...]] = None,
         **kwargs,
     ):
+        """_summary_
+
+        Args:
+            iterator (Optional[Union[iterators.Iterator, tuple[iterators.Iterator, ...]]], optional): 
+                _description_. Defaults to None.
+            sampler (Optional[Union[samplers.Sampler, tuple[samplers.Sampler, ...]]], optional): 
+                _description_. Defaults to None.
+            exceptions_to_ignore (Optional[tuple[Exception, ...]], optional): 
+                _description_. Defaults to None.
+        """        
         super().__init__(*steps, **kwargs)
         self.record_initialisation()
 
@@ -178,6 +152,21 @@ class Pipeline(PipelineIndex):
         self.sampler = sampler
         self._exceptions_to_ignore = exceptions_to_ignore
 
+    @property
+    def flattened_steps(self) -> tuple:
+        """Flat tuple of steps contained within this `PipelineIndex`"""
+
+        def flatten(to_flatten):
+            if isinstance(to_flatten, (tuple, list)):
+                if len(to_flatten) == 0:
+                    return []
+                first, rest = to_flatten[0], to_flatten[1:]
+                return flatten(first) + flatten(rest)
+            else:
+                return [to_flatten]
+
+        return tuple(flatten(self.complete_steps))
+    
     @property
     def complete_steps(self) -> tuple:
         """Get all steps"""
@@ -211,12 +200,14 @@ class Pipeline(PipelineIndex):
     ):
         steps_list: list = []
 
+        #TODO add ability to directly use transforms
+
         for v in val:
             if isinstance(v, (list, tuple)):
                 steps_list.append(edit.pipeline_V2.branching.PipelineBranchPoint(*(i for i in v)))  # type: ignore
                 continue
             elif isinstance(v, PipelineMod):
-                v._steps = tuple(i for i in steps_list)
+                v.set_steps(tuple(i for i in steps_list))
                 steps_list = [v]
             else:
                 steps_list.append(v)
@@ -350,24 +341,25 @@ class Pipeline(PipelineIndex):
             if check(remaining):
                 yield remaining
 
+
     def step(
-        self, id: Union[str, int], count: Optional[int] = -1
+        self, id: Union[str, int], limit: Optional[int] = -1
     ) -> Union[Index, Pipeline, Operation, tuple[Union[Index, Pipeline, Operation], ...]]:
         """Get step correspondant to `id`
 
-        If `str` flattens steps and retrieves the first `count` found,
+        If `str` flattens steps and retrieves the first `limit` found,
         otherwise if `int`, gets step at the `idx`
 
-        If `count` is None, give back first found not in tuple, or if -1 return all.
+        If `limit` is None, give back first found not in tuple, or if -1 return all.
         """
         if isinstance(id, str):
             matches = []
             for step in self.flattened_steps:
                 if id == step.__class__.__name__:
-                    if count is None:
+                    if limit is None:
                         return step
                     matches.append(step)
-                    if not count == -1 and len(matches) >= count:
+                    if not limit == -1 and len(matches) >= limit:
                         return tuple(matches)
 
             if len(matches) > 0:
@@ -399,12 +391,62 @@ class Pipeline(PipelineIndex):
 
         return Pipeline(*args, **new_init)
 
+    def graph(self) -> graphviz.Digraph:
+        """Get graphical view of Pipeline"""
+        return self._get_tree(parent=None, graph=graphviz.Digraph())[0]
 
-class PipelineMod(Pipeline):
+    def save(self, path: Optional[Union[str, Path]] = None) -> Union[str, None]:
+        """
+        Save `Pipeline`
+
+        Args:
+            path (Optional[Union[str, Path]], optional):
+                File to save to. If not given return save str. Defaults to None.
+
+        Returns:
+            (Union[str, None]):
+                If `path` is None, `pipeline` in save form else None.
+        """
+        return edit.pipeline_V2.save(self, path)
+
+    def _ipython_display_(self):
+        """Override for repr of `Pipeline`, shows initialisation arguments and graph"""
+        from IPython.core.display import display, HTML
+
+        display(HTML(self._repr_html_()))
+        if len(self.flattened_steps) > 1:
+            display(HTML("<h2>Graph</h2>"))
+            display(self.graph())
+
+
+class PipelineMod(PipelineIndex):
     """Variant of Pipeline to be subclassed for modification"""
 
     _edit_repr = {"ignore": ["args"]}
+    _steps: tuple[Union[Index, PipelineStep, PipelineIndex, tuple[VALID_PIPELINE_TYPES, ...]], ...]
 
+    def __init__(self):
+        super().__init__()
+
+    def set_steps(self, steps: tuple[Union[Index, PipelineStep, PipelineIndex, tuple[VALID_PIPELINE_TYPES, ...]], ...]):
+        """Set steps of this `PipelineMod`"""
+        if len(steps) == 0:
+            raise Exception()
+        self._steps = steps
+
+    def parent_pipeline(self) -> Pipeline:
+        """Get parent pipeline of this `PipelineMod`, will not include self"""
+        pipe = Pipeline()
+        pipe._steps = self._steps
+        return pipe
+
+    def as_pipeline(self) -> Pipeline:
+        """Get `PipelineMod` as full pipeline, will include self"""
+        pipe = self.parent_pipeline()
+        pipe._steps = (*pipe._steps, self)
+        return pipe
+    
+    @functools.wraps(PipelineIndex._get_tree)
     def _get_tree(
         self, parent: Optional[list[str]] = None, graph: Optional[graphviz.Digraph] = None
     ) -> tuple[graphviz.Digraph, list[str]]:  # pragma: no cover
@@ -412,7 +454,7 @@ class PipelineMod(Pipeline):
         import uuid
 
         graph = graph or graphviz.Digraph()
-        graph, prior_step = super()._get_tree(parent, graph=graph)
+        graph, prior_step = self.parent_pipeline()._get_tree(parent, graph=graph)
 
         node_name = f"{self.__class__.__name__}_{uuid.uuid4()!s}"
         graph.node(node_name, self.__class__.__name__)
@@ -427,18 +469,16 @@ class PipelineMod(Pipeline):
     @property
     def complete_steps(self) -> tuple:
         """Get all steps"""
-        return_steps = list(self.steps)
+        return_steps = list(self.parent_pipeline().complete_steps)
         expanded_steps = []
 
         for step in return_steps:
             if isinstance(step, PipelineIndex):
                 step = step.complete_steps
+                expanded_steps.extend(step)
             expanded_steps.append(step)
+
+        # Append self
         expanded_steps.append(self)
 
         return tuple(expanded_steps)
-
-    def _ipython_display_(self):
-        from IPython.core.display import display, HTML
-
-        display(HTML(self._repr_html_()))
