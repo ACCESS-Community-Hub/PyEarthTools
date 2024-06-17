@@ -123,6 +123,10 @@ class DaskParallelInterface(ParallelInterface):
 
         dask_config = config.DASK_CONFIG
         dask_config["processes"] = dask_config.pop("processes", False)
+        
+        if _get_global_client() is None and not config.START_DASK:
+            raise RuntimeError(f"Cannot start dask cluster if `config.START_DASK` is False.")
+
         return _get_global_client() or Client(**dask_config)
 
     def defer_to_client(func: Callable):  # type: ignore
@@ -170,7 +174,7 @@ class DaskParallelInterface(ParallelInterface):
         return fire_and_forget(futures)
 
 
-def get_parallel(start_dask: bool = True) -> ParallelInterface:
+def get_parallel() -> ParallelInterface:
     """
     Get parallel interface
 
@@ -195,7 +199,7 @@ def get_parallel(start_dask: bool = True) -> ParallelInterface:
         import dask.distributed
         from distributed.client import _get_global_client
 
-        if _get_global_client() is None and not start_dask:
+        if _get_global_client() is None and not config.START_DASK:
             return SerialInterface()
 
         return DaskParallelInterface()
