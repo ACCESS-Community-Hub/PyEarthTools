@@ -56,20 +56,28 @@ def save(pipeline: "edit.pipeline_V2.PipelineIndex", path: Optional[Union[str, P
 
 def load(stream: Union[str, Path], **kwargs):
     contents = None
-    try:
-        contents = "\n".join(open(stream).readlines())
-    except (OSError, FileNotFoundError):
-        pass
 
-    contents = stream
+    try:
+        contents = "".join(open(str(stream)).readlines())
+    except FileNotFoundError as e:
+        raise e
+    except OSError:
+        pass
+    
+    if contents is None:
+        contents = str(stream)
+
     if not isinstance(contents, str):
         raise TypeError(f"Cannot parse contents of type {type(contents)} -{contents}.")
 
     contents = initialisation.load.update_contents(contents, **kwargs)
 
-    config_str = contents[contents.index(CONFIG_KEY) :].replace(CONFIG_KEY, "")
-    contents = contents[: contents.index(CONFIG_KEY)].replace(CONFIG_KEY, "")
-    config = yaml.load(config_str, yaml.Loader)
+    if CONFIG_KEY in contents:
+        config_str = contents[contents.index(CONFIG_KEY) :].replace(CONFIG_KEY, "")
+        contents = contents[: contents.index(CONFIG_KEY)].replace(CONFIG_KEY, "")
+        config = yaml.load(config_str, yaml.Loader)
+    else: 
+        config = {}
 
     if "import" in config:
         for i in config["import"]:
