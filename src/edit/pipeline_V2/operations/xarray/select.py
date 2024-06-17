@@ -6,7 +6,7 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
-from typing import Any, Literal, Union
+from typing import Any, Literal, Union, Optional
 
 import xarray as xr
 
@@ -88,12 +88,12 @@ class SliceDataset(Operation):
 
     """
 
-    def __init__(self, slices: dict[str, tuple[Any, ...]], **kwargs: tuple):
+    def __init__(self, slices: Optional[dict[str, tuple[Any, ...]]] = None, **kwargs: tuple):
         """
         Setup dataset slicer
 
         Args:
-            slices (dict[str, tuple[Any, ...]], optional):
+            slices (Optional[dict[str, tuple[Any, ...]]], optional):
                 Slice dictionary, must be key of dim in ds, and slice notation as value. Defaults to None.
             kwargs (tuple, optional):
                 Keyword argument form of `slices`.
@@ -111,5 +111,5 @@ class SliceDataset(Operation):
 
         self.slices = {key: slice(*value) for key, value in slices.items()}
 
-    def _slice(self, data: Union[xr.Dataset, xr.DataArray]):
+    def apply_func(self, data: Union[xr.Dataset, xr.DataArray]):
         return data.sel(self.slices)

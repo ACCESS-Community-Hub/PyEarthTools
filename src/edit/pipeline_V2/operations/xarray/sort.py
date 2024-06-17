@@ -41,7 +41,7 @@ class Sort(Operation):
         if order is None:
             order = []
 
-        self.order = order
+        self.order = list(order)
         self.safe = safe
 
         super().__init__(

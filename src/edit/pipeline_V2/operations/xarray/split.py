@@ -15,7 +15,7 @@ from edit.pipeline_V2.branching.split import Spliter
 T = TypeVar("T", xr.Dataset, xr.DataArray)
 
 
-class SplitOnVariables(Spliter):
+class OnVariables(Spliter):
     """Split xarray object's on variables"""
 
     def __init__(
@@ -45,7 +45,7 @@ class SplitOnVariables(Spliter):
         return xr.merge(sample, **(self._merge_kwargs or {}))
 
 
-class SplitOnCoordinate(Spliter):
+class OnCoordinate(Spliter):
     """Split xarray object on coordinate"""
 
     def __init__(

@@ -13,6 +13,7 @@ import warnings
 from edit.pipeline_V2 import config
 from edit.pipeline_V2.warnings import PipelineWarning
 
+__all__ = ['PipelineException', 'PipelineFilterException','PipelineUnificationException', 'PipelineTypeError', 'PipelineRuntimeError', 'ExceptionIgnoreContext']
 
 class PipelineException(Exception):
     """General Pipeline Exception"""
