@@ -6,9 +6,9 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
-from edit.pipeline_V2 import config
+from edit.pipeline_V2.config import conf
 
-config = config.conf()
+config = conf()
 
 from edit.pipeline_V2.save import save, load
 from edit.pipeline_V2.controller import Pipeline, PipelineMod, PipelineIndex
@@ -44,4 +44,4 @@ __all__ = [
     "operations",
     "pipelines",
 ]
-__version__ = "2024.06.01"
+__version__ = "2024.06.02"

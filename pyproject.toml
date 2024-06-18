@@ -23,9 +23,10 @@ classifiers = [
 ]
 dependencies = [
     "edit-utils>24.06.2", 
-    "edit-data>24.06.2"
+    "edit-data>24.06.2",
     "xarray",
     "numpy",
+    "pandas",
 ]
 
 [project.optional-dependencies]
@@ -34,7 +35,7 @@ distributed = [
   "distributed",
 ]
 all = [
-  "edit-pipeline_V2[distributed]"
+  "edit-pipeline_V2[distributed]",
 ]
 dynamic = ["version", "readme"]
 
