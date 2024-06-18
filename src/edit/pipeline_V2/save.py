@@ -55,7 +55,20 @@ def save(pipeline: "edit.pipeline_V2.Pipeline", path: Optional[Union[str, Path]]
         file.write(full_yaml)
 
 
-def load(stream: Union[str, Path], **kwargs):
+def load(stream: Union[str, Path], **kwargs: Any) -> 'edit.pipeline_V2.Pipeline':
+    """
+    Load `Pipeline` config
+
+    Args:
+        stream (Union[str, Path]):
+            File or dump to load
+        kwargs (Any):
+            Updates to default values include in the config.
+
+    Returns:
+        (edit.pipeline_V2.Pipeline):
+            _description_
+    """
     contents = None
 
     if os.path.sep in str(stream):
