@@ -440,26 +440,32 @@ class Pipeline(PipelineIndex):
 
         raise TypeError(f"Cannot find step for {id!r}.")
 
-    def __add__(self, other: Pipeline):
+    def __add__(self, other: Union[PipelineIndex, PipelineStep]):
         """
         Combine pipelines
 
         Will set `self` steps first then `other`.
 
         But if other init kwargs were set, take from `other` if given.
-        """
-        if not isinstance(other, Pipeline):
-            return NotImplemented
+        """          
+        
+        if isinstance(other, Pipeline):
+            init = dict(self.initialisation)
+            other_init = dict(other.initialisation)
 
-        init = dict(self.initialisation)
-        other_init = dict(other.initialisation)
+            args = (*init.pop("__args", []), *other_init.pop("__args", []))
 
-        args = (*init.pop("__args", []), *other_init.pop("__args", []))
+            new_init = dict(init)
+            new_init.update({key: val for key, val in other_init.items() if val is not None})
 
-        new_init = dict(init)
-        new_init.update({key: val for key, val in other_init.items() if val is not None})
+            return Pipeline(*args, **new_init)
+        
+        elif isinstance(other, (PipelineMod, PipelineStep)):
+            init = dict(self.initialisation)
+            args = (*init.pop("__args", []), other)
+            return Pipeline(*args, **init)
 
-        return Pipeline(*args, **new_init)
+        return NotImplemented
 
     def graph(self) -> graphviz.Digraph:
         """Get graphical view of Pipeline"""
