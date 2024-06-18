@@ -8,6 +8,7 @@
 
 """Saving and Loading of `Pipelines`"""
 
+import os
 from typing import Any, Union, Optional
 
 from pathlib import Path
@@ -23,12 +24,12 @@ import edit.pipeline_V2
 CONFIG_KEY = "--CONFIG--"
 
 
-def save(pipeline: "edit.pipeline_V2.PipelineIndex", path: Optional[Union[str, Path]] = None) -> Union[None, str]:
+def save(pipeline: "edit.pipeline_V2.Pipeline", path: Optional[Union[str, Path]] = None) -> Union[None, str]:
     """
     Save `Pipeline`
 
     Args:
-        pipeline (edit.pipeline_V2.PipelineIndex):
+        pipeline (edit.pipeline_V2.Pipeline):
             Pipeline to save
         path (Optional[FILE], optional):
             File to save to. If not given return save str. Defaults to None.
@@ -57,12 +58,13 @@ def save(pipeline: "edit.pipeline_V2.PipelineIndex", path: Optional[Union[str, P
 def load(stream: Union[str, Path], **kwargs):
     contents = None
 
-    try:
-        contents = "".join(open(str(stream)).readlines())
-    except FileNotFoundError as e:
-        raise e
-    except OSError:
-        pass
+    if os.path.sep in str(stream):
+        try:
+            contents = "".join(open(str(stream)).readlines())
+        except FileNotFoundError as e:
+            raise e
+        except OSError:
+            pass
     
     if contents is None:
         contents = str(stream)
@@ -70,7 +72,7 @@ def load(stream: Union[str, Path], **kwargs):
     if not isinstance(contents, str):
         raise TypeError(f"Cannot parse contents of type {type(contents)} -{contents}.")
 
-    contents = initialisation.load.update_contents(contents, **kwargs)
+    contents = initialisation.update_contents(contents, **kwargs)
 
     if CONFIG_KEY in contents:
         config_str = contents[contents.index(CONFIG_KEY) :].replace(CONFIG_KEY, "")
