@@ -37,6 +37,8 @@ class OnVariables(Spliter):
 
         subsets = []
         for var in self._variables:
+            if any(map(lambda x: x not in sample, (var, ) if not isinstance(var, (tuple, list)) else var)):
+                raise ValueError(f"Could not split on {var}, as it was not found in dataset. Found {list(sample.data_vars)}.")
             subsets.append(sample[list(var) if isinstance(var, (tuple, list)) else [var]])
         return tuple(subsets)
 
