@@ -20,16 +20,15 @@ from edit.pipeline_V2.operation import Operation
 XARRAY_OBJECTS = Union[xr.Dataset, xr.DataArray]
 FILE_TYPES = Union[str, Path]
 
-__all__ = ['ToNumpy']
+__all__ = ["ToNumpy"]
+
 
 class ToNumpy(Operation):
     """
     Operation to convert data to [np.array][numpy.ndarray]
     """
 
-    def __init__(
-        self, reference_dataset: Optional[FILE_TYPES] = None, saved_records: Optional[FILE_TYPES] = None
-    ):
+    def __init__(self, reference_dataset: Optional[FILE_TYPES] = None, saved_records: Optional[FILE_TYPES] = None):
         """DataOperation to convert data to [np.array][numpy.ndarray]
 
         Args:

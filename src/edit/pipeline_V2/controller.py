@@ -108,7 +108,7 @@ class PipelineIndex(PipelineRecordingMixin, metaclass=ABCMeta):
 
 class Pipeline(PipelineIndex):
     """
-    Core of `edit.pipeline_V2`, 
+    Core of `edit.pipeline_V2`,
 
     Provides a way to set a sequence of operations to be applied to samples / data retrieved from `edit.data`.
 
@@ -118,16 +118,17 @@ class Pipeline(PipelineIndex):
             edit.pipeline_V2.operations.xarray.conversion.ToNumpy(),
     )
     """
+
     _sampler: samplers.Sampler
     _iterator: Optional[iterators.Iterator]
     _steps: tuple[Union[Index, PipelineStep, PipelineIndex, tuple[VALID_PIPELINE_TYPES, ...]], ...]
     _exceptions_to_ignore: Optional[tuple[Exception, ...]]
 
     _edit_repr = {"ignore": ["args"], "expand_attr": ["Steps@flattened_steps"]}
-    
+
     @property
     def _desc_(self) -> dict[str, Any]:
-        return {'singleline': 'Pipeline of samples'}
+        return {"singleline": "Pipeline of samples"}
 
     def __init__(
         self,
@@ -148,15 +149,15 @@ class Pipeline(PipelineIndex):
         The `steps` will be run in order of inclusion.
 
 
-        ## Branches 
+        ## Branches
 
-        If a tuple within the `steps` is encountered, it will be interpreted as a `BranchingPoint`, 
-        with each element in the `tuple` a seperate `Pipeline` of it's own right. 
+        If a tuple within the `steps` is encountered, it will be interpreted as a `BranchingPoint`,
+        with each element in the `tuple` a seperate `Pipeline` of it's own right.
         Therefore to have a `BranchingPoint` with each branch containing multiple steps, a nested `tuple` is needed.
-        
+
         E.g. # Pseudocode
         >>> Pipeline(
-                Index, 
+                Index,
                 (Operation_1, Operation_2)
             )
         This will cause samples to be retrieved from `Index` and each of the operations run on the `sample`.
@@ -167,8 +168,8 @@ class Pipeline(PipelineIndex):
 
         E.g. # Pseudocode
         >>> Pipeline(
-                Index, 
-                ((Operation_1, Operation_1pt2), Operation_2) 
+                Index,
+                ((Operation_1, Operation_1pt2), Operation_2)
             )
         This will cause samples to be retrieved from `Index` and each of the operations run on the `sample`.
         The result will follow the form of:
@@ -180,14 +181,14 @@ class Pipeline(PipelineIndex):
         ### Mapping
         E.g. # Pseudocode
         >>> Pipeline(
-                Index, 
+                Index,
                 ((Operation_1, Operation_1pt2), Operation_2, 'map')
             )
         This will cause samples to be retrieved from `Index` and the operations to be mapped to the `sample`.
         The result will follow the form of:
             `(Operation_1 + Operation_1pt2 on Index[0], Operation_2 on Index[1])`
 
-        'map_copy' can be used to copy the branch to the number of elements in the sample without having to 
+        'map_copy' can be used to copy the branch to the number of elements in the sample without having to
         manually specify each branch.
 
         ## Transforms
@@ -199,15 +200,15 @@ class Pipeline(PipelineIndex):
             *steps (VALID_PIPELINE_TYPES, tuple[VALID_PIPELINE_TYPES]):
                 Steps of the pipeline. Can include tuples to refer to branches.
 
-            iterator (Optional[Union[iterators.Iterator, tuple[iterators.Iterator, ...]]], optional): 
+            iterator (Optional[Union[iterators.Iterator, tuple[iterators.Iterator, ...]]], optional):
                 `Iterator` to use to retrieve samples when the `Pipeline` is being iterated over. Defaults to None.
-            sampler (Optional[Union[samplers.Sampler, tuple[samplers.Sampler, ...]]], optional): 
+            sampler (Optional[Union[samplers.Sampler, tuple[samplers.Sampler, ...]]], optional):
                 `Sampler` to use to sample the samples when iterating. If not given will yield all samples.
                 Can be used to randomly sample, drop out and more
                 Defaults to None.
-            exceptions_to_ignore (Optional[tuple[Exception, ...]], optional): 
+            exceptions_to_ignore (Optional[tuple[Exception, ...]], optional):
                 Which exceptions to ignore when iterating. Defaults to None.
-        """        
+        """
         super().__init__(*steps, **kwargs)
         self.record_initialisation()
 
@@ -229,7 +230,7 @@ class Pipeline(PipelineIndex):
                 return [to_flatten]
 
         return tuple(flatten(self.complete_steps))
-    
+
     @property
     def complete_steps(self) -> tuple:
         """Get all steps"""
@@ -264,13 +265,13 @@ class Pipeline(PipelineIndex):
         steps_list: list = []
 
         filter_steps(
-                val if isinstance(val, tuple) else (val,),
-                (tuple, Index, Pipeline, PipelineIndex, PipelineStep, Transform, TransformCollection),
-                # invalid_types=(Filter,),
-                responsible="Pipeline",
-            )
+            val if isinstance(val, tuple) else (val,),
+            (tuple, Index, Pipeline, PipelineIndex, PipelineStep, Transform, TransformCollection),
+            # invalid_types=(Filter,),
+            responsible="Pipeline",
+        )
 
-        #TODO add ability to directly use transforms
+        # TODO add ability to directly use transforms
 
         for v in val:
             if isinstance(v, (list, tuple)):
@@ -343,7 +344,7 @@ class Pipeline(PipelineIndex):
         for step in self.steps[1:]:
             if not isinstance(step, (PipelineStep, Transform, TransformCollection)):
                 raise TypeError(f"When iterating through pipeline steps, found a {type(step)} which cannot be parsed.")
-            sample = step(sample) # type: ignore
+            sample = step(sample)  # type: ignore
         return sample
 
     def undo(self, sample):
@@ -410,7 +411,6 @@ class Pipeline(PipelineIndex):
         for remaining in sampler:
             if check(remaining):
                 yield remaining
-
 
     def step(
         self, id: Union[str, int], limit: Optional[int] = -1
@@ -493,12 +493,19 @@ class PipelineMod(PipelineIndex):
     """Variant of Pipeline to be subclassed for modification"""
 
     _edit_repr = {"ignore": ["args"]}
-    _steps: tuple[Union[Index, PipelineStep, PipelineIndex, VALID_PIPELINE_TYPES, tuple[VALID_PIPELINE_TYPES, ...]], ...]
+    _steps: tuple[
+        Union[Index, PipelineStep, PipelineIndex, VALID_PIPELINE_TYPES, tuple[VALID_PIPELINE_TYPES, ...]], ...
+    ]
 
     def __init__(self):
         super().__init__()
 
-    def set_steps(self, steps: tuple[Union[Index, PipelineStep, PipelineIndex, VALID_PIPELINE_TYPES, tuple[VALID_PIPELINE_TYPES, ...]], ...]):
+    def set_steps(
+        self,
+        steps: tuple[
+            Union[Index, PipelineStep, PipelineIndex, VALID_PIPELINE_TYPES, tuple[VALID_PIPELINE_TYPES, ...]], ...
+        ],
+    ):
         """Set steps of this `PipelineMod`"""
         self._steps = steps
 
@@ -509,7 +516,7 @@ class PipelineMod(PipelineIndex):
     def as_pipeline(self) -> Pipeline:
         """Get `PipelineMod` as full pipeline, will include self"""
         return Pipeline(*self._steps, self)
-    
+
     @functools.wraps(PipelineIndex._get_tree)
     def _get_tree(
         self, parent: Optional[list[str]] = None, graph: Optional[graphviz.Digraph] = None

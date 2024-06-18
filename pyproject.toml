@@ -22,22 +22,31 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "edit-utils", 
-    "edit-data"
+    "edit-utils>24.06.2", 
+    "edit-data>24.06.2"
+    "xarray",
+    "numpy",
 ]
 
+[project.optional-dependencies]
+distributed = [
+  "dask",
+  "distributed",
+]
+all = [
+  "edit-pipeline_V2[distributed]"
+]
 dynamic = ["version", "readme"]
 
 [tool.setuptools.dynamic]
 readme = {file = ["README.md"], content-type = "text/markdown"}
-version = {attr = "edit.pipeline.__version__"}
-
+version = {attr = "edit.pipeline_V2.__version__"}
 
 
 [project.urls]
 homepage = "https://bom.gov.au"
 documentation = "https://git.nci.org.au/bom/dset/edit-package/documentation"
-repository = "https://git.nci.org.au/bom/dset/edit-package/pipeline"
+repository = "https://git.nci.org.au/bom/dset/edit-package/pipeline_v2"
 
 [tool.isort]
 profile = "black"

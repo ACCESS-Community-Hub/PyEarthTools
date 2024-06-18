@@ -12,10 +12,12 @@ from typing import Type, Iterable, Optional, Union, Any
 
 from edit.pipeline_V2.exceptions import PipelineTypeError
 
+
 def as_tuple(obj) -> tuple[Any, ...]:
     if not isinstance(obj, tuple):
         return (obj,)
     return obj
+
 
 def filter_steps(
     steps: Iterable,

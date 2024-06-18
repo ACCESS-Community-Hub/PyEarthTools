@@ -83,7 +83,9 @@ class Operation(PipelineStep, PotentialABC):
             "undo": operation in ["both", "undo"],
         }
 
-        self.check_abstractions([{'apply': 'apply_func', 'undo': 'undo_func'}[key] for key, val in self._operation.items() if val])
+        self.check_abstractions(
+            [{"apply": "apply_func", "undo": "undo_func"}[key] for key, val in self._operation.items() if val]
+        )
 
     def run(self, sample):
         return self.apply(sample)

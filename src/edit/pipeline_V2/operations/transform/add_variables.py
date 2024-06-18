@@ -21,8 +21,9 @@ from edit.data import Transform
 class TimeOfYear(Transform):
     """
     Add time of year to dataset
-    
+
     """
+
     def __init__(self, method: str):
         """
         Add time of year as variable to a dataset
@@ -70,4 +71,3 @@ class TimeOfYear(Transform):
     @property
     def _info_(self) -> Any | dict:
         return dict(method=self.method)
-

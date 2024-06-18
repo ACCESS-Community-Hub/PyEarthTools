@@ -123,7 +123,7 @@ class DaskParallelInterface(ParallelInterface):
 
         dask_config = config.DASK_CONFIG
         dask_config["processes"] = dask_config.pop("processes", False)
-        
+
         if _get_global_client() is None and not config.START_DASK:
             raise RuntimeError(f"Cannot start dask cluster if `config.START_DASK` is False.")
 

@@ -26,6 +26,7 @@ class AddCoordinates(Transform):
     if an earlier step in the pipeline is sensitive to variable names.
 
     """
+
     def __init__(self, coordinates: Union[str, list[str]], *extra_coords: str):
         """
         Add coordinates to dataset.
@@ -39,7 +40,6 @@ class AddCoordinates(Transform):
         coordinates = [coordinates] if isinstance(coordinates, str) else coordinates
         coordinates = [*coordinates, *extra_coords]
         self.coordinates = coordinates
-
 
     def apply(self, data: xr.Dataset):
         dims = list(data.dims)

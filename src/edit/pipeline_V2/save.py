@@ -65,7 +65,7 @@ def load(stream: Union[str, Path], **kwargs):
             raise e
         except OSError:
             pass
-    
+
     if contents is None:
         contents = str(stream)
 
@@ -78,7 +78,7 @@ def load(stream: Union[str, Path], **kwargs):
         config_str = contents[contents.index(CONFIG_KEY) :].replace(CONFIG_KEY, "")
         contents = contents[: contents.index(CONFIG_KEY)].replace(CONFIG_KEY, "")
         config = yaml.load(config_str, yaml.Loader)
-    else: 
+    else:
         config = {}
 
     if "import" in config:

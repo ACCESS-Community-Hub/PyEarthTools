@@ -42,6 +42,7 @@ class Cache(PipelineMod):
             )
         >>> pipeline['2000-01-01T00'] # Data will be cached
     """
+
     _cache: edit.data.indexes.FunctionalCacheIndex
 
     def __init__(
@@ -72,7 +73,7 @@ class Cache(PipelineMod):
                 | 'override' | Override the cache data when generating data, removes the caching benefit. |
                 | 'delete'   | Delete the cache if the hash is different. Will ask for input, include 'F' to force. |
                 Defaults to 'warn'.
-        """        
+        """
         super().__init__()
         self.record_initialisation()
 
@@ -94,13 +95,13 @@ class Cache(PipelineMod):
         """
         if self.save_cache_hash():
             self.save_pipeline()
-            
+
         return self._cache[idx]
 
     @property
     def cache(self) -> edit.data.indexes.FunctionalCacheIndex:
         return self._cache
-    
+
     @property
     def root_dir(self) -> Path:
         return self.cache.pattern.root_dir
@@ -156,7 +157,6 @@ class Cache(PipelineMod):
             return False
 
         cache_validity = self.hash == self._get_saved_hash()
-
 
         if cache_validity or self.root_dir is None:
             return True

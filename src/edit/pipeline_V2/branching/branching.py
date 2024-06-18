@@ -82,7 +82,14 @@ class PipelineBranchPoint(PipelineIndex, Operation, ParallelEnabledMixin):
     def __init__(
         self,
         *steps: Union[
-            tuple[Union[Index, Pipeline, PipelineStep, Transform, TransformCollection, Literal["map", "map_copy"]], ...], Index, PipelineStep, Pipeline, Transform, TransformCollection
+            tuple[
+                Union[Index, Pipeline, PipelineStep, Transform, TransformCollection, Literal["map", "map_copy"]], ...
+            ],
+            Index,
+            PipelineStep,
+            Pipeline,
+            Transform,
+            TransformCollection,
         ],
     ):
         super().__init__()  # type: ignore
