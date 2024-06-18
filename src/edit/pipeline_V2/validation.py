@@ -8,10 +8,14 @@
 
 from __future__ import annotations
 
-from typing import Type, Iterable, Optional, Union
+from typing import Type, Iterable, Optional, Union, Any
 
 from edit.pipeline_V2.exceptions import PipelineTypeError
 
+def as_tuple(obj) -> tuple[Any, ...]:
+    if not isinstance(obj, tuple):
+        return (obj,)
+    return obj
 
 def filter_steps(
     steps: Iterable,
@@ -21,10 +25,12 @@ def filter_steps(
     responsible: Optional[str] = None,
 ):
     """Check if `steps` are of `valid_types`"""
+    valid_types_str = tuple(map(lambda x: x.__class__, as_tuple(valid_types)))
+    invalid_types_str = tuple(map(lambda x: x.__class__, as_tuple(invalid_types)))
 
     for s in steps:
         if not isinstance(s, valid_types):
-            error_msg = f"found an invalid type.\n {type(s)} not in valid {valid_types}."
+            error_msg = f"found an invalid type.\n {type(s)} not in valid {valid_types_str}."
             if responsible:
                 error_msg = f"Filtering pipeline steps for {responsible}{error_msg}."
             else:
@@ -32,7 +38,7 @@ def filter_steps(
             raise PipelineTypeError(error_msg)
 
         if invalid_types is not None and isinstance(s, invalid_types):
-            error_msg = f"found an invalid type.\n {type(s)} in invalid {invalid_types}."
+            error_msg = f"found an invalid type.\n {type(s)} in invalid {invalid_types_str}."
             if responsible:
                 error_msg = f"Filtering pipeline steps for {responsible}{error_msg}."
             else:
