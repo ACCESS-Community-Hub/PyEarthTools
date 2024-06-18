@@ -14,6 +14,7 @@ import warnings
 import graphviz
 
 from edit.data.indexes import Index
+from edit.data.transforms import Transform, TransformCollection
 
 from edit.pipeline_V2.step import PipelineStep
 from edit.pipeline_V2.controller import PipelineIndex, Pipeline
@@ -76,14 +77,12 @@ class PipelineBranchPoint(PipelineIndex, Operation, ParallelEnabledMixin):
 
     _map = False
     _map_copy = False
-    _sub_pipeline: Optional[list[Pipeline]] = None
-
-    __incoming_steps: list[Pipeline]
+    sub_pipelines: list[Pipeline]
 
     def __init__(
         self,
         *steps: Union[
-            tuple[Union[Index, Pipeline, PipelineStep, Literal["map", "map_copy"]], ...], Index, PipelineStep, Pipeline
+            tuple[Union[Index, Pipeline, PipelineStep, Transform, TransformCollection, Literal["map", "map_copy"]], ...], Index, PipelineStep, Pipeline, Transform, TransformCollection
         ],
     ):
         super().__init__()  # type: ignore
@@ -100,7 +99,7 @@ class PipelineBranchPoint(PipelineIndex, Operation, ParallelEnabledMixin):
 
             filter_steps(
                 sub if isinstance(sub, tuple) else (sub,),
-                (tuple, Index, Pipeline, PipelineIndex, PipelineStep),
+                (tuple, Index, Pipeline, PipelineIndex, PipelineStep, Transform, TransformCollection),
                 # invalid_types=(Filter,),
                 responsible="PipelineBranchPoint",
             )
@@ -108,19 +107,8 @@ class PipelineBranchPoint(PipelineIndex, Operation, ParallelEnabledMixin):
                 __incoming_steps.append((sub,))  # type: ignore
             else:
                 __incoming_steps.append(sub)  # type: ignore
-        self.__incoming_steps = __incoming_steps
 
-    @property
-    def sub_pipelines(self):
-        if self._sub_pipeline:
-            return self._sub_pipeline
-        else:
-            self._sub_pipeline = list(map(lambda x: Pipeline(*x), self.__incoming_steps))
-        return self._sub_pipeline
-
-    @sub_pipelines.setter
-    def sub_pipelines(self, val):
-        self._sub_pipeline = val
+        self.sub_pipelines = list(map(lambda x: Pipeline(*x), __incoming_steps))
 
     def __getitem__(self, idx: Any) -> tuple:
         """Get result from each branch"""
@@ -136,7 +124,7 @@ class PipelineBranchPoint(PipelineIndex, Operation, ParallelEnabledMixin):
         """
 
         for step in steps:
-            if not isinstance(step, PipelineStep):
+            if not isinstance(step, (PipelineStep, Transform, TransformCollection)):
                 raise TypeError(f"When iterating through pipeline steps, found a {type(step)} which cannot be parsed.")
             elif isinstance(step, Operation):
                 sample = getattr(step, func_name)(sample)
