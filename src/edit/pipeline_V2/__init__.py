@@ -31,6 +31,14 @@ from edit.pipeline_V2.iterators import Iterator
 
 from edit.pipeline_V2.parallel import get_parallel
 
+from edit.pipeline_V2.exceptions import (
+    PipelineException,
+    PipelineFilterException,
+    PipelineRuntimeError,
+    PipelineTypeError,
+)
+from edit.pipeline_V2.warnings import PipelineWarning
+
 __all__ = [
     "Sampler",
     "Iterator",

@@ -29,6 +29,13 @@ dependencies = [
     "pandas",
 ]
 
+
+dynamic = ["version", "readme"]
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.md"], content-type = "text/markdown"}
+version = {attr = "edit.pipeline_V2.__version__"}
+
 [project.optional-dependencies]
 distributed = [
   "dask",
@@ -37,12 +44,6 @@ distributed = [
 all = [
   "edit-pipeline_V2[distributed]",
 ]
-dynamic = ["version", "readme"]
-
-[tool.setuptools.dynamic]
-readme = {file = ["README.md"], content-type = "text/markdown"}
-version = {attr = "edit.pipeline_V2.__version__"}
-
 
 [project.urls]
 homepage = "https://bom.gov.au"
