@@ -55,7 +55,7 @@ def save(pipeline: "edit.pipeline_V2.Pipeline", path: Optional[Union[str, Path]]
         file.write(full_yaml)
 
 
-def load(stream: Union[str, Path], **kwargs: Any) -> 'edit.pipeline_V2.Pipeline':
+def load(stream: Union[str, Path], **kwargs: Any) -> "edit.pipeline_V2.Pipeline":
     """
     Load `Pipeline` config
 
