@@ -45,7 +45,7 @@ data_preperation.graph()
 ### Pypi
 
 ```shell
-pip install edit-pipeline
+pip install edit-pipeline_V2
 ```
 
 ### On Gadi
