@@ -16,6 +16,7 @@ import xarray as xr
 from edit.utils.data import NumpyConverter
 
 from edit.pipeline_V2.operation import Operation
+from edit.pipeline_V2 import parallel
 
 XARRAY_OBJECTS = Union[xr.Dataset, xr.DataArray]
 FILE_TYPES = Union[str, Path]
@@ -25,11 +26,15 @@ __all__ = ["ToNumpy"]
 
 class ToNumpy(Operation):
     """
-    Operation to convert data to [np.array][numpy.ndarray]
+    Convert xarray objects to np.ndarray's
     """
 
-    def __init__(self, reference_dataset: Optional[FILE_TYPES] = None, saved_records: Optional[FILE_TYPES] = None):
+    def __init__(self, reference_dataset: Optional[FILE_TYPES] = None, saved_records: Optional[FILE_TYPES] = None, run_parallel: bool = True):
         """DataOperation to convert data to [np.array][numpy.ndarray]
+
+        If speed is needed without an `undo`, set `run_parallel` to True, and split the data into seperate
+        datasets as much as possible.
+            `edit.pipeline_V2.operations.xarray.split.OnVariables()` can be useful here
 
         Args:
             reference_dataset (Optional[FILE_TYPES], optional):
@@ -40,6 +45,10 @@ class ToNumpy(Operation):
                 Saved records to set numpy converter with.
                 Will be overwritten when this is given a dataset.
                 Defaults to None.
+            run_parallel (bool, optional): 
+                Whether to run in parallel, will cause `undo` to fail without `saved_records`.
+                If an undo pipeline is needed, set this to False.
+                Defaults to False.
         """
         super().__init__(
             recognised_types={"apply": (xr.Dataset, xr.DataArray, tuple), "undo": (np.ndarray,)},
@@ -49,20 +58,48 @@ class ToNumpy(Operation):
 
         self._numpy_converter = NumpyConverter()
         self._saved_records = saved_records
+        self._reference_dataset = reference_dataset
+        self._converters = []
+        self._run_parallel = run_parallel
 
         if reference_dataset and saved_records:
             raise ValueError(f"Cannot provide both `reference_dataset` and `saved_records`.")
 
-        if saved_records:
-            self._numpy_converter.load_records(saved_records)
-        if reference_dataset:
-            self._numpy_converter.convert_xarray_to_numpy(xr.open_dataset(reference_dataset), replace=True)
+        def make_converter() -> NumpyConverter:
+            numpy_converter = NumpyConverter()
+            if saved_records:
+                numpy_converter.load_records(saved_records)
+            if reference_dataset:
+                numpy_converter.convert_xarray_to_numpy(xr.open_dataset(reference_dataset), replace=True)
+            return numpy_converter
+        self._make_converter = make_converter
+
+    def _get_converters(self, number: int) -> tuple[NumpyConverter]:
+        """
+        Retrieve a set number of NumpyConverter, creating new ones if needed
+        """
+        return_values = []
+
+        for i in range(number):
+            if i < len(self._converters):
+                return_values.append(self._converters[i])
+            else:
+                self._converters.append(self._make_converter())
+                return_values.append(self._converters[-1])
+
+        return tuple(return_values)
+        
 
     def apply_func(self, sample: Union[tuple[XARRAY_OBJECTS, ...], XARRAY_OBJECTS]):
-        result = self._numpy_converter.convert_xarray_to_numpy(sample, replace=True)
+        if isinstance(sample, tuple) and self._run_parallel:
+            def run_converter(sub_samp: XARRAY_OBJECTS, converter: NumpyConverter):
+                return converter.convert_xarray_to_numpy(sub_samp)
+            return tuple(self.parallel_interface.collect(self.parallel_interface.map(lambda x: run_converter(*x), tuple(zip(sample, self._get_converters(len(sample)))))))
+        
+        result = self._get_converters(1)[0].convert_xarray_to_numpy(sample, replace=True)
         if self._saved_records:
             self._numpy_converter.save_records(self._saved_records)
         return result
 
     def undo_func(self, sample: Union[tuple[np.ndarray, ...], np.ndarray]):
-        return self._numpy_converter.convert_numpy_to_xarray(sample, pop=False)
+        return self._get_converters(1)[0].convert_numpy_to_xarray(sample, pop=False)
