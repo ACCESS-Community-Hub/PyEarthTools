@@ -10,7 +10,7 @@ from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 
 import functools
-from typing import Any, ContextManager, Literal, Union, Optional
+from typing import Any, ContextManager, Literal, Union, Optional, Type
 from pathlib import Path
 
 import graphviz
@@ -346,19 +346,37 @@ class Pipeline(PipelineIndex):
                 raise TypeError(f"When iterating through pipeline steps, found a {type(step)} which cannot be parsed.")
             sample = step(sample)  # type: ignore
         return sample
+    
+    @property
+    def get_and_catch(self):
+        """Get indexable object like pipeline which will ignore any expections known to be ignored."""
+        if self._exceptions_to_ignore is None:
+            return self
+        
+        class catch():
+            def __getitem__(self, idx: Any):
+                try:
+                    return self[idx]
+                except self._exceptions_to_ignore: # type: ignore
+                    return None
+        return catch()
+        
 
     def undo(self, sample):
         """Undo `Pipeline` on `sample`"""
         for i, step in enumerate(self.steps[::-1]):
             if i == (len(self.steps) - 1) and (
-                not isinstance(step, PipelineStep) and isinstance(step, (Index, PipelineIndex))
+                not isinstance(step, PipelineStep) and isinstance(step, Index)
             ):
                 # Remove last step on undo path if not PipelineStep, likely to be Index
                 continue
-            if not isinstance(step, PipelineStep):
+            if not isinstance(step, (PipelineMod, PipelineStep)):
                 raise TypeError(f"When iterating through pipeline steps, found a {type(step)} which cannot be parsed.")
             elif isinstance(step, Operation):
                 sample = step.undo(sample)
+            elif isinstance(step, PipelineMod):
+                sample = step.undo_func(sample)
+                sample = step.parent_pipeline().undo(sample)
             else:
                 sample = step(sample)
         return sample
@@ -413,7 +431,7 @@ class Pipeline(PipelineIndex):
                 yield remaining
 
     def step(
-        self, id: Union[str, int], limit: Optional[int] = -1
+        self, id: Union[str, int, Type], limit: Optional[int] = -1
     ) -> Union[Index, Pipeline, Operation, tuple[Union[Index, Pipeline, Operation], ...]]:
         """Get step correspondant to `id`
 
@@ -421,7 +439,13 @@ class Pipeline(PipelineIndex):
         otherwise if `int`, gets step at the `idx`
 
         If `limit` is None, give back first found not in tuple, or if -1 return all.
+
+        Raises:
+            ValueError:
+                If cannot find `id` in self.
         """
+        if isinstance(id, Type):
+            id = id.__name__
         if isinstance(id, str):
             matches = []
             for step in self.flattened_steps:
@@ -438,17 +462,24 @@ class Pipeline(PipelineIndex):
         elif isinstance(id, int):
             return self.complete_steps[id]
 
-        raise TypeError(f"Cannot find step for {id!r}.")
+        raise ValueError(f"Cannot find step for {id!r}.")
+    
+    def __contains__(self, id: Union[str, Type]) -> bool:
+        try:
+            self.step(id)
+            return True
+        except ValueError:
+            return False
 
-    def __add__(self, other: Union[PipelineIndex, PipelineStep]):
+    def __add__(self, other: Union[PipelineIndex, PipelineStep]) -> Pipeline:
         """
         Combine pipelines
 
         Will set `self` steps first then `other`.
 
         But if other init kwargs were set, take from `other` if given.
-        """          
-        
+        """
+
         if isinstance(other, Pipeline):
             init = dict(self.initialisation)
             other_init = dict(other.initialisation)
@@ -459,7 +490,7 @@ class Pipeline(PipelineIndex):
             new_init.update({key: val for key, val in other_init.items() if val is not None})
 
             return Pipeline(*args, **new_init)
-        
+
         elif isinstance(other, (PipelineMod, PipelineStep)):
             init = dict(self.initialisation)
             args = (*init.pop("__args", []), other)
@@ -496,7 +527,12 @@ class Pipeline(PipelineIndex):
 
 
 class PipelineMod(PipelineIndex):
-    """Variant of Pipeline to be subclassed for modification"""
+    """
+    Variant of Pipeline to be subclassed for modification
+
+    Must implement `__getitem__` to modify data retrieval flow,
+    and if changes are needed on `undo`, override `undo_func`.
+    """
 
     _edit_repr = {"ignore": ["args"]}
     _steps: tuple[
@@ -522,6 +558,10 @@ class PipelineMod(PipelineIndex):
     def as_pipeline(self) -> Pipeline:
         """Get `PipelineMod` as full pipeline, will include self"""
         return Pipeline(*self._steps, self)
+
+    def undo_func(self, sample: Any) -> Any:
+        """Run `undo`. If the child class needs to make modifications, """
+        return sample
 
     @functools.wraps(PipelineIndex._get_tree)
     def _get_tree(
