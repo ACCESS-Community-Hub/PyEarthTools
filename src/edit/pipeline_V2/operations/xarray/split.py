@@ -6,7 +6,7 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
-from typing import TypeVar, Union, Optional, Any
+from typing import TypeVar, Union, Optional, Any, Optional
 
 import xarray as xr
 
@@ -20,9 +20,19 @@ class OnVariables(Spliter):
 
     def __init__(
         self,
-        variables: Union[tuple[Union[str, tuple[str, ...], list[str]], ...], list[str]],
+        variables: Optional[Union[tuple[Union[str, tuple[str, ...], list[str]], ...], list[str]]] = None,
         merge_kwargs: Optional[dict[str, Any]] = None,
     ):
+        """
+        Split on variables
+
+        Args:
+            variables (Optional[Union[tuple[Union[str, tuple[str, ...], list[str]], ...], list[str]]], optional): 
+                Variable split. If tuple or list, will split into those tuples, with the associated list referencing the variables to split out.
+                If not given, will split all variables into seperate items. Defaults to None.
+            merge_kwargs (Optional[dict[str, Any]], optional): 
+                Kwargs needed for merge on the `undo`. Defaults to None.
+        """        
         super().__init__(
             recognised_types=(xr.DataArray, xr.Dataset),
             recursively_split_tuples=True,
@@ -36,7 +46,7 @@ class OnVariables(Spliter):
         """Split sample"""
 
         subsets = []
-        for var in self._variables:
+        for var in self._variables or list(sample.data_vars):
             if any(map(lambda x: x not in sample, (var,) if not isinstance(var, (tuple, list)) else var)):
                 raise ValueError(
                     f"Could not split on {var}, as it was not found in dataset. Found {list(sample.data_vars)}."
