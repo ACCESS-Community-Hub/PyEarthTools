@@ -21,7 +21,7 @@ from edit.pipeline_V2.controller import PipelineIndex, Pipeline
 from edit.pipeline_V2.operation import Operation
 from edit.pipeline_V2.filters import Filter
 
-from edit.pipeline_V2.parallel import ParallelEnabledMixin, config
+from edit.pipeline_V2 import parallel
 from edit.pipeline_V2.warnings import PipelineWarning
 from edit.pipeline_V2.validation import filter_steps
 from edit.pipeline_V2.exceptions import PipelineRuntimeError
@@ -56,7 +56,7 @@ def expand_pipeline(original: PipelineBranchPoint, length: int) -> list[Pipeline
     return new_pipeline
 
 
-class PipelineBranchPoint(PipelineIndex, Operation, ParallelEnabledMixin):
+class PipelineBranchPoint(PipelineIndex, Operation):
     """
     Branch Point in a `Pipeline`.
 
@@ -188,16 +188,16 @@ class PipelineBranchPoint(PipelineIndex, Operation, ParallelEnabledMixin):
                 f"The length of samples, and number of branchpoints differed.",
                 PipelineWarning,
             )
+        with parallel.disable:
+            for samp, sub_pipe in zip(sample, self.sub_pipelines):
+                steps = sub_pipe.steps[::-1]
+                if not isinstance(steps[-1], PipelineStep) and isinstance(steps[-1], (Index, PipelineIndex)):
+                    steps = steps[:-1]  # Remove last step on undo path if not PipelineStep
 
-        for samp, sub_pipe in zip(sample, self.sub_pipelines):
-            steps = sub_pipe.steps[::-1]
-            if not isinstance(steps[-1], PipelineStep) and isinstance(steps[-1], (Index, PipelineIndex)):
-                steps = steps[:-1]  # Remove last step on undo path if not PipelineStep
-
-            sub_samples.append(
-                self.parallel_interface.submit(self._steps_function, samp, steps=steps, func_name="undo")
-            )
-        result = tuple(self.parallel_interface.collect(sub_samples))
+                sub_samples.append(
+                    self.parallel_interface.submit(self._steps_function, samp, steps=steps, func_name="undo")
+                )
+            result = tuple(self.parallel_interface.collect(sub_samples))
 
         if all(len(pipe.steps) == 1 and isinstance(pipe.steps[0], Index) for pipe in self.sub_pipelines):
             # if all(map(lambda x: result[0] == x, result[1:])):

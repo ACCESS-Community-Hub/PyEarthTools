@@ -95,7 +95,7 @@ class SerialInterface(ParallelInterface):
         return self._wrap_in_result(func(*args, **kwargs))
 
     def map(self, func, iterables, *iter, **kwargs) -> Future:
-        return list(map(lambda i: self._wrap_in_result(func(i, **kwargs)), iterables, *iter))  # type: ignore
+        return tuple(map(lambda i: self._wrap_in_result(func(i, **kwargs)), iterables, *iter))  # type: ignore
 
     def gather(self, futures, *args, **kwargs):
         return type(futures)(map(lambda x: x.result(), futures))

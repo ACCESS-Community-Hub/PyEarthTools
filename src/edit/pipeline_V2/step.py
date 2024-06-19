@@ -13,10 +13,13 @@ from functools import partial
 from typing import Callable, Union, Optional, Literal, Type
 import warnings
 
+import numpy as np
+
 
 from edit.pipeline_V2.recording import PipelineRecordingMixin
 from edit.pipeline_V2.exceptions import PipelineTypeError, PipelineFilterException
 from edit.pipeline_V2.warnings import PipelineWarning
+from edit.pipeline_V2 import parallel
 from edit.pipeline_V2.parallel import ParallelEnabledMixin
 
 
@@ -45,7 +48,7 @@ class PipelineStep(PipelineRecordingMixin, ParallelEnabledMixin, metaclass=ABCMe
     ):
         """
         Base `PipelineStep`
-        - all should subclass from this
+        - all steps should subclass from this
 
         Args:
             split_tuples (Union[dict[str, bool], bool], optional):
@@ -74,6 +77,11 @@ class PipelineStep(PipelineRecordingMixin, ParallelEnabledMixin, metaclass=ABCMe
         Split `sample` if it is a tuple and apply `_function` of `self` to each.
         """
 
+        if np.ndarray in self.recognised_types.get(str(_function), []):
+            parallel_context = parallel.disable
+        else:
+            parallel_context = parallel.enable
+
         func_name = _function if isinstance(_function, str) else _function.__name__
 
         to_split = self.split_tuples
@@ -88,8 +96,9 @@ class PipelineStep(PipelineRecordingMixin, ParallelEnabledMixin, metaclass=ABCMe
         if to_split and isinstance(sample, tuple):
             if self.recursively_split_tuples:
                 func = partial(self._split_tuples_call, _function=_function, **kwargs)
-
-            return tuple(self.parallel_interface.collect(self.parallel_interface.map(func, sample)))
+            
+            with parallel_context:
+                return tuple(self.parallel_interface.collect(self.parallel_interface.map(func, sample)))
         return func(sample)
 
     def check_type(
@@ -127,6 +136,7 @@ class PipelineStep(PipelineRecordingMixin, ParallelEnabledMixin, metaclass=ABCMe
             raise ValueError(f"Invalid 'response_on_type': {self.response_on_type!r}.")
 
     def __call__(self, sample):
+        self.check_type(sample, func_name = 'run')
         return self._split_tuples_call(sample, _function="run")
 
     def __str__(self):

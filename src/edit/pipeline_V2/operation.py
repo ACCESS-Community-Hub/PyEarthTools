@@ -9,12 +9,12 @@
 from __future__ import annotations
 
 from typing import Literal, Optional, Type, Union
-import warnings
 
 from edit.pipeline_V2.step import PipelineStep
 
 from edit.pipeline_V2.decorators import potentialabstractmethod, PotentialABC
 from edit.pipeline_V2.exceptions import PipelineRuntimeError
+from edit.pipeline_V2 import parallel
 
 __all__ = ["Operation"]
 
@@ -102,7 +102,8 @@ class Operation(PipelineStep, PotentialABC):
         if not self._operation["undo"]:
             return sample
         self.check_type(sample, func_name="undo")
-        return self._split_tuples_call(sample, _function="undo_func")
+        with parallel.disable:
+            return self._split_tuples_call(sample, _function="undo_func")
 
     @potentialabstractmethod
     def apply_func(self, sample):
