@@ -179,10 +179,9 @@ class IdxModifier(PipelineMod, ParallelEnabledMixin):
         return samples
 
     def __getitem__(self, idx: Any):
-        super_get = self.parent_pipeline().__getitem__
 
         if not isinstance(self._modification, tuple):
-            return super_get(idx + self._modification)
+            return self.parent_pipeline()[idx + self._modification]
 
         return self._get_tuple(idx, self._modification, 0)
 

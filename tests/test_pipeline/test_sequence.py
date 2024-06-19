@@ -17,8 +17,8 @@ config.RUN_PARALLEL = False
 
 import edit.data
 
-from edit.pipeline_V2 import Pipeline, exceptions, pipelines
-from edit.pipeline_V2.pipelines.idx_modification import SequenceRetrieval
+from edit.pipeline_V2 import Pipeline, exceptions, modifications
+from edit.pipeline_V2.modifications.idx_modification import SequenceRetrieval
 
 from tests.fake_pipeline_steps import *
 

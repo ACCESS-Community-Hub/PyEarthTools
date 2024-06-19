@@ -22,8 +22,10 @@ from edit.pipeline_V2 import (
     iterators,
     samplers,
     operations,
-    pipelines,
+    modifications,
 )
+
+from edit.pipeline_V2.modifications import Cache, SequenceRetrieval, TemporalRetrieval
 
 from edit.pipeline_V2.samplers import Sampler
 
@@ -50,6 +52,6 @@ __all__ = [
     "iterators",
     "samplers",
     "operations",
-    "pipelines",
+    "modifications",
 ]
 __version__ = "2024.06.02"

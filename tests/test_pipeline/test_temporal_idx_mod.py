@@ -18,7 +18,7 @@ config.RUN_PARALLEL = False
 import edit.data
 
 from edit.pipeline_V2 import Pipeline, exceptions
-from edit.pipeline_V2.pipelines.idx_modification import TemporalRetrieval
+from edit.pipeline_V2.modifications.idx_modification import TemporalRetrieval
 
 from tests.fake_pipeline_steps import *
 

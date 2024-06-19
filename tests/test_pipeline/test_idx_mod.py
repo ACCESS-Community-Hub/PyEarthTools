@@ -15,38 +15,38 @@ from edit.pipeline_V2 import config
 
 config.RUN_PARALLEL = False
 
-from edit.pipeline_V2 import Pipeline, exceptions, pipelines
+from edit.pipeline_V2 import Pipeline, exceptions, modifications
 
 from tests.fake_pipeline_steps import *
 
 
 def test_IdxModifier_basic():
-    pipe = Pipeline(FakeIndex(), pipelines.IdxModifier((0,)))
+    pipe = Pipeline(FakeIndex(), modifications.IdxModifier((0,)))
     assert pipe[0] == (0,)
 
 
 def test_IdxModifier_basic_no_tuple():
-    pipe = Pipeline(FakeIndex(), pipelines.IdxModifier(0))
+    pipe = Pipeline(FakeIndex(), modifications.IdxModifier(0))
     assert pipe[0] == 0
 
 
 def test_IdxModifier_two_samples():
-    pipe = Pipeline(FakeIndex(), pipelines.IdxModifier((0, 1)))
+    pipe = Pipeline(FakeIndex(), modifications.IdxModifier((0, 1)))
     assert pipe[0] == (0, 1)
 
 
 def test_IdxModifier_nested():
-    pipe = Pipeline(FakeIndex(), pipelines.IdxModifier((0, (1, 2))))
+    pipe = Pipeline(FakeIndex(), modifications.IdxModifier((0, (1, 2))))
     assert pipe[0] == (0, (1, 2))
 
 
 def test_IdxModifier_nested_double():
-    pipe = Pipeline(FakeIndex(), pipelines.IdxModifier((0, (1, (2, 3)))))
+    pipe = Pipeline(FakeIndex(), modifications.IdxModifier((0, (1, (2, 3)))))
     assert pipe[0] == (0, (1, (2, 3)))
 
 
 def test_IdxModifier_nested_merge():
-    pipe = Pipeline(FakeIndex(), pipelines.IdxModifier((0, (1, 2)), merge=True, merge_function=sum))
+    pipe = Pipeline(FakeIndex(), modifications.IdxModifier((0, (1, 2)), merge=True, merge_function=sum))
     assert pipe[0] == (0, 3)
 
 
@@ -62,7 +62,7 @@ def test_IdxModifier_nested_merge():
 def test_IdxModifier_merge_depth(depth, result):
     pipe = Pipeline(
         FakeIndex(),
-        pipelines.IdxModifier((1, (2, (3, 4))), merge=depth, merge_function=sum),
+        modifications.IdxModifier((1, (2, (3, 4))), merge=depth, merge_function=sum),
     )
     assert pipe[0] == result
 
@@ -70,7 +70,7 @@ def test_IdxModifier_merge_depth(depth, result):
 def test_IdxModifier_unmergeable():
     pipe = Pipeline(
         FakeIndex("test"),
-        pipelines.IdxModifier(("t", "a"), merge=True, merge_function=sum),
+        modifications.IdxModifier(("t", "a"), merge=True, merge_function=sum),
     )
     with pytest.raises(TypeError):
         assert pipe[1] == (1, 5)
@@ -79,8 +79,8 @@ def test_IdxModifier_unmergeable():
 def test_IdxMod_stacked():
     pipe = Pipeline(
         FakeIndex(),
-        pipelines.IdxModifier((0, 1)),
-        pipelines.IdxModifier((0, 1)),
+        modifications.IdxModifier((0, 1)),
+        modifications.IdxModifier((0, 1)),
     )
     assert pipe[1] == ((1, 2), (2, 3))
 
@@ -88,8 +88,8 @@ def test_IdxMod_stacked():
 def test_IdxMod_stacked_with_mult():
     pipe = Pipeline(
         FakeIndex(),
-        pipelines.IdxModifier((0, 1)),
-        pipelines.IdxModifier((0, 1)),
+        modifications.IdxModifier((0, 1)),
+        modifications.IdxModifier((0, 1)),
         MultiplicationOperation(2),
     )
     assert pipe[1] == ((2, 4), (4, 6))
@@ -98,7 +98,7 @@ def test_IdxMod_stacked_with_mult():
 def test_IdxMod_with_branch():
     pipe = Pipeline(
         FakeIndex(),
-        pipelines.IdxModifier((0, 1)),
+        modifications.IdxModifier((0, 1)),
         (
             (MultiplicationOperation(1),),
             (MultiplicationOperation(2),),
@@ -110,7 +110,7 @@ def test_IdxMod_with_branch():
 def test_IdxMod_with_branch_mapping():
     pipe = Pipeline(
         FakeIndex(),
-        pipelines.IdxModifier((0, 1)),
+        modifications.IdxModifier((0, 1)),
         ((MultiplicationOperation(1),), (MultiplicationOperation(2),), "map"),
     )
     assert pipe[1] == (1, 4)
@@ -120,7 +120,7 @@ def test_IdxMod_with_branch_mapping():
 
 
 def test_IdxOverride_basic():
-    pipe = Pipeline(FakeIndex(), pipelines.IdxOverride(0))
+    pipe = Pipeline(FakeIndex(), modifications.IdxOverride(0))
     assert pipe[1] == 0
 
 
@@ -130,7 +130,7 @@ def test_IdxOverride_basic():
 def test_TimeIdxModifier_basic():
     import edit.data
 
-    pipe = Pipeline(FakeIndex(), pipelines.TimeIdxModifier("6 hours"))
+    pipe = Pipeline(FakeIndex(), modifications.TimeIdxModifier("6 hours"))
     assert pipe[edit.data.EDITDatetime("2000-01-01T00")] == edit.data.EDITDatetime("2000-01-01T06")
 
 
@@ -143,7 +143,7 @@ def test_TimeIdxModifier_basic():
 def test_TimeIdxModifier_nested():
     import edit.data
 
-    pipe = Pipeline(FakeIndex(), pipelines.TimeIdxModifier(("6 hours", "12 hours")))
+    pipe = Pipeline(FakeIndex(), modifications.TimeIdxModifier(("6 hours", "12 hours")))
     assert pipe[edit.data.EDITDatetime("2000-01-01T00")] == (
         edit.data.EDITDatetime("2000-01-01T06"),
         edit.data.EDITDatetime("2000-01-01T12"),
