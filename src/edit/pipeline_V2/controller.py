@@ -89,7 +89,7 @@ class PipelineIndex(PipelineRecordingMixin, metaclass=ABCMeta):
         for step in self.steps:
             if isinstance(step, PipelineIndex):
                 with graph.subgraph() as c:  # type: ignore
-                    _, prior_step = step._get_tree(prior_step, graph=c)
+                    _, prior_step = step._get_tree(prior_step, graph=c) # type: ignore
             else:
                 node_name = f"{step.__class__.__name__}_{uuid.uuid4()!s}"
                 graph.node(node_name, **parse_to_graph_name(step, parent=prior_step))
@@ -128,7 +128,7 @@ class Pipeline(PipelineIndex):
 
     @property
     def _desc_(self) -> dict[str, Any]:
-        return {"singleline": "Pipeline of samples"}
+        return {"singleline": "`edit.pipeline_V2` Data Pipeline"}
 
     def __init__(
         self,
@@ -463,6 +463,16 @@ class Pipeline(PipelineIndex):
             return self.complete_steps[id]
 
         raise ValueError(f"Cannot find step for {id!r}.")
+    
+    @property
+    def as_steps(self):
+        steps = self.complete_steps
+        class StepIndexer:
+            def __getitem__(self, idx):
+                if isinstance(idx, int):
+                    raise ValueError(f"`idx` must be a slice to remake pipeline with.")
+                return Pipeline(*steps[idx])
+        return StepIndexer()
     
     def __contains__(self, id: Union[str, Type]) -> bool:
         try:
