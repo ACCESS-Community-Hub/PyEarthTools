@@ -44,7 +44,7 @@ def test_branch_differing_operations_larger_direct():
     pipe = Pipeline(
         FakeIndex(),
         (
-            Pipeline(MultiplicationOperation(10), MultiplicationOperation(5)),
+            (MultiplicationOperation(10), MultiplicationOperation(5)),
             MultiplicationOperation(2),
         ),
     )

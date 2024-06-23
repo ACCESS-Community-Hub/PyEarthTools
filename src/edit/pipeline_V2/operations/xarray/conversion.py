@@ -6,8 +6,10 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
+#type: ignore[reportPrivateImportUsage]
 
-from typing import Optional, Union
+
+from typing import Optional, Union, TypeVar
 from pathlib import Path
 
 import numpy as np
@@ -16,9 +18,8 @@ import xarray as xr
 from edit.utils.data import NumpyConverter
 
 from edit.pipeline_V2.operation import Operation
-from edit.pipeline_V2 import parallel
 
-XARRAY_OBJECTS = Union[xr.Dataset, xr.DataArray]
+XARRAY_OBJECTS = TypeVar('XARRAY_OBJECTS', xr.Dataset, xr.DataArray)
 FILE_TYPES = Union[str, Path]
 
 __all__ = ["ToNumpy"]
@@ -28,6 +29,7 @@ class ToNumpy(Operation):
     """
     Convert xarray objects to np.ndarray's
     """
+    _override_interface = 'Serial'
 
     def __init__(self, reference_dataset: Optional[FILE_TYPES] = None, saved_records: Optional[FILE_TYPES] = None, run_parallel: bool = True):
         """DataOperation to convert data to [np.array][numpy.ndarray]
@@ -94,7 +96,8 @@ class ToNumpy(Operation):
         if isinstance(sample, tuple) and self._run_parallel:
             def run_converter(sub_samp: XARRAY_OBJECTS, converter: NumpyConverter):
                 return converter.convert_xarray_to_numpy(sub_samp)
-            return tuple(self.parallel_interface.collect(self.parallel_interface.map(lambda x: run_converter(*x), tuple(zip(sample, self._get_converters(len(sample)))))))
+            parallel_interface = self.get_parallel_interface(['Delayed', 'Serial'])
+            return tuple(parallel_interface.collect(parallel_interface.map(lambda x: run_converter(*x), tuple(zip(sample, self._get_converters(len(sample)))))))
         
         result = self._get_converters(1)[0].convert_xarray_to_numpy(sample, replace=True)
         if self._saved_records:
@@ -103,3 +106,22 @@ class ToNumpy(Operation):
 
     def undo_func(self, sample: Union[tuple[np.ndarray, ...], np.ndarray]):
         return self._get_converters(1)[0].convert_numpy_to_xarray(sample, pop=False)
+
+class ToDask(Operation):
+    """
+    Convert xarray objects to pure dask arrays
+    """
+    _override_interface = 'Serial'
+    
+    def __init__(self):
+        super().__init__(split_tuples=True, recursively_split_tuples=True, recognised_types=(xr.Dataset, xr.DataArray))
+        self.record_initialisation()
+        
+    def apply_func(self, sample: XARRAY_OBJECTS):
+        import dask.array as da
+        if isinstance(sample, xr.DataArray):
+            return sample.data
+        elif isinstance(sample, xr.Dataset):
+            return da.stack(map(lambda x: sample[x].data, list(sample.data_vars)))
+    def undo_func(self, sample):
+        raise NotImplementedError(f"Cannot yet convert back from dask array.")

@@ -19,7 +19,7 @@ import numpy as np
 import edit.data
 
 
-from edit.pipeline_V2.controller import PipelineMod
+from edit.pipeline_V2.controller import PipelineIndex
 from edit.pipeline_V2.parallel import ParallelEnabledMixin
 from edit.pipeline_V2.warnings import PipelineWarning
 
@@ -33,7 +33,7 @@ MERGE_FUNCTIONS = {
 }
 
 
-class IdxOverride(PipelineMod):
+class IdxOverride(PipelineIndex):
     """Override `idx` on any `__getitem__` call"""
 
     def __init__(self, index: Any):
@@ -45,7 +45,7 @@ class IdxOverride(PipelineMod):
         return self.parent_pipeline()[self._index]
 
 
-class IdxModifier(PipelineMod, ParallelEnabledMixin):
+class IdxModifier(PipelineIndex, ParallelEnabledMixin):
     """Modify index used in `__getitem__`, allows for multiple samples.
 
 
@@ -53,6 +53,7 @@ class IdxModifier(PipelineMod, ParallelEnabledMixin):
         >>> pipeline = Pipeline(IdxModifier((0, 1)))
         >>> pipeline[1] # Will get sample with (1, 2)
     """
+    _override_interface = ['Serial']
 
     def __init__(
         self,

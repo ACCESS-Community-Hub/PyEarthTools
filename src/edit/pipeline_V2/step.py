@@ -26,12 +26,17 @@ from edit.pipeline_V2.parallel import ParallelEnabledMixin
 class PipelineStep(PipelineRecordingMixin, ParallelEnabledMixin, metaclass=ABCMeta):
     """
     Core step of a pipeline
+
+    Properties:
+        _import: Optional str specifying import location of the subclassed step
+        _override_interface: Override for interface ordering
     """
 
     split_tuples: Union[dict[str, bool], bool] = False
     recognised_types: dict[str, Union[tuple[Type, ...], tuple[Type]]]
 
     _import: Optional[str] = None  # Module to import to find this class
+    _override_interface = ['Delayed','Serial']  # Order of interfaces to try.
 
     def __init__(
         self,
@@ -72,19 +77,16 @@ class PipelineStep(PipelineRecordingMixin, ParallelEnabledMixin, metaclass=ABCMe
     def run(self, sample):
         raise NotImplementedError()
 
-    def _split_tuples_call(self, sample, *, _function: Union[Callable, str] = "run", **kwargs):
+    def _split_tuples_call(self, sample, *, _function: Union[Callable, str] = "run", override_for_split: Optional[bool] = None, **kwargs):
         """
         Split `sample` if it is a tuple and apply `_function` of `self` to each.
         """
-
-        if np.ndarray in self.recognised_types.get(str(_function), []):
-            parallel_context = parallel.disable
-        else:
-            parallel_context = parallel.enable
+            
+        parallel_interface = self.parallel_interface
 
         func_name = _function if isinstance(_function, str) else _function.__name__
 
-        to_split = self.split_tuples
+        to_split = override_for_split or self.split_tuples
         if isinstance(to_split, dict):
             to_split = to_split.get(func_name, False)
 
@@ -94,12 +96,10 @@ class PipelineStep(PipelineRecordingMixin, ParallelEnabledMixin, metaclass=ABCMe
         )
 
         if to_split and isinstance(sample, tuple):
-            if self.recursively_split_tuples:
-                func = partial(self._split_tuples_call, _function=_function, **kwargs)
+            func = partial(self._split_tuples_call, _function=_function, override_for_split = self.recursively_split_tuples, **kwargs)
+            return tuple(parallel_interface.collect(parallel_interface.map(func, sample)))
             
-            with parallel_context:
-                return tuple(self.parallel_interface.collect(self.parallel_interface.map(func, sample)))
-        return func(sample)
+        return parallel_interface.collect(parallel_interface.submit(func, sample))
 
     def check_type(
         self,
@@ -117,27 +117,31 @@ class PipelineStep(PipelineRecordingMixin, ParallelEnabledMixin, metaclass=ABCMe
         if recognised_types is None:  # Check if `func_name` of `self.recognised_types` is et
             return
 
+        try:
+            from dask.delayed import Delayed
+            recognised_types = (*recognised_types, Delayed)
+        except (ImportError, ModuleNotFoundError):
+            pass
+            
         if isinstance(sample, recognised_types):
             return
 
         if self.split_tuples and isinstance(sample, tuple):
-            self._split_tuples_call(sample, _function="check_type")
-
-        msg = f"{self.__class__.__name__} received a sample of type: {type(sample)} on {func_name}, when it can only recognise {recognised_types}"
+            self._split_tuples_call(sample, _function="check_type", func_name = func_name)
+        
+        msg = f"'{self.__class__.__module__}.{self.__class__.__qualname__}' received a sample of type: {type(sample)} on {func_name}, when it can only recognise {recognised_types}"
+        
         if self.response_on_type == "exception":
             raise PipelineTypeError(msg)
         elif self.response_on_type == "warn":
             warnings.warn(msg, PipelineWarning)
+            return
         elif self.response_on_type == "ignore":
-            pass
+            return
         elif self.response_on_type == "filter":
             raise PipelineFilterException(sample, msg)
-        else:
-            raise ValueError(f"Invalid 'response_on_type': {self.response_on_type!r}.")
+        raise ValueError(f"Invalid 'response_on_type': {self.response_on_type!r}.")
 
     def __call__(self, sample):
         self.check_type(sample, func_name = 'run')
         return self._split_tuples_call(sample, _function="run")
-
-    def __str__(self):
-        return

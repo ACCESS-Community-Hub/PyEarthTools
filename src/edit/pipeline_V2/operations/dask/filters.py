@@ -6,105 +6,82 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
-from typing import Literal, Optional, TypeVar, Union
-
-import numpy as np
-import xarray as xr
+#type: ignore[reportPrivateImportUsage]
 
 import math
+from typing import Literal, Union
+
+import dask.array as da
+import numpy as np
 
 from edit.pipeline_V2.filters import Filter, PipelineFilterException
 
-T = TypeVar("T", xr.Dataset, xr.DataArray)
 
-
-class XarrayFilter(Filter):
-    """Xarray Filters"""
-    _override_interface = 'Serial'
+class daskFilter(Filter):
+    """dask Filters"""
+    _override_interface = ['Serial']
 
     def __init__(self):
         super().__init__(
             split_tuples=True,
             recursively_split_tuples=True,
-            recognised_types=(xr.Dataset, xr.DataArray),
+            recognised_types=da.Array,
         )
 
 
-class DropAnyNan(XarrayFilter):
+class DropAnyNan(daskFilter):
     """
     Filter to drop any data with nans when iterating.
 
     Used to remove any bad data or data that is masked out.
     """
 
-    def __init__(self, variables: Optional[list] = None) -> None:
-        """Drop data with any nans
-
-        Args:
-            variables (list, optional):
-                Subset of variables to check.
-                Defaults to None.
-        """
+    def __init__(self) -> None:
+        """Drop data with any nans"""
         super().__init__()
         self.record_initialisation()
 
-        self.variables = variables
-
-    def _check(self, sample: xr.Dataset):
+    def filter(self, sample: da.Array):
         """Check if any of the sample is nan
 
         Args:
-            sample (xr.Dataset):
+            sample (da.Array):
                 Sample to check
         Returns:
             (bool):
                 If sample contains nan's
         """
-        if self.variables:
-            sample = sample[self.variables]
-
-        if not bool(np.array(list(np.isnan(sample).values())).any()):
+        if not bool(da.array(list(da.isnan(sample))).any()):
             raise PipelineFilterException(sample, f"Data contained nan's.")
 
 
-class DropAllNan(XarrayFilter):
+class DropAllNan(daskFilter):
     """
-    Filter to drop any data with all nans when iterating.
+    Filter to drop any data if all nans.
 
     Used to remove any bad data or data that is masked out.
     """
 
-    def __init__(self, variables: Optional[list] = None) -> None:
-        """Drop data with all nans
-
-        Args:
-            variables (list, optional):
-                Subset of variables to check.
-                Defaults to None.
-        """
+    def __init__(self) -> None:
+        """Drop data with any nans"""
         super().__init__()
         self.record_initialisation()
 
-        self.variables = variables
-
-    def _check(self, sample: xr.Dataset):
+    def filter(self, sample: da.Array):
         """Check if all of the sample is nan
 
         Args:
-            sample (xr.Dataset):
+            sample (da.Array):
                 Sample to check
         Returns:
             (bool):
                 If sample contains nan's
         """
-        if self.variables:
-            sample = sample[self.variables]
-
-        if not bool(np.array(list(np.isnan(sample).values())).all()):
+        if not bool(da.array(list(da.isnan(sample))).all()):
             raise PipelineFilterException(sample, f"Data contained all nan's.")
 
 
-class DropValue(XarrayFilter):
+class DropValue(daskFilter):
     """
     Filter to drop data containing more than a given percentage of a value.
 
@@ -129,20 +106,20 @@ class DropValue(XarrayFilter):
         self._value = value
         self._percentage = percentage
 
-    def filter(self, sample: T):
+    def filter(self, sample: da.Array):
         """Check if all of the sample is nan
 
         Args:
-            sample (np.ndarray):
+            sample (da.Array):
                 Sample to check
         Returns:
             (bool):
                 If sample contains nan's
         """
-        if np.isnan(self._value):
-            function = lambda x: ((np.count_nonzero(np.isnan(x)) / math.prod(x.shape)) * 100) >= self._percentage
+        if da.isnan(self._value):
+            function = lambda x: ((da.count_nonzero(da.isnan(x)) / math.prod(x.shape)) * 100) >= self._percentage
         else:
-            function = lambda x: ((np.count_nonzero(x == self._value) / math.prod(x.shape)) * 100) >= self._percentage
+            function = lambda x: ((da.count_nonzero(x == self._value) / math.prod(x.shape)) * 100) >= self._percentage
 
         if not function(sample):
             raise PipelineFilterException(sample, f"Data contained more than {self._percentage}% of {self._value}.")
@@ -154,7 +131,6 @@ class Shape(Filter):
 
     Used to ensure that incoming data is of the correct shape for later steps
     """
-    _override_interface = 'Serial'
 
     def __init__(self, shape: tuple[Union[tuple[int, ...], int], ...], split_tuples: bool = False) -> None:
         """
@@ -166,34 +142,22 @@ class Shape(Filter):
             split_tuples (bool, optional):
                 Whether to split tuples, if `True`, `shape` should not be a tuple of tuples
         """
-        super().__init__(split_tuples=split_tuples, recognised_types=(xr.Dataset, xr.DataArray))
+        super().__init__(split_tuples=split_tuples, recognised_types=da.Array)
         self.record_initialisation()
 
         self._shape = shape
 
-    def _find_shape(self, data: T) -> tuple[int, ...]:
-        if isinstance(data, xr.Dataset):
-            shape = (
-                len(list(data.data_vars)),
-                *data[list(data.data_vars)[0]].shape,
-            )
-        elif isinstance(data, xr.DataArray):
-            shape = data.shape
-        else:
-            raise TypeError(f"Unable to find shape of {data!r}")
-        return shape
+    def _find_shape(self, data: Union[tuple[da.Array, ...], da.Array]) -> tuple[Union[tuple, int], ...]:
+        if isinstance(data, tuple):
+            return tuple(map(self._find_shape, data))
+        return data.shape
 
-    def filter(self, sample: Union[tuple[T, ...], T]):
+    def check_shape(self, sample: Union[tuple[da.Array, ...], da.Array]):
         if isinstance(sample, (list, tuple)):
             if not isinstance(self._shape, (list, tuple)) and len(self._shape) == len(sample):
                 raise RuntimeError(
                     f"If sample is tuple, shape must also be, and of the same length. {self._shape} != {tuple(self._find_shape(i) for i in sample)}"
                 )
-
-            for i in range(len(sample)):
-                if not tuple(self._find_shape(sample[i])) == tuple(self._shape[i]):  # type: ignore
-                    raise PipelineFilterException(sample, f"Shapes were found not to be the same. At tuple index {i}.\n{tuple(self._find_shape(sample[i]))} != {tuple(self._shape[i])}")  # type: ignore
-            return True
 
         if not self._find_shape(sample) == self._shape:
             raise PipelineFilterException(

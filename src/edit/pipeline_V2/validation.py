@@ -27,8 +27,8 @@ def filter_steps(
     responsible: Optional[str] = None,
 ):
     """Check if `steps` are of `valid_types`"""
-    valid_types_str = tuple(map(lambda x: x.__class__, as_tuple(valid_types)))
-    invalid_types_str = tuple(map(lambda x: x.__class__, as_tuple(invalid_types)))
+    valid_types_str = tuple(map(lambda x: x, as_tuple(valid_types)))
+    invalid_types_str = tuple(map(lambda x: x, as_tuple(invalid_types)))
 
     for s in steps:
         if not isinstance(s, valid_types):

@@ -11,7 +11,7 @@ from edit.pipeline_V2.config import conf
 config = conf()
 
 from edit.pipeline_V2.save import save, load
-from edit.pipeline_V2.controller import Pipeline, PipelineMod, PipelineIndex
+from edit.pipeline_V2.controller import Pipeline, PipelineIndex
 
 from edit.pipeline_V2.operation import Operation
 

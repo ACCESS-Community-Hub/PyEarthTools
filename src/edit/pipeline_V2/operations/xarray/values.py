@@ -22,6 +22,7 @@ class FillNan(Operation):
     """
     Fill any Nan's with a value
     """
+    _override_interface = 'Serial'
 
     def __init__(
         self,
@@ -64,9 +65,8 @@ class FillNan(Operation):
 class MaskValue(Operation):
     """
     DataOperation to mask values with a given replacement
-
-
     """
+    _override_interface = 'Serial'
 
     def __init__(
         self,
@@ -127,6 +127,7 @@ class ForceNormalised(Operation):
     """
     Operation to force data within a certain range, by default 0 & 1
     """
+    _override_interface = 'Serial'
 
     def __init__(
         self,
@@ -165,10 +166,12 @@ class ForceNormalised(Operation):
 
 
 class Derive(Operation):
-    """Derive variables within the dataset
+    """
+    Derive variables within the dataset
 
     Uses `edit.data.transforms.derive`.
     """
+    _override_interface = 'Serial'
 
     def __init__(
         self,

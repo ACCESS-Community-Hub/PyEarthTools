@@ -6,23 +6,23 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
+#type: ignore[reportPrivateImportUsage]
+
 from typing import Optional
 
-import numpy as np
-
+import dask.array as da
 
 from edit.pipeline_V2.branching.split import Spliter
 
 
 class OnAxis(Spliter):
     """
-    Split across an axis in a numpy array
+    Split across an axis in a dask array
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'SplitOnAxis'}}
+    _override_interface = ['Serial']
 
     def __init__(self, axis: int, axis_size: Optional[int] = None):
-        """Split over a numpy array axis
+        """Split over a dask array axis
 
         Args:
             axis (int):
@@ -31,7 +31,7 @@ class OnAxis(Spliter):
                 Expected size of the axis, can be found automatically. Defaults to None.
         """
         super().__init__(
-            recognised_types=np.ndarray,
+            recognised_types=da.Array,
             recursively_split_tuples=True,
         )
         self.record_initialisation()
@@ -39,33 +39,29 @@ class OnAxis(Spliter):
         self.axis = axis
         self.axis_size = axis_size
 
-    def split(self, sample: np.ndarray) -> tuple[np.ndarray]:
+    def split(self, sample: da.Array) -> tuple[da.Array]:
         """Combine all elements of axis on batch dimension"""
         self.axis_size = self.axis_size or sample.shape[self.axis]
-        sample = np.moveaxis(sample, self.axis, 0)
+        sample = da.moveaxis(sample, self.axis, 0)
         return tuple(d for d in sample)
 
-    def join(self, sample: tuple[np.ndarray]) -> np.ndarray:
+    def join(self, sample: tuple[da.Array]) -> da.Array:
         """Join `sample` together, recovering initial shape"""
         if self.axis_size is None:
             raise RuntimeError(f"`axis_size` not set.")
 
-        data = np.concatenate(sample, axis=0)
+        data = da.concatenate(sample, axis=0)
         shape = data.shape
         data = data.reshape((self.axis_size, shape[0] // self.axis_size, *shape[1:]))
-        data = np.moveaxis(data, 0, self.axis)
+        data = da.moveaxis(data, 0, self.axis)
         return data
 
 
 class OnSlice(Spliter):
     """
     Split across slices on axis
-
-    Examples:
-
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'SplitOnSlice'}}
+    _override_interface = ['Serial']
 
     def __init__(self, *slices: tuple[int, ...], axis: int):
         """
@@ -78,38 +74,37 @@ class OnSlice(Spliter):
                 Axis number to slice over
         """
         super().__init__(
-            recognised_types=np.ndarray,
+            recognised_types=da.Array,
         )
 
         self.record_initialisation()
         self._slices = tuple(slice(*x) for x in slices)
         self.axis = axis
 
-    def split(self, sample: np.ndarray) -> tuple[np.ndarray]:
+    def split(self, sample: da.Array) -> tuple[da.Array]:
         samples = []
-        sample = np.moveaxis(sample, self.axis, 0)
+        sample = da.moveaxis(sample, self.axis, 0)
 
         for sli in self._slices:
             sli_samp = sample[sli]
-            samples.append(np.moveaxis(sli_samp, 0, self.axis))
+            samples.append(da.moveaxis(sli_samp, 0, self.axis))
 
         return tuple(samples)
 
-    def join(self, sample: tuple[np.ndarray]) -> np.ndarray:
+    def join(self, sample: tuple[da.Array]) -> da.Array:
         """Join `sample` together"""
 
-        data = np.stack(sample, axis=0)
-        data = np.moveaxis(data, 0, self.axis)
+        data = da.stack(sample, axis=0)
+        data = da.moveaxis(data, 0, self.axis)
         return data
 
 
 class Vsplit(Spliter):
     """
-    vsplit on numpy arrays
+    vsplit on dask arrays
 
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'Vsplit'}}
+    _override_interface = ['Serial']
 
     def __init__(
         self,
@@ -119,26 +114,25 @@ class Vsplit(Spliter):
         """
 
         super().__init__(
-            recognised_types=np.ndarray,
+            recognised_types=da.Array,
         )
 
         self.record_initialisation()
 
-    def split(self, sample: np.ndarray) -> tuple[np.ndarray]:
-        return np.vsplit(sample)  # type: ignore
+    def split(self, sample: da.Array) -> tuple[da.Array]:
+        return da.vsplit(sample)  # type: ignore
 
-    def join(self, sample: tuple[np.ndarray]) -> np.ndarray:
+    def join(self, sample: tuple[da.Array]) -> da.Array:
         """Join `sample` together"""
-        return np.vstack(sample)
+        return da.vstack(sample)
 
 
 class Hsplit(Spliter):
     """
-    hsplit on numpy arrays
+    hsplit on dask arrays
 
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'Hsplit'}}
+    _override_interface = ['Serial']
 
     def __init__(
         self,
@@ -148,14 +142,14 @@ class Hsplit(Spliter):
         """
 
         super().__init__(
-            recognised_types=np.ndarray,
+            recognised_types=da.Array,
         )
 
         self.record_initialisation()
 
-    def split(self, sample: np.ndarray) -> tuple[np.ndarray]:
-        return np.hsplit(sample)  # type: ignore
+    def split(self, sample: da.Array) -> tuple[da.Array]:
+        return da.hsplit(sample)  # type: ignore
 
-    def join(self, sample: tuple[np.ndarray]) -> np.ndarray:
+    def join(self, sample: tuple[da.Array]) -> da.Array:
         """Join `sample` together"""
-        return np.hstack(sample)
+        return da.hstack(sample)

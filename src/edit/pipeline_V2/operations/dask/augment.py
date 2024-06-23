@@ -6,19 +6,25 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
+#type: ignore[reportPrivateImportUsage]
+
+"""Augment data"""
+
+
+import dask.array as da
 import numpy as np
 
 from edit.pipeline_V2.operation import Operation
+
 
 
 class Rotate(Operation):
     """
     Rotation Augmentation by 90 degrees in the plane specified by axes.
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'pure': False, 'name': 'Rotate'}}
-    
+    _override_interface = ['Serial']
 
+    
     def __init__(
         self,
         seed: int = 42,
@@ -39,7 +45,7 @@ class Rotate(Operation):
             split_tuples=True,
             recursively_split_tuples=True,
             operation="apply",
-            recognised_types=(np.ndarray),
+            recognised_types=(da.Array),
         )
         self.record_initialisation()
 
@@ -48,17 +54,17 @@ class Rotate(Operation):
             raise TypeError(f"'axis' must be a tuple or list")
         self.axis = axis
 
-    def apply_func(self, sample: np.ndarray) -> np.ndarray:
+    def apply_func(self, sample: da.Array) -> da.Array:
         random_num = self.rng.integers(0, 3, endpoint=True)
-        return np.rot90(sample, k=random_num, axes=self.axis).copy()
+        return da.rot90(sample, k=random_num, axes=self.axis)
 
 
 class Flip(Operation):
     """
     Flip Augmentation on the specified axes.
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'pure': False, 'name': 'Flip'}}
+    _override_interface = ['Serial']
+
     
     def __init__(self, seed: int = 42, axis: int = -1):
         """
@@ -76,17 +82,17 @@ class Flip(Operation):
             split_tuples=True,
             recursively_split_tuples=True,
             operation="apply",
-            recognised_types=(np.ndarray),
+            recognised_types=(da.Array),
         )
         self.record_initialisation()
 
         self.rng = np.random.default_rng(seed)
         self.axis = axis
 
-    def apply_func(self, sample: np.ndarray) -> np.ndarray:
+    def apply_func(self, sample: da.Array) -> da.Array:
         random_num = self.rng.integers(0, 1, endpoint=True)
         if random_num > 0:
-            return np.flip(sample, axis=self.axis).copy()
+            return da.flip(sample, axis=self.axis)
         return sample
 
 
@@ -94,8 +100,7 @@ class Transform(Operation):
     """
     Flip & Rotation Augmentation.
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'pure': False, 'name': 'FlipRotate'}}
+    _override_interface = ['Serial']
     
     def __init__(
         self,
@@ -115,7 +120,7 @@ class Transform(Operation):
             split_tuples=True,
             recursively_split_tuples=True,
             operation="apply",
-            recognised_types=(np.ndarray),
+            recognised_types=(da.Array),
         )
         self.record_initialisation()
 
@@ -124,7 +129,7 @@ class Transform(Operation):
         for i, ax in enumerate(axis):
             self.transforms.append(Flip(seed=seed * i, axis=ax))
 
-    def apply_func(self, sample: np.ndarray) -> np.ndarray:
+    def apply_func(self, sample: da.Array) -> da.Array:
         for trans in self.transforms:
             sample = trans.apply_func(sample)
         return sample

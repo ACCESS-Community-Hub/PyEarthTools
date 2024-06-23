@@ -16,9 +16,12 @@ from __future__ import annotations
 from functools import cached_property
 from abc import ABCMeta, abstractmethod
 
-from typing import Any, Generator, Hashable, Iterable
+from typing import Any, Callable, Generator, Hashable, Iterable, Optional, Union
+from pathlib import Path
 
 import numpy as np
+
+import edit.data
 
 from edit.pipeline_V2.recording import PipelineRecordingMixin
 
@@ -78,6 +81,7 @@ class Predefined(Iterator):
 
     Takes any iterable as provided, and yields all elements within.
     """
+    _indexes: Iterable[Any]
 
     def __init__(self, indexes: Iterable[Any]):
         """
@@ -91,10 +95,32 @@ class Predefined(Iterator):
         self.record_initialisation()
         self._indexes = indexes
 
-    def __iter__(self) -> Generator[Hashable, None, None]:
+    def __iter__(self) -> Generator[Any, None, None]:
         for i in self._indexes:
             yield i
 
+class File(Predefined):
+    """
+    Iterate over elements in file
+
+    Each line will be treated as a seperate index.
+    """
+    def __init__(self, file: Union[str, Path], type_conversion: Optional[Callable] = None):
+        """
+        Iterate over file
+
+        Args:
+            file (Union[str, Path]): 
+                File to load.
+            type_conversion (Optional[Callable], optional): 
+                Function to convert lines in file with. Defaults to None.
+        """        
+        super().__init__('')
+        self.record_initialisation()
+        
+        self._indexes = open(file).readlines()
+        if type_conversion:
+            self._indexes = list(map(type_conversion, self._indexes))
 
 class DateRange(Iterator):
     """
@@ -125,7 +151,7 @@ class DateRange(Iterator):
 
         self._timerange = edit.data.TimeRange(start, end, interval)
 
-    def __iter__(self) -> Generator[Hashable, None, None]:
+    def __iter__(self) -> Generator[edit.data.EDITDatetime, None, None]:
         for i in self._timerange:
             yield i
 
@@ -150,7 +176,6 @@ class DateRangeLimit(DateRange):
             num (int):
                 Number of total samples to iterate over.
         """
-        import edit.data
 
         end = edit.data.EDITDatetime(start) + (edit.data.TimeDelta(interval) * num)
         super().__init__(start, str(end), interval)

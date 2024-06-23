@@ -9,15 +9,11 @@
 import pytest
 
 from edit.pipeline_V2 import Pipeline, iterators, samplers
+from tests.fake_pipeline_steps import FakeIndex
 
 
-def replace_getter(arg):
-    return arg
-
-
-def test_iterators(monkeypatch):
-    pipe = Pipeline(iterator=iterators.Range(0, 20))
-    monkeypatch.setattr(pipe, "_get_initial_sample", replace_getter)
+def test_iterators():
+    pipe = Pipeline(FakeIndex(), iterator=iterators.Range(0, 20))
     assert list(pipe) == list(range(0, 20))
 
 
@@ -30,10 +26,8 @@ def test_iterators(monkeypatch):
         (iterators.DateRangeLimit("2020-01-01T00", (1, "hour"), 3), 3),
     ],
 )
-def test_iterators_many(monkeypatch, iterator, length):
-    pipe = Pipeline(iterator=iterator, sampler=samplers.Default())
-
-    monkeypatch.setattr(pipe, "_get_initial_sample", replace_getter)
+def test_iterators_many(iterator, length):
+    pipe = Pipeline(FakeIndex(), iterator=iterator, sampler=samplers.Default())
 
     if length is not None:
         assert len(list(pipe)) == length, "Length differs from expected"

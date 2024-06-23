@@ -18,7 +18,7 @@ import shutil
 import edit.data
 from edit.data.patterns import PatternIndex
 
-from edit.pipeline_V2.controller import PipelineMod
+from edit.pipeline_V2.controller import PipelineIndex
 from edit.pipeline_V2.warnings import PipelineWarning
 from edit.pipeline_V2.exceptions import PipelineRuntimeError
 
@@ -26,7 +26,7 @@ CACHE_HASH_NAME = ".cache_hash"
 PIPELINE_SAVE_NAME = "pipeline.yaml"
 
 
-class Cache(PipelineMod):
+class Cache(PipelineIndex):
     """
     An `edit.pipeline_V2` implementation of the `CachingIndex` from `edit.data`.
 
@@ -96,11 +96,16 @@ class Cache(PipelineMod):
         if self.save_cache_hash():
             self.save_pipeline()
 
-        return self._cache[idx]
+        return self.cache[idx]
 
     @property
     def cache(self) -> edit.data.indexes.FunctionalCacheIndex:
         return self._cache
+    
+    @property
+    def override(self):
+        """Get a context window in which data will be overwritten in the cache"""
+        return self.cache.override
 
     @property
     def root_dir(self) -> Path:

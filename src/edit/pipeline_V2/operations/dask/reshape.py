@@ -6,11 +6,14 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
+#type: ignore[reportPrivateImportUsage]
+
 from typing import Union, Optional, Any
 
 import math
 import einops
-import numpy as np
+
+import dask.array as da
 
 from edit.pipeline_V2.operation import Operation
 
@@ -20,8 +23,7 @@ class Rearrange(Operation):
     Operation to rearrange data using einops
 
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'Rearrange'}}
+    _override_interface = ['Serial']
 
     def __init__(
         self,
@@ -56,7 +58,7 @@ class Rearrange(Operation):
         super().__init__(
             split_tuples=True,
             recursively_split_tuples=True,
-            recognised_types=(np.ndarray),
+            recognised_types=(da.Array),
         )
         self.record_initialisation()
 
@@ -66,7 +68,7 @@ class Rearrange(Operation):
 
         self.skip = skip
 
-    def __rearrange(self, data: np.ndarray, pattern: str, catch=True):
+    def __rearrange(self, data: da.Array, pattern: str, catch=True):
         try:
             return einops.rearrange(data, pattern, **self.rearrange_kwargs)
         except einops.EinopsError as excep:
@@ -77,10 +79,10 @@ class Rearrange(Operation):
             pattern = "->".join(["p " + side for side in pattern.split("->")])
             return self.__rearrange(data, pattern, catch=False)
 
-    def apply_func(self, data: np.ndarray):
+    def apply_func(self, data: da.Array):
         return self.__rearrange(data, self.pattern)
 
-    def undo_func(self, data: np.ndarray):
+    def undo_func(self, data: da.Array):
         if self.reverse_pattern:
             pattern = self.reverse_pattern
         else:
@@ -95,8 +97,7 @@ class Squish(Operation):
     Operation to Squish one Dimensional axis at 'axis' location
 
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'Squish'}}
+    _override_interface = ['Serial']
 
     def __init__(self, axis: Union[tuple[int, ...], int]) -> None:
         """Squish Dimension of Data
@@ -108,22 +109,22 @@ class Squish(Operation):
         super().__init__(
             split_tuples=True,
             recursively_split_tuples=True,
-            recognised_types=(np.ndarray),
+            recognised_types=(da.Array),
         )
         self.record_initialisation()
 
         self.axis = axis
 
-    def apply_func(self, sample: np.ndarray) -> np.ndarray:
+    def apply_func(self, sample: da.Array) -> da.Array:
         try:
-            sample = np.squeeze(sample, self.axis)
+            sample = da.squeeze(sample, self.axis)
         except ValueError as e:
             e.args = (*e.args, f"Shape {sample.shape}")
             raise e
         return sample
 
-    def undo_func(self, sample: np.ndarray) -> np.ndarray:
-        return np.expand_dims(sample, self.axis)
+    def undo_func(self, sample: da.Array) -> da.Array:
+        return da.expand_dims(sample, self.axis)
 
 
 class Expand(Operation):
@@ -131,8 +132,7 @@ class Expand(Operation):
     Operation to Expand One Dimensional axis at 'axis' location
 
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'Expand'}}
+    _override_interface = ['Serial']
 
     def __init__(self, axis: Union[tuple[int, ...], int]) -> None:
         """Expand Dimension of Data
@@ -144,22 +144,22 @@ class Expand(Operation):
         super().__init__(
             split_tuples=True,
             recursively_split_tuples=True,
-            recognised_types=(np.ndarray),
+            recognised_types=(da.Array),
         )
         self.record_initialisation()
 
         self.axis = axis
 
-    def apply_func(self, sample: np.ndarray) -> np.ndarray:
+    def apply_func(self, sample: da.Array) -> da.Array:
         try:
-            sample = np.squeeze(sample, self.axis)
+            sample = da.squeeze(sample, self.axis)
         except ValueError as e:
             e.args = (*e.args, f"Shape {sample.shape}")
             raise e
         return sample
 
-    def _apply_expand(self, sample: np.ndarray) -> np.ndarray:
-        return np.expand_dims(sample, self.axis)
+    def _apply_expand(self, sample: da.Array) -> da.Array:
+        return da.expand_dims(sample, self.axis)
 
 
 class Flattener:
@@ -178,7 +178,7 @@ class Flattener:
         self.flatten_dims = flatten_dims
 
     def _prod_shape(self, shape):
-        if isinstance(shape, np.ndarray):
+        if isinstance(shape, da.Array):
             shape = shape.shape
         return math.prod(shape)
 
@@ -197,7 +197,7 @@ class Flattener:
 
         return tuple(shape_attempt)
 
-    def apply(self, data: np.ndarray) -> np.ndarray:
+    def apply(self, data: da.Array) -> da.Array:
         # if self._unflattenshape is None:
         self._unflattenshape = data.shape
         self._fillshape = self._fillshape or data.shape
@@ -212,7 +212,7 @@ class Flattener:
             )
         )
 
-    def undo(self, data: np.ndarray) -> np.ndarray:
+    def undo(self, data: da.Array) -> da.Array:
         if self._unflattenshape is None:
             raise RuntimeError(f"Shape not set, therefore cannot undo")
 
@@ -247,8 +247,7 @@ class Flatten(Operation):
     """
     Operation to Flatten parts of data samples into a one dimensional array
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'Flatten'}}
+    _override_interface = ['Serial']
 
     def __init__(
         self,
@@ -267,7 +266,7 @@ class Flatten(Operation):
                 Can have `'...'` as wildcards to get from discovered, Defaults to None.
 
         Examples:
-            >>> incoming_data = np.zeros((5,4,3,2))
+            >>> incoming_data = da.zeros((5,4,3,2))
             >>> flattener = Flatten(flatten_dims = 2)
             >>> flattener.apply_func(incoming_data).shape
             (5, 4, 6)
@@ -285,11 +284,11 @@ class Flatten(Operation):
 
 
             ```python title="Spatial Size Change"
-            incoming_data = np.zeros((1,1,3,3))
+            incoming_data = da.zeros((1,1,3,3))
             flattener = Flatten(shape_attempt = (1,1,1,1))
             flattener.apply_func(incoming_data).shape   #(9,)
 
-            undo_data = np.zeros((1))
+            undo_data = da.zeros((1))
             flattener.undo_func(undo_data).shape        #(1,1,1,1)
             ```
 
@@ -297,17 +296,17 @@ class Flatten(Operation):
             If incoming data is of shape `(8, 1, 3, 3)`, and data for undoing is `(2, 1, 1, 1)` aka `(2)`, set `shape_attempt` to `(2,'...',1,1)`
 
             ```python title=" Channel or Time Size Change also"
-            incoming_data = np.zeros((8,1,3,3))
+            incoming_data = da.zeros((8,1,3,3))
             flattener = Flatten(shape_attempt = (2,1,1,1))
             flattener.apply_func(incoming_data).shape   #(72,)
 
-            undo_data = np.zeros((2))
+            undo_data = da.zeros((2))
             flattener.undo_func(undo_data).shape        #(2,1,1,1)
             ```
         """
         super().__init__(
             split_tuples=False,
-            recognised_types=(np.ndarray),
+            recognised_types=(da.Array),
         )
         self.record_initialisation()
 
@@ -330,13 +329,13 @@ class Flatten(Operation):
 
         return tuple(return_values)
 
-    def apply_func(self, sample: Union[tuple[np.ndarray, ...], np.ndarray]):
+    def apply_func(self, sample: Union[tuple[da.Array, ...], da.Array]):
         if isinstance(sample, tuple):
             flatteners = self._get_flatteners(len(sample))
             return tuple(flatteners[i].apply(data_item) for i, data_item in enumerate(sample))
         return self._get_flatteners(1)[0].apply(sample)
 
-    def undo_func(self, sample: Union[tuple[np.ndarray, ...], np.ndarray]) -> Union[tuple[np.ndarray, ...], np.ndarray]:
+    def undo_func(self, sample: Union[tuple[da.Array, ...], da.Array]) -> Union[tuple[da.Array, ...], da.Array]:
         if isinstance(sample, tuple):
             flatteners = self._get_flatteners(len(sample))
             return tuple(flatteners[i].undo(item) for i, item in enumerate(sample))

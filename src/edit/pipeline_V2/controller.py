@@ -7,6 +7,7 @@
 # from the use of the software.
 
 from __future__ import annotations
+
 from abc import ABCMeta, abstractmethod
 
 import functools
@@ -25,27 +26,59 @@ from edit.pipeline_V2.step import PipelineStep
 from edit.pipeline_V2.operation import Operation
 from edit.pipeline_V2.exceptions import PipelineFilterException, ExceptionIgnoreContext
 from edit.pipeline_V2.validation import filter_steps
+from edit.pipeline_V2.graph import Graphed, format_graph_node
 
 
 PIPELINE_TYPES = Union[Index, PipelineStep, Transform, TransformCollection]
 VALID_PIPELINE_TYPES = Union[PIPELINE_TYPES, tuple[PIPELINE_TYPES, ...], tuple[tuple, ...]]
 
 
-__all___ = ["PipelineIndex", "Pipeline", "PipelineMod"]
-
-
-def parse_to_graph_name(step: Union[Index, PipelineStep], parent: Optional[list[str]]) -> dict[str, Any]:
-    """Parse step to useful name and attrs"""
-    shape = "oval"
-    if isinstance(step, Index):
-        shape = "rect"
-    # elif parent is not None and len(parent) > 1:
-    #     shape = 'triangle'
-    return {"label": step.__class__.__name__, "shape": shape}
+__all___ = ["Pipeline", "PipelineIndex"]
 
 
 class PipelineIndex(PipelineRecordingMixin, metaclass=ABCMeta):
-    """Root PipelineIndex"""
+    """
+    Special Pipeline step which holds a copy of the pipeline above it.
+
+    Must implement `__getitem__` to modify data retrieval flow,
+    and if changes are needed on `undo`, override `undo_func`.
+    """
+
+    _edit_repr = {"ignore": ["args"]}
+    _steps: tuple[
+        Union[Index, PipelineStep, _Pipeline, PipelineIndex, VALID_PIPELINE_TYPES, tuple[VALID_PIPELINE_TYPES, ...]], ...
+    ]
+
+
+    def set_steps(
+        self,
+        steps: tuple[
+            Union[Index, PipelineStep, _Pipeline, PipelineIndex, VALID_PIPELINE_TYPES, tuple[VALID_PIPELINE_TYPES, ...]], ...
+        ],
+    ):
+        """Set steps of this `PipelineMod`"""
+        self._steps = steps
+
+    def parent_pipeline(self) -> Pipeline:
+        """Get parent pipeline of this `PipelineMod`, will not include self"""
+        return Pipeline(*self._steps)
+
+    def as_pipeline(self) -> Pipeline:
+        """Get `PipelineMod` as full pipeline, will include self"""
+        return Pipeline(*self._steps, self)
+
+    @abstractmethod
+    def __getitem__(self, idx):
+        """Retrieve sample from PipelineMod"""
+        pass
+
+    def undo_func(self, sample: Any) -> Any:
+        """Run `undo`. If the child class needs to make modifications."""
+        return sample
+
+
+class _Pipeline(PipelineRecordingMixin, Graphed, metaclass=ABCMeta):
+    """Root Pipeline object"""
 
     def __init__(
         self,
@@ -87,12 +120,12 @@ class PipelineIndex(PipelineRecordingMixin, metaclass=ABCMeta):
         prior_step = parent
 
         for step in self.steps:
-            if isinstance(step, PipelineIndex):
+            if isinstance(step, Graphed):
                 with graph.subgraph() as c:  # type: ignore
                     _, prior_step = step._get_tree(prior_step, graph=c) # type: ignore
             else:
                 node_name = f"{step.__class__.__name__}_{uuid.uuid4()!s}"
-                graph.node(node_name, **parse_to_graph_name(step, parent=prior_step))
+                graph.node(node_name, **format_graph_node(step, parent=prior_step))
 
                 if prior_step is not None:
                     if isinstance(prior_step, list):
@@ -105,8 +138,7 @@ class PipelineIndex(PipelineRecordingMixin, metaclass=ABCMeta):
         prior_step = prior_step or []
         return graph, prior_step
 
-
-class Pipeline(PipelineIndex):
+class Pipeline(_Pipeline, Index):
     """
     Core of `edit.pipeline_V2`,
 
@@ -121,7 +153,7 @@ class Pipeline(PipelineIndex):
 
     _sampler: samplers.Sampler
     _iterator: Optional[iterators.Iterator]
-    _steps: tuple[Union[Index, PipelineStep, PipelineIndex, tuple[VALID_PIPELINE_TYPES, ...]], ...]
+    _steps: tuple[Union[Index, PipelineStep, _Pipeline, tuple[VALID_PIPELINE_TYPES, ...]], ...]
     _exceptions_to_ignore: Optional[tuple[Exception, ...]]
 
     _edit_repr = {"ignore": ["args"], "expand_attr": ["Steps@flattened_steps"]}
@@ -134,8 +166,8 @@ class Pipeline(PipelineIndex):
         self,
         *steps: Union[
             VALID_PIPELINE_TYPES,
+            _Pipeline,
             PipelineIndex,
-            PipelineMod,
             tuple[Union[VALID_PIPELINE_TYPES, Literal["map", "map_copy"]], ...],
         ],
         iterator: Optional[Union[iterators.Iterator, tuple[iterators.Iterator, ...]]] = None,
@@ -240,7 +272,7 @@ class Pipeline(PipelineIndex):
         for step in return_steps:
             if isinstance(step, Pipeline):
                 expanded_steps.extend(step.complete_steps)
-            elif isinstance(step, PipelineIndex):
+            elif isinstance(step, _Pipeline):
                 expanded_steps.append(step.complete_steps)
             else:
                 expanded_steps.append(step)
@@ -250,7 +282,7 @@ class Pipeline(PipelineIndex):
     @property
     def steps(
         self,
-    ) -> tuple[Union[VALID_PIPELINE_TYPES, PipelineIndex, tuple[VALID_PIPELINE_TYPES, ...]], ...]:
+    ) -> tuple[Union[VALID_PIPELINE_TYPES, _Pipeline, tuple[VALID_PIPELINE_TYPES, ...]], ...]:
         """Steps of pipeline"""
         return self._steps
 
@@ -258,7 +290,7 @@ class Pipeline(PipelineIndex):
     def steps(
         self,
         val: tuple[
-            Union[VALID_PIPELINE_TYPES, PipelineMod, tuple[Union[VALID_PIPELINE_TYPES, PipelineMod], ...]],
+            Union[VALID_PIPELINE_TYPES, PipelineIndex, tuple[Union[VALID_PIPELINE_TYPES, PipelineIndex], ...]],
             ...,
         ],
     ):
@@ -266,20 +298,19 @@ class Pipeline(PipelineIndex):
 
         filter_steps(
             val if isinstance(val, tuple) else (val,),
-            (tuple, Index, Pipeline, PipelineIndex, PipelineStep, Transform, TransformCollection),
+            (tuple, Index, _Pipeline, PipelineIndex, PipelineStep, Transform, TransformCollection, edit.pipeline_V2.branching.PipelineBranchPoint),
             # invalid_types=(Filter,),
             responsible="Pipeline",
         )
-
-        # TODO add ability to directly use transforms
 
         for v in val:
             if isinstance(v, (list, tuple)):
                 steps_list.append(edit.pipeline_V2.branching.PipelineBranchPoint(*(i for i in v)))  # type: ignore
                 continue
-            elif isinstance(v, PipelineMod):
+            elif isinstance(v, PipelineIndex):
                 v.set_steps(tuple(i for i in steps_list))
-                steps_list = [v]
+                steps_list.append(v)
+                # steps_list = [v]
             else:
                 steps_list.append(v)
         self._steps = tuple(steps_list)  # type: ignore
@@ -325,27 +356,58 @@ class Pipeline(PipelineIndex):
             val = samplers.SuperSampler(*val)
         self._sampler = val
 
-    def _get_initial_sample(self, idx: Any):
-        """Get sample from first pipeline step"""
+    def _get_initial_sample(self, idx: Any) -> tuple[Any, int]:
+        """
+        Get sample from first pipeline step or first working back index
+        
+        Returns:
+            (tuple[Any, int]):
+                Sample, index of step used to retrieve
+        """
         if len(self.steps) == 0:
             raise ValueError("Cannot get data if no steps are given.")
-        initial_step = self.steps[0]
-
-        if not isinstance(initial_step, (PipelineIndex, Index)):
-            raise TypeError(
-                f"Cannot retrieve data from object if it is not an `edit.data.Index`. Found {type(initial_step).__qualname__}"
-            )
-        return initial_step[idx]
+        
+        for index, step in enumerate(self.steps[::-1]):
+            if isinstance(step, PipelineIndex):
+                return step[idx], len(self.steps) - (index + 1)
+            
+        if isinstance(self.steps[0], (_Pipeline, Index)):
+            return self.steps[0][idx], 0
+            
+        raise TypeError(
+            f"Cannot find an `Index` to get data from. Found {type(self.steps[0]).__qualname__}"
+        )
 
     def __getitem__(self, idx: Any):
         """Retrieve from pipeline at `idx`"""
-        sample = self._get_initial_sample(idx)
+        sample, step_index = self._get_initial_sample(idx)
 
-        for step in self.steps[1:]:
+        for step in self.steps[step_index+1:]:
+            if not isinstance(step, (Pipeline, PipelineStep, Transform, TransformCollection)):
+                raise TypeError(f"When iterating through pipeline steps, found a {type(step)} which cannot be parsed.")
+            if isinstance(step, Pipeline):
+                sample = step.apply(sample)
+            else:
+                sample = step(sample)  # type: ignore
+        return sample    
+    
+    def get(self, idx):
+        """Get `idx` from `Pipeline`."""
+        return self[idx]
+    
+    def apply(self, sample):
+        """Apply pipeline to `sample`
+        
+        `Pipeline` should only consist of `PipelineStep`'s and `Transforms`, as `Indexes` cannot be applied,
+        """
+        for step in self.steps:
             if not isinstance(step, (PipelineStep, Transform, TransformCollection)):
                 raise TypeError(f"When iterating through pipeline steps, found a {type(step)} which cannot be parsed.")
-            sample = step(sample)  # type: ignore
-        return sample
+            if isinstance(step, Pipeline):
+                sample = step.apply(sample)
+            else:
+                sample = step(sample)  # type: ignore
+            return sample    
     
     @property
     def get_and_catch(self):
@@ -370,16 +432,20 @@ class Pipeline(PipelineIndex):
             ):
                 # Remove last step on undo path if not PipelineStep, likely to be Index
                 continue
-            if not isinstance(step, (PipelineMod, PipelineStep)):
+            if not isinstance(step, (Pipeline, PipelineIndex, PipelineStep, Transform, TransformCollection)):
                 raise TypeError(f"When iterating through pipeline steps, found a {type(step)} which cannot be parsed.")
             elif isinstance(step, Operation):
                 sample = step.undo(sample)
-            elif isinstance(step, PipelineMod):
+            elif isinstance(step, PipelineIndex):
                 sample = step.undo_func(sample)
-                sample = step.parent_pipeline().undo(sample)
+                # sample = step.parent_pipeline().undo(sample)
+            elif isinstance(step, Pipeline):
+                sample = step.undo(sample)
+            elif isinstance(step, (Transform, TransformCollection)):
+                pass
             else:
-                sample = step(sample)
-        return sample
+                sample = step(sample)  # type: ignore
+        return sample    
 
     @property
     def iteration_order(self) -> tuple[Any, ...]:
@@ -481,7 +547,7 @@ class Pipeline(PipelineIndex):
         except ValueError:
             return False
 
-    def __add__(self, other: Union[PipelineIndex, PipelineStep]) -> Pipeline:
+    def __add__(self, other: Union[_Pipeline, PipelineStep]) -> Pipeline:
         """
         Combine pipelines
 
@@ -501,16 +567,12 @@ class Pipeline(PipelineIndex):
 
             return Pipeline(*args, **new_init)
 
-        elif isinstance(other, (PipelineMod, PipelineStep)):
+        elif isinstance(other, (PipelineIndex, PipelineStep)):
             init = dict(self.initialisation)
             args = (*init.pop("__args", []), other)
             return Pipeline(*args, **init)
 
         return NotImplemented
-
-    def graph(self) -> graphviz.Digraph:
-        """Get graphical view of Pipeline"""
-        return self._get_tree(parent=None, graph=graphviz.Digraph())[0]
 
     def save(self, path: Optional[Union[str, Path]] = None) -> Union[str, None]:
         """
@@ -535,77 +597,3 @@ class Pipeline(PipelineIndex):
             display(HTML("<h2>Graph</h2>"))
             display(self.graph())
 
-
-class PipelineMod(PipelineIndex):
-    """
-    Variant of Pipeline to be subclassed for modification
-
-    Must implement `__getitem__` to modify data retrieval flow,
-    and if changes are needed on `undo`, override `undo_func`.
-    """
-
-    _edit_repr = {"ignore": ["args"]}
-    _steps: tuple[
-        Union[Index, PipelineStep, PipelineIndex, VALID_PIPELINE_TYPES, tuple[VALID_PIPELINE_TYPES, ...]], ...
-    ]
-
-    def __init__(self):
-        super().__init__()
-
-    def set_steps(
-        self,
-        steps: tuple[
-            Union[Index, PipelineStep, PipelineIndex, VALID_PIPELINE_TYPES, tuple[VALID_PIPELINE_TYPES, ...]], ...
-        ],
-    ):
-        """Set steps of this `PipelineMod`"""
-        self._steps = steps
-
-    def parent_pipeline(self) -> Pipeline:
-        """Get parent pipeline of this `PipelineMod`, will not include self"""
-        return Pipeline(*self._steps)
-
-    def as_pipeline(self) -> Pipeline:
-        """Get `PipelineMod` as full pipeline, will include self"""
-        return Pipeline(*self._steps, self)
-
-    def undo_func(self, sample: Any) -> Any:
-        """Run `undo`. If the child class needs to make modifications, """
-        return sample
-
-    @functools.wraps(PipelineIndex._get_tree)
-    def _get_tree(
-        self, parent: Optional[list[str]] = None, graph: Optional[graphviz.Digraph] = None
-    ) -> tuple[graphviz.Digraph, list[str]]:  # pragma: no cover
-        """Override for `graph` creation"""
-        import uuid
-
-        graph = graph or graphviz.Digraph()
-        graph, prior_step = self.parent_pipeline()._get_tree(parent, graph=graph)
-
-        node_name = f"{self.__class__.__name__}_{uuid.uuid4()!s}"
-        graph.node(node_name, self.__class__.__name__)
-
-        if isinstance(prior_step, list):
-            for p in prior_step:
-                graph.edge(p, node_name)
-        else:
-            graph.edge(prior_step, node_name)
-        return graph, [node_name]
-
-    @property
-    def complete_steps(self) -> tuple:
-        """Get all steps"""
-        return_steps = list(self.parent_pipeline().complete_steps)
-        expanded_steps = []
-
-        for step in return_steps:
-            if isinstance(step, PipelineIndex):
-                step = step.complete_steps
-                expanded_steps.extend(step)
-            expanded_steps.append(step)
-
-        # Append self
-        expanded_steps.append(self)
-
-        return tuple(expanded_steps)

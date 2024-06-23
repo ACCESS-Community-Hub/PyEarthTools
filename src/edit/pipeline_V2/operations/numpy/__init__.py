@@ -11,11 +11,11 @@ from edit.pipeline_V2.operations.numpy.join import Stack, Concatenate, VStack, H
 from edit.pipeline_V2.operations.numpy import (
     augment,
     filters,
+    normalisation,
     reshape,
     select,
     split,
     values,
-    normallsation,
 )
 
 __all__ = [
@@ -27,5 +27,5 @@ __all__ = [
     "select",
     "split",
     "values",
-    "normallsation",
+    "normalisation",
 ]

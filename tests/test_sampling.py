@@ -8,10 +8,7 @@
 
 import pytest
 from edit.pipeline_V2 import Pipeline, iterators, samplers
-
-
-def replace_getter(arg):
-    return arg
+from tests.fake_pipeline_steps import FakeIndex
 
 
 @pytest.mark.parametrize(
@@ -29,10 +26,9 @@ def replace_getter(arg):
         ((samplers.RandomDropOut(0), samplers.Random(10)), 20),
     ],
 )
-def test_samplers(monkeypatch, sampler, length):
-    pipe = Pipeline(iterator=iterators.Range(0, 20), sampler=sampler)
+def test_samplers(sampler, length):
+    pipe = Pipeline(FakeIndex(), iterator=iterators.Range(0, 20), sampler=sampler)
 
-    monkeypatch.setattr(pipe, "_get_initial_sample", replace_getter)
 
     if length is not None:
         assert len(list(pipe)) == length, "Length differs from expected"

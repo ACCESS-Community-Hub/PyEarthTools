@@ -8,23 +8,24 @@
 
 import pytest
 
-from edit.pipeline_V2 import Pipeline, iterators, filters, exceptions
+from edit.pipeline_V2 import Pipeline, iterators, filters, exceptions, Operation, config
+from tests.fake_pipeline_steps import FakeIndex
 
+config.RUN_PARALLEL = False
 
-def replace_on_key(**replaces):
-    def replace_function(arg):
-        if str(arg) in replaces:
-            return replaces[str(arg)]
-        return arg
+class ReplaceOnKey(Operation):
+    def __init__(self, **replaces):
+        super().__init__(operation='apply')
+        self.replaces = replaces
+        
+    def apply_func(self, sample):
+        if str(sample) in self.replaces:
+            return self.replaces[str(sample)]
+        return sample
+    
 
-    return replace_function
-
-
-def test_type_filter(monkeypatch):
-    pipe = Pipeline(None, filters.TypeFilter(int), iterator=iterators.Range(0, 20))
-    monkeypatch.setattr(
-        pipe, "_get_initial_sample", replace_on_key(**{"10": []})
-    )  # Replace initial index based retrieval to run all other steps after
+def test_type_filter():
+    pipe = Pipeline(FakeIndex(), ReplaceOnKey(**{'10': 'break'}), filters.TypeFilter(int), iterator=iterators.Range(0, 20))
 
     with pytest.raises(exceptions.PipelineFilterException):
         pipe[10]

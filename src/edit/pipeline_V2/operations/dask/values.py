@@ -6,8 +6,11 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
+#type: ignore[reportPrivateImportUsage]
+
 from typing import Literal, TypeVar, Union, Optional, Any
 
+import dask.array as da
 import numpy as np
 
 import edit.data
@@ -19,8 +22,7 @@ class FillNan(Operation):
     """
     Fill any Nan's with a value
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'FillNan'}}
+    _override_interface = ['Serial']
 
     def __init__(
         self,
@@ -42,12 +44,13 @@ class FillNan(Operation):
                 Value to be used to fill negative infinity values,
                 If no value is passed then negative infinity values will be replaced with a very small (or negative) number. Defaults to None.
         """
+        raise NotImplementedError(F'Not implemented')
 
         super().__init__(
             operation="apply",
             split_tuples=True,
             recursively_split_tuples=True,
-            recognised_types=np.ndarray,
+            recognised_types=da.Array,
         )
 
         self.record_initialisation()
@@ -56,16 +59,17 @@ class FillNan(Operation):
         self.posinf = posinf
         self.neginf = neginf
 
-    def apply_func(self, sample: np.ndarray):
-        return np.nan_to_num(np.array(sample), nan=self.nan, posinf=self.posinf, neginf=self.neginf)
+    def apply_func(self, sample: da.Array):
+        return da.nan_to_num(da.array(sample), self.nan, self.posinf, self.neginf)
 
 
 class MaskValue(Operation):
     """
     DataOperation to mask values with a given replacement
+
+
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'MaskValue'}}
+    _override_interface = ['Serial']
 
     def __init__(
         self,
@@ -92,7 +96,7 @@ class MaskValue(Operation):
             operation="apply",
             split_tuples=True,
             recursively_split_tuples=True,
-            recognised_types=np.ndarray,
+            recognised_types=da.Array,
         )
 
         self.record_initialisation()
@@ -105,16 +109,16 @@ class MaskValue(Operation):
 
         self._mask_transform = edit.data.transforms.mask.replace_value(value, operation, replacement_value)
 
-    def apply_func(self, sample: np.ndarray) -> np.ndarray:
+    def apply_func(self, sample: da.Array) -> da.Array:
         """
         Mask Data from initialised configuration
 
         Args:
-            sample (np.ndarray):
+            sample (da.Array):
                 Data to apply mask to
 
         Returns:
-            (np.ndarray):
+            (da.Array):
                 Masked Data
         """
         return self._mask_transform(sample)  # type: ignore
@@ -124,8 +128,7 @@ class ForceNormalised(Operation):
     """
     Operation to force data within a certain range, by default 0 & 1
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'ForceNormalised'}}
+    _override_interface = ['Serial']
 
     def __init__(
         self,
@@ -149,7 +152,7 @@ class ForceNormalised(Operation):
             operation="apply",
             split_tuples=True,
             recursively_split_tuples=True,
-            recognised_types=np.ndarray,
+            recognised_types=da.Array,
         )
 
         self.record_initialisation()

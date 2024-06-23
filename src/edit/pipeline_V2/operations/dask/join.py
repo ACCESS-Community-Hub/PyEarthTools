@@ -6,30 +6,31 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
+#type: ignore[reportPrivateImportUsage]
+
 from typing import Optional, Any
 
-import numpy as np
+import dask.array as da
 
 from edit.pipeline_V2.branching.join import Joiner
 
 
 class Stack(Joiner):
     """
-    Stack a tuple of np.ndarray's
+    Stack a tuple of da.Array's
 
     Currently cannot undo this operation
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'Stack'}}
-    
+    _override_interface = ['Serial']
+
     def __init__(self, axis: Optional[int] = None):
         super().__init__()
         self.record_initialisation()
         self.axis = axis
 
-    def join(self, sample: tuple[Any, ...]) -> np.ndarray:
+    def join(self, sample: tuple[Any, ...]) -> da.Array:
         """Join sample"""
-        return np.stack(sample, self.axis)  # type: ignore
+        return da.stack(sample, self.axis)  # type: ignore
 
     def unjoin(self, sample: Any) -> tuple:
         return super().unjoin(sample)
@@ -37,20 +38,19 @@ class Stack(Joiner):
 
 class VStack(Joiner):
     """
-    Vertically Stack a tuple of np.ndarray's
+    Vertically Stack a tuple of da.Array's
 
     Currently cannot undo this operation
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'VSplit'}}
-    
+    _override_interface = ['Serial']
+
     def __init__(self):
         super().__init__()
         self.record_initialisation()
 
-    def join(self, sample: tuple[Any, ...]) -> np.ndarray:
+    def join(self, sample: tuple[Any, ...]) -> da.Array:
         """Join sample"""
-        return np.vstack(
+        return da.vstack(
             sample,
         )  # type: ignore
 
@@ -60,20 +60,19 @@ class VStack(Joiner):
 
 class HStack(Joiner):
     """
-    Horizontally Stack a tuple of np.ndarray's
+    Horizontally Stack a tuple of da.Array's
 
     Currently cannot undo this operation
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'HSplit'}}
+    _override_interface = ['Serial']
 
     def __init__(self):
         super().__init__()
         self.record_initialisation()
 
-    def join(self, sample: tuple[Any, ...]) -> np.ndarray:
+    def join(self, sample: tuple[Any, ...]) -> da.Array:
         """Join sample"""
-        return np.hstack(
+        return da.hstack(
             sample,
         )  # type: ignore
 
@@ -83,21 +82,20 @@ class HStack(Joiner):
 
 class Concatenate(Joiner):
     """
-    Concatenate a tuple of np.ndarray's
+    Concatenate a tuple of da.Array's
 
     Currently cannot undo this operation
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'Concatenate'}}
+    _override_interface = ['Serial']
 
     def __init__(self, axis: Optional[int] = None):
         super().__init__()
         self.record_initialisation()
         self.axis = axis
 
-    def join(self, sample: tuple[Any, ...]) -> np.ndarray:
+    def join(self, sample: tuple[Any, ...]) -> da.Array:
         """Join sample"""
-        return np.concatenate(sample, self.axis)  # type: ignore
+        return da.concatenate(sample, self.axis)  # type: ignore
 
     def unjoin(self, sample: Any) -> tuple:
         return super().unjoin(sample)

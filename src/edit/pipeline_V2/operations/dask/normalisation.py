@@ -6,55 +6,60 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
+#type: ignore[reportPrivateImportUsage]
+
 from abc import abstractmethod
 from pathlib import Path
 from typing import TypeVar, Union
 
-import xarray as xr
+
+import dask.array as da
 
 from edit.pipeline_V2.operation import Operation
 
 
 FILE = Union[str, Path]
 
-T = TypeVar("T", xr.Dataset, xr.DataArray)
+__all__ = ["daskNormalisation", "Anomaly", "Deviation", "Evaluated"]
 
 
-class xarrayNormalisation(Operation):
+class daskNormalisation(Operation):
     """
-    Parent xarray Normalisation
+    Parent dask normalisation class
+
     """
-    _override_interface = 'Serial'
+    _override_interface = ['Serial']
 
     @classmethod
-    def open_file(cls, file: FILE) -> xr.Dataset:
-        """Open xarray file"""
-        return xr.open_dataset(file)
+    def open_file(cls, file: FILE) -> da.Array:
+        """Open dask file"""
+        return da.from_array(np.load(file))
 
     def __init__(self):
-        super().__init__(split_tuples=True, recursively_split_tuples=True, recognised_types=(xr.Dataset, xr.DataArray))
+        super().__init__(split_tuples=True, recursively_split_tuples=True, recognised_types=(da.Array))
 
-    def apply_func(self, sample: T) -> T:
+    def apply_func(self, sample: da.Array) -> da.Array:
         return self.normalise(sample)
 
-    def undo_func(self, sample: T) -> T:
+    def undo_func(self, sample: da.Array) -> da.Array:
         return self.unnormalise(sample)
 
     @abstractmethod
-    def normalise(self, sample: T) -> T:
+    def normalise(self, sample: da.Array) -> da.Array:
         return sample
 
     @abstractmethod
-    def unnormalise(self, sample: T) -> T:
+    def unnormalise(self, sample: da.Array) -> da.Array:
         return sample
 
 
-class Anomaly(xarrayNormalisation):
+class Anomaly(daskNormalisation):
     """Anomaly Normalisation"""
 
     def __init__(self, mean: FILE):
         super().__init__()
         self.record_initialisation()
+
         self.mean = self.open_file(mean)
 
     def normalise(self, sample):
@@ -64,12 +69,13 @@ class Anomaly(xarrayNormalisation):
         return sample + self.mean
 
 
-class Deviation(xarrayNormalisation):
+class Deviation(daskNormalisation):
     """Deviation Normalisation"""
 
     def __init__(self, mean: FILE, deviation: FILE):
         super().__init__()
         self.record_initialisation()
+
         self.mean = self.open_file(mean)
         self.deviation = self.open_file(deviation)
 
@@ -80,7 +86,7 @@ class Deviation(xarrayNormalisation):
         return (sample * self.deviation) + self.mean
 
 
-class TemporalDifference(xarrayNormalisation):
+class TemporalDifference(daskNormalisation):
     """TemporalDifference Normalisation"""
 
     def __init__(self, temporal_difference: FILE):
@@ -96,7 +102,7 @@ class TemporalDifference(xarrayNormalisation):
         return sample * self.temporal_difference
 
 
-class Evaluated(xarrayNormalisation):
+class Evaluated(daskNormalisation):
     """
     `eval` based normalisation
     """

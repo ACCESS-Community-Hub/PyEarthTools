@@ -17,6 +17,7 @@ T = TypeVar("T", xr.Dataset, xr.DataArray)
 
 class OnVariables(Spliter):
     """Split xarray object's on variables"""
+    _override_interface = 'Serial'
 
     def __init__(
         self,
@@ -61,6 +62,7 @@ class OnVariables(Spliter):
 
 class OnCoordinate(Spliter):
     """Split xarray object on coordinate"""
+    _override_interface = 'Serial'
 
     def __init__(
         self,

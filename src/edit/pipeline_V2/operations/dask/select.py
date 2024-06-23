@@ -6,9 +6,11 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
+#type: ignore[reportPrivateImportUsage]
+
 from typing import Any, Optional
 
-import numpy as np
+import dask.array as da
 
 from edit.pipeline_V2.operation import Operation
 
@@ -17,8 +19,7 @@ class Select(Operation):
     """
     Operation to select an element from a given array
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'Select'}}
+    _override_interface = ['Serial']
 
     def __init__(
         self,
@@ -34,7 +35,7 @@ class Select(Operation):
                 Choice of which tuple element to apply selection to, if tuples passed. Defaults to None.
 
         Examples
-            >>> incoming_data = np.zeros((10,5,2))
+            >>> incoming_data = da.zeros((10,5,2))
             >>> select = Select([0])
             >>> select.apply_func(incoming_data).shape
             (5,2)
@@ -46,7 +47,7 @@ class Select(Operation):
         super().__init__(
             operation="apply",
             split_tuples=False,
-            recognised_types=(np.ndarray, tuple, list),
+            recognised_types=(da.Array, tuple, list),
         )
 
         self.record_initialisation()
@@ -59,9 +60,9 @@ class Select(Operation):
         for i, index in enumerate(reversed(array_index)):
             if index is None:
                 pass
-            selected_data = np.take(data, indices=index, axis=-(i + 1))
+            selected_data = da.take(data, indices=index, axis=-(i + 1))
             if len(selected_data.shape) < len(shape):
-                selected_data = np.expand_dims(selected_data, axis=-(i + 1))
+                selected_data = da.expand_dims(selected_data, axis=-(i + 1))
             data = selected_data
         return data
 
@@ -82,11 +83,11 @@ class Select(Operation):
 
 class Slicer(Operation):
     """
-    Slice a chunk of a numpy array
+    Slice a chunk of a dask array
 
     Examples:
         >>> Slicer((0,10,2)) # == slice(0,10,2)
-        >>> incoming_data = np.zeros((10,5,4))
+        >>> incoming_data = da.zeros((10,5,4))
         >>> Slicer((0,10,2), (1, 3)).apply_func(incoming_data).shape
         (5,2,4)
         >>> Slicer((1, 3)).apply_func(incoming_data).shape
@@ -94,8 +95,7 @@ class Slicer(Operation):
         >>> Slicer((1, 3), reverse_slice = True).apply_func(incoming_data).shape
         (10,5,2)
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'Slice'}}
+    _override_interface = ['Serial']
 
     def __init__(self, *slices: tuple[Optional[int], ...], reverse_slice: bool = False):
         """
@@ -111,14 +111,14 @@ class Slicer(Operation):
             operation="apply",
             split_tuples=True,
             recursively_split_tuples=True,
-            recognised_types=np.ndarray,
+            recognised_types=da.Array,
         )
 
         self.record_initialisation()
         self._slices = tuple(slice(*x) for x in slices)
         self.reverse_slice = reverse_slice
 
-    def apply_func(self, sample: np.ndarray) -> np.ndarray:
+    def apply_func(self, sample: da.Array) -> da.Array:
         if self.reverse_slice:
             base_slices = [slice(None, None, None)] * (len(sample.shape) - len(self._slices))
             base_slices.extend(self._slices)

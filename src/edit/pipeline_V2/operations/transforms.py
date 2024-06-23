@@ -14,13 +14,14 @@ import edit.data
 from edit.pipeline_V2.operation import Operation
 
 T = TypeVar("T", xr.Dataset, xr.DataArray)
-TRANSFORM_TYPE = Union[edit.data.Transform, edit.data.TransformCollection, dict[str, Any]]
+TRANSFORM_TYPE = Union[edit.data.Transform, edit.data.TransformCollection]
 
 
 class Transforms(Operation):
     """
     Run `edit.data.Transforms` within a `Pipeline`.
     """
+    _override_interface = 'Serial'
 
     def __init__(
         self,

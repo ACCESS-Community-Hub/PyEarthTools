@@ -6,31 +6,26 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
-from edit.pipeline_V2.operations.xarray.compute import Compute
-from edit.pipeline_V2.operations.xarray.join import Merge, Concatenate
-from edit.pipeline_V2.operations.xarray.sort import Sort
+from edit.pipeline_V2.operations.dask.join import Stack, Concatenate, VStack, HStack
 
-from edit.pipeline_V2.operations.xarray import (
-    conversion,
+from edit.pipeline_V2.operations.dask import (
+    augment,
     filters,
+    normalisation,
     reshape,
     select,
     split,
     values,
-    metadata,
-    normalisation,
 )
 
 __all__ = [
-    "Compute",
-    "Merge",
+    "Stack",
     "Concatenate",
-    "Sort",
-    "conversion",
+    "augment",
     "filters",
     "reshape",
     "select",
     "split",
     "values",
-    "metadata",
+    "normalisation",
 ]

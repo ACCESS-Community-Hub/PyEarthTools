@@ -6,9 +6,23 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
+"""
+Pipeline Operations
 
-__all__ = ["xarray", "numpy", "transform", "Transforms"]
+| SubModules | Info |
+| ---------- | ---- |
+| numpy | Numpy arrays |
+| xarray | Xarray |
+| dask   | Dask arrays |
+"""
+
+import warnings
 
 from edit.pipeline_V2.operations import xarray, numpy
 from edit.pipeline_V2.operations.transforms import Transforms
 from edit.pipeline_V2.operations import transform
+
+try:
+    from edit.pipeline_V2.operations import dask
+except (ImportError, ModuleNotFoundError) as e:
+    warnings.warn(f"Unable to import `operations.dask` due to {e}", ImportWarning)

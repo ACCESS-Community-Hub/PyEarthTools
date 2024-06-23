@@ -21,6 +21,7 @@ class Rename(Operation):
     """
     Rename `variables` in an `xr.Dataset`.
     """
+    _override_interface = 'Serial'
 
     def __init__(self, rename: dict[str, str]):
         """
@@ -46,11 +47,16 @@ class Rename(Operation):
 
 
 class Encoding(Operation):
+    """
+    Set encoding on `xarray` objects
+    """
+    _override_interface = 'Serial'
     def __init__(
         self,
         encoding: dict[str, dict[str, Any]],
         operation: Literal["apply", "undo", "both"] = "both",
     ):
+
         """
         Set encoding on `xarray` objects
 
@@ -80,6 +86,7 @@ class Encoding(Operation):
 
 class MaintainEncoding(Operation):
     _encoding: Optional[edit.data.Transform] = None
+    _override_interface = 'Serial'
 
     def __init__(self, reference: Optional[str] = None, limit: Optional[list[str]] = None):
         """
@@ -120,6 +127,11 @@ class MaintainEncoding(Operation):
 
 
 class Attributes(Operation):
+    """
+    Set attributes on `xarray` objects
+    """
+    _override_interface = 'Serial'
+
     def __init__(
         self,
         attributes: dict[str, dict[str, Any]],
@@ -162,7 +174,11 @@ class Attributes(Operation):
 
 
 class MaintainAttributes(Operation):
+    """
+    Maintain attributes
+    """
     _attributes: Optional[edit.data.Transform] = None
+    _override_interface = 'Serial'
 
     def __init__(self, reference: Optional[str] = None):
         """

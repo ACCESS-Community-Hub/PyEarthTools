@@ -37,6 +37,9 @@ class AddCoordinates(Transform):
             *extra_coords (str):
                 Args form of coordinates
         """
+        super().__init__()
+        self.record_initialisation()
+        
         coordinates = [coordinates] if isinstance(coordinates, str) else coordinates
         coordinates = [*coordinates, *extra_coords]
         self.coordinates = coordinates
