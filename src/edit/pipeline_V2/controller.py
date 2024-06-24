@@ -14,6 +14,7 @@ import functools
 from typing import Any, ContextManager, Literal, Union, Optional, Type
 from pathlib import Path
 
+import edit.utils
 import graphviz
 
 from edit.data.indexes import Index
@@ -223,6 +224,14 @@ class Pipeline(_Pipeline, Index):
         'map_copy' can be used to copy the branch to the number of elements in the sample without having to
         manually specify each branch.
 
+        ### Indexes in Branches
+        Indexes can also be included in branches, which behaviour as expected, where the sample is retrieved rather than operations applied.
+        E.g. #Pseudocode
+        >>> Pipeline(
+            Index,
+            (Operation_1, Operation_2, Index)
+        )
+
         ## Transforms
 
         It is possible to use `edit.data.Transforms` directly in the pipeline. They will be executed on both the `apply` and `undo`
@@ -356,6 +365,10 @@ class Pipeline(_Pipeline, Index):
             val = samplers.SuperSampler(*val)
         self._sampler = val
 
+    def has_source(self) -> bool:
+        """Determine if this `Pipeline` contains a source of data, or is just a sequence of operations."""
+        return isinstance(self._steps[0], (_Pipeline, Index))
+
     def _get_initial_sample(self, idx: Any) -> tuple[Any, int]:
         """
         Get sample from first pipeline step or first working back index
@@ -387,6 +400,9 @@ class Pipeline(_Pipeline, Index):
                 raise TypeError(f"When iterating through pipeline steps, found a {type(step)} which cannot be parsed.")
             if isinstance(step, Pipeline):
                 sample = step.apply(sample)
+            elif isinstance(step, edit.pipeline_V2.branching.PipelineBranchPoint):
+                with edit.utils.context.ChangeValue(step, '_current_idx', idx):
+                    sample = step.apply(sample)
             else:
                 sample = step(sample)  # type: ignore
         return sample    

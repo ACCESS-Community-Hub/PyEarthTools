@@ -75,9 +75,12 @@ class PipelineBranchPoint(_Pipeline, Operation):
 
     """
 
-    _map = False
-    _map_copy = False
+    _map: bool = False
+    _map_copy: bool = False
+    _current_idx: Optional[int] = None
     sub_pipelines: list[Pipeline]
+
+
     _override_interface = ['Serial']
 
     def __init__(
@@ -126,23 +129,23 @@ class PipelineBranchPoint(_Pipeline, Operation):
         
         return tuple(self.parallel_interface.collect(results))
 
-    def _steps_function(self, sample, steps: tuple[Pipeline], func_name: Literal['apply', 'undo']):
-        """
-        Run `func_name` across all steps in `steps` for `sample`
-        """
+    # def _steps_function(self, sample, steps: tuple[Pipeline], func_name: Literal['apply', 'undo']):
+    #     """
+    #     Run `func_name` across all steps in `steps` for `sample`
+    #     """
 
-        for step in steps:
-            if not isinstance(step, (Pipeline, PipelineStep, Transform, TransformCollection)):
-                raise TypeError(f"When iterating through pipeline steps, found a {type(step)} which cannot be parsed.")
-            elif isinstance(step, (Pipeline, Operation)):
-                sample = getattr(step, func_name)(sample)
-            elif isinstance(step, (Transform, TransformCollection)):
-                if func_name == 'undo':
-                    pass
-                sample = step(sample)
-            else:
-                sample = step(sample)  # Run other `PipelineStep`'s.
-        return sample
+    #     for step in steps:
+    #         if not isinstance(step, (Pipeline, PipelineStep, Transform, TransformCollection)):
+    #             raise TypeError(f"When iterating through pipeline steps, found a {type(step)} which cannot be parsed.")
+    #         elif isinstance(step, (Pipeline, Operation)):
+    #             sample = getattr(step, func_name)(sample)
+    #         elif isinstance(step, (Transform, TransformCollection)):
+    #             if func_name == 'undo':
+    #                 pass
+    #             sample = step(sample)
+    #         else:
+    #             sample = step(sample)  # Run other `PipelineStep`'s.
+    #     return sample
 
     def apply(self, sample):
         """Apply each branch on the sample"""
@@ -152,6 +155,9 @@ class PipelineBranchPoint(_Pipeline, Operation):
         if self._map or self._map_copy:
             if not isinstance(sample, tuple):
                 raise PipelineRuntimeError(f"Cannot map sample to branches as it is not a tuple. {type(sample)}.")
+            
+            if any(pipe.has_source() for pipe in self.sub_pipelines):
+                raise ValueError("When attempting to map pipelines to sample, found a Pipeline with a source of data. Cannot continue.\n", (pipe for pipe in self.sub_pipelines if pipe.has_source()))
 
             if not len(sample) == len(self.sub_pipelines):
                 if self._map:
@@ -162,16 +168,24 @@ class PipelineBranchPoint(_Pipeline, Operation):
                     self.sub_pipelines = expand_pipeline(self, len(sample))
 
             for s, pipe in zip(sample, self.sub_pipelines):
-                sub_samples.append(
-                    self.parallel_interface.submit(self._steps_function, s, steps=pipe.steps, func_name="apply")
-                )
+                sub_samples.append(self.parallel_interface.submit(pipe.apply, s))
+                # sub_samples.append(
+                #     self.parallel_interface.submit(self._steps_function, s, steps=pipe.steps, func_name="apply")
+                # )
         else:
             for sub_pipe in self.sub_pipelines:
-                samp = type(sample)(sample)
-                steps = sub_pipe.steps
-                sub_samples.append(
-                    self.parallel_interface.submit(self._steps_function, samp, steps=steps, func_name="apply")
-                )
+                if sub_pipe.has_source():
+                    if self._current_idx is None:
+                        raise ValueError("Applying branchs to `sample` found a pipeline with source, but the `current_idx` was not set.")
+                    sub_samples.append(self.parallel_interface.submit(sub_pipe.__getitem__, self._current_idx))
+                else:
+                    samp = type(sample)(sample)
+                    sub_samples.append(self.parallel_interface.submit(sub_pipe.apply, samp))
+
+                # steps = sub_pipe.steps
+                # sub_samples.append(
+                #     self.parallel_interface.submit(self._steps_function, samp, steps=steps, func_name="apply")
+                # )
         return tuple(self.parallel_interface.collect(sub_samples))
 
     def undo(self, sample):
@@ -196,13 +210,15 @@ class PipelineBranchPoint(_Pipeline, Operation):
             )
         with parallel.disable:
             for samp, sub_pipe in zip(sample, self.sub_pipelines):
-                steps = sub_pipe.steps[::-1]
-                if not isinstance(steps[-1], PipelineStep) and isinstance(steps[-1], (Index,)):
-                    steps = steps[:-1]  # Remove last step on undo path if not PipelineStep
+                sub_samples.append(self.parallel_interface.submit(sub_pipe.undo, samp))
 
-                sub_samples.append(
-                    self.parallel_interface.submit(self._steps_function, samp, steps=steps, func_name="undo")
-                )
+                # steps = sub_pipe.steps[::-1]
+                # if not isinstance(steps[-1], PipelineStep) and isinstance(steps[-1], (Index,)):
+                #     steps = steps[:-1]  # Remove last step on undo path if not PipelineStep
+
+                # sub_samples.append(
+                #     self.parallel_interface.submit(self._steps_function, samp, steps=steps, func_name="undo")
+                # )
             result = tuple(self.parallel_interface.collect(sub_samples))
 
         if all(len(pipe.steps) == 1 and isinstance(pipe.steps[0], Index) for pipe in self.sub_pipelines):
@@ -258,7 +274,7 @@ class PipelineBranchPoint(_Pipeline, Operation):
                     f"cluster_{uuid.uuid4()!s}" if len(sub_pipes.flattened_steps) > 1 and False else f"{uuid.uuid4()!s}"
                 )
                 with graph.subgraph(name=name) as c:  # type: ignore
-                    _, prior_steps = sub_pipes._get_tree(prior_step, graph=c) # type: ignore
+                    _, prior_steps = sub_pipes._get_tree(prior_step if not sub_pipes.has_source() else [], graph=c) # type: ignore
                 final_steps.extend(prior_steps)
 
         return graph, final_steps
