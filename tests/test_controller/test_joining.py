@@ -10,13 +10,12 @@ from typing import Any
 
 import pytest
 
-from edit.pipeline_V2 import config
-
-config.RUN_PARALLEL = False
+import edit.utils
 
 from edit.pipeline_V2 import Pipeline, branching
 
-from tests.fake_pipeline_steps import *
+from tests.fake_pipeline_steps import FakeIndex, MultiplicationOperation
+edit.utils.config.set({'pipeline_V2.run_parallel': False})
 
 
 class AdditionJoin(branching.Joiner):
@@ -86,8 +85,8 @@ class AdditionJoinUnImplemented(branching.Joiner): ...
 )
 def test_branch_with_join_unimplemented(operation):
     with pytest.raises(TypeError):
-        pipe = Pipeline(
+        _ = Pipeline(
             (FakeIndex(2), FakeIndex()),
             MultiplicationOperation(10),
-            AdditionJoinUnImplemented(operation=operation),
+            AdditionJoinUnImplemented(operation=operation), # type: ignore
         )

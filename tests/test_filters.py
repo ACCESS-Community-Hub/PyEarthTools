@@ -8,10 +8,11 @@
 
 import pytest
 
-from edit.pipeline_V2 import Pipeline, iterators, filters, exceptions, Operation, config
+from edit.pipeline_V2 import Pipeline, iterators, filters, exceptions, Operation
 from tests.fake_pipeline_steps import FakeIndex
 
-config.RUN_PARALLEL = False
+import edit.utils
+edit.utils.config.set({'pipeline_V2.run_parallel': False})
 
 class ReplaceOnKey(Operation):
     def __init__(self, **replaces):

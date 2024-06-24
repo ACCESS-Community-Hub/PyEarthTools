@@ -10,7 +10,7 @@
 from typing import Any, Optional
 import warnings
 
-from edit.pipeline_V2 import config
+import edit.utils
 from edit.pipeline_V2.warnings import PipelineWarning
 
 __all__ = [
@@ -86,7 +86,7 @@ class ExceptionIgnoreContext:
 
     def __init__(self, exceptions: tuple[Exception, ...], max_exceptions: Optional[int] = None):
 
-        self._max_exceptions = max_exceptions or config.MAX_FILTER_EXCEPTIONS
+        self._max_exceptions = max_exceptions or edit.utils.config.get('pipeline_V2.exceptions.max_filter')
         self._count = 0
         self._messages = []
         self._exceptions = exceptions

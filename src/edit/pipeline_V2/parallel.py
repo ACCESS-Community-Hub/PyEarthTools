@@ -18,18 +18,34 @@ no code is needed to be changed to run in serial.
 
 from abc import abstractmethod
 import functools
+
+from importlib.util import find_spec
+
 from typing import Callable, Literal, Optional, Type, TypeVar, Any, Union
 
 from edit.utils.decorators import classproperty
-from edit.utils.context import ChangeValue
 
-from edit.pipeline_V2 import config
+import edit.utils
 
 Future = TypeVar("Future", Any, Any)
 
+class ParallelToggle:
+    """Parallel Toggle Context Manager"""
+    _enter_state: bool
+    def __init__(self, state: Literal['enable', 'disable']):
+        self._state = state
+    def __enter__(self):
+        self._enter_state = edit.utils.config.get('pipeline_V2.run_parallel')
+        edit.utils.config.set({'pipeline_V2.run_parallel': self._state == 'enable'})
 
-enable = ChangeValue(config, "RUN_PARALLEL", True)
-disable = ChangeValue(config, "RUN_PARALLEL", False)
+    def __exit__(self, *args):
+        edit.utils.config.set({'pipeline_V2.run_parallel': self._enter_state})
+
+    def __repr__(self):
+        return f"Context Manager to toggle parallelisation {'on' if self._state == 'enable' else 'off'}."
+
+enable = ParallelToggle('enable')
+disable = ParallelToggle('disable')
 
 PARALLEL_INTERFACES = Literal['Futures', 'Delayed', 'Serial']
 
@@ -122,7 +138,7 @@ class DaskParallelInterface(ParallelInterface):
         return self._interface_kwargs.get('Futures', {})
     
     @classproperty
-    def client(cls) -> 'distributed.Client':# type: ignore
+    def client(cls) -> 'distributed.Client':# type: ignore  # noqa: F821
         """Get dask client"""
         from dask.distributed import Client
         import distributed 
@@ -132,20 +148,17 @@ class DaskParallelInterface(ParallelInterface):
         except ValueError:
             client = None
 
-        dask_config = config.DASK_CONFIG
+        dask_config = edit.utils.config.get('pipeline_V2.parallel.dask.config')
         dask_config["processes"] = dask_config.pop("processes", False)
 
-        if client is None and not config.START_DASK:
-            raise RuntimeError(f"Cannot start dask cluster if `config.START_DASK` is False.")
+        if client is None and not edit.utils.config.get('pipeline_V2.parallel.dask.start'):
+            raise RuntimeError("Cannot start dask cluster when `pipeline_V2.parallel.dask.start` is False.")
 
         return client or Client(**dask_config)
     
     @classmethod
     def check(cls):
-        try:
-            import distributed
-            from dask.distributed import Client
-        except (ImportError, ModuleNotFoundError):
+      if find_spec('distributed') is None:
             return "Cannot import dask."
 
     def defer_to_client(func: Callable):  # type: ignore
@@ -153,7 +166,7 @@ class DaskParallelInterface(ParallelInterface):
         try:
             from dask.distributed import Client
             wrapped = getattr(Client, func.__name__).__doc__
-        except:
+        except AttributeError:
             pass
 
         def wrapper(self, *args, **kwargs):
@@ -203,19 +216,16 @@ class DaskDelayedInterface(ParallelInterface):
     """
     @classmethod
     def check(cls):
-        try:
-            import distributed
-            from dask.distributed import Client
-        except (ImportError, ModuleNotFoundError):
+        if find_spec('distributed') is None:
             return "Cannot import dask."
-        
+    
     @property
     def config(self):
         return self._interface_kwargs.get('Delayed', {})
         
     
     def run_delayed(self, func, *args, **kwargs):
-        from dask.delayed import tokenize, delayed, Delayed
+        from dask.delayed import tokenize, delayed
 
         name = self._interface_kwargs.get('name', None)
         if name is not None:
@@ -272,7 +282,7 @@ def get_parallel(interface: Optional[PARALLEL_INTERFACES] = None, **interface_kw
         ImportError:
             If cannot use specified `interface` due to its check failing.
     """
-    if not config.RUN_PARALLEL:
+    if not edit.utils.config.get('pipeline_V2.run_parallel'):
         return SerialInterface(**interface_kwargs)
     
     if interface:
@@ -294,10 +304,10 @@ def get_parallel(interface: Optional[PARALLEL_INTERFACES] = None, **interface_kw
     except ValueError:
         client = None
 
-    if client is None and not config.START_DASK:
+    if client is None and not edit.utils.config.get('pipeline_V2.parallel.dask.start'):
         return SerialInterface(**interface_kwargs)
     
-    return get_parallel(config.DEFAULT_INTERFACE, **interface_kwargs)
+    return get_parallel(edit.utils.config.get('pipeline_V2.parallel.default'), **interface_kwargs)
 
 
 class ParallelEnabledMixin:

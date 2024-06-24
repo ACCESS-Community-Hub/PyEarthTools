@@ -6,17 +6,16 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 from __future__ import annotations
-from typing import Any
 
 import pytest
 
-from edit.pipeline_V2 import config
-
-config.RUN_PARALLEL = False
+import edit.utils
 
 from edit.pipeline_V2 import Pipeline, branching, exceptions
 
-from tests.fake_pipeline_steps import *
+from tests.fake_pipeline_steps import FakeIndex
+
+edit.utils.config.set({'pipeline_V2.run_parallel': False})
 
 # TODO
 

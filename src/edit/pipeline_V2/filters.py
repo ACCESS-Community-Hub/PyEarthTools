@@ -12,7 +12,8 @@ from typing import Optional, Type, Union
 
 import warnings
 
-from edit.pipeline_V2 import config
+import edit.utils
+
 from edit.pipeline_V2.step import PipelineStep
 from edit.pipeline_V2.exceptions import PipelineFilterException
 from edit.pipeline_V2.warnings import PipelineWarning
@@ -81,7 +82,7 @@ class FilterWarningContext:
 
     def __init__(self, max_exceptions: Optional[int] = None):
 
-        self._max_exceptions = max_exceptions or config.MAX_FILTER_EXCEPTIONS
+        self._max_exceptions = max_exceptions or edit.utils.config.get('pipeline_V2.exceptions.max_filter')
         self._count = 0
         self._messages = []
 

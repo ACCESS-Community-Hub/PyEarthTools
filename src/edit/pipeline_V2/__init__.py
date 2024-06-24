@@ -6,11 +6,10 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
-from edit.pipeline_V2.config import conf
+#type: ignore[reportUnusedImport]
+# noqa: F401
 
-config = conf()
-
-from edit.pipeline_V2.save import save, load
+from edit.pipeline_V2.save import save, load  
 from edit.pipeline_V2.controller import Pipeline, PipelineIndex
 
 from edit.pipeline_V2.operation import Operation
@@ -40,6 +39,8 @@ from edit.pipeline_V2.exceptions import (
     PipelineTypeError,
 )
 from edit.pipeline_V2.warnings import PipelineWarning
+
+from edit.pipeline_V2 import config
 
 __all__ = [
     "Sampler",

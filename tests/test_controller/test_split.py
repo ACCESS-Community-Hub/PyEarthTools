@@ -7,17 +7,16 @@
 # from the use of the software.
 
 from __future__ import annotations
-from typing import Any
 
 import pytest
 
-from edit.pipeline_V2 import config
-
-config.RUN_PARALLEL = False
+import edit.utils
 
 from edit.pipeline_V2 import Pipeline, branching
 
-from tests.fake_pipeline_steps import *
+from tests.fake_pipeline_steps import FakeIndex
+
+edit.utils.config.set({'pipeline_V2.run_parallel': False})
 
 
 class Split(branching.Spliter):
@@ -49,7 +48,7 @@ class SpliterUnImplemented(branching.Spliter): ...
 )
 def test_branch_with_split_unimplemented(operation):
     with pytest.raises(TypeError):
-        pipe = Pipeline(
+        _ = Pipeline(
             (FakeIndex(2), FakeIndex()),
-            SpliterUnImplemented(operation=operation),
+            SpliterUnImplemented(operation=operation), # type: ignore
         )

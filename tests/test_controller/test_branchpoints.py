@@ -6,17 +6,16 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 from __future__ import annotations
-from typing import Any
 
 import pytest
 
-from edit.pipeline_V2 import config
+import edit.utils
 
-config.RUN_PARALLEL = False
+from edit.pipeline_V2 import Pipeline, exceptions, branching
 
-from edit.pipeline_V2 import Pipeline, exceptions, branching, exceptions
+from tests.fake_pipeline_steps import FakeIndex, MultiplicationOperation, MultiplicationOperationUnunifiedable
 
-from tests.fake_pipeline_steps import *
+edit.utils.config.set({'pipeline_V2.run_parallel': False})
 
 
 def test_branchingpoint_basic():
@@ -142,7 +141,7 @@ def test_branch_differing_sources_with_steps_undo():
 
 def test_branch_with_invalid():
     with pytest.raises(exceptions.PipelineTypeError):
-        pipe = Pipeline(
+        _ = Pipeline(
             ((FakeIndex(2), MultiplicationOperation(2)), (FakeIndex(), lambda x: x)),
             MultiplicationOperation(10),
         )
