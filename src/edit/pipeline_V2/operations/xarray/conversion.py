@@ -6,7 +6,7 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
-#type: ignore[reportPrivateImportUsage]
+# type: ignore[reportPrivateImportUsage]
 
 
 from typing import Optional, Union, TypeVar
@@ -19,7 +19,7 @@ from edit.utils.data import NumpyConverter
 
 from edit.pipeline_V2.operation import Operation
 
-XARRAY_OBJECTS = TypeVar('XARRAY_OBJECTS', xr.Dataset, xr.DataArray)
+XARRAY_OBJECTS = TypeVar("XARRAY_OBJECTS", xr.Dataset, xr.DataArray)
 FILE_TYPES = Union[str, Path]
 
 __all__ = ["ToNumpy"]
@@ -29,9 +29,15 @@ class ToNumpy(Operation):
     """
     Convert xarray objects to np.ndarray's
     """
-    _override_interface = 'Serial'
 
-    def __init__(self, reference_dataset: Optional[FILE_TYPES] = None, saved_records: Optional[FILE_TYPES] = None, run_parallel: bool = True):
+    _override_interface = "Serial"
+
+    def __init__(
+        self,
+        reference_dataset: Optional[FILE_TYPES] = None,
+        saved_records: Optional[FILE_TYPES] = None,
+        run_parallel: bool = True,
+    ):
         """DataOperation to convert data to [np.array][numpy.ndarray]
 
         If speed is needed without an `undo`, set `run_parallel` to True, and split the data into seperate
@@ -47,7 +53,7 @@ class ToNumpy(Operation):
                 Saved records to set numpy converter with.
                 Will be overwritten when this is given a dataset.
                 Defaults to None.
-            run_parallel (bool, optional): 
+            run_parallel (bool, optional):
                 Whether to run in parallel, will cause `undo` to fail without `saved_records`.
                 If an undo pipeline is needed, set this to False.
                 Defaults to False.
@@ -74,6 +80,7 @@ class ToNumpy(Operation):
             if reference_dataset:
                 numpy_converter.convert_xarray_to_numpy(xr.open_dataset(reference_dataset), replace=True)
             return numpy_converter
+
         self._make_converter = make_converter
 
     def _get_converters(self, number: int) -> tuple[NumpyConverter]:
@@ -90,15 +97,22 @@ class ToNumpy(Operation):
                 return_values.append(self._converters[-1])
 
         return tuple(return_values)
-        
 
     def apply_func(self, sample: Union[tuple[XARRAY_OBJECTS, ...], XARRAY_OBJECTS]):
         if isinstance(sample, tuple) and self._run_parallel:
+
             def run_converter(sub_samp: XARRAY_OBJECTS, converter: NumpyConverter):
                 return converter.convert_xarray_to_numpy(sub_samp)
-            parallel_interface = self.get_parallel_interface(['Delayed', 'Serial'])
-            return tuple(parallel_interface.collect(parallel_interface.map(lambda x: run_converter(*x), tuple(zip(sample, self._get_converters(len(sample)))))))
-        
+
+            parallel_interface = self.get_parallel_interface(["Delayed", "Serial"])
+            return tuple(
+                parallel_interface.collect(
+                    parallel_interface.map(
+                        lambda x: run_converter(*x), tuple(zip(sample, self._get_converters(len(sample))))
+                    )
+                )
+            )
+
         result = self._get_converters(1)[0].convert_xarray_to_numpy(sample, replace=True)
         if self._saved_records:
             self._numpy_converter.save_records(self._saved_records)
@@ -107,21 +121,25 @@ class ToNumpy(Operation):
     def undo_func(self, sample: Union[tuple[np.ndarray, ...], np.ndarray]):
         return self._get_converters(1)[0].convert_numpy_to_xarray(sample, pop=False)
 
+
 class ToDask(Operation):
     """
     Convert xarray objects to pure dask arrays
     """
-    _override_interface = 'Serial'
-    
+
+    _override_interface = "Serial"
+
     def __init__(self):
         super().__init__(split_tuples=True, recursively_split_tuples=True, recognised_types=(xr.Dataset, xr.DataArray))
         self.record_initialisation()
-        
+
     def apply_func(self, sample: XARRAY_OBJECTS):
         import dask.array as da
+
         if isinstance(sample, xr.DataArray):
             return sample.data
         elif isinstance(sample, xr.Dataset):
             return da.stack(map(lambda x: sample[x].data, list(sample.data_vars)))
+
     def undo_func(self, sample):
         raise NotImplementedError(f"Cannot yet convert back from dask array.")

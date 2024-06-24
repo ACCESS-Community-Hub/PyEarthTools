@@ -53,7 +53,8 @@ class IdxModifier(PipelineIndex, ParallelEnabledMixin):
         >>> pipeline = Pipeline(IdxModifier((0, 1)))
         >>> pipeline[1] # Will get sample with (1, 2)
     """
-    _override_interface = ['Serial']
+
+    _override_interface = ["Serial"]
 
     def __init__(
         self,

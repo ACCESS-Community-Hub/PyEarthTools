@@ -20,8 +20,9 @@ class Rearrange(Operation):
     Operation to rearrange data using einops
 
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'Rearrange'}}
+
+    _override_interface = ["Delayed", "Serial"]
+    _interface_kwargs = {"Delayed": {"name": "Rearrange"}}
 
     def __init__(
         self,
@@ -95,8 +96,9 @@ class Squish(Operation):
     Operation to Squish one Dimensional axis at 'axis' location
 
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'Squish'}}
+
+    _override_interface = ["Delayed", "Serial"]
+    _interface_kwargs = {"Delayed": {"name": "Squish"}}
 
     def __init__(self, axis: Union[tuple[int, ...], int]) -> None:
         """Squish Dimension of Data
@@ -131,8 +133,9 @@ class Expand(Operation):
     Operation to Expand One Dimensional axis at 'axis' location
 
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'Expand'}}
+
+    _override_interface = ["Delayed", "Serial"]
+    _interface_kwargs = {"Delayed": {"name": "Expand"}}
 
     def __init__(self, axis: Union[tuple[int, ...], int]) -> None:
         """Expand Dimension of Data
@@ -247,8 +250,9 @@ class Flatten(Operation):
     """
     Operation to Flatten parts of data samples into a one dimensional array
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'Flatten'}}
+
+    _override_interface = ["Delayed", "Serial"]
+    _interface_kwargs = {"Delayed": {"name": "Flatten"}}
 
     def __init__(
         self,

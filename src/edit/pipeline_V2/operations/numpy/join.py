@@ -19,9 +19,10 @@ class Stack(Joiner):
 
     Currently cannot undo this operation
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'Stack'}}
-    
+
+    _override_interface = ["Delayed", "Serial"]
+    _interface_kwargs = {"Delayed": {"name": "Stack"}}
+
     def __init__(self, axis: Optional[int] = None):
         super().__init__()
         self.record_initialisation()
@@ -41,9 +42,10 @@ class VStack(Joiner):
 
     Currently cannot undo this operation
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'VSplit'}}
-    
+
+    _override_interface = ["Delayed", "Serial"]
+    _interface_kwargs = {"Delayed": {"name": "VSplit"}}
+
     def __init__(self):
         super().__init__()
         self.record_initialisation()
@@ -64,8 +66,9 @@ class HStack(Joiner):
 
     Currently cannot undo this operation
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'HSplit'}}
+
+    _override_interface = ["Delayed", "Serial"]
+    _interface_kwargs = {"Delayed": {"name": "HSplit"}}
 
     def __init__(self):
         super().__init__()
@@ -87,8 +90,9 @@ class Concatenate(Joiner):
 
     Currently cannot undo this operation
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'Concatenate'}}
+
+    _override_interface = ["Delayed", "Serial"]
+    _interface_kwargs = {"Delayed": {"name": "Concatenate"}}
 
     def __init__(self, axis: Optional[int] = None):
         super().__init__()

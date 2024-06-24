@@ -50,7 +50,7 @@ def save(pipeline: "edit.pipeline_V2.Pipeline", path: Optional[Union[str, Path]]
 
     if path is None:
         return full_yaml
-    
+
     Path(path).parent.mkdir(parents=True, exist_ok=True)
 
     with open(path, "w") as file:

@@ -6,7 +6,7 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
-#type: ignore[reportPrivateImportUsage]
+# type: ignore[reportPrivateImportUsage]
 
 from typing import Literal, TypeVar, Union, Optional, Any
 
@@ -22,7 +22,8 @@ class FillNan(Operation):
     """
     Fill any Nan's with a value
     """
-    _override_interface = ['Serial']
+
+    _override_interface = ["Serial"]
 
     def __init__(
         self,
@@ -44,7 +45,7 @@ class FillNan(Operation):
                 Value to be used to fill negative infinity values,
                 If no value is passed then negative infinity values will be replaced with a very small (or negative) number. Defaults to None.
         """
-        raise NotImplementedError(F'Not implemented')
+        raise NotImplementedError(f"Not implemented")
 
         super().__init__(
             operation="apply",
@@ -69,7 +70,8 @@ class MaskValue(Operation):
 
 
     """
-    _override_interface = ['Serial']
+
+    _override_interface = ["Serial"]
 
     def __init__(
         self,
@@ -128,7 +130,8 @@ class ForceNormalised(Operation):
     """
     Operation to force data within a certain range, by default 0 & 1
     """
-    _override_interface = ['Serial']
+
+    _override_interface = ["Serial"]
 
     def __init__(
         self,

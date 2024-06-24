@@ -16,7 +16,7 @@ from edit.pipeline_V2 import Pipeline, modifications
 
 from tests.fake_pipeline_steps import FakeIndex, MultiplicationOperation  # noqa: F403
 
-edit.utils.config.set({'pipeline_V2.run_parallel': False})
+edit.utils.config.set({"pipeline_V2.run_parallel": False})
 
 
 def test_IdxModifier_basic():
@@ -68,7 +68,7 @@ def test_IdxModifier_merge_depth(depth, result):
 
 def test_IdxModifier_unmergeable():
     pipe = Pipeline(
-        FakeIndex("test"), # type: ignore
+        FakeIndex("test"),  # type: ignore
         modifications.IdxModifier(("t", "a"), merge=True, merge_function=sum),
     )
     with pytest.raises(TypeError):

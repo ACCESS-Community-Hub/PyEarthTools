@@ -19,7 +19,8 @@ class SelectDataset(Operation):
     """
     Operation to select a given set of variables from a [Dataset][xarray.Dataset]
     """
-    _override_interface = 'Serial'
+
+    _override_interface = "Serial"
 
     def __init__(
         self,
@@ -53,7 +54,8 @@ class DropDataset(Operation):
 
     Can be used to remove variables when undoing, if one was added as a pipeline step.
     """
-    _override_interface = 'Serial'
+
+    _override_interface = "Serial"
 
     def __init__(
         self,
@@ -89,7 +91,8 @@ class SliceDataset(Operation):
         >>> Slicer(slices = {'time': (0,10,2)}) # == .sel(time = slice(0,10,2))
 
     """
-    _override_interface = 'Serial'
+
+    _override_interface = "Serial"
 
     def __init__(self, slices: Optional[dict[str, tuple[Any, ...]]] = None, **kwargs: tuple):
         """

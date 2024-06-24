@@ -6,7 +6,7 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
-#type: ignore[reportPrivateImportUsage]
+# type: ignore[reportPrivateImportUsage]
 
 import math
 from typing import Literal, Union
@@ -19,7 +19,8 @@ from edit.pipeline_V2.filters import Filter, PipelineFilterException
 
 class daskFilter(Filter):
     """dask Filters"""
-    _override_interface = ['Serial']
+
+    _override_interface = ["Serial"]
 
     def __init__(self):
         super().__init__(

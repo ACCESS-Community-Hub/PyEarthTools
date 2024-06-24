@@ -18,8 +18,9 @@ class OnAxis(Spliter):
     """
     Split across an axis in a numpy array
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'SplitOnAxis'}}
+
+    _override_interface = ["Delayed", "Serial"]
+    _interface_kwargs = {"Delayed": {"name": "SplitOnAxis"}}
 
     def __init__(self, axis: int, axis_size: Optional[int] = None):
         """Split over a numpy array axis
@@ -64,8 +65,9 @@ class OnSlice(Spliter):
     Examples:
 
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'SplitOnSlice'}}
+
+    _override_interface = ["Delayed", "Serial"]
+    _interface_kwargs = {"Delayed": {"name": "SplitOnSlice"}}
 
     def __init__(self, *slices: tuple[int, ...], axis: int):
         """
@@ -108,8 +110,9 @@ class Vsplit(Spliter):
     vsplit on numpy arrays
 
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'Vsplit'}}
+
+    _override_interface = ["Delayed", "Serial"]
+    _interface_kwargs = {"Delayed": {"name": "Vsplit"}}
 
     def __init__(
         self,
@@ -137,8 +140,9 @@ class Hsplit(Spliter):
     hsplit on numpy arrays
 
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'Hsplit'}}
+
+    _override_interface = ["Delayed", "Serial"]
+    _interface_kwargs = {"Delayed": {"name": "Hsplit"}}
 
     def __init__(
         self,

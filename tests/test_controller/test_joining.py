@@ -15,7 +15,8 @@ import edit.utils
 from edit.pipeline_V2 import Pipeline, branching
 
 from tests.fake_pipeline_steps import FakeIndex, MultiplicationOperation
-edit.utils.config.set({'pipeline_V2.run_parallel': False})
+
+edit.utils.config.set({"pipeline_V2.run_parallel": False})
 
 
 class AdditionJoin(branching.Joiner):
@@ -88,5 +89,5 @@ def test_branch_with_join_unimplemented(operation):
         _ = Pipeline(
             (FakeIndex(2), FakeIndex()),
             MultiplicationOperation(10),
-            AdditionJoinUnImplemented(operation=operation), # type: ignore
+            AdditionJoinUnImplemented(operation=operation),  # type: ignore
         )

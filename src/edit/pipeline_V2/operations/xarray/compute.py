@@ -17,7 +17,8 @@ T = TypeVar("T", xr.Dataset, xr.DataArray)
 
 class Compute(Operation):
     """Compute xarray object"""
-    _override_interface = 'Serial'
+
+    _override_interface = "Serial"
 
     def __init__(self):
         super().__init__(

@@ -19,8 +19,9 @@ class FillNan(Operation):
     """
     Fill any Nan's with a value
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'FillNan'}}
+
+    _override_interface = ["Delayed", "Serial"]
+    _interface_kwargs = {"Delayed": {"name": "FillNan"}}
 
     def __init__(
         self,
@@ -64,8 +65,9 @@ class MaskValue(Operation):
     """
     DataOperation to mask values with a given replacement
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'MaskValue'}}
+
+    _override_interface = ["Delayed", "Serial"]
+    _interface_kwargs = {"Delayed": {"name": "MaskValue"}}
 
     def __init__(
         self,
@@ -124,8 +126,9 @@ class ForceNormalised(Operation):
     """
     Operation to force data within a certain range, by default 0 & 1
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'ForceNormalised'}}
+
+    _override_interface = ["Delayed", "Serial"]
+    _interface_kwargs = {"Delayed": {"name": "ForceNormalised"}}
 
     def __init__(
         self,

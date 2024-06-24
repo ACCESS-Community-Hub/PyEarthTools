@@ -29,7 +29,6 @@ from tests.fake_pipeline_steps import FakeIndex
 def test_samplers(sampler, length):
     pipe = Pipeline(FakeIndex(), iterator=iterators.Range(0, 20), sampler=sampler)
 
-
     if length is not None:
         assert len(list(pipe)) == length, "Length differs from expected"
 

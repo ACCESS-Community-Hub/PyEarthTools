@@ -1,4 +1,5 @@
 """Setup config"""
+
 import os
 
 import edit.utils

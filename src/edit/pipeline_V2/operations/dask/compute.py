@@ -6,7 +6,7 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
-#type: ignore[reportPrivateImportUsage]
+# type: ignore[reportPrivateImportUsage]
 
 from typing import TypeVar
 
@@ -22,10 +22,11 @@ T = TypeVar("T", da.Array, Delayed)
 class Compute(Operation):
     """
     Compute dask array or delayed object
-    
-    If dask array, will convert it to a full numpy array    
+
+    If dask array, will convert it to a full numpy array
     """
-    _override_interface = 'Serial'
+
+    _override_interface = "Serial"
 
     def __init__(self):
         super().__init__(

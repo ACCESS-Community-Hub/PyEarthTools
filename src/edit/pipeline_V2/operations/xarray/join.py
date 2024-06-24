@@ -21,7 +21,8 @@ class Merge(Joiner):
 
     Currently cannot undo this operation
     """
-    _override_interface = 'Serial'
+
+    _override_interface = "Serial"
 
     def __init__(self, merge_kwargs: Optional[dict[str, Any]] = None):
         super().__init__()
@@ -42,7 +43,8 @@ class Concatenate(Joiner):
 
     Currently cannot undo this operation
     """
-    _override_interface = 'Serial'
+
+    _override_interface = "Serial"
 
     def __init__(self, concat_dim: str, concat_kwargs: Optional[dict[str, Any]] = None):
         super().__init__()

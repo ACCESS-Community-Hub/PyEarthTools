@@ -17,8 +17,9 @@ class Select(Operation):
     """
     Operation to select an element from a given array
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'Select'}}
+
+    _override_interface = ["Delayed", "Serial"]
+    _interface_kwargs = {"Delayed": {"name": "Select"}}
 
     def __init__(
         self,
@@ -94,8 +95,9 @@ class Slicer(Operation):
         >>> Slicer((1, 3), reverse_slice = True).apply_func(incoming_data).shape
         (10,5,2)
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'name': 'Slice'}}
+
+    _override_interface = ["Delayed", "Serial"]
+    _interface_kwargs = {"Delayed": {"name": "Slice"}}
 
     def __init__(self, *slices: tuple[Optional[int], ...], reverse_slice: bool = False):
         """

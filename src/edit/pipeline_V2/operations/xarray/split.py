@@ -17,7 +17,8 @@ T = TypeVar("T", xr.Dataset, xr.DataArray)
 
 class OnVariables(Spliter):
     """Split xarray object's on variables"""
-    _override_interface = 'Serial'
+
+    _override_interface = "Serial"
 
     def __init__(
         self,
@@ -28,12 +29,12 @@ class OnVariables(Spliter):
         Split on variables
 
         Args:
-            variables (Optional[Union[tuple[Union[str, tuple[str, ...], list[str]], ...], list[str]]], optional): 
+            variables (Optional[Union[tuple[Union[str, tuple[str, ...], list[str]], ...], list[str]]], optional):
                 Variable split. If tuple or list, will split into those tuples, with the associated list referencing the variables to split out.
                 If not given, will split all variables into seperate items. Defaults to None.
-            merge_kwargs (Optional[dict[str, Any]], optional): 
+            merge_kwargs (Optional[dict[str, Any]], optional):
                 Kwargs needed for merge on the `undo`. Defaults to None.
-        """        
+        """
         super().__init__(
             recognised_types=(xr.DataArray, xr.Dataset),
             recursively_split_tuples=True,
@@ -62,7 +63,8 @@ class OnVariables(Spliter):
 
 class OnCoordinate(Spliter):
     """Split xarray object on coordinate"""
-    _override_interface = 'Serial'
+
+    _override_interface = "Serial"
 
     def __init__(
         self,

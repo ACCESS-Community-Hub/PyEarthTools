@@ -12,7 +12,8 @@ from typing import Any
 import pytest
 
 import edit.utils
-edit.utils.config.set({'pipeline_V2.run_parallel': False})
+
+edit.utils.config.set({"pipeline_V2.run_parallel": False})
 
 import edit.data
 

@@ -80,8 +80,7 @@ class PipelineBranchPoint(_Pipeline, Operation):
     _current_idx: Optional[int] = None
     sub_pipelines: list[Pipeline]
 
-
-    _override_interface = ['Serial']
+    _override_interface = ["Serial"]
 
     def __init__(
         self,
@@ -122,11 +121,11 @@ class PipelineBranchPoint(_Pipeline, Operation):
         self.sub_pipelines = list(map(lambda x: Pipeline(*x), __incoming_steps))
 
     def __getitem__(self, idx: Any) -> tuple:
-        """Get result from each branch"""        
+        """Get result from each branch"""
         results = []
         for pipe in self.sub_pipelines:
             results.append(self.parallel_interface.submit(pipe.__getitem__, idx))
-        
+
         return tuple(self.parallel_interface.collect(results))
 
     # def _steps_function(self, sample, steps: tuple[Pipeline], func_name: Literal['apply', 'undo']):
@@ -155,9 +154,12 @@ class PipelineBranchPoint(_Pipeline, Operation):
         if self._map or self._map_copy:
             if not isinstance(sample, tuple):
                 raise PipelineRuntimeError(f"Cannot map sample to branches as it is not a tuple. {type(sample)}.")
-            
+
             if any(pipe.has_source() for pipe in self.sub_pipelines):
-                raise ValueError("When attempting to map pipelines to sample, found a Pipeline with a source of data. Cannot continue.\n", (pipe for pipe in self.sub_pipelines if pipe.has_source()))
+                raise ValueError(
+                    "When attempting to map pipelines to sample, found a Pipeline with a source of data. Cannot continue.\n",
+                    (pipe for pipe in self.sub_pipelines if pipe.has_source()),
+                )
 
             if not len(sample) == len(self.sub_pipelines):
                 if self._map:
@@ -176,7 +178,9 @@ class PipelineBranchPoint(_Pipeline, Operation):
             for sub_pipe in self.sub_pipelines:
                 if sub_pipe.has_source():
                     if self._current_idx is None:
-                        raise ValueError("Applying branchs to `sample` found a pipeline with source, but the `current_idx` was not set.")
+                        raise ValueError(
+                            "Applying branchs to `sample` found a pipeline with source, but the `current_idx` was not set."
+                        )
                     sub_samples.append(self.parallel_interface.submit(sub_pipe.__getitem__, self._current_idx))
                 else:
                     samp = type(sample)(sample)
@@ -274,7 +278,7 @@ class PipelineBranchPoint(_Pipeline, Operation):
                     f"cluster_{uuid.uuid4()!s}" if len(sub_pipes.flattened_steps) > 1 and False else f"{uuid.uuid4()!s}"
                 )
                 with graph.subgraph(name=name) as c:  # type: ignore
-                    _, prior_steps = sub_pipes._get_tree(prior_step if not sub_pipes.has_source() else [], graph=c) # type: ignore
+                    _, prior_steps = sub_pipes._get_tree(prior_step if not sub_pipes.has_source() else [], graph=c)  # type: ignore
                 final_steps.extend(prior_steps)
 
         return graph, final_steps

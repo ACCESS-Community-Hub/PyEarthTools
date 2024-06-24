@@ -13,7 +13,7 @@ from edit.pipeline_V2 import Operation
 from edit.data import Index
 
 
-edit.utils.config.set({'pipeline_V2.run_parallel': False})
+edit.utils.config.set({"pipeline_V2.run_parallel": False})
 
 
 class FakeIndex(Index):

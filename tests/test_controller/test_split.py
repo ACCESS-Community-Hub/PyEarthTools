@@ -16,7 +16,7 @@ from edit.pipeline_V2 import Pipeline, branching
 
 from tests.fake_pipeline_steps import FakeIndex
 
-edit.utils.config.set({'pipeline_V2.run_parallel': False})
+edit.utils.config.set({"pipeline_V2.run_parallel": False})
 
 
 class Split(branching.Spliter):
@@ -50,5 +50,5 @@ def test_branch_with_split_unimplemented(operation):
     with pytest.raises(TypeError):
         _ = Pipeline(
             (FakeIndex(2), FakeIndex()),
-            SpliterUnImplemented(operation=operation), # type: ignore
+            SpliterUnImplemented(operation=operation),  # type: ignore
         )

@@ -22,7 +22,8 @@ class Sort(Operation):
     Examples
     >>> Sort(order = ['a','b'])
     """
-    _override_interface = 'Serial'
+
+    _override_interface = "Serial"
 
     def __init__(self, order: Optional[list[str]], safe: bool = False):
         """

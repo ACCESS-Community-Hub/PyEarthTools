@@ -15,9 +15,9 @@ class Rotate(Operation):
     """
     Rotation Augmentation by 90 degrees in the plane specified by axes.
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'pure': False, 'name': 'Rotate'}}
-    
+
+    _override_interface = ["Delayed", "Serial"]
+    _interface_kwargs = {"Delayed": {"pure": False, "name": "Rotate"}}
 
     def __init__(
         self,
@@ -57,9 +57,10 @@ class Flip(Operation):
     """
     Flip Augmentation on the specified axes.
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'pure': False, 'name': 'Flip'}}
-    
+
+    _override_interface = ["Delayed", "Serial"]
+    _interface_kwargs = {"Delayed": {"pure": False, "name": "Flip"}}
+
     def __init__(self, seed: int = 42, axis: int = -1):
         """
         Flip Augmentation by 90 degrees in the plane specified by axes.
@@ -94,9 +95,10 @@ class Transform(Operation):
     """
     Flip & Rotation Augmentation.
     """
-    _override_interface = ['Delayed', 'Serial']
-    _interface_kwargs = {'Delayed': {'pure': False, 'name': 'FlipRotate'}}
-    
+
+    _override_interface = ["Delayed", "Serial"]
+    _interface_kwargs = {"Delayed": {"pure": False, "name": "FlipRotate"}}
+
     def __init__(
         self,
         seed: int = 42,

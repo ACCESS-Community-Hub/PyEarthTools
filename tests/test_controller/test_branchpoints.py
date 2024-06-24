@@ -15,7 +15,7 @@ from edit.pipeline_V2 import Pipeline, exceptions, branching
 
 from tests.fake_pipeline_steps import FakeIndex, MultiplicationOperation, MultiplicationOperationUnunifiedable
 
-edit.utils.config.set({'pipeline_V2.run_parallel': False})
+edit.utils.config.set({"pipeline_V2.run_parallel": False})
 
 
 def test_branchingpoint_basic():

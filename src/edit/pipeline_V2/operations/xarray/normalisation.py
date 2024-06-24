@@ -24,7 +24,8 @@ class xarrayNormalisation(Operation):
     """
     Parent xarray Normalisation
     """
-    _override_interface = 'Serial'
+
+    _override_interface = "Serial"
 
     @classmethod
     def open_file(cls, file: FILE) -> xr.Dataset:

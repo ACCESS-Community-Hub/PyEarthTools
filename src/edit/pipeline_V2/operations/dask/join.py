@@ -6,7 +6,7 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
-#type: ignore[reportPrivateImportUsage]
+# type: ignore[reportPrivateImportUsage]
 
 from typing import Optional, Any
 
@@ -21,7 +21,8 @@ class Stack(Joiner):
 
     Currently cannot undo this operation
     """
-    _override_interface = ['Serial']
+
+    _override_interface = ["Serial"]
 
     def __init__(self, axis: Optional[int] = None):
         super().__init__()
@@ -42,7 +43,8 @@ class VStack(Joiner):
 
     Currently cannot undo this operation
     """
-    _override_interface = ['Serial']
+
+    _override_interface = ["Serial"]
 
     def __init__(self):
         super().__init__()
@@ -64,7 +66,8 @@ class HStack(Joiner):
 
     Currently cannot undo this operation
     """
-    _override_interface = ['Serial']
+
+    _override_interface = ["Serial"]
 
     def __init__(self):
         super().__init__()
@@ -86,7 +89,8 @@ class Concatenate(Joiner):
 
     Currently cannot undo this operation
     """
-    _override_interface = ['Serial']
+
+    _override_interface = ["Serial"]
 
     def __init__(self, axis: Optional[int] = None):
         super().__init__()

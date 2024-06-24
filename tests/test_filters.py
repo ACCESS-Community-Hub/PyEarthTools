@@ -12,21 +12,25 @@ from edit.pipeline_V2 import Pipeline, iterators, filters, exceptions, Operation
 from tests.fake_pipeline_steps import FakeIndex
 
 import edit.utils
-edit.utils.config.set({'pipeline_V2.run_parallel': False})
+
+edit.utils.config.set({"pipeline_V2.run_parallel": False})
+
 
 class ReplaceOnKey(Operation):
     def __init__(self, **replaces):
-        super().__init__(operation='apply')
+        super().__init__(operation="apply")
         self.replaces = replaces
-        
+
     def apply_func(self, sample):
         if str(sample) in self.replaces:
             return self.replaces[str(sample)]
         return sample
-    
+
 
 def test_type_filter():
-    pipe = Pipeline(FakeIndex(), ReplaceOnKey(**{'10': 'break'}), filters.TypeFilter(int), iterator=iterators.Range(0, 20))
+    pipe = Pipeline(
+        FakeIndex(), ReplaceOnKey(**{"10": "break"}), filters.TypeFilter(int), iterator=iterators.Range(0, 20)
+    )
 
     with pytest.raises(exceptions.PipelineFilterException):
         pipe[10]

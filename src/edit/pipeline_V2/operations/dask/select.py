@@ -6,7 +6,7 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
-#type: ignore[reportPrivateImportUsage]
+# type: ignore[reportPrivateImportUsage]
 
 from typing import Any, Optional
 
@@ -19,7 +19,8 @@ class Select(Operation):
     """
     Operation to select an element from a given array
     """
-    _override_interface = ['Serial']
+
+    _override_interface = ["Serial"]
 
     def __init__(
         self,
@@ -95,7 +96,8 @@ class Slicer(Operation):
         >>> Slicer((1, 3), reverse_slice = True).apply_func(incoming_data).shape
         (10,5,2)
     """
-    _override_interface = ['Serial']
+
+    _override_interface = ["Serial"]
 
     def __init__(self, *slices: tuple[Optional[int], ...], reverse_slice: bool = False):
         """

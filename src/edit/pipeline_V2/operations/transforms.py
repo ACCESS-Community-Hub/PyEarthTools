@@ -21,7 +21,8 @@ class Transforms(Operation):
     """
     Run `edit.data.Transforms` within a `Pipeline`.
     """
-    _override_interface = 'Serial'
+
+    _override_interface = "Serial"
 
     def __init__(
         self,

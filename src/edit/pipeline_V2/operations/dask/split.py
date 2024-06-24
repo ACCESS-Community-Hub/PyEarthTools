@@ -6,7 +6,7 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
-#type: ignore[reportPrivateImportUsage]
+# type: ignore[reportPrivateImportUsage]
 
 from typing import Optional
 
@@ -19,7 +19,8 @@ class OnAxis(Spliter):
     """
     Split across an axis in a dask array
     """
-    _override_interface = ['Serial']
+
+    _override_interface = ["Serial"]
 
     def __init__(self, axis: int, axis_size: Optional[int] = None):
         """Split over a dask array axis
@@ -61,7 +62,8 @@ class OnSlice(Spliter):
     """
     Split across slices on axis
     """
-    _override_interface = ['Serial']
+
+    _override_interface = ["Serial"]
 
     def __init__(self, *slices: tuple[int, ...], axis: int):
         """
@@ -104,7 +106,8 @@ class Vsplit(Spliter):
     vsplit on dask arrays
 
     """
-    _override_interface = ['Serial']
+
+    _override_interface = ["Serial"]
 
     def __init__(
         self,
@@ -132,7 +135,8 @@ class Hsplit(Spliter):
     hsplit on dask arrays
 
     """
-    _override_interface = ['Serial']
+
+    _override_interface = ["Serial"]
 
     def __init__(
         self,

@@ -25,7 +25,8 @@ class numpyNormalisation(Operation):
     Parent numpy normalisation class
 
     """
-    _override_interface = ['Delayed', 'Serial']
+
+    _override_interface = ["Delayed", "Serial"]
 
     @classmethod
     def open_file(cls, file: FILE) -> np.ndarray:
@@ -52,7 +53,8 @@ class numpyNormalisation(Operation):
 
 class Anomaly(numpyNormalisation):
     """Anomaly Normalisation"""
-    _interface_kwargs = {'Delayed': {'name': 'AnomalyNormalisation'}}
+
+    _interface_kwargs = {"Delayed": {"name": "AnomalyNormalisation"}}
 
     def __init__(self, mean: FILE):
         super().__init__()
@@ -69,7 +71,8 @@ class Anomaly(numpyNormalisation):
 
 class Deviation(numpyNormalisation):
     """Deviation Normalisation"""
-    _interface_kwargs = {'Delayed': {'name': 'DeviationNormalisation'}}
+
+    _interface_kwargs = {"Delayed": {"name": "DeviationNormalisation"}}
 
     def __init__(self, mean: FILE, deviation: FILE):
         super().__init__()
@@ -87,7 +90,8 @@ class Deviation(numpyNormalisation):
 
 class TemporalDifference(numpyNormalisation):
     """TemporalDifference Normalisation"""
-    _interface_kwargs = {'Delayed': {'name': 'TemporalDifferenceNormalisation'}}
+
+    _interface_kwargs = {"Delayed": {"name": "TemporalDifferenceNormalisation"}}
 
     def __init__(self, temporal_difference: FILE):
         super().__init__()
@@ -106,7 +110,8 @@ class Evaluated(numpyNormalisation):
     """
     `eval` based normalisation
     """
-    _interface_kwargs = {'Delayed': {'name': 'EvalNormalisation'}}
+
+    _interface_kwargs = {"Delayed": {"name": "EvalNormalisation"}}
 
     def __init__(self, normalisation_eval: str, unnormalisation_eval: str, **kwargs):
         """

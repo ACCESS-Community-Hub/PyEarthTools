@@ -6,7 +6,7 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
-#type: ignore[reportPrivateImportUsage]
+# type: ignore[reportPrivateImportUsage]
 
 """Augment data"""
 
@@ -17,14 +17,13 @@ import numpy as np
 from edit.pipeline_V2.operation import Operation
 
 
-
 class Rotate(Operation):
     """
     Rotation Augmentation by 90 degrees in the plane specified by axes.
     """
-    _override_interface = ['Serial']
 
-    
+    _override_interface = ["Serial"]
+
     def __init__(
         self,
         seed: int = 42,
@@ -63,9 +62,9 @@ class Flip(Operation):
     """
     Flip Augmentation on the specified axes.
     """
-    _override_interface = ['Serial']
 
-    
+    _override_interface = ["Serial"]
+
     def __init__(self, seed: int = 42, axis: int = -1):
         """
         Flip Augmentation by 90 degrees in the plane specified by axes.
@@ -100,8 +99,9 @@ class Transform(Operation):
     """
     Flip & Rotation Augmentation.
     """
-    _override_interface = ['Serial']
-    
+
+    _override_interface = ["Serial"]
+
     def __init__(
         self,
         seed: int = 42,

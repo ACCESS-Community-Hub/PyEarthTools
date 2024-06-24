@@ -6,7 +6,7 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
-#type: ignore[reportPrivateImportUsage]
+# type: ignore[reportPrivateImportUsage]
 
 from abc import abstractmethod
 from pathlib import Path
@@ -28,7 +28,8 @@ class daskNormalisation(Operation):
     Parent dask normalisation class
 
     """
-    _override_interface = ['Serial']
+
+    _override_interface = ["Serial"]
 
     @classmethod
     def open_file(cls, file: FILE) -> da.Array:

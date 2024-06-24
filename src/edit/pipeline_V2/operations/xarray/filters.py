@@ -20,7 +20,8 @@ T = TypeVar("T", xr.Dataset, xr.DataArray)
 
 class XarrayFilter(Filter):
     """Xarray Filters"""
-    _override_interface = 'Serial'
+
+    _override_interface = "Serial"
 
     def __init__(self):
         super().__init__(
@@ -154,7 +155,8 @@ class Shape(Filter):
 
     Used to ensure that incoming data is of the correct shape for later steps
     """
-    _override_interface = 'Serial'
+
+    _override_interface = "Serial"
 
     def __init__(self, shape: tuple[Union[tuple[int, ...], int], ...], split_tuples: bool = False) -> None:
         """

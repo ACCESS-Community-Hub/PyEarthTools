@@ -6,10 +6,10 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
-#type: ignore[reportUnusedImport]
+# type: ignore[reportUnusedImport]
 # noqa: F401
 
-from edit.pipeline_V2.save import save, load  
+from edit.pipeline_V2.save import save, load
 from edit.pipeline_V2.controller import Pipeline, PipelineIndex
 
 from edit.pipeline_V2.operation import Operation

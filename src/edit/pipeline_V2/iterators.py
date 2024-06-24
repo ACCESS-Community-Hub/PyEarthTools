@@ -81,6 +81,7 @@ class Predefined(Iterator):
 
     Takes any iterable as provided, and yields all elements within.
     """
+
     _indexes: Iterable[Any]
 
     def __init__(self, indexes: Iterable[Any]):
@@ -99,28 +100,31 @@ class Predefined(Iterator):
         for i in self._indexes:
             yield i
 
+
 class File(Predefined):
     """
     Iterate over elements in file
 
     Each line will be treated as a seperate index.
     """
+
     def __init__(self, file: Union[str, Path], type_conversion: Optional[Callable] = None):
         """
         Iterate over file
 
         Args:
-            file (Union[str, Path]): 
+            file (Union[str, Path]):
                 File to load.
-            type_conversion (Optional[Callable], optional): 
+            type_conversion (Optional[Callable], optional):
                 Function to convert lines in file with. Defaults to None.
-        """        
-        super().__init__('')
+        """
+        super().__init__("")
         self.record_initialisation()
-        
+
         self._indexes = open(file).readlines()
         if type_conversion:
             self._indexes = list(map(type_conversion, self._indexes))
+
 
 class DateRange(Iterator):
     """

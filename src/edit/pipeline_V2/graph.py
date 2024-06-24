@@ -9,10 +9,11 @@
 
 from abc import abstractmethod
 from typing import Any, Optional
- 
+
 import graphviz
 
 from edit.data import Index
+
 
 def format_graph_node(obj, parent: Optional[list[str]]) -> dict[str, Any]:
     """Parse step to useful name and attrs"""
@@ -20,19 +21,21 @@ def format_graph_node(obj, parent: Optional[list[str]]) -> dict[str, Any]:
     shape = "oval"
     if isinstance(obj, Index):
         shape = "rect"
-        
+
     # elif parent is not None and len(parent) > 1:
     #     shape = 'triangle'
-    
-    last_module = str(obj.__module__).replace(f"{type(obj).__name__}", '').split('.')[-1]
-    obj_name = f"{last_module}.{type(obj).__name__}".removeprefix('.')
+
+    last_module = str(obj.__module__).replace(f"{type(obj).__name__}", "").split(".")[-1]
+    obj_name = f"{last_module}.{type(obj).__name__}".removeprefix(".")
 
     return {"label": obj_name, "shape": shape}
+
 
 class Graphed:
     """
     Implement graph visualisation
     """
+
     @abstractmethod
     def _get_tree(
         self, parent: Optional[list[str]] = None, graph: Optional[graphviz.Digraph] = None
@@ -51,7 +54,7 @@ class Graphed:
                 Generated graph, elements to be parent of next step
         """
         ...
-    
+
     def graph(self) -> graphviz.Digraph:
         """Get graphical view of Pipeline"""
         return self._get_tree(parent=None, graph=graphviz.Digraph())[0]

@@ -36,7 +36,7 @@ class PipelineStep(PipelineRecordingMixin, ParallelEnabledMixin, metaclass=ABCMe
     recognised_types: dict[str, Union[tuple[Type, ...], tuple[Type]]]
 
     _import: Optional[str] = None  # Module to import to find this class
-    _override_interface = ['Delayed','Serial']  # Order of interfaces to try.
+    _override_interface = ["Delayed", "Serial"]  # Order of interfaces to try.
 
     def __init__(
         self,
@@ -77,11 +77,13 @@ class PipelineStep(PipelineRecordingMixin, ParallelEnabledMixin, metaclass=ABCMe
     def run(self, sample):
         raise NotImplementedError()
 
-    def _split_tuples_call(self, sample, *, _function: Union[Callable, str] = "run", override_for_split: Optional[bool] = None, **kwargs):
+    def _split_tuples_call(
+        self, sample, *, _function: Union[Callable, str] = "run", override_for_split: Optional[bool] = None, **kwargs
+    ):
         """
         Split `sample` if it is a tuple and apply `_function` of `self` to each.
         """
-            
+
         parallel_interface = self.parallel_interface
 
         func_name = _function if isinstance(_function, str) else _function.__name__
@@ -96,9 +98,11 @@ class PipelineStep(PipelineRecordingMixin, ParallelEnabledMixin, metaclass=ABCMe
         )
 
         if to_split and isinstance(sample, tuple):
-            func = partial(self._split_tuples_call, _function=_function, override_for_split = self.recursively_split_tuples, **kwargs)
+            func = partial(
+                self._split_tuples_call, _function=_function, override_for_split=self.recursively_split_tuples, **kwargs
+            )
             return tuple(parallel_interface.collect(parallel_interface.map(func, sample)))
-            
+
         return parallel_interface.collect(parallel_interface.submit(func, sample))
 
     def check_type(
@@ -119,18 +123,19 @@ class PipelineStep(PipelineRecordingMixin, ParallelEnabledMixin, metaclass=ABCMe
 
         try:
             from dask.delayed import Delayed
+
             recognised_types = (*recognised_types, Delayed)
         except (ImportError, ModuleNotFoundError):
             pass
-            
+
         if isinstance(sample, recognised_types):
             return
 
         if self.split_tuples and isinstance(sample, tuple):
-            self._split_tuples_call(sample, _function="check_type", func_name = func_name)
-        
+            self._split_tuples_call(sample, _function="check_type", func_name=func_name)
+
         msg = f"'{self.__class__.__module__}.{self.__class__.__qualname__}' received a sample of type: {type(sample)} on {func_name}, when it can only recognise {recognised_types}"
-        
+
         if self.response_on_type == "exception":
             raise PipelineTypeError(msg)
         elif self.response_on_type == "warn":
@@ -143,5 +148,5 @@ class PipelineStep(PipelineRecordingMixin, ParallelEnabledMixin, metaclass=ABCMe
         raise ValueError(f"Invalid 'response_on_type': {self.response_on_type!r}.")
 
     def __call__(self, sample):
-        self.check_type(sample, func_name = 'run')
+        self.check_type(sample, func_name="run")
         return self._split_tuples_call(sample, _function="run")

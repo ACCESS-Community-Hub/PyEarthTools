@@ -16,7 +16,8 @@ from edit.pipeline_V2.filters import Filter, PipelineFilterException
 
 class NumpyFilter(Filter):
     """Numpy Filters"""
-    _override_interface = ['Delayed', 'Serial']
+
+    _override_interface = ["Delayed", "Serial"]
 
     def __init__(self):
         super().__init__(
@@ -32,7 +33,8 @@ class DropAnyNan(NumpyFilter):
 
     Used to remove any bad data or data that is masked out.
     """
-    _interface_kwargs = {'Delayed': {'name': 'DropAnyNan'}}
+
+    _interface_kwargs = {"Delayed": {"name": "DropAnyNan"}}
 
     def __init__(self) -> None:
         """Drop data with any nans"""
@@ -59,7 +61,8 @@ class DropAllNan(NumpyFilter):
 
     Used to remove any bad data or data that is masked out.
     """
-    _interface_kwargs = {'Delayed': {'name': 'DropAllNan'}}
+
+    _interface_kwargs = {"Delayed": {"name": "DropAllNan"}}
 
     def __init__(self) -> None:
         """Drop data with any nans"""
@@ -86,7 +89,8 @@ class DropValue(NumpyFilter):
 
     Can be used to trim out invalid data
     """
-    _interface_kwargs = {'Delayed': {'name': 'DropValue'}}
+
+    _interface_kwargs = {"Delayed": {"name": "DropValue"}}
 
     def __init__(self, value: Union[float, Literal["nan"]], percentage: float) -> None:
         """Drop Data if number of elements equal to value are greater than percentage when iterating.
@@ -131,7 +135,8 @@ class Shape(Filter):
 
     Used to ensure that incoming data is of the correct shape for later steps
     """
-    _interface_kwargs = {'Delayed': {'name': 'ShapeFilter'}}
+
+    _interface_kwargs = {"Delayed": {"name": "ShapeFilter"}}
 
     def __init__(self, shape: tuple[Union[tuple[int, ...], int], ...], split_tuples: bool = False) -> None:
         """

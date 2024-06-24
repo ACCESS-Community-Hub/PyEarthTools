@@ -101,7 +101,7 @@ class Cache(PipelineIndex):
     @property
     def cache(self) -> edit.data.indexes.FunctionalCacheIndex:
         return self._cache
-    
+
     @property
     def override(self):
         """Get a context window in which data will be overwritten in the cache"""

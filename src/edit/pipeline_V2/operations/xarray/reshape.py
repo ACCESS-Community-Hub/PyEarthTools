@@ -20,7 +20,8 @@ class Dimensions(Operation):
     """
     Reorder dimensions
     """
-    _override_interface = 'Serial'
+
+    _override_interface = "Serial"
 
     def __init__(
         self,
@@ -82,7 +83,8 @@ class Dimensions(Operation):
 
 class CoordinateFlatten(Operation):
     """Flatten and Expand on a coordinate"""
-    _override_interface = 'Serial'
+
+    _override_interface = "Serial"
 
     def __init__(self, coordinate: Union[Hashable, list[Hashable]], *coords: Hashable, skip_missing: bool = False):
         """

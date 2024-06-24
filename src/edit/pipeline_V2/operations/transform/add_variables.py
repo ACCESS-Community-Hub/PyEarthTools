@@ -42,8 +42,7 @@ class TimeOfYear(Transform):
         """
         super().__init__()
         self.record_initialisation()
-        
-        
+
         if method not in ["dayofyear", "monthofyear"]:
             raise ValueError(f"Invalid method passed, cannot be {method!r}. Must be in ['dayofyear', 'monthofyear']")
         self.method = method
