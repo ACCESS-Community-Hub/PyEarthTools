@@ -154,12 +154,14 @@ def test_branch_with_mapping():
     )
     assert pipe[1] == (1, 2)
 
+
 def test_branch_with_mapping_copy():
     pipe = Pipeline(
         (FakeIndex(), FakeIndex()),
         (MultiplicationOperation(1), "map_copy"),
     )
     assert pipe[1] == (1, 2)
+
 
 def test_branch_with_mapping_not_tuple():
     pipe = Pipeline(
@@ -182,6 +184,7 @@ def test_branch_with_mapping_wrong_size():
     )
     with pytest.raises(exceptions.PipelineRuntimeError):
         assert pipe[1] == (1, 2)
+
 
 def test_branch_with_source():
     pipe = Pipeline(

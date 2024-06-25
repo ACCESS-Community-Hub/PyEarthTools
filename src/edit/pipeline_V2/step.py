@@ -75,7 +75,13 @@ class PipelineStep(PipelineRecordingMixin, ParallelEnabledMixin, metaclass=ABCMe
         raise NotImplementedError()
 
     def _split_tuples_call(
-        self, sample, *, _function: Union[Callable, str] = "run", override_for_split: Optional[bool] = None, allow_parallel: bool = True, **kwargs
+        self,
+        sample,
+        *,
+        _function: Union[Callable, str] = "run",
+        override_for_split: Optional[bool] = None,
+        allow_parallel: bool = True,
+        **kwargs,
     ):
         """
         Split `sample` if it is a tuple and apply `_function` of `self` to each.
@@ -84,7 +90,7 @@ class PipelineStep(PipelineRecordingMixin, ParallelEnabledMixin, metaclass=ABCMe
         if allow_parallel:
             parallel_interface = self.parallel_interface
         else:
-            parallel_interface = self.get_parallel_interface('Serial')
+            parallel_interface = self.get_parallel_interface("Serial")
 
         func_name = _function if isinstance(_function, str) else _function.__name__
 
@@ -149,4 +155,4 @@ class PipelineStep(PipelineRecordingMixin, ParallelEnabledMixin, metaclass=ABCMe
 
     def __call__(self, sample):
         self.check_type(sample, func_name="run")
-        return self._split_tuples_call(sample, _function="run", allow_parallel = False)
+        return self._split_tuples_call(sample, _function="run", allow_parallel=False)

@@ -564,7 +564,7 @@ class Pipeline(_Pipeline, Index):
         Get an indexable object to recreate pipeline with a subset of steps.
 
         >>> pipeline.as_steps[:5]
-        
+
         """
         steps = self.complete_steps
 
@@ -575,7 +575,7 @@ class Pipeline(_Pipeline, Index):
                 return Pipeline(*steps[idx])
 
         return StepIndexer()
-    
+
     def index(self, id: Union[str, Type]) -> int:
         """
         Get index of `id` in Pipeline.
@@ -583,11 +583,10 @@ class Pipeline(_Pipeline, Index):
         if isinstance(id, Type):
             id = id.__name__
         step_names = list(map(lambda x: str(x.__class__.__name__), self.complete_steps))
-        
+
         if id in step_names:
             return step_names.index(id)
         raise ValueError(f"{id!r} is  not in Pipeline. {step_names}")
-
 
     def __contains__(self, id: Union[str, Type]) -> bool:
         try:
@@ -643,6 +642,6 @@ class Pipeline(_Pipeline, Index):
 
         display(HTML(self._repr_html_()))
 
-        if len(self.flattened_steps) > 1 and edit.utils.config.get('pipeline_V2.repr.show_graph'):
+        if len(self.flattened_steps) > 1 and edit.utils.config.get("pipeline_V2.repr.show_graph"):
             display(HTML("<h2>Graph</h2>"))
             display(self.graph())

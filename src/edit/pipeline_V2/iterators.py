@@ -57,6 +57,7 @@ class Iterator(PipelineRecordingMixin, metaclass=ABCMeta):
 
         return NotImplemented
 
+
 class Range(Iterator):
     """
     Range based Iterator
@@ -253,7 +254,6 @@ class SuperIterator(Iterator):
 
     def __len__(self):
         return len(self._iterators)
-    
 
     def __iter__(self):
         for iterator in self._iterators:
