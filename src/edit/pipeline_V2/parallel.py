@@ -235,16 +235,16 @@ class DaskDelayedInterface(ParallelInterface):
     def run_delayed(self, func, *args, **kwargs):
         from dask.delayed import tokenize, delayed
 
-        name = self._interface_kwargs.get("name", None)
+        name = self.config.get("name", None)
         if name is not None:
             name += f"-{tokenize(args, kwargs)}"
 
-        pure = self._interface_kwargs.get("pure", None)
+        pure = self.config.get("pure", None)
 
-        if len(args) == 1:
-            return delayed(func, name=name, pure=pure)(args[0], **kwargs)
+        # if len(args) == 1:
+        #     return delayed(func, name=name, pure=pure)(args[0], **kwargs)
 
-        return delayed(func, name=name)(*args, **kwargs)
+        return delayed(func, name=name, pure=pure)(*args, **kwargs)
 
     def submit(self, func, *args, **kwargs):
         return FutureFaker(self.run_delayed(func, *args, **kwargs))
@@ -327,7 +327,7 @@ class ParallelEnabledMixin:
 
     Properties:
         `parallel_interface`: Interface which is decided from `config` and `_override_interface`, exposes submit, map, collect , ... .
-        `_override_interface`: List of interfaces to try and get, will fall over to `SerialInterface`
+        `_override_interface`: List of interfaces to try and get, will fall over to `SerialInterface`.
         `_interface_kwargs`: Kwargs to provide to the interface. See each for available config.
             Ensure key of references an Interface with it's value being the kwargs.
 
@@ -347,9 +347,9 @@ class ParallelEnabledMixin:
         Will fail over to `SerialInterface` if an error occurs
         """
         try:
-            return self.get_parallel_interface(self._override_interface, **getattr(self, "interface_kwargs", {}))
+            return self.get_parallel_interface(self._override_interface, **getattr(self, "_interface_kwargs", {}))
         except ImportError:
-            return SerialInterface(**getattr(self, "interface_kwargs", {}))
+            return SerialInterface(**getattr(self, "_interface_kwargs", {}))
 
     def get_parallel_interface(
         self,
@@ -384,8 +384,10 @@ class ParallelEnabledMixin:
 
 
         """
-        class_interface_kwargs = getattr(self, "interface_kwargs", {})
-        for key in set(interface_kwargs.keys()).union(class_interface_kwargs.keys()):
+        class_interface_kwargs = getattr(self, "_interface_kwargs", {})
+        for key in interface_kwargs.keys():
+            if key not in class_interface_kwargs:
+                class_interface_kwargs[key] = {}
             class_interface_kwargs[key].update(interface_kwargs[key])
 
         if isinstance(interface, list):

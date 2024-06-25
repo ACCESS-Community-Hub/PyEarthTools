@@ -13,7 +13,6 @@ from typing import Literal, Optional, Type, Union
 from edit.pipeline_V2.step import PipelineStep
 
 from edit.pipeline_V2.decorators import potentialabstractmethod, PotentialABC
-from edit.pipeline_V2.exceptions import PipelineRuntimeError
 from edit.pipeline_V2 import parallel
 
 __all__ = ["Operation"]
