@@ -238,8 +238,7 @@ class Pipeline(_Pipeline, Index):
 
         ## Transforms
 
-        It is possible to use `edit.data.Transforms` directly in the pipeline. They will be executed on both the `apply` and `undo`
-        operations. If other behaviour is needed, see `edit.pipeline_V2.operations.Transform`.
+
 
         Args:
             *steps (VALID_PIPELINE_TYPES, tuple[VALID_PIPELINE_TYPES]):
@@ -355,6 +354,8 @@ class Pipeline(_Pipeline, Index):
 
         if isinstance(val, tuple):
             val = iterators.SuperIterator(*val)
+        if not isinstance(val, iterators.Iterator) and val is not None:
+            raise TypeError(f"Iterator must be a `edit.pipeline_V2.Iterator`, not {type(val)}.")
         self._iterator = val
 
     @property
@@ -376,6 +377,8 @@ class Pipeline(_Pipeline, Index):
             val = samplers.Default()
         elif isinstance(val, tuple):
             val = samplers.SuperSampler(*val)
+        if not isinstance(val, samplers.Sampler):
+            raise TypeError(f"Sampler must be a `edit.pipeline_V2.Sampler`, not {type(val)}.")
         self._sampler = val
 
     def has_source(self) -> bool:
@@ -557,15 +560,34 @@ class Pipeline(_Pipeline, Index):
 
     @property
     def as_steps(self):
+        """
+        Get an indexable object to recreate pipeline with a subset of steps.
+
+        >>> pipeline.as_steps[:5]
+        
+        """
         steps = self.complete_steps
 
         class StepIndexer:
             def __getitem__(self, idx):
                 if isinstance(idx, int):
-                    raise ValueError(f"`idx` must be a slice to remake pipeline with.")
+                    raise ValueError("`idx` must be a slice to remake pipeline with.")
                 return Pipeline(*steps[idx])
 
         return StepIndexer()
+    
+    def index(self, id: Union[str, Type]) -> int:
+        """
+        Get index of `id` in Pipeline.
+        """
+        if isinstance(id, Type):
+            id = id.__name__
+        step_names = list(map(lambda x: str(x.__class__.__name__), self.complete_steps))
+        
+        if id in step_names:
+            return step_names.index(id)
+        raise ValueError(f"{id!r} is  not in Pipeline. {step_names}")
+
 
     def __contains__(self, id: Union[str, Type]) -> bool:
         try:
@@ -620,6 +642,7 @@ class Pipeline(_Pipeline, Index):
         from IPython.core.display import display, HTML
 
         display(HTML(self._repr_html_()))
-        if len(self.flattened_steps) > 1:
+
+        if len(self.flattened_steps) > 1 and edit.utils.config.get('pipeline_V2.repr.show_graph'):
             display(HTML("<h2>Graph</h2>"))
             display(self.graph())

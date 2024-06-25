@@ -11,3 +11,6 @@ pipeline_V2:
     max_filter: 10
     max_iterator: 20
     default_ignore: []
+
+  repr:
+    show_graph: True
