@@ -15,7 +15,7 @@ Allows data to be on the fly iterated through, and sampled from the stream.
 from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 
-from typing import Any, Generator
+from typing import Any, Generator, Union
 
 from edit.pipeline_V2.recording import PipelineRecordingMixin
 
@@ -169,7 +169,7 @@ class Random(Sampler):
     once size is reached.
     """
 
-    def __init__(self, buffer_len: int, seed: int = 42):
+    def __init__(self, buffer_len: int, seed: Union[int, None] = 42):
         """
         Construct a Random Sampler
 
@@ -177,7 +177,7 @@ class Random(Sampler):
             buffer_len (int):
                 Length of buffer to build.
                 No objects will be yielded until this length is reached or exhausted.
-            seed (int, optional):
+            seed (Union[int, None], optional):
                 Seed to initialise rng module with. Defaults to 42.
         """
         super().__init__()

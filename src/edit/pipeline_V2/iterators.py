@@ -45,6 +45,17 @@ class Iterator(PipelineRecordingMixin, metaclass=ABCMeta):
         """Get tuple of samples returned by this `Iterator`."""
         return tuple(self)
 
+    def __add__(self, other: Iterator):
+        """
+        Combine multiple `Sampler`'s together into a `SuperSampler`
+        """
+        if isinstance(other, SuperIterator):
+            return SuperIterator(self, *other._iterators)
+
+        elif isinstance(other, Iterator):
+            return SuperIterator(self, other)
+
+        return NotImplemented
 
 class Range(Iterator):
     """
@@ -190,15 +201,16 @@ class Randomise(Iterator):
     Wrap around another `Iterator` and randomly sample
     """
 
-    def __init__(self, iterator: Iterator, seed: int = 42):
+    def __init__(self, iterator: Iterator, seed: Union[int, None] = 42):
         """
         Randomise `iterator`
 
         Args:
             iterator (Iterator):
                 Underlying `Iterator` to randomise.
-            seed (int, optional):
-                Random selection seed. Defaults to 42.
+            seed (Union[int, None], optional):
+                Random selection seed. If None, will be `random`.
+                Defaults to 42.
         """
         super().__init__()
         self.record_initialisation()
@@ -232,6 +244,16 @@ class SuperIterator(Iterator):
         self.record_initialisation()
 
         self._iterators = iterators
+
+    def __getitem__(self, idx):
+        """
+        Get `Iterator` from iterators
+        """
+        return self._iterators[idx]
+
+    def __len__(self):
+        return len(self._iterators)
+    
 
     def __iter__(self):
         for iterator in self._iterators:
