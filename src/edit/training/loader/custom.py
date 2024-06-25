@@ -11,35 +11,18 @@ from __future__ import annotations
 import numpy as np
 import warnings
 
-from edit.pipeline.templates import DataStep, DataIterator
-from edit.pipeline.sequential import SequentialDecorator
-
-from edit.pipeline.warnings import PipelineWarning
+from edit.pipeline_V2 import PipelineMod, PipelineWarning
 
 
-@SequentialDecorator
-class CustomLoader(DataStep):
+class CustomLoader(PipelineMod):
     """
     DataLoader to batch data
-
-
-    !!! Example
-        ```python
-        CustomLoader(PipelineStep, batch_size = 16)
-
-        ## As this is decorated with @SequentialDecorator, it can be partially initialised
-
-        partialCustomLoader = CustomLoader(batch_size = 16)
-        partialCustomLoader(PipelineStep)
-        ```
     """
 
-    def __init__(self, index: DataStep, batch_size: int):
+    def __init__(self, batch_size: int):
         """Custom DataLoader to batch data up
 
         Args:
-            index (DataStep):
-                Underlying DataStep to get data from
             batch_size (int):
                 Batch size
 
@@ -47,10 +30,8 @@ class CustomLoader(DataStep):
             TypeError:
                 If `batch_size` is not an int
         """
-        super().__init__(index)
-
-        if not self == self.step(-1):
-            warnings.warn(f"{self} should be the last step in a DataPipeline.", PipelineWarning)
+        super().__init__()
+        self.record_initialisation()
 
         if not isinstance(batch_size, int):
             raise TypeError(f"'batch_size' must be int, not {type(batch_size)}")
@@ -59,10 +40,10 @@ class CustomLoader(DataStep):
         self._info_ = dict(batch_size=batch_size)
 
     def __getitem__(self, idx):
-        return self.index(idx)
+        return self.parent_pipeline()[idx]
 
     def __iter__(self):
-        iterator = iter(self.index)
+        iterator = iter(self.parent_pipeline())
 
         batch = []
         try:

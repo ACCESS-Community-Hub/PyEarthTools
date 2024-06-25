@@ -22,7 +22,7 @@ from edit.data import EDITDatetime, Transform, TransformCollection, TimeDelta
 from edit.data.indexes import BaseCacheIndex, TimeIndex
 
 import edit.training.trainer
-from edit.training.trainer import from_yaml
+# from edit.training.trainer import from_yaml
 
 ATTRIBUTE_MARK = edit.data.transforms.attributes.set_attributes(
     purpose="Research Use Only.",
@@ -170,45 +170,45 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         """Get Data Pipeline"""
         return self.trainer.pipeline
 
-    @staticmethod
-    def from_yaml(
-        yaml_config: str | Path,
-        data_interval: tuple,
-        checkpoint_path: str | bool = True,
-        *,
-        only_state: bool = False,
-        stride_override: int | None = None,
-        **kwargs,
-    ):
-        """Setup ML Data Index from yaml file config and pretrained model
+    # @staticmethod
+    # def from_yaml(
+    #     yaml_config: str | Path,
+    #     data_interval: tuple,
+    #     checkpoint_path: str | bool = True,
+    #     *,
+    #     only_state: bool = False,
+    #     stride_override: int | None = None,
+    #     **kwargs,
+    # ):
+    #     """Setup ML Data Index from yaml file config and pretrained model
 
-        Args:
-            yaml_config (str | Path):
-                Path to yaml config
-            data_interval (tuple):
-                Resolution that the trainer operates at, in `TimeDelta` form.
-                e.g. (1, 'day')
-            checkpoint_path (str | bool, optional):
-                Path to pretrained checkpoint. Defaults to True.
-            only_state (bool, optional):
-                Only load the state of the model. Defaults to False.
-            stride_override (int, optional):
-                Values to override stride with, if using `PatchingDataIndex`. Defaults to None.
+    #     Args:
+    #         yaml_config (str | Path):
+    #             Path to yaml config
+    #         data_interval (tuple):
+    #             Resolution that the trainer operates at, in `TimeDelta` form.
+    #             e.g. (1, 'day')
+    #         checkpoint_path (str | bool, optional):
+    #             Path to pretrained checkpoint. Defaults to True.
+    #         only_state (bool, optional):
+    #             Only load the state of the model. Defaults to False.
+    #         stride_override (int, optional):
+    #             Values to override stride with, if using `PatchingDataIndex`. Defaults to None.
 
-        Raises:
-            RuntimeError:
-                If no `checkpoint_path` is given
+    #     Raises:
+    #         RuntimeError:
+    #             If no `checkpoint_path` is given
 
-        Returns:
-            (MLDataIndex):
-                MLDataIndex to use to get data with
-        """
-        trainer = from_yaml(
-            yaml_config,
-            strategy=kwargs.pop("strategy", "auto"),
-            logger=kwargs.pop("logger", False),
-            **kwargs,
-        )
-        trainer.load(checkpoint_path, only_state=only_state)
+    #     Returns:
+    #         (MLDataIndex):
+    #             MLDataIndex to use to get data with
+    #     """
+    #     trainer = from_yaml(
+    #         yaml_config,
+    #         strategy=kwargs.pop("strategy", "auto"),
+    #         logger=kwargs.pop("logger", False),
+    #         **kwargs,
+    #     )
+    #     trainer.load(checkpoint_path, only_state=only_state)
 
-        return MLDataIndex(trainer, data_interval=data_interval, stride_override=stride_override)
+    #     return MLDataIndex(trainer, data_interval=data_interval, stride_override=stride_override)

@@ -25,15 +25,15 @@ import edit.data
 import edit.training
 
 from edit.training.trainer.template import EDITTrainer
-from edit.pipeline.templates import DataStep
+from edit.pipeline_V2 import Pipeline
 
 
 class EDITXGBoostTrainer(EDITTrainer):
     def __init__(
         self,
         model,
-        train_data: DataStep,
-        valid_data: DataStep = None,
+        train_data: Pipeline,
+        valid_data: Pipeline = None,
         path: str | Path = None,
         **kwargs,
     ) -> None:

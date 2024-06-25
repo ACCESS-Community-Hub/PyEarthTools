@@ -16,8 +16,8 @@
 
 Provide simple classes to combine the Data Pipeline defined in [edit.pipeline][edit.pipeline] and an ML model for training.
 """
-from edit.training.trainer.yaml import from_yaml
-from edit.training.trainer.yaml import from_yaml as from_dict
+# from edit.training.trainer.yaml import from_yaml
+# from edit.training.trainer.yaml import from_yaml as from_dict
 
 
 from edit.training.trainer.template import (

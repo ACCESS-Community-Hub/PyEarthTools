@@ -20,8 +20,8 @@ import logging
 
 from tqdm.auto import trange
 
-import edit.pipeline
-from edit.pipeline.templates import DataStep
+import edit.pipeline_V2
+from edit.pipeline_V2 import Pipeline
 
 from edit.data import Collection, LabelledCollection, IndexWarning, patterns, TimeDelta, EDITDatetime
 
@@ -78,7 +78,7 @@ def parse_recurrent(interval: int | TimeDelta = 1):
 
 
 class EDIT_Inference(metaclass=ABCMeta):
-    def __init__(self, pipeline: DataStep):
+    def __init__(self, pipeline: Pipeline):
         self.pipeline = pipeline
 
     @abstractmethod
@@ -106,8 +106,8 @@ class EDIT_Inference(metaclass=ABCMeta):
 
         Passes across all kwargs
         """
-        if isinstance(self.pipeline, DataStep) and hasattr(self.pipeline, "_interval"):
-            kwargs["data_interval"] = kwargs.get("data_interval", self.pipeline._interval)
+        # if isinstance(self.pipeline, Pipeline) and hasattr(self.pipeline, "_interval"):
+        #     kwargs["data_interval"] = kwargs.get("data_interval", self.pipeline._interval)
         return edit.training.MLDataIndex(self, **kwargs)
 
     def data(self, idx: Any, undo=False) -> np.ndarray | xr.Dataset | Collection:
@@ -176,7 +176,7 @@ class EDIT_AutoInference(EDIT_Inference):
     ) -> np.ndarray | xr.Dataset:
         """Predict using the model a particular index
 
-        Uses [edit.pipeline][edit.pipeline] to get data at given index.
+        Uses [edit.pipeline][edit.pipeline_V2] to get data at given index.
         Can automatically try to rebuild the data.
 
         !!! Warning
@@ -210,26 +210,26 @@ class EDIT_AutoInference(EDIT_Inference):
         """
         data_source = data_iterator or self.pipeline
 
-        if "Patch" in data_source.steps and "patch_update" not in kwargs:
-            with edit.pipeline.context.PatchingUpdate(
-                data_source, kernel_size=kwargs.pop("kernel_size", None), stride_size=kwargs.pop("stride_size", None)
-            ):
-                return self.predict(
-                    index,
-                    data_iterator=data_source,
-                    undo=undo,
-                    load=load,
-                    load_kwargs=load_kwargs,
-                    fake_batch_dim=fake_batch_dim,
-                    patch_update=True,
-                    **kwargs,
-                )
+        # if "Patch" in data_source.steps and "patch_update" not in kwargs:
+        #     with edit.pipeline.context.PatchingUpdate(
+        #         data_source, kernel_size=kwargs.pop("kernel_size", None), stride_size=kwargs.pop("stride_size", None)
+        #     ):
+        #         return self.predict(
+        #             index,
+        #             data_iterator=data_source,
+        #             undo=undo,
+        #             load=load,
+        #             load_kwargs=load_kwargs,
+        #             fake_batch_dim=fake_batch_dim,
+        #             patch_update=True,
+        #             **kwargs,
+        #         )
 
         kwargs.pop("patch_update", None)
 
         self.load(load, **load_kwargs)
 
-        if "ToNumpy" in self.pipeline.steps or "FakeData" in self.pipeline.steps:
+        if "ToNumpy" in self.pipeline or "FakeData" in self.pipeline:
             fake_batch_dim = True if fake_batch_dim is None else fake_batch_dim
 
         if fake_batch_dim is None:
@@ -299,7 +299,7 @@ class EDIT_AutoInference(EDIT_Inference):
     ) -> np.ndarray | xr.Dataset:
         """Time wise recurrent prediction
 
-        Uses [edit.pipeline][edit.pipeline] to get data at given index.
+        Uses [edit.pipeline][edit.pipeline_V2] to get data at given index.
 
         !!! Warning
             Uses child classes implementation of `_predict_from_data` to run the predictions.
@@ -377,7 +377,7 @@ class EDIT_AutoInference(EDIT_Inference):
         if load:
             self.load(load, **load_kwargs)
 
-        if "ToNumpy" in self.pipeline.steps:
+        if "ToNumpy" in self.pipeline:
             fake_batch_dim = True if fake_batch_dim is None else fake_batch_dim
         if fake_batch_dim is None:
             fake_batch_dim = False
