@@ -16,7 +16,7 @@ import warnings
 
 import yaml
 
-from edit.utils.imports import dynamic_import
+from edit.utils.initialisation.imports import dynamic_import
 from edit.utils import initialisation
 
 import edit.pipeline_V2
