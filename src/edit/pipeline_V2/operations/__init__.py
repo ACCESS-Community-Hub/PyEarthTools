@@ -14,6 +14,7 @@ Pipeline Operations
 | numpy | Numpy arrays |
 | xarray | Xarray |
 | dask   | Dask arrays |
+| transform   | Transformations |
 """
 
 import warnings
@@ -26,3 +27,11 @@ try:
     from edit.pipeline_V2.operations import dask
 except (ImportError, ModuleNotFoundError) as e:
     warnings.warn(f"Unable to import `operations.dask` due to {e}", ImportWarning)
+
+__all__ = [
+    'xarray',
+    'numpy',
+    'transform',
+    'Transforms',
+    'dask',
+]

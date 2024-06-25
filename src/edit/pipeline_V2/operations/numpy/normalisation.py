@@ -8,7 +8,7 @@
 
 from abc import abstractmethod
 from pathlib import Path
-from typing import TypeVar, Union
+from typing import Union
 
 import numpy as np
 

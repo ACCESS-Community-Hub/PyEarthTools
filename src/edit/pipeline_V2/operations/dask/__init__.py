@@ -8,6 +8,8 @@
 
 from edit.pipeline_V2.operations.dask.join import Stack, Concatenate, VStack, HStack
 
+from edit.pipeline_V2.operations.dask.compute import Compute
+
 from edit.pipeline_V2.operations.dask import (
     augment,
     filters,
@@ -21,6 +23,7 @@ from edit.pipeline_V2.operations.dask import (
 __all__ = [
     "Stack",
     "Concatenate",
+    "Compute",
     "augment",
     "filters",
     "reshape",

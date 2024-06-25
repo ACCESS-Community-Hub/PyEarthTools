@@ -6,6 +6,16 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
+"""
+xarray Operations
+
+| | Description | Available |
+| - | --------- | --------- |
+| conversion | Convert between datatypes | `ToNumpy`, `ToDask` |
+| filters | Filter samples being iterated over | `DropAnyNan`, `DropAllNan`, `DropValue`, `Shape`  |
+
+"""
+
 from edit.pipeline_V2.operations.xarray.compute import Compute
 from edit.pipeline_V2.operations.xarray.join import Merge, Concatenate
 from edit.pipeline_V2.operations.xarray.sort import Sort
@@ -33,4 +43,5 @@ __all__ = [
     "split",
     "values",
     "metadata",
+    "normalisation",
 ]

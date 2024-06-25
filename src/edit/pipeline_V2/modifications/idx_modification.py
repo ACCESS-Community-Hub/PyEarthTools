@@ -27,7 +27,7 @@ from edit.pipeline_V2.warnings import PipelineWarning
 MERGE_FUNCTIONS = {
     xr.Dataset: xr.merge,
     xr.DataArray: xr.merge,
-    np.ndarray: np.stack,
+    np.ndarray: lambda x: np.stack(x) if len(x) > 1 else x[0],
     list: lambda x: [*x],
     tuple: lambda x: x,
 }
@@ -142,13 +142,14 @@ class IdxModifier(PipelineIndex, ParallelEnabledMixin):
             return s
 
         types = find_types(sample)
+
         if not all([types[0] == t for t in types[1:]]):
             raise TypeError(f"Cannot merge objects of differing types, {types}.")
 
         if self._merge_function is not None:
             return self._merge_function(sample, **self._merge_kwargs)
 
-        if not types[0] in MERGE_FUNCTIONS:
+        if types[0] not in MERGE_FUNCTIONS:
             warnings.warn(f"Cannot merge samples of type {types[0]}.", PipelineWarning)
             return trim(sample)
 
