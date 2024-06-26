@@ -337,8 +337,8 @@ class Training(Inference, EDIT_Training):
 
         """
         if isinstance(pipeline, Pipeline) and "PytorchIterable" not in pipeline:
-            pipeline = edit.training.loader.PytorchIterable() + pipeline
-            valid_data = (edit.training.loader.PytorchIterable() + valid_data) if valid_data else valid_data
+            pipeline = pipeline + edit.training.loader.PytorchIterable()
+            valid_data = (valid_data + edit.training.loader.PytorchIterable()) if valid_data else valid_data
 
         super().__init__(model, valid_data or pipeline, path=path, batch_size=batch_size, num_workers=num_workers)
 
