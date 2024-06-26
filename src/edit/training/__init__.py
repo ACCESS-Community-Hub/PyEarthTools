@@ -25,4 +25,4 @@ except ImportError:
 if __name__ == "__main__":
     trainer.commands.entry_point()
 
-__version__ = "2024.06.01"
+__version__ = "2024.06.02"
