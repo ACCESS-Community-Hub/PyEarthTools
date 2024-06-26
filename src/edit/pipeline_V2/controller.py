@@ -10,8 +10,7 @@ from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
 
-import functools
-from typing import Any, ContextManager, Literal, Union, Optional, Type
+from typing import Any, ContextManager, Literal, Union, Optional, Type, overload
 from pathlib import Path
 
 import edit.utils
@@ -524,9 +523,16 @@ class Pipeline(_Pipeline, Index):
             if check(remaining):
                 yield remaining
 
+    @overload
+    def step(self, id: Union[str, int, Type[Any], Any], limit: None) -> Union[Index, Pipeline, Operation]:
+        ...
+    @overload
+    def step(self, id: Union[str, int, Type[Any], Any], limit: int) -> tuple[Union[Index, Pipeline, Operation], ...]:
+        ...
+
     def step(
-        self, id: Union[str, int, Type], limit: Optional[int] = -1
-    ) -> Union[Index, Pipeline, Operation, tuple[Union[Index, Pipeline, Operation], ...]]:
+        self, id: Union[str, int, Type[Any], Any], limit: Optional[int] = -1
+    ) -> Union[Union[Index, Pipeline, Operation], tuple[Union[Index, Pipeline, Operation], ...]]:
         """Get step correspondant to `id`
 
         If `str` flattens steps and retrieves the first `limit` found,
