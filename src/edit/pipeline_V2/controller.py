@@ -524,11 +524,11 @@ class Pipeline(_Pipeline, Index):
                 yield remaining
 
     @overload
-    def step(self, id: Union[str, int, Type[Any], Any], limit: None) -> Union[Index, Pipeline, Operation]:
-        ...
+    def step(self, id: Union[str, int, Type[Any], Any], limit: None) -> Union[Index, Pipeline, Operation]: ...
     @overload
-    def step(self, id: Union[str, int, Type[Any], Any], limit: int) -> tuple[Union[Index, Pipeline, Operation], ...]:
-        ...
+    def step(
+        self, id: Union[str, int, Type[Any], Any], limit: int
+    ) -> tuple[Union[Index, Pipeline, Operation], ...]: ...
 
     def step(
         self, id: Union[str, int, Type[Any], Any], limit: Optional[int] = -1
