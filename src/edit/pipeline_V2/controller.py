@@ -529,7 +529,7 @@ class Pipeline(_Pipeline, Index):
 
     @overload
     def step(self, id: Union[str, int, Type[Any], Any], limit: None) -> Union[Index, Pipeline, Operation]: ...
-    
+
     @overload
     def step(
         self, id: Union[str, int, Type[Any], Any], limit: int
