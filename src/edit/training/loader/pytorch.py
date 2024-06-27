@@ -12,6 +12,7 @@ from torch.utils.data import IterableDataset, get_worker_info
 
 from edit.pipeline_V2 import PipelineMod, PipelineWarning
 
+
 class PytorchIterable(PipelineMod, IterableDataset):
     """
     Connect Data Pipeline with PyTorch IterableDataset

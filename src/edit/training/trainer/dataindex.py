@@ -22,6 +22,7 @@ from edit.data import EDITDatetime, Transform, TransformCollection, TimeDelta
 from edit.data.indexes import BaseCacheIndex, TimeIndex
 
 import edit.training.trainer
+
 # from edit.training.trainer import from_yaml
 
 ATTRIBUTE_MARK = edit.data.transforms.attributes.set_attributes(
