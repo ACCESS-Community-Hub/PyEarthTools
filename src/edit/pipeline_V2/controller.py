@@ -382,7 +382,11 @@ class Pipeline(_Pipeline, Index):
 
     def has_source(self) -> bool:
         """Determine if this `Pipeline` contains a source of data, or is just a sequence of operations."""
-        return isinstance(self._steps[0], (_Pipeline, Index))
+        if isinstance(self._steps[0], (PipelineIndex, Index)):
+            return True
+        if isinstance(self._steps[0], edit.pipeline_V2.branching.PipelineBranchPoint):
+            return all(map(lambda x: x.has_source(), self._steps[0].sub_pipelines))
+        return False
 
     def _get_initial_sample(self, idx: Any) -> tuple[Any, int]:
         """
@@ -436,7 +440,7 @@ class Pipeline(_Pipeline, Index):
                 sample = step.apply(sample)
             else:
                 sample = step(sample)  # type: ignore
-            return sample
+        return sample
 
     @property
     def get_and_catch(self):
@@ -525,6 +529,7 @@ class Pipeline(_Pipeline, Index):
 
     @overload
     def step(self, id: Union[str, int, Type[Any], Any], limit: None) -> Union[Index, Pipeline, Operation]: ...
+    
     @overload
     def step(
         self, id: Union[str, int, Type[Any], Any], limit: int

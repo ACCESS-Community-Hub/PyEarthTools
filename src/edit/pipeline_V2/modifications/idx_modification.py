@@ -11,7 +11,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable, Iterable, Optional, Type, Union
 import warnings
-from dataclasses import dataclass
 
 import xarray as xr
 import numpy as np
@@ -203,7 +202,7 @@ class TimeIdxModifier(IdxModifier):
 
         Args:
             modification (Union[Any, tuple[Union[Any, tuple[Any, ...]], ...]]):
-                Expected to be `TimeDelta` compatabile, or tuples of `TimeDelta`'s.
+                Expected to be `TimeDelta` compatible, or tuples of `TimeDelta`'s.
             merge (Union[bool, int], optional):
                 Merge retrieved tuple, must all be the same type.
                 If `int` corresponds to how many layers to merge from the bottom up.
@@ -326,10 +325,9 @@ class SequenceRetrieval(IdxModifier):
             merge_kwargs (Optional[dict[str, Any]], optional):
                 Optional extra kwargs for the merge function. Defaults to None.
         """
-        samples = self._convert(self._parse_samples(samples))
 
         super().__init__(
-            samples,
+            self._convert(self._parse_samples(samples)),
             merge=self._merge_level,
             merge_function=merge_function,
             merge_kwargs=merge_kwargs,

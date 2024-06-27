@@ -157,7 +157,7 @@ def test_branch_with_mapping():
 
 def test_branch_with_mapping_copy():
     pipe = Pipeline(
-        (FakeIndex(), FakeIndex()),
+        (FakeIndex(), FakeIndex(2)),
         (MultiplicationOperation(1), "map_copy"),
     )
     assert pipe[1] == (1, 2)
