@@ -172,10 +172,11 @@ class DaskParallelInterface(ParallelInterface):
         wrapped = func
         try:
             from dask.distributed import Client
-
             wrapped = getattr(Client, func.__name__).__doc__
         except AttributeError:
             pass
+        except (ImportError, ModuleNotFoundError):
+            return func
 
         def wrapper(self, *args, **kwargs):
             return getattr(DaskParallelInterface.client, func.__name__)(*args, **kwargs)
