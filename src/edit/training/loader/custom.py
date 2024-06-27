@@ -11,10 +11,10 @@ from __future__ import annotations
 import numpy as np
 import warnings
 
-from edit.pipeline_V2 import PipelineMod, PipelineWarning
+from edit.pipeline_V2 import PipelineIndex, PipelineWarning
 
 
-class CustomLoader(PipelineMod):
+class CustomLoader(PipelineIndex):
     """
     DataLoader to batch data
     """

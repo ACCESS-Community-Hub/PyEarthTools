@@ -10,10 +10,10 @@ from __future__ import annotations
 
 from torch.utils.data import IterableDataset, get_worker_info
 
-from edit.pipeline_V2 import PipelineMod, PipelineWarning
+from edit.pipeline_V2 import PipelineIndex, PipelineWarning
 
 
-class PytorchIterable(PipelineMod, IterableDataset):
+class PytorchIterable(PipelineIndex, IterableDataset):
     """
     Connect Data Pipeline with PyTorch IterableDataset
 
