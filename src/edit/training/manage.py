@@ -8,20 +8,33 @@ from typing import Any, overload, Union, Optional, Callable, TypeVar
 
 import xarray as xr
 import numpy as np
-import torch
 import itertools
 
+TORCH_INSTALLED = True
+try:
+    import torch
+except (ImportError, ModuleNotFoundError):
+    TORCH_INSTALLED = False
 
-DATA_TYPES = Union[np.ndarray, xr.Dataset, torch.Tensor, list]
-D = TypeVar("D", np.ndarray, xr.Dataset, torch.Tensor, list)
-
+DATA_TYPES = Union[np.ndarray, xr.Dataset, list]
+D = TypeVar("D", np.ndarray, xr.Dataset, list)
 
 COMBINE_FUNCTIONS: dict[type, Callable[[tuple], Any]] = {
     np.ndarray: np.concatenate,
     xr.Dataset: xr.merge,
-    torch.Tensor: torch.concat,
     list: (lambda x: itertools.chain(*x)),
 }
+
+if TORCH_INSTALLED:
+    DATA_TYPES = Union[np.ndarray, xr.Dataset, torch.Tensor, list]
+    D = TypeVar("D", np.ndarray, xr.Dataset, torch.Tensor, list)
+
+    COMBINE_FUNCTIONS: dict[type, Callable[[tuple], Any]] = {
+        np.ndarray: np.concatenate,
+        xr.Dataset: xr.merge,
+        torch.Tensor: torch.concat,
+        list: (lambda x: itertools.chain(*x)),
+    }
 
 
 class Variables:
@@ -165,7 +178,7 @@ class Variables:
             not all(map(lambda x: isinstance(x, int), given_vars))
             or not all(map(lambda x: isinstance(x, list), given_vars))
         ):
-            raise TypeError(f"All variables must be one type either, int or list[str] not both.")
+            raise TypeError("All variables must be one type either, int or list[str] not both.")
 
         if all(map(lambda x: isinstance(x, list), given_vars)):
             return {
@@ -194,7 +207,7 @@ class Variables:
 
         return {name: list_vars[slices[name]] if isinstance(self.categories[name], int) else self.categories[name] for name in names}  # type: ignore
 
-    def reorder(self, data: D, order: Optional[str] = None) -> D:
+    def reorder(self, data: D, order: Optional[str] = None) -> D:  # type: ignore[reportInvalidTypeForm]
         """
         Reorder incoming data into the originally specified order
         """
@@ -204,13 +217,13 @@ class Variables:
             return data[list(self.names_from_order())]
 
         if order is None:
-            raise TypeError(f"Order must be given for arrays.")
+            raise TypeError("Order must be given for arrays.")
 
         slices = self.np_slices(order)
         data_dict = {key: data[val] for key, val in slices.items()}
         return COMBINE_FUNCTIONS[type(data)](tuple(data_dict[na] for na in self.names_from_order()))
 
-    def join(self, **kwargs: DATA_TYPES) -> DATA_TYPES:
+    def join(self, **kwargs: DATA_TYPES) -> DATA_TYPES:  # type: ignore[reportInvalidTypeForm]
         """
         Join data given in `kwargs`, will be ordered based on specified order
         """
@@ -222,13 +235,15 @@ class Variables:
             if not self.compare_length(val, order=key[0].upper()):
                 raise ValueError(f"Data for {key!s} has incorrect length, expected {self.length(key)}, got {len(val)}.")
 
-        if not all(type(kwargs[kwarg_names[0]]) == type(kwargs[kwarg_names[i]]) for i in range(1, len(kwarg_names))):
-            raise TypeError(f"All given data must be of the same type.")
+        if not all(
+            isinstance(type(kwargs[kwarg_names[0]]), type(kwargs[kwarg_names[i]])) for i in range(1, len(kwarg_names))
+        ):
+            raise TypeError("All given data must be of the same type.")
 
         dtype = type(kwargs[kwarg_names[0]])
         return COMBINE_FUNCTIONS[dtype](tuple(kwargs[key] for key in self.names_from_order(order, reorder=True)))
 
-    def split(self, data: D, order: Optional[str] = None) -> dict[str, D]:  # type: ignore
+    def split(self, data: D, order: Optional[str] = None) -> dict[str, D]:  # type: ignore[reportInvalidTypeForm]
         """
         Split incoming data into the specified categories
 
@@ -249,12 +264,12 @@ class Variables:
         return {key: data[val] for key, val in self.np_slices(order=order).items()}
 
     @overload
-    def add(self, data: D, incoming: tuple[D], category: tuple[str], order: Optional[str] = None) -> D: ...
+    def add(self, data: D, incoming: tuple[D], category: tuple[str], order: Optional[str] = None) -> D: ...  # type: ignore[reportInvalidTypeForm]
 
     @overload
-    def add(self, data: D, incoming: D, category: str, order: Optional[str] = None) -> D: ...
+    def add(self, data: D, incoming: D, category: str, order: Optional[str] = None) -> D: ...  # type: ignore[reportInvalidTypeForm]
 
-    def add(self, data: D, incoming: tuple[D] | D, category: tuple[str] | str, order: Optional[str] = None) -> D:
+    def add(self, data: D, incoming: tuple[D] | D, category: tuple[str] | str, order: Optional[str] = None) -> D:  # type: ignore[reportInvalidTypeForm]
         """
         Add `incoming` data into the `data`, in the correct spot.
 
@@ -290,7 +305,7 @@ class Variables:
 
         if isinstance(incoming, tuple) or isinstance(category, tuple):
             if isinstance(incoming, tuple) ^ isinstance(category, tuple):
-                raise TypeError(f"If `incoming` or `category` is tuple, both must be.")
+                raise TypeError("If `incoming` or `category` is tuple, both must be.")
 
             assert isinstance(incoming, tuple) and isinstance(category, tuple)  # Type hint assistance
 
@@ -316,7 +331,7 @@ class Variables:
 
         return COMBINE_FUNCTIONS[type(data)](tuple(data_dict[na] for na in self.names_from_order() if na in data_dict))
 
-    def remove(self, data: D, category: str | tuple[str], order: Optional[str] = None) -> D:
+    def remove(self, data: D, category: str | tuple[str], order: Optional[str] = None) -> D:  # type: ignore[reportInvalidTypeForm]
         """
         Remove a category of data.
 
@@ -364,12 +379,12 @@ class Variables:
         return COMBINE_FUNCTIONS[type(data)](tuple(data_dict[na] for na in removed_order))
 
     @overload
-    def extract(self, data: D, category: tuple[str, ...], order: Optional[str] = None) -> tuple[D, ...]: ...
+    def extract(self, data: D, category: tuple[str, ...], order: Optional[str] = None) -> tuple[D, ...]: ...  # type: ignore[reportInvalidTypeForm]
 
     @overload
-    def extract(self, data: D, category: str, order: Optional[str] = None) -> D: ...
+    def extract(self, data: D, category: str, order: Optional[str] = None) -> D: ...  # type: ignore[reportInvalidTypeForm]
 
-    def extract(self, data: D, category: tuple[str, ...] | str, order: Optional[str] = None) -> D | tuple[D, ...]:
+    def extract(self, data: D, category: tuple[str, ...] | str, order: Optional[str] = None) -> D | tuple[D, ...]:  # type: ignore[reportInvalidTypeForm]
         """
         Extract a category from the `data`.
 
@@ -426,14 +441,16 @@ class Variables:
         names = self.names_from_order(order=order)
         return sum(tuple(self.length(x) for x in names))
 
-    def compare_length(self, data: DATA_TYPES, order: Optional[str] = None, error: bool = False) -> bool:
+    def compare_length(self, data: DATA_TYPES, order: Optional[str] = None, error: bool = False) -> bool:  # type: ignore[reportInvalidTypeForm]
         """
         Compare length of data to that of expected.
 
         Raise error if `error`.
         """
         length = self.length_of_order(order or self.order)
-        if isinstance(data, (np.ndarray, torch.Tensor)):
+        if isinstance(data, np.ndarray):
+            data_length = data.shape[0]
+        elif TORCH_INSTALLED and isinstance(data, torch.Tensor):
             data_length = data.shape[0]
         elif isinstance(data, xr.Dataset):
             data_length = len(list(data.data_vars))

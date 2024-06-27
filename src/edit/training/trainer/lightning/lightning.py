@@ -24,7 +24,7 @@ from edit.data.patterns.utils import parse_root_dir
 
 import edit.training
 from edit.training.trainer.template import EDIT_AutoInference, EDIT_Training
-from edit.pipeline.templates import DataIterator, DataStep
+from edit.pipeline_V2 import Pipeline
 
 from edit.utils.context import PrintOnError
 
@@ -50,7 +50,7 @@ class Inference(EDIT_AutoInference):
     def __init__(
         self,
         model: "pytorch_lightning.LightningModule",
-        pipeline: DataStep,
+        pipeline: Pipeline,
         *,
         path: str | Path = "temp",
         batch_size: int = 1,
@@ -306,10 +306,10 @@ class Training(Inference, EDIT_Training):
     def __init__(
         self,
         model: "pl.LightningModule",
-        pipeline: DataIterator | "torch.data.DataLoader",
+        pipeline: Pipeline | "torch.data.DataLoader",
         *,
         path: str,
-        valid_data: DataIterator | None = None,
+        valid_data: Pipeline | None = None,
         batch_size: int = 1,
         num_workers: int | None = None,
         find_batch_size: bool = False,
@@ -336,9 +336,9 @@ class Training(Inference, EDIT_Training):
                 All passed to trainer __init__, will intercept 'logger' to update from str if given
 
         """
-        if isinstance(pipeline, DataStep) and "PytorchIterable" not in pipeline.steps:
-            pipeline = edit.training.loader.PytorchIterable(pipeline)
-            valid_data = edit.training.loader.PytorchIterable(valid_data) if valid_data else valid_data
+        if isinstance(pipeline, Pipeline) and "PytorchIterable" not in pipeline:
+            pipeline = pipeline + edit.training.loader.PytorchIterable()
+            valid_data = (valid_data + edit.training.loader.PytorchIterable()) if valid_data else valid_data
 
         super().__init__(model, valid_data or pipeline, path=path, batch_size=batch_size, num_workers=num_workers)
 

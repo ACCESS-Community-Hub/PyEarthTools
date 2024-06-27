@@ -7,44 +7,30 @@
 # from the use of the software.
 
 from __future__ import annotations
-import math
 
 from torch.utils.data import IterableDataset, get_worker_info
 
-from edit.pipeline.templates import DataStep, DataIterator
-from edit.pipeline.sequential import SequentialDecorator
+from edit.pipeline_V2 import PipelineMod, PipelineWarning
 
 
-@SequentialDecorator
-class PytorchIterable(DataIterator, IterableDataset):
+class PytorchIterable(PipelineMod, IterableDataset):
     """
     Connect Data Pipeline with PyTorch IterableDataset
 
-    !!! Example
-        ```python
-        PytorchIterable(PipelineStep)
-
-        ## As this is decorated with @SequentialDecorator, it can be partially initialised
-
-        partialPytorchIterable = PytorchIterable()
-        partialPytorchIterable(PipelineStep)
-        ```
     """
 
-    def __init__(self, index: DataStep | DataIterator) -> None:
-        super().__init__(index=index)
-
-    def validate(self) -> bool:
-        super_validate = super().validate()
-        return super_validate and "ToNumpy" in self.steps
+    def __init__(self) -> None:
+        super().__init__()
+        self.record_initialisation()
 
     def __iter__(self):
-        samples = [t for t in self.generator]
+        pipeline = self.parent_pipeline()
+        samples = [t for t in pipeline.iteration_order]
         worker_info = get_worker_info()
 
         if worker_info is None:  # single-process data loading, return the full iterator
             for i in samples:
-                data = self.get_catch(i)
+                data = pipeline.get_and_catch[i]
                 if data is None:
                     continue
                 yield data
@@ -61,7 +47,7 @@ class PytorchIterable(DataIterator, IterableDataset):
                     continue
                 self._current_index = samples[i]
 
-                data = self.get_catch(samples[i])
+                data = pipeline.get_and_catch[samples[i]]
                 if data is None:
                     continue
                 yield data
