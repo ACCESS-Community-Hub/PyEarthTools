@@ -372,7 +372,6 @@ class Training(Inference, EDIT_Training):
             every_n_train_steps=2000,
         )
 
-
         self.callbacks = kwargs.pop("callbacks", [])
         self.callbacks.append(checkpoint_callback)
         # self.callbacks.append(checkpoint_epoch_callback)
@@ -452,7 +451,7 @@ class Training(Inference, EDIT_Training):
             data_config = {"datamodule": self.datamodule}
 
         if self._loaded_file is not None:
-            kwargs['ckpt_path']=str(self._loaded_file)
+            kwargs["ckpt_path"] = str(self._loaded_file)
 
         # with PrintOnError(lambda: f"An error arose getting: {self.pipeline.current_index}"):
         self.trainer.fit(

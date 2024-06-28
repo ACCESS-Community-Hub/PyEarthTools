@@ -22,7 +22,7 @@ class PytorchIterable(IterableDataset):
     def __init__(self, pipeline: Pipeline) -> None:
         super().__init__()
         self._pipeline = pipeline
-    
+
     def save(self, *args, **kwargs):
         return self._pipeline.save(*args, **kwargs)
 
