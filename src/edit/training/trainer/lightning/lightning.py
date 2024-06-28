@@ -337,10 +337,10 @@ class Training(Inference, EDIT_Training):
 
         """
         if isinstance(pipeline, Pipeline) and "PytorchIterable" not in pipeline:
-            pipeline = pipeline + edit.training.loader.PytorchIterable()
-            valid_data = (valid_data + edit.training.loader.PytorchIterable()) if valid_data else valid_data
+            pipeline = edit.training.loader.PytorchIterable(pipeline)
+            valid_data_pipe = (edit.training.loader.PytorchIterable(valid_data)) if valid_data else valid_data
 
-        super().__init__(model, valid_data or pipeline, path=path, batch_size=batch_size, num_workers=num_workers)
+        super().__init__(model, valid_data_pipe or pipeline, path=path, batch_size=batch_size, num_workers=num_workers)
 
         import pytorch_lightning as pl
         import torch
@@ -350,22 +350,31 @@ class Training(Inference, EDIT_Training):
         self.datamodule = self._get_data(
             batch_size,
             train_data=pipeline,
-            valid_data=valid_data,
+            valid_data=valid_data_pipe,
             num_workers=num_workers,
         )
 
         self.checkpoint_path = (Path(self.path) / "Checkpoints").resolve()
         checkpoint_callback = pl.callbacks.ModelCheckpoint(
-            save_top_k=10,
-            monitor="step",
-            mode="max",
+            save_top_k=40,
+            monitor="valid/loss",
+            mode="min",
             dirpath=self.checkpoint_path,
-            filename="model-{step}-{epoch:02d}",
-            every_n_train_steps=500,
+            filename="model-{step}-{epoch:02d}-{valid/loss:.4f}",
+            every_n_train_steps=1000,
+        )
+        checkpoint_epoch_callback = pl.callbacks.ModelCheckpoint(
+            save_top_k=40,
+            monitor="epoch",
+            mode="max",
+            dirpath=f"{self.checkpoint_path}/Epochs/",
+            filename="model-{epoch:02d}",
+            every_n_train_steps=2000,
         )
 
         self.callbacks = kwargs.pop("callbacks", [])
         self.callbacks.append(checkpoint_callback)
+        # self.callbacks.append(checkpoint_epoch_callback)
 
         if EarlyStopping and not (isinstance(EarlyStopping, str) and EarlyStopping == "True"):
             self.callbacks.append(
@@ -441,10 +450,12 @@ class Training(Inference, EDIT_Training):
         else:
             data_config = {"datamodule": self.datamodule}
 
+        if self._loaded_file is not None:
+            kwargs["ckpt_path"] = str(self._loaded_file)
+
         # with PrintOnError(lambda: f"An error arose getting: {self.pipeline.current_index}"):
         self.trainer.fit(
             model=self.model,
-            ckpt_path=str(self._loaded_file),
             **data_config,
             **kwargs,
         )

@@ -10,21 +10,24 @@ from __future__ import annotations
 
 from torch.utils.data import IterableDataset, get_worker_info
 
-from edit.pipeline_V2 import PipelineIndex, PipelineWarning
+from edit.pipeline_V2 import Pipeline
 
 
-class PytorchIterable(PipelineIndex, IterableDataset):
+class PytorchIterable(IterableDataset):
     """
     Connect Data Pipeline with PyTorch IterableDataset
 
     """
 
-    def __init__(self) -> None:
+    def __init__(self, pipeline: Pipeline) -> None:
         super().__init__()
-        self.record_initialisation()
+        self._pipeline = pipeline
+
+    def save(self, *args, **kwargs):
+        return self._pipeline.save(*args, **kwargs)
 
     def __iter__(self):
-        pipeline = self.parent_pipeline()
+        pipeline = self._pipeline
         samples = [t for t in pipeline.iteration_order]
         worker_info = get_worker_info()
 
