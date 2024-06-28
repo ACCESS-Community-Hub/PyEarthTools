@@ -400,6 +400,23 @@ class TemporalRetrieval(SequenceRetrieval):
         >>> TemporalRetrieval(-6)['2000-01-01T12']
         ## Will get samples for ('2000-01-01T06' & '2000-01-01T12')
     """
+    def __init__(
+        self,
+        samples: Union[int, tuple[Union[tuple[int, ...], int], ...]],
+        *,
+        merge_function: Optional[Callable] = None,
+        merge_kwargs: Optional[dict[str, Any]] = None,
+        delta_unit: Optional[str] = None
+    ):
+        super().__init__(samples, merge_function=merge_function, merge_kwargs=merge_kwargs)
+        
+        def map_to_tuple(mod):
+            if isinstance(mod, tuple):
+                return tuple(map(map_to_tuple, mod))
+            return edit.data.TimeDelta((mod, delta_unit))
+        
+        if delta_unit is not None:
+            self._modification = map_to_tuple(self._modification)
 
     def __getitem__(self, idx: Any):
         if not isinstance(idx, edit.data.EDITDatetime):

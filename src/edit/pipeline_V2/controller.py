@@ -12,9 +12,11 @@ from abc import ABCMeta, abstractmethod
 
 from typing import Any, ContextManager, Literal, Union, Optional, Type, overload
 from pathlib import Path
+import functools
+
+import graphviz
 
 import edit.utils
-import graphviz
 
 from edit.data.indexes import Index
 from edit.data.transforms import Transform, TransformCollection
@@ -49,8 +51,9 @@ class PipelineIndex(PipelineRecordingMixin, metaclass=ABCMeta):
         Union[Index, PipelineStep, _Pipeline, PipelineIndex, VALID_PIPELINE_TYPES, tuple[VALID_PIPELINE_TYPES, ...]],
         ...,
     ]
+    _partial_parent: functools.partial
 
-    def set_steps(
+    def set_parent_record(
         self,
         steps: tuple[
             Union[
@@ -58,22 +61,26 @@ class PipelineIndex(PipelineRecordingMixin, metaclass=ABCMeta):
             ],
             ...,
         ],
+        iterator: Optional[iterators.Iterator] = None,
+        sampler: Optional[samplers.Sampler] = None,
+        
     ):
-        """Set steps of this `PipelineMod`"""
+        """Set record of the parent of this `PipelineIndex`"""
+        self._partial_parent = functools.partial(Pipeline, iterator = iterator, sampler = sampler)
         self._steps = steps
 
     def parent_pipeline(self) -> Pipeline:
-        """Get parent pipeline of this `PipelineMod`, will not include self"""
-        return Pipeline(*self._steps)
+        """Get parent pipeline of this `PipelineIndex`, will not include self"""
+        return self._partial_parent(*self._steps)
 
     def as_pipeline(self) -> Pipeline:
-        """Get `PipelineMod` as full pipeline, will include self"""
-        return Pipeline(*self._steps, self)
+        """Get `PipelineIndex` as full pipeline, will include self"""
+        return self._partial_parent(*self._steps, self)
 
     @abstractmethod
     def __getitem__(self, idx):
-        """Retrieve sample from PipelineMod"""
-        pass
+        """Retrieve sample from PipelineIndex"""
+        return self.parent_pipeline()[idx]
 
     def undo_func(self, sample: Any) -> Any:
         """Run `undo`. If the child class needs to make modifications."""
@@ -252,11 +259,12 @@ class Pipeline(_Pipeline, Index):
             exceptions_to_ignore (Optional[tuple[Exception, ...]], optional):
                 Which exceptions to ignore when iterating. Defaults to None.
         """
+        self.iterator = iterator
+        self.sampler = sampler
+
         super().__init__(*steps, **kwargs)
         self.record_initialisation()
 
-        self.iterator = iterator
-        self.sampler = sampler
         self._exceptions_to_ignore = exceptions_to_ignore
 
     @property
@@ -278,7 +286,7 @@ class Pipeline(_Pipeline, Index):
     def complete_steps(self) -> tuple:
         """Get all steps"""
         return_steps = list(self.steps)
-        expanded_steps = []
+        expanded_steps: list[Any] = []
 
         for step in return_steps:
             if isinstance(step, Pipeline):
@@ -328,7 +336,7 @@ class Pipeline(_Pipeline, Index):
                 steps_list.append(edit.pipeline_V2.branching.PipelineBranchPoint(*(i for i in v)))  # type: ignore
                 continue
             elif isinstance(v, PipelineIndex):
-                v.set_steps(tuple(i for i in steps_list))
+                v.set_parent_record(tuple(i for i in steps_list), iterator=self.iterator, sampler = self.sampler)
                 steps_list.append(v)
                 # steps_list = [v]
             else:
@@ -538,7 +546,7 @@ class Pipeline(_Pipeline, Index):
     def step(
         self, id: Union[str, int, Type[Any], Any], limit: Optional[int] = -1
     ) -> Union[Union[Index, Pipeline, Operation], tuple[Union[Index, Pipeline, Operation], ...]]:
-        """Get step correspondant to `id`
+        """Get step correspondent to `id`
 
         If `str` flattens steps and retrieves the first `limit` found,
         otherwise if `int`, gets step at the `idx`
@@ -570,19 +578,21 @@ class Pipeline(_Pipeline, Index):
         raise ValueError(f"Cannot find step for {id!r}.")
 
     @property
-    def as_steps(self):
+    def as_steps(pipeline_self):
         """
         Get an indexable object to recreate pipeline with a subset of steps.
 
         >>> pipeline.as_steps[:5]
 
         """
-        steps = self.complete_steps
+        steps = pipeline_self.complete_steps
 
         class StepIndexer:
             def __getitem__(self, idx):
                 if isinstance(idx, int):
-                    raise ValueError("`idx` must be a slice to remake pipeline with.")
+                    return Pipeline(*steps[:idx])
+                elif isinstance(idx, str):
+                    return Pipeline(*steps[:pipeline_self.index(idx)])
                 return Pipeline(*steps[idx])
 
         return StepIndexer()
@@ -599,14 +609,14 @@ class Pipeline(_Pipeline, Index):
             return step_names.index(id)
         raise ValueError(f"{id!r} is  not in Pipeline. {step_names}")
 
-    def __contains__(self, id: Union[str, Type]) -> bool:
+    def __contains__(self, id: Union[str, Type[Any]]) -> bool:
         try:
-            self.step(id)
+            self.step(id) # type: ignore
             return True
         except ValueError:
             return False
 
-    def __add__(self, other: Union[_Pipeline, PipelineStep]) -> Pipeline:
+    def __add__(self, other: Union[_Pipeline, PipelineIndex, PipelineStep]) -> Pipeline:
         """
         Combine pipelines
 
