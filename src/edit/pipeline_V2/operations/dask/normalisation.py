@@ -10,11 +10,13 @@
 
 from abc import abstractmethod
 from pathlib import Path
-from typing import TypeVar, Union
+from typing import Union
 
 
+import numpy as np
 import dask.array as da
 
+from edit.utils.decorators import BackwardsCompatibility
 from edit.pipeline_V2.operation import Operation
 
 
@@ -87,21 +89,24 @@ class Deviation(daskNormalisation):
         return (sample * self.deviation) + self.mean
 
 
-class TemporalDifference(daskNormalisation):
-    """TemporalDifference Normalisation"""
+class Division(daskNormalisation):
+    """Division based Normalisation"""
 
-    def __init__(self, temporal_difference: FILE):
+    def __init__(self, division_factor: FILE):
         super().__init__()
         self.record_initialisation()
 
-        self.temporal_difference = self.open_file(temporal_difference)
+        self.division_factor = self.open_file(division_factor)
 
     def normalise(self, sample):
-        return sample / self.temporal_difference
+        return sample / self.division_factor
 
     def unnormalise(self, sample):
-        return sample * self.temporal_difference
+        return sample * self.division_factor
 
+@BackwardsCompatibility(Division)
+def TemporalDifference(*a, **k):
+    ...
 
 class Evaluated(daskNormalisation):
     """

@@ -12,6 +12,7 @@ from typing import Union
 
 import numpy as np
 
+from edit.utils.decorators import BackwardsCompatibility
 from edit.pipeline_V2.operation import Operation
 
 
@@ -88,23 +89,24 @@ class Deviation(numpyNormalisation):
         return (sample * self.deviation) + self.mean
 
 
-class TemporalDifference(numpyNormalisation):
-    """TemporalDifference Normalisation"""
+class Division(numpyNormalisation):
+    """Division based Normalisation"""
 
-    _interface_kwargs = {"Delayed": {"name": "TemporalDifferenceNormalisation"}}
-
-    def __init__(self, temporal_difference: FILE):
+    def __init__(self, division_factor: FILE):
         super().__init__()
         self.record_initialisation()
 
-        self.temporal_difference = self.open_file(temporal_difference)
+        self.division_factor = self.open_file(division_factor)
 
     def normalise(self, sample):
-        return sample / self.temporal_difference
+        return sample / self.division_factor
 
     def unnormalise(self, sample):
-        return sample * self.temporal_difference
+        return sample * self.division_factor
 
+@BackwardsCompatibility(Division)
+def TemporalDifference(*a, **k):
+    ...
 
 class Evaluated(numpyNormalisation):
     """
