@@ -7,7 +7,7 @@
 # from the use of the software.
 
 import pytest
-from edit.pipeline_V2 import Operation, Pipeline
+from edit.pipeline import Operation, Pipeline
 
 from edit.data import Index
 

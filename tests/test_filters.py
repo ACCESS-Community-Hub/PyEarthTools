@@ -8,7 +8,7 @@
 
 import pytest
 
-from edit.pipeline_V2 import Pipeline, iterators, filters, exceptions, Operation
+from edit.pipeline import Pipeline, iterators, filters, exceptions, Operation
 from tests.fake_pipeline_steps import FakeIndex
 
 import edit.utils

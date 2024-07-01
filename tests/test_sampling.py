@@ -7,7 +7,7 @@
 # from the use of the software.
 
 import pytest
-from edit.pipeline_V2 import Pipeline, iterators, samplers
+from edit.pipeline import Pipeline, iterators, samplers
 from tests.fake_pipeline_steps import FakeIndex
 
 

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import edit.utils
 
-from edit.pipeline_V2 import Operation
+from edit.pipeline import Operation
 from edit.data import Index
 
 

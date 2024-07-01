@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 
 [project]
-name = "edit-pipeline_V2"
+name = "edit-pipeline"
 description = "Data Pipelines with EDIT"
 requires-python = ">=3.9"
 license = {file = "LICENSE"}
@@ -36,7 +36,7 @@ dynamic = ["version", "readme"]
 
 [tool.setuptools.dynamic]
 readme = {file = ["README.md"], content-type = "text/markdown"}
-version = {attr = "edit.pipeline_V2.__version__"}
+version = {attr = "edit.pipeline.__version__"}
 
 [project.optional-dependencies]
 distributed = [
@@ -44,7 +44,7 @@ distributed = [
   "distributed",
 ]
 all = [
-  "edit-pipeline_V2[distributed]",
+  "edit-pipeline[distributed]",
 ]
 
 [project.urls]

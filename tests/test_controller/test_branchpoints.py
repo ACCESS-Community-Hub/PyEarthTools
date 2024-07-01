@@ -11,7 +11,7 @@ import pytest
 
 import edit.utils
 
-from edit.pipeline_V2 import Pipeline, exceptions, branching
+from edit.pipeline import Pipeline, exceptions, branching
 
 from tests.fake_pipeline_steps import FakeIndex, MultiplicationOperation, MultiplicationOperationUnunifiedable
 

@@ -11,7 +11,7 @@ import pytest
 
 import edit.utils
 
-from edit.pipeline_V2 import Pipeline, branching, exceptions
+from edit.pipeline import Pipeline, branching, exceptions
 
 from tests.fake_pipeline_steps import FakeIndex
 

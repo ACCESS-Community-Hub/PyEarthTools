@@ -12,7 +12,7 @@ import pytest
 
 import edit.utils
 
-from edit.pipeline_V2 import Pipeline, branching
+from edit.pipeline import Pipeline, branching
 
 from tests.fake_pipeline_steps import FakeIndex
 

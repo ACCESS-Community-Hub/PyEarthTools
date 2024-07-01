@@ -12,7 +12,7 @@ import pytest
 
 import edit.utils
 
-from edit.pipeline_V2 import Pipeline, modifications
+from edit.pipeline import Pipeline, modifications
 
 from tests.fake_pipeline_steps import FakeIndex, MultiplicationOperation  # noqa: F403
 

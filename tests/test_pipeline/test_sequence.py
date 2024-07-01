@@ -17,8 +17,8 @@ edit.utils.config.set({"pipeline_V2.run_parallel": False})
 
 import edit.data
 
-from edit.pipeline_V2 import Pipeline, exceptions, modifications
-from edit.pipeline_V2.modifications.idx_modification import SequenceRetrieval
+from edit.pipeline import Pipeline, exceptions, modifications
+from edit.pipeline.modifications.idx_modification import SequenceRetrieval
 
 from tests.fake_pipeline_steps import *
 
