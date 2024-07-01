@@ -81,18 +81,18 @@ class Select(Operation):
         return self._index(data, array_index)
 
 
-class Slicer(Operation):
+class Slice(Operation):
     """
     Slice a chunk of a numpy array
 
     Examples:
-        >>> Slicer((0,10,2)) # == slice(0,10,2)
+        >>> Slice((0,10,2)) # == slice(0,10,2)
         >>> incoming_data = np.zeros((10,5,4))
-        >>> Slicer((0,10,2), (1, 3)).apply_func(incoming_data).shape
+        >>> Slice((0,10,2), (1, 3)).apply_func(incoming_data).shape
         (5,2,4)
-        >>> Slicer((1, 3)).apply_func(incoming_data).shape
+        >>> Slice((1, 3)).apply_func(incoming_data).shape
         (2,5,4)
-        >>> Slicer((1, 3), reverse_slice = True).apply_func(incoming_data).shape
+        >>> Slice((1, 3), reverse_slice = True).apply_func(incoming_data).shape
         (10,5,2)
     """
 
