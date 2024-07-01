@@ -13,7 +13,9 @@ from typing import Union, Optional, Any
 import math
 import einops
 
+import numpy as np
 import dask.array as da
+from dask.delayed import delayed
 
 from edit.pipeline_V2.operation import Operation
 
@@ -59,7 +61,7 @@ class Rearrange(Operation):
         super().__init__(
             split_tuples=True,
             recursively_split_tuples=True,
-            recognised_types=(da.Array),
+            recognised_types=dict(apply = (da.Array,), undo = (da.Array, np.ndarray)),
         )
         self.record_initialisation()
 
@@ -69,7 +71,7 @@ class Rearrange(Operation):
 
         self.skip = skip
 
-    def __rearrange(self, data: da.Array, pattern: str, catch=True):
+    def _rearrange(self, data: da.Array, pattern: str, catch=True):
         try:
             return einops.rearrange(data, pattern, **self.rearrange_kwargs)
         except einops.EinopsError as excep:
@@ -78,19 +80,22 @@ class Rearrange(Operation):
                     return data
                 raise excep
             pattern = "->".join(["p " + side for side in pattern.split("->")])
-            return self.__rearrange(data, pattern, catch=False)
+            return self._rearrange(data, pattern, catch=False)
 
     def apply_func(self, data: da.Array):
-        return self.__rearrange(data, self.pattern)
+        return delayed(self._rearrange)(data, self.pattern)
 
-    def undo_func(self, data: da.Array):
+    def undo_func(self, data: Union[np.ndarray, da.Array]):
         if self.reverse_pattern:
             pattern = self.reverse_pattern
         else:
             pattern = self.pattern.split("->")
             pattern.reverse()
             pattern = "->".join(pattern)
-        return self.__rearrange(data, pattern)
+
+        if isinstance(data, da.Array):
+            data = data.compute()
+        return self._rearrange(data, pattern)
 
 
 class Squish(Operation):
@@ -147,7 +152,7 @@ class Expand(Operation):
         super().__init__(
             split_tuples=True,
             recursively_split_tuples=True,
-            recognised_types=(da.Array),
+            recognised_types=dict(apply = (da.Array,), undo = (da.Array, np.ndarray)),
         )
         self.record_initialisation()
 
@@ -310,7 +315,7 @@ class Flatten(Operation):
         """
         super().__init__(
             split_tuples=False,
-            recognised_types=(da.Array),
+            recognised_types=dict(apply = (da.Array,), undo = (da.Array, np.ndarray)),
         )
         self.record_initialisation()
 
@@ -345,3 +350,34 @@ class Flatten(Operation):
             return tuple(flatteners[i].undo(item) for i, item in enumerate(sample))
         else:
             return self._get_flatteners(1)[0].undo(sample)
+
+
+class SwapAxis(Operation):
+    _override_interface = ["Serial"]
+
+    def __init__(self, axis_1: int, axis_2: int) -> None:
+        """Move axis
+
+        Args:
+            axis_1 (int):
+                Source axis
+            axis_2 (int):
+                Target axis
+        """
+        super().__init__(
+            split_tuples=True,
+            recursively_split_tuples=True,
+            recognised_types=dict(apply = (da.Array,), undo = (da.Array, np.ndarray)),
+        )
+        self.record_initialisation()
+
+        self.axis_1 = axis_1
+        self.axis_2 = axis_2
+
+    def apply_func(self, sample: da.Array) -> da.Array:
+        return da.swapaxes(sample, self.axis_1, self.axis_2)
+
+    def undo_func(self, sample: Union[np.ndarray, da.Array]) -> da.Array:
+        if isinstance(sample, np.ndarray):
+            return np.swapaxes(sample, self.axis_2, self.axis_1)
+        return da.swapaxes(sample, self.axis_2, self.axis_1)
