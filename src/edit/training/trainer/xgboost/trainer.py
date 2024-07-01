@@ -25,7 +25,7 @@ import edit.data
 import edit.training
 
 from edit.training.trainer.template import EDITTrainer
-from edit.pipeline_V2 import Pipeline
+from edit.pipeline import Pipeline
 
 
 class EDITXGBoostTrainer(EDITTrainer):

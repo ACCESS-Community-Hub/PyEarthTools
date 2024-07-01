@@ -24,7 +24,7 @@ from edit.data.patterns.utils import parse_root_dir
 
 import edit.training
 from edit.training.trainer.template import EDIT_AutoInference, EDIT_Training
-from edit.pipeline_V2 import Pipeline
+from edit.pipeline import Pipeline
 
 from edit.utils.context import PrintOnError
 
@@ -357,11 +357,11 @@ class Training(Inference, EDIT_Training):
         self.checkpoint_path = (Path(self.path) / "Checkpoints").resolve()
         checkpoint_callback = pl.callbacks.ModelCheckpoint(
             save_top_k=40,
-            monitor="valid/loss",
+            monitor="train/loss",
             mode="min",
             dirpath=self.checkpoint_path,
             filename="model-{step}-{epoch:02d}-{valid/loss:.4f}",
-            every_n_train_steps=1000,
+            every_n_train_steps=500,
         )
         checkpoint_epoch_callback = pl.callbacks.ModelCheckpoint(
             save_top_k=40,
@@ -374,7 +374,7 @@ class Training(Inference, EDIT_Training):
 
         self.callbacks = kwargs.pop("callbacks", [])
         self.callbacks.append(checkpoint_callback)
-        # self.callbacks.append(checkpoint_epoch_callback)
+        self.callbacks.append(checkpoint_epoch_callback)
 
         if EarlyStopping and not (isinstance(EarlyStopping, str) and EarlyStopping == "True"):
             self.callbacks.append(

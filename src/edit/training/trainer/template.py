@@ -20,8 +20,8 @@ import logging
 
 from tqdm.auto import trange
 
-import edit.pipeline_V2
-from edit.pipeline_V2 import Pipeline
+import edit.pipeline
+from edit.pipeline import Pipeline
 
 from edit.data import Collection, LabelledCollection, IndexWarning, patterns, TimeDelta, EDITDatetime
 
@@ -118,7 +118,7 @@ class EDIT_Inference(metaclass=ABCMeta):
             index (str):
                 Index to retrieve at
             undo (bool, optional):
-                Rebuild Data using DataStep.undo. Defaults to False.
+                Rebuild Data using Pipeline.undo. Defaults to False.
 
         Returns:
             (np.array | xr.Dataset):
@@ -167,7 +167,7 @@ class EDIT_AutoInference(EDIT_Inference):
         index: str,
         *,
         undo: bool = True,
-        data_iterator: DataStep | None = None,
+        data_iterator: Pipeline | None = None,
         load: bool | str = False,
         load_kwargs: dict = {},
         fake_batch_dim: bool | None = None,
@@ -176,7 +176,7 @@ class EDIT_AutoInference(EDIT_Inference):
     ) -> np.ndarray | xr.Dataset:
         """Predict using the model a particular index
 
-        Uses [edit.pipeline][edit.pipeline_V2] to get data at given index.
+        Uses [edit.pipeline][edit.pipeline] to get data at given index.
         Can automatically try to rebuild the data.
 
         !!! Warning
@@ -194,9 +194,9 @@ class EDIT_AutoInference(EDIT_Inference):
             index (str):
                 Index to get from the validation or training data loader or given `data_iterator`
             undo (bool, optional):
-                Rebuild Data using DataStep.undo. Defaults to True.
+                Rebuild Data using Pipeline.undo. Defaults to True.
             data_iterator (DataIterator, optional):
-                Override for DataStep to use. Defaults to None.
+                Override for Pipeline to use. Defaults to None.
             load (bool | str, optional):
                 Path to checkpoint, or boolean to find latest file. Defaults to False.
             load_kwargs (dict, optional):
@@ -284,7 +284,7 @@ class EDIT_AutoInference(EDIT_Inference):
         steps: int,
         interval: str | TimeDelta | tuple | int | None = None,
         *,
-        data_iterator: DataStep | None = None,
+        data_iterator: Pipeline | None = None,
         load: bool = False,
         load_kwargs: dict = {},
         truth_step: int | None = None,
@@ -299,7 +299,7 @@ class EDIT_AutoInference(EDIT_Inference):
     ) -> np.ndarray | xr.Dataset:
         """Time wise recurrent prediction
 
-        Uses [edit.pipeline][edit.pipeline_V2] to get data at given index.
+        Uses [edit.pipeline][edit.pipeline] to get data at given index.
 
         !!! Warning
             Uses child classes implementation of `_predict_from_data` to run the predictions.
