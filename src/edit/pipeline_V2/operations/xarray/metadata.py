@@ -48,7 +48,7 @@ class Rename(Operation):
         return edit.data.transforms.attributes.rename(self._rename)(sample)
 
     def undo_func(self, sample: xr.Dataset) -> xr.Dataset:
-        return edit.data.transforms.attributes.rename({val: key for key, val in self._rename})(sample)
+        return edit.data.transforms.attributes.rename({val: key for key, val in self._rename.items()})(sample)
 
 
 class Encoding(Operation):
