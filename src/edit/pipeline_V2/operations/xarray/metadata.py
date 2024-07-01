@@ -6,7 +6,7 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
-from typing import TypeVar, Union, Optional, Any, Literal
+from typing import TypeVar, Optional, Any, Literal
 
 import xarray as xr
 
@@ -24,20 +24,24 @@ class Rename(Operation):
 
     _override_interface = "Serial"
 
-    def __init__(self, rename: dict[str, str]):
+    def __init__(self, rename: Optional[dict[str, str]], **rename_kwargs):
         """
         Rename variables in an `xr.Dataset`
 
         Args:
-            rename (dict[str, str]):
+            rename (Optional[dict[str, str]]):
                 Name conversion dictionary
         """
+
         super().__init__(
             split_tuples=True,
             recursively_split_tuples=True,
             recognised_types=(xr.Dataset,),
         )
         self.record_initialisation()
+        rename = rename or {}
+        rename.update(rename_kwargs)
+        
         self._rename = rename
 
     def apply_func(self, sample: xr.Dataset) -> xr.Dataset:
