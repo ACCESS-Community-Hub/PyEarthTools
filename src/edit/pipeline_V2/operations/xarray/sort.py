@@ -33,7 +33,7 @@ class Sort(Operation):
         Args:
             order (list[str], optional):
                 Order to set vars to, if not given sort alphabetically,
-                or add others alphabetically to the end.
+                or add others to the end.
                 Cannot be None if `safe` is `True`.
                 Defaults to None.
             safe (bool, optional):
@@ -82,8 +82,10 @@ class Sort(Operation):
             self.order = list(order)
 
         if not len(order) == len(current_data_vars) or not order == current_data_vars:
-            add_to = list(set([str(index) for index in current_data_vars]).difference(set(order)))
-            add_to.sort()
+            add_to = list([str(index) for index in current_data_vars])
+            for var in order:
+                add_to.remove(var)
+            # add_to.sort()
             order.extend(add_to)
             self.order = list(order)
 
