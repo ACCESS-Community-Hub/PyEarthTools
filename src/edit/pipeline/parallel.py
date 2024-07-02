@@ -234,7 +234,6 @@ class DaskDelayedInterface(ParallelInterface):
         return self._interface_kwargs.get("Delayed", {})
 
     def run_delayed(self, func, *args, **kwargs):
-        print("Running delayed", func)
         from dask.delayed import tokenize, delayed
 
         name = self.config.get("name", None)
