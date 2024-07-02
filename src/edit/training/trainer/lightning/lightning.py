@@ -359,19 +359,19 @@ class Training(Inference, EDIT_Training):
             save_top_k=40,
             monitor="train/loss",
             mode="min",
-            dirpath=self.checkpoint_path,
-            filename="model-{step}-{epoch:02d}-{valid/loss:.4f}",
+            dirpath=f"{self.checkpoint_path}",
+            filename="model-{epoch:02d}-{step:02d}",
             every_n_train_steps=500,
         )
         checkpoint_epoch_callback = pl.callbacks.ModelCheckpoint(
             save_top_k=40,
             monitor="epoch",
             mode="max",
-            dirpath=f"{self.checkpoint_path}/Epochs/",
-            filename="model-{epoch:02d}",
+            dirpath=f"{self.checkpoint_path}/../EpochCheckpoints/",
+            filename="model-{epoch:02d}-{step:02d}",
             every_n_train_steps=2000,
         )
-
+    
         self.callbacks = kwargs.pop("callbacks", [])
         self.callbacks.append(checkpoint_callback)
         self.callbacks.append(checkpoint_epoch_callback)
