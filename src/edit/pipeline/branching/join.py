@@ -8,12 +8,10 @@
 
 from __future__ import annotations
 from abc import abstractmethod
-from typing import Any, Literal, Type, TypeVar, Optional, Union
+from typing import Any, Literal, Type, Optional, Union
 
 
 from edit.pipeline.operation import Operation
-from edit.pipeline.exceptions import PipelineRuntimeError
-from edit.pipeline.decorators import potentialabstractmethod
 
 
 class Joiner(Operation):
@@ -32,7 +30,7 @@ class Joiner(Operation):
         response_on_type: Literal["warn", "exception", "ignore"] = "exception",
     ):
         """
-        Split samples into tuples
+        Join samples from tuple
 
         Args:
             split_tuples (bool, optional):
