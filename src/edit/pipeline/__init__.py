@@ -9,6 +9,31 @@
 # type: ignore[reportUnusedImport]
 # noqa: F401
 
+"""
+# `edit.pipeline`
+
+Create repeatable pipelines, transforming data and preparing for downstream applications.
+
+Utilises `edit.data` to provide the data indexes, transforms to apply on data, and introduces 
+operations, filters, samplers and iterators.
+
+```python
+import edit.data
+import edit.pipeline
+
+pipeline = edit.pipeline.Pipeline(
+    edit.data.archive.ERA5.sample(), # Get ERA5
+
+    edit.pipeline.operations.xarray.values.FillNan(), # FillNans
+    edit.pipeline.operations.xarray.conversion.ToNumpy(), # Convert to Numpy
+)
+
+pipeline['2000-01-01T00']
+
+```
+
+"""
+
 from edit.pipeline.save import save, load
 from edit.pipeline.controller import Pipeline, PipelineIndex
 

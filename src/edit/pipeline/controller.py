@@ -5,6 +5,9 @@
 # performance of the software. In no event shall the copyright holder
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
+"""
+Pipeline Controller
+"""
 
 from __future__ import annotations
 
