@@ -86,7 +86,7 @@ import re
 
 from edit.training import trainer
 
-import edit.pipeline_V2
+import edit.pipeline
 from edit.utils.imports import dynamic_import
 
 TRAINER_ASSIGNMENT = OrderedDict()
@@ -129,7 +129,7 @@ def from_yaml(config: str | Path | dict, **kwargs):
     if not "order" in config["data"]["Source"]:
         config["data"]["Source"].update(order=list(config["data"]["Source"].keys()))
 
-    data_iterator = lambda: edit.pipeline_V2.from_dict(dict(config["data"]["Source"]))
+    data_iterator = lambda: edit.pipeline.from_dict(dict(config["data"]["Source"]))
 
     # if 'accelerator' in kwargs and kwargs['accelerator'] == 'auto':
     #     kwargs['accelerator'] = 'gpu' if torch.cuda.is_available() else 'cpu'

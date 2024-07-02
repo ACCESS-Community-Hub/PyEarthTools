@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from torch.utils.data import IterableDataset, get_worker_info
 
-from edit.pipeline_V2 import Pipeline
+from edit.pipeline import Pipeline
 
 
 class PytorchIterable(IterableDataset):

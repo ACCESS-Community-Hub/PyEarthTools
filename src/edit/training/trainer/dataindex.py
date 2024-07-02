@@ -34,6 +34,8 @@ ATTRIBUTE_MARK = edit.data.transforms.attributes.set_attributes(
 
 
 class MLDataIndex(BaseCacheIndex, TimeIndex):
+    _save_self = False
+
     def __init__(
         self,
         trainer: edit.training.trainer.EDIT_Inference,
@@ -78,6 +80,7 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
                 Any keyword arguments to pass to [BaseCacheIndex][edit.data.BaseCacheIndex]
         """
         super().__init__(cache=cache, **dict(kwargs))
+        self.record_initialisation(ignore=("trainer"))
 
         self.set_interval(data_interval)
 

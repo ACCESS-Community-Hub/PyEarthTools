@@ -11,7 +11,7 @@ from __future__ import annotations
 import numpy as np
 import warnings
 
-from edit.pipeline_V2 import PipelineIndex, PipelineWarning
+from edit.pipeline import PipelineIndex, PipelineWarning
 
 
 class CustomLoader(PipelineIndex):
