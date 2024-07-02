@@ -41,7 +41,7 @@ class Rename(Operation):
         self.record_initialisation()
         rename = rename or {}
         rename.update(rename_kwargs)
-        
+
         self._rename = rename
 
     def apply_func(self, sample: xr.Dataset) -> xr.Dataset:

@@ -33,7 +33,7 @@ except (ImportError, ModuleNotFoundError) as _:
     DASK_IMPORTED = False
 
 MERGE_FUNCTIONS = {
-    xr.Dataset: partial(xr.concat, dim = 'time'),
+    xr.Dataset: partial(xr.concat, dim="time"),
     xr.DataArray: xr.merge,
     np.ndarray: lambda x: np.stack(x) if len(x) > 1 else x[0],
     list: lambda x: [*x],
@@ -159,7 +159,7 @@ class IdxModifier(PipelineIndex, ParallelEnabledMixin):
 
         if self._merge_function is not None:
             return self._merge_function(sample, **self._merge_kwargs)
-        
+
         if DASK_IMPORTED and types[0] == Delayed:
             return delayed(self._run_merge)(sample)
 
@@ -415,21 +415,22 @@ class TemporalRetrieval(SequenceRetrieval):
         >>> TemporalRetrieval(-6)['2000-01-01T12']
         ## Will get samples for ('2000-01-01T06' & '2000-01-01T12')
     """
+
     def __init__(
         self,
         samples: Union[int, tuple[Union[tuple[int, ...], int], ...]],
         *,
         merge_function: Optional[Callable] = None,
         merge_kwargs: Optional[dict[str, Any]] = None,
-        delta_unit: Optional[str] = None
+        delta_unit: Optional[str] = None,
     ):
         super().__init__(samples, merge_function=merge_function, merge_kwargs=merge_kwargs)
-        
+
         def map_to_tuple(mod):
             if isinstance(mod, tuple):
                 return tuple(map(map_to_tuple, mod))
             return edit.data.TimeDelta((mod, delta_unit))
-        
+
         if delta_unit is not None:
             self._modification = map_to_tuple(self._modification)
 

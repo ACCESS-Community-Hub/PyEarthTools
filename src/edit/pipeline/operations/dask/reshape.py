@@ -61,7 +61,7 @@ class Rearrange(Operation):
         super().__init__(
             split_tuples=True,
             recursively_split_tuples=True,
-            recognised_types=dict(apply = (da.Array,), undo = (da.Array, np.ndarray)),
+            recognised_types=dict(apply=(da.Array,), undo=(da.Array, np.ndarray)),
         )
         self.record_initialisation()
 
@@ -152,7 +152,7 @@ class Expand(Operation):
         super().__init__(
             split_tuples=True,
             recursively_split_tuples=True,
-            recognised_types=dict(apply = (da.Array,), undo = (da.Array, np.ndarray)),
+            recognised_types=dict(apply=(da.Array,), undo=(da.Array, np.ndarray)),
         )
         self.record_initialisation()
 
@@ -315,7 +315,7 @@ class Flatten(Operation):
         """
         super().__init__(
             split_tuples=False,
-            recognised_types=dict(apply = (da.Array,), undo = (da.Array, np.ndarray)),
+            recognised_types=dict(apply=(da.Array,), undo=(da.Array, np.ndarray)),
         )
         self.record_initialisation()
 
@@ -367,7 +367,7 @@ class SwapAxis(Operation):
         super().__init__(
             split_tuples=True,
             recursively_split_tuples=True,
-            recognised_types=dict(apply = (da.Array,), undo = (da.Array, np.ndarray)),
+            recognised_types=dict(apply=(da.Array,), undo=(da.Array, np.ndarray)),
         )
         self.record_initialisation()
 

@@ -104,9 +104,10 @@ class Division(daskNormalisation):
     def unnormalise(self, sample):
         return sample * self.division_factor
 
+
 @BackwardsCompatibility(Division)
-def TemporalDifference(*a, **k):
-    ...
+def TemporalDifference(*a, **k): ...
+
 
 class Evaluated(daskNormalisation):
     """

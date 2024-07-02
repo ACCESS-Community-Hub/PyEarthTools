@@ -172,6 +172,7 @@ class DaskParallelInterface(ParallelInterface):
         wrapped = func
         try:
             from dask.distributed import Client
+
             wrapped = getattr(Client, func.__name__).__doc__
         except AttributeError:
             pass

@@ -347,6 +347,7 @@ class Flatten(Operation):
         else:
             return self._get_flatteners(1)[0].undo(sample)
 
+
 class SwapAxis(Operation):
 
     def __init__(self, axis_1: int, axis_2: int) -> None:

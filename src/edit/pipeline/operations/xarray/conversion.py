@@ -131,7 +131,18 @@ class ToDask(Operation):
 
     def __init__(self):
         import dask.array as da
-        super().__init__(split_tuples=True, recursively_split_tuples=True, recognised_types=dict(apply =(xr.Dataset, xr.DataArray), undo = (da.Array, np.ndarray,)))
+
+        super().__init__(
+            split_tuples=True,
+            recursively_split_tuples=True,
+            recognised_types=dict(
+                apply=(xr.Dataset, xr.DataArray),
+                undo=(
+                    da.Array,
+                    np.ndarray,
+                ),
+            ),
+        )
         self.record_initialisation()
         self._converter = converter.DaskConverter()
 

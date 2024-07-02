@@ -66,10 +66,9 @@ class PipelineIndex(PipelineRecordingMixin, metaclass=ABCMeta):
         ],
         iterator: Optional[iterators.Iterator] = None,
         sampler: Optional[samplers.Sampler] = None,
-        
     ):
         """Set record of the parent of this `PipelineIndex`"""
-        self._partial_parent = functools.partial(Pipeline, iterator = iterator, sampler = sampler)
+        self._partial_parent = functools.partial(Pipeline, iterator=iterator, sampler=sampler)
         self._steps = steps
 
     def parent_pipeline(self) -> Pipeline:
@@ -339,7 +338,7 @@ class Pipeline(_Pipeline, Index):
                 steps_list.append(edit.pipeline.branching.PipelineBranchPoint(*(i for i in v)))  # type: ignore
                 continue
             elif isinstance(v, PipelineIndex):
-                v.set_parent_record(tuple(i for i in steps_list), iterator=self.iterator, sampler = self.sampler)
+                v.set_parent_record(tuple(i for i in steps_list), iterator=self.iterator, sampler=self.sampler)
                 steps_list.append(v)
                 # steps_list = [v]
             else:
@@ -448,7 +447,7 @@ class Pipeline(_Pipeline, Index):
             if not isinstance(step, (PipelineStep, Transform, TransformCollection)):
                 raise TypeError(f"When iterating through pipeline steps, found a {type(step)} which cannot be parsed.")
             if isinstance(step, Pipeline):
-                sample = step.apply(sample) # type: ignore
+                sample = step.apply(sample)  # type: ignore
             else:
                 sample = step(sample)  # type: ignore
         return sample
@@ -484,7 +483,7 @@ class Pipeline(_Pipeline, Index):
             pipeline[1]
             # Data
             pipeline.undo(pipeline[1])
-        
+
         """
         for i, step in enumerate(reversed(self.steps)):
             if i == (len(self.steps) - 1) and (not isinstance(step, PipelineStep) and isinstance(step, Index)):
@@ -611,7 +610,7 @@ class Pipeline(_Pipeline, Index):
                 if isinstance(idx, int):
                     return Pipeline(*steps[:idx])
                 elif isinstance(idx, str):
-                    return Pipeline(*steps[:pipeline_self.index(idx)])
+                    return Pipeline(*steps[: pipeline_self.index(idx)])
                 return Pipeline(*steps[idx])
 
         return StepIndexer()
@@ -630,7 +629,7 @@ class Pipeline(_Pipeline, Index):
 
     def __contains__(self, id: Union[str, Type[Any]]) -> bool:
         try:
-            self.step(id) # type: ignore
+            self.step(id)  # type: ignore
             return True
         except ValueError:
             return False
