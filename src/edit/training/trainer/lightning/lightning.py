@@ -371,7 +371,7 @@ class Training(Inference, EDIT_Training):
             filename="model-{epoch:02d}-{step:02d}",
             every_n_train_steps=2000,
         )
-    
+
         self.callbacks = kwargs.pop("callbacks", [])
         self.callbacks.append(checkpoint_callback)
         self.callbacks.append(checkpoint_epoch_callback)
