@@ -13,7 +13,6 @@ Re-mapping tools for processing data on different coordinate projections.
 import warnings
 
 try:
-    from .healpix import HEALPix    # noqa: F401
+    from .healpix import HEALPix  # noqa: F401
 except (ImportError, ModuleNotFoundError) as e:
     warnings.warn(f"Could not import `healpix` remapping due to {e}.", ImportWarning)
-

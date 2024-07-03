@@ -16,22 +16,34 @@ import xarray as xr
 
 from edit.pipeline import Operation
 
-XR_TYPE = TypeVar('XR_TYPE', xr.Dataset, xr.DataArray)
+XR_TYPE = TypeVar("XR_TYPE", xr.Dataset, xr.DataArray)
 
-class BaseRemap(Operation, metaclass = ABCMeta):
+
+class BaseRemap(Operation, metaclass=ABCMeta):
     """
     Base class for remappers.
-    
+
     Child class must implement `remap` and `inverse_remap`
     """
+
     _override_interface = "Serial"
 
-    def __init__(self, *, split_tuples: bool = True, recursively_split_tuples: bool = True, recognised_types: tuple[Type, ...] = (xr.Dataset, xr.DataArray)):
-        super().__init__(split_tuples=split_tuples, recursively_split_tuples=recursively_split_tuples, recognised_types=recognised_types)
-        
+    def __init__(
+        self,
+        *,
+        split_tuples: bool = True,
+        recursively_split_tuples: bool = True,
+        recognised_types: tuple[Type, ...] = (xr.Dataset, xr.DataArray),
+    ):
+        super().__init__(
+            split_tuples=split_tuples,
+            recursively_split_tuples=recursively_split_tuples,
+            recognised_types=recognised_types,
+        )
+
     def apply_func(self, sample):
         return self.remap(sample)
-    
+
     def undo_func(self, sample):
         return self.inverse_remap(sample)
 
