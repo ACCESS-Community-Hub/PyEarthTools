@@ -21,6 +21,8 @@ XR_TYPE = TypeVar('XR_TYPE', xr.Dataset, xr.DataArray)
 class BaseRemap(Operation, metaclass = ABCMeta):
     """
     Base class for remappers.
+    
+    Child class must implement `remap` and `inverse_remap`
     """
     _override_interface = "Serial"
 
