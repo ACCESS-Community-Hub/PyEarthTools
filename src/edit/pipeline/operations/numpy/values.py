@@ -6,7 +6,7 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
-from typing import Literal, TypeVar, Union, Optional, Any
+from typing import Literal, Union, Optional
 
 import numpy as np
 

@@ -105,7 +105,7 @@ class OnSlice(Spliter):
         return data
 
 
-class Vsplit(Spliter):
+class VSplit(Spliter):
     """
     vsplit on numpy arrays
 
@@ -135,7 +135,7 @@ class Vsplit(Spliter):
         return np.vstack(sample)
 
 
-class Hsplit(Spliter):
+class HSplit(Spliter):
     """
     hsplit on numpy arrays
 

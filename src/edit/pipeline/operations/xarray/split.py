@@ -6,7 +6,7 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
-from typing import TypeVar, Union, Optional, Any, Optional
+from typing import TypeVar, Union, Optional, Any
 
 import xarray as xr
 

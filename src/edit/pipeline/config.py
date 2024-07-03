@@ -7,7 +7,7 @@ import yaml
 
 
 def reconfigure():
-    fn = os.path.join(os.path.dirname(__file__), "pipeline_V2.yaml")
+    fn = os.path.join(os.path.dirname(__file__), "pipeline.yaml")
     # edit.utils.config.ensure_file(source=fn)
 
     with open(fn) as f:
