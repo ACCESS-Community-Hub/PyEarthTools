@@ -63,7 +63,7 @@ class HEALPix(BaseRemap):
         self,
         spatial_coords: dict[str, int],
         nside: int,
-        order: str = "bilinear",
+        interpolation: str = "bilinear",
         resolution_factor: float = 1.0,
         include_coords: bool = False,
         manual_rechunking: bool = True,  # Useful for small datasets
@@ -78,7 +78,7 @@ class HEALPix(BaseRemap):
                 Dictionary of spatial coords to remap over, with the associated size.
             nside (int):
                 The number of pixels each HEALPix face sides has. Must be power of 2.
-            order (str, optional):
+            interpolation (str, optional):
                 The interpolation scheme ("nearest-neighbor", "bilinear", "biquadratic", "bicubic"). Defaults to "bilinear".
             resolution_factor (float, optional):
                 In some cases, when choosing nside "too large" for the source data, the
@@ -122,7 +122,7 @@ class HEALPix(BaseRemap):
         self.spatial_coords = spatial_coords
 
         self.nside = nside
-        self.order = order
+        self.interpolation = interpolation
         self.nested = True  # RING representation not supported in this implementation
         self.include_coords = include_coords
         self.manual_rechunking = manual_rechunking
@@ -290,7 +290,7 @@ class HEALPix(BaseRemap):
             input_data=(data, self.wcs_ll2hpx),
             coord_system_out="icrs",
             nside=self.nside,
-            order=self.order,
+            order=self.interpolation,
             nested=self.nested,
         )
 
