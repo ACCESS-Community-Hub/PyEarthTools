@@ -19,6 +19,7 @@ xarray Operations
 from edit.pipeline.operations.xarray.compute import Compute
 from edit.pipeline.operations.xarray.join import Merge, Concatenate
 from edit.pipeline.operations.xarray.sort import Sort
+from edit.pipeline.operations.xarray.chunk import Chunk
 
 from edit.pipeline.operations.xarray import (
     conversion,
@@ -36,6 +37,7 @@ __all__ = [
     "Merge",
     "Concatenate",
     "Sort",
+    "Chunk",
     "conversion",
     "filters",
     "reshape",
