@@ -101,7 +101,7 @@ class Cache(PipelineIndex):
     @property
     def cache(self) -> edit.data.indexes.FunctionalCacheIndex:
         return self._cache
-    
+
     @property
     def pattern(self) -> edit.data.patterns.PatternIndex:
         return self.cache.pattern
