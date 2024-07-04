@@ -43,8 +43,11 @@ distributed = [
   "dask",
   "distributed",
 ]
+remapping = [
+  "healpy","reproject",
+]
 all = [
-  "edit-pipeline[distributed]",
+  "edit-pipeline[distributed, remapping]",
 ]
 
 [project.urls]
