@@ -30,6 +30,7 @@ from edit.pipeline.operations.xarray import (
     values,
     metadata,
     normalisation,
+    remapping,
 )
 
 __all__ = [
@@ -46,4 +47,5 @@ __all__ = [
     "values",
     "metadata",
     "normalisation",
+    "remapping",
 ]
