@@ -6,6 +6,7 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
+
 """
 This class contains reprojection methods to convert latlon data to and from HEALPix data. In this implementation, the
 HEALPix structure is translated from its 1D array into a 3D array structure [F, H, W], where F=12 is the number of
@@ -252,6 +253,27 @@ class HEALPix(BaseRemap):
         return spatial_sample
 
     ### ******* ALL BELOW COPIED FROM zephyr/data_processing/remap/healpix.py WITH MINIMAL MODIFICATION ******* ###
+    # MIT License
+
+    # Copyright (c) 2018 Jonathan Weyn
+
+    # Permission is hereby granted, free of charge, to any person obtaining a copy
+    # of this software and associated documentation files (the "Software"), to deal
+    # in the Software without restriction, including without limitation the rights
+    # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    # copies of the Software, and to permit persons to whom the Software is
+    # furnished to do so, subject to the following conditions:
+
+    # The above copyright notice and this permission notice shall be included in all
+    # copies or substantial portions of the Software.
+
+    # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    # SOFTWARE.
 
     def ll2hpx(self, data: np.ndarray) -> np.ndarray:
         """
