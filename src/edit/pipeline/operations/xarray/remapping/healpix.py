@@ -79,7 +79,7 @@ class HEALPix(BaseRemap):
             nside (int):
                 The number of pixels each HEALPix face sides has. Must be power of 2.
             order (str, optional):
-                The interpolation scheme ("nearest-neighbor", "bilinear", "biquadratic", "bicubic"),. Defaults to "bilinear".
+                The interpolation scheme ("nearest-neighbor", "bilinear", "biquadratic", "bicubic"). Defaults to "bilinear".
             resolution_factor (float, optional):
                 In some cases, when choosing nside "too large" for the source data, the
                 projection can contain NaN values. Choosing a resolution_factor > 1.0 can resolve this but requires careful
@@ -185,7 +185,7 @@ class HEALPix(BaseRemap):
 
         if not self._template_cache.exists("template"):
             if not isinstance(sample, xr.Dataset):
-                sample.to_dataset()
+                sample = sample.to_dataset()
             self._template_cache.save(sample[spatial_coords], "template")
 
         if self.manual_rechunking:
