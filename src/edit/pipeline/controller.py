@@ -681,6 +681,6 @@ class Pipeline(_Pipeline, Index):
 
         display(HTML(self._repr_html_()))
 
-        if len(self.flattened_steps) > 1 and edit.utils.config.get("pipeline_V2.repr.show_graph"):
+        if len(self.flattened_steps) > 1 and edit.utils.config.get("pipeline.repr.show_graph"):
             display(HTML("<h2>Graph</h2>"))
             display(self.graph())

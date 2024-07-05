@@ -15,7 +15,7 @@ from edit.pipeline import Pipeline, branching, exceptions
 
 from tests.fake_pipeline_steps import FakeIndex
 
-edit.utils.config.set({"pipeline_V2.run_parallel": False})
+edit.utils.config.set({"pipeline.run_parallel": False})
 
 # TODO
 

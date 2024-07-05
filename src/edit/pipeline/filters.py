@@ -82,7 +82,7 @@ class FilterWarningContext:
 
     def __init__(self, max_exceptions: Optional[int] = None):
 
-        self._max_exceptions = max_exceptions or edit.utils.config.get("pipeline_V2.exceptions.max_filter")
+        self._max_exceptions = max_exceptions or edit.utils.config.get("pipeline.exceptions.max_filter")
         self._count = 0
         self._messages = []
 

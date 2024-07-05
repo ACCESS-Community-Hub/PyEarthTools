@@ -13,7 +13,7 @@ from tests.fake_pipeline_steps import FakeIndex
 
 import edit.utils
 
-edit.utils.config.set({"pipeline_V2.run_parallel": False})
+edit.utils.config.set({"pipeline.run_parallel": False})
 
 
 class ReplaceOnKey(Operation):

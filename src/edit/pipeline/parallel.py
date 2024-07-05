@@ -39,11 +39,11 @@ class ParallelToggle:
         self._state = state
 
     def __enter__(self):
-        self._enter_state = edit.utils.config.get("pipeline_V2.run_parallel")
-        edit.utils.config.set({"pipeline_V2.run_parallel": self._state == "enable"})
+        self._enter_state = edit.utils.config.get("pipeline.run_parallel")
+        edit.utils.config.set({"pipeline.run_parallel": self._state == "enable"})
 
     def __exit__(self, *args):
-        edit.utils.config.set({"pipeline_V2.run_parallel": self._enter_state})
+        edit.utils.config.set({"pipeline.run_parallel": self._enter_state})
 
     def __repr__(self):
         return f"Context Manager to toggle parallelisation {'on' if self._state == 'enable' else 'off'}."
@@ -155,11 +155,11 @@ class DaskParallelInterface(ParallelInterface):
         except ValueError:
             client = None
 
-        dask_config = edit.utils.config.get("pipeline_V2.parallel.dask.config")
+        dask_config = edit.utils.config.get("pipeline.parallel.dask.config")
         dask_config["processes"] = dask_config.pop("processes", False)
 
-        if client is None and not edit.utils.config.get("pipeline_V2.parallel.dask.start"):
-            raise RuntimeError("Cannot start dask cluster when `pipeline_V2.parallel.dask.start` is False.")
+        if client is None and not edit.utils.config.get("pipeline.parallel.dask.start"):
+            raise RuntimeError("Cannot start dask cluster when `pipeline.parallel.dask.start` is False.")
 
         return client or Client(**dask_config)
 
@@ -292,7 +292,7 @@ def get_parallel(interface: Optional[PARALLEL_INTERFACES] = None, **interface_kw
         ImportError:
             If cannot use specified `interface` due to its check failing.
     """
-    if not edit.utils.config.get("pipeline_V2.run_parallel"):
+    if not edit.utils.config.get("pipeline.run_parallel"):
         return SerialInterface(**interface_kwargs)
 
     if interface:
@@ -315,10 +315,10 @@ def get_parallel(interface: Optional[PARALLEL_INTERFACES] = None, **interface_kw
     except ValueError:
         client = None
 
-    if client is None and not edit.utils.config.get("pipeline_V2.parallel.dask.start"):
+    if client is None and not edit.utils.config.get("pipeline.parallel.dask.start"):
         return SerialInterface(**interface_kwargs)
 
-    return get_parallel(edit.utils.config.get("pipeline_V2.parallel.default"), **interface_kwargs)
+    return get_parallel(edit.utils.config.get("pipeline.parallel.default"), **interface_kwargs)
 
 
 class ParallelEnabledMixin:
