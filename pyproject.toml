@@ -22,7 +22,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "edit-pipeline_V2",
+    "edit-pipeline",
     "einops", 
     "scikit-learn", 
     "scipy", 
