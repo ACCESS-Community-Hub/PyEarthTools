@@ -8,7 +8,7 @@
 
 from __future__ import annotations
 from abc import ABCMeta, abstractmethod
-from typing import Any, Literal, Type, TypeVar, Optional, Union
+from typing import Any, Union
 
 
 from edit.pipeline.operation import Operation
