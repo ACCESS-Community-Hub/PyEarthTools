@@ -20,30 +20,35 @@ class Chunk(Operation):
 
     _override_interface = "Serial"
 
-    def __init__(self, chunk: Optional[dict[str, int]] = None, operation: Literal['apply', 'undo', 'both'] = 'apply', **extra_chunk_kwargs: int):
+    def __init__(
+        self,
+        chunk: Optional[dict[str, int]] = None,
+        operation: Literal["apply", "undo", "both"] = "apply",
+        **extra_chunk_kwargs: int,
+    ):
         """
         ReChunk xarray object
 
         Args:
-            chunk (Optional[dict[str, int]], optional): 
+            chunk (Optional[dict[str, int]], optional):
                 Chunk dictionary. coord: size. Defaults to None.
             operation (Literal['apply', 'undo', 'both']):
                 When to apply rechunking. Defaults to 'apply'.
             **extra_chunk_kwargs (int):
                 Kwarg form of `chunk`.
-        """        
+        """
         super().__init__(
             split_tuples=True,
             recognised_types=(xr.Dataset, xr.DataArray),
             operation=operation,
         )
         self.record_initialisation()
-        chunk = {} or chunk
+        chunk = chunk or {}
         chunk.update((extra_chunk_kwargs))
         self._chunk = chunk
 
     def apply_func(self, sample: T) -> T:
-        return sample.chunk(**self._chunk)
-    
+        return sample.chunk(**self._chunk) #type: ignore
+
     def undo_func(self, sample: T) -> T:
         return self.apply_func(sample)

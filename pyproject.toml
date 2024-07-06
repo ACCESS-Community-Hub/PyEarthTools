@@ -25,7 +25,6 @@ dependencies = [
     "edit-utils>24.07.1", 
     "edit-data>24.07.1",
     "xarray",
-    "numpy",
     "pandas",
     "graphviz",
     "einops",
