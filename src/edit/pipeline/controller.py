@@ -341,6 +341,8 @@ class Pipeline(_Pipeline, Index):
                 v.set_parent_record(tuple(i for i in steps_list), iterator=self.iterator, sampler=self.sampler)
                 steps_list.append(v)
                 # steps_list = [v]
+            elif isinstance(v, Pipeline):
+                steps_list.extend(v.steps)
             else:
                 steps_list.append(v)
         self._steps = tuple(steps_list)  # type: ignore
