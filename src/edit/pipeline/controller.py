@@ -498,6 +498,8 @@ class Pipeline(_Pipeline, Index):
                 # sample = step.parent_pipeline().undo(sample)
             elif isinstance(step, Pipeline):
                 sample = step.undo(sample)
+            elif isinstance(step, edit.pipeline.branching.StopUndo):
+                break
             elif isinstance(step, (Transform, TransformCollection)):
                 pass
             else:

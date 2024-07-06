@@ -7,12 +7,14 @@
 # from the use of the software.
 
 
-from edit.pipeline.branching.branching import PipelineBranchPoint
-from edit.pipeline.branching.unify import Unifier
-from edit.pipeline.branching.join import Joiner
-from edit.pipeline.branching.split import Spliter
-from edit.pipeline.branching.stop import StopUndo
+from edit.pipeline.operation import Operation
 
-from edit.pipeline.branching import unify, join, split
 
-__all__ = ["PipelineBranchPoint", "Unifier", "Joiner", "Spliter"]
+class StopUndo(Operation):
+    """Halt undo operation at this step"""
+    def __init__(self):
+        super().__init__(operation='undo')
+        self.record_initialisation
+
+    def undo_func(self, sample):
+        return sample
