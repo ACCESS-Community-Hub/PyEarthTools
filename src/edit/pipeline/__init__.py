@@ -49,6 +49,8 @@ from edit.pipeline import (
     modifications,
 )
 
+from edit.pipeline.marker import Marker
+
 from edit.pipeline.modifications import Cache, SequenceRetrieval, TemporalRetrieval
 
 from edit.pipeline.samplers import Sampler
