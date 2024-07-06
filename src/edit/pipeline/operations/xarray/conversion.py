@@ -147,7 +147,7 @@ class ToDask(Operation):
         self._converter = converter.DaskConverter()
 
     def apply_func(self, sample: XARRAY_OBJECTS):
-        return self._converter.convert_from_xarray(sample)
+        return self._converter.convert_from_xarray(sample, replace=True)
 
     def undo_func(self, sample):
-        return self._converter.convert_to_xarray(sample)
+        return self._converter.convert_to_xarray(sample, pop = False)
