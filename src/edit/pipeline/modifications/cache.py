@@ -112,6 +112,11 @@ class Cache(PipelineIndex):
         return self.cache.override
 
     @property
+    def global_override(self):
+        """Get a context window in which data will be overwritten in all caches"""
+        return self.cache.global_override
+
+    @property
     def root_dir(self) -> Path:
         return self.cache.pattern.root_dir
 
@@ -197,9 +202,9 @@ class Cache(PipelineIndex):
             return False
 
         elif "delete" in self.cache_behaviour:
-            if not "F" in self.cache_behaviour:
+            if "F" not in self.cache_behaviour:
                 if not input("Cache was invalid, Are you sure you want to delete all cached data? (YES/NO): ") == "YES":
-                    warnings.warn(f"Skipping delete.", UserWarning)
+                    warnings.warn("Skipping delete.", UserWarning)
                     return False
 
             warnings.warn(f"Deleting all data underneath '{self.root_dir}'.", UserWarning)
@@ -234,3 +239,70 @@ class Cache(PipelineIndex):
         """
         configuration = self.as_pipeline().save()
         return sha512(bytes(str(configuration), "utf-8")).hexdigest()
+
+class StaticCache(Cache):
+    """
+    Static Cache.
+
+    Mainly a convenience wrapper instead of using `IdxOverride` and `Cache` together.
+
+    Will override the index, and cache the result.
+    """
+    _memory_sample = None
+
+    def __init__(
+        self,
+        idx: Any,
+        cache: Union[str, Path],
+        pattern: Optional[Union[str, PatternIndex]] = None,
+        *,
+        pattern_kwargs: dict[str, Any] = {},
+        cache_validity: Literal["trust", "delete", "warn", "keep", "override"] = "warn",
+        load_into_memory: bool = False,
+        **kwargs,
+    ):
+        """
+        Static Cache
+
+        Args:
+            idx (Any):
+                Index to override with
+            cache (str | Path, optional):
+                Path to cache data to. Defaults to None.
+            pattern (str | PatternIndex, optional):
+                Pattern to use to cache data, if str use `pattern_kwargs` to initialise. Defaults to None.
+            pattern_kwargs (dict[str, Any], optional):
+                Kwargs to initalise the pattern with. Defaults to {}.
+            cache_validity (Literal['trust','delete','warn','keep','override'], optional):
+                Behaviour of cache validity checking.
+                | Value | Behaviour |
+                | ----- | --------- |
+                | 'trust' | Trust the cache even if the hash is different |
+                | 'warn'  | Warn if the hash is different |
+                | 'keep'  | Keep the cache, and raise an exception if the hash is different |
+                | 'override' | Override the cache data when generating data, removes the caching benefit. |
+                | 'delete'   | Delete the cache if the hash is different. Will ask for input, include 'F' to force. |
+                Defaults to 'warn'.
+            load_into_memory (bool):
+                Load sample into memory if it is a dask or xarray object. Defaults to False.
+        """
+        super().__init__(cache, pattern, pattern_kwargs=pattern_kwargs, cache_validity=cache_validity, **kwargs)
+        self.record_initialisation()
+        self._idx = idx
+        self._load_into_memory = load_into_memory
+
+    def __getitem__(self, idx):
+        if self.save_cache_hash():
+            self.save_pipeline()
+
+        if self._load_into_memory and self._memory_sample is not None:
+            return self._memory_sample
+
+        sample = self.cache[self._idx]
+        
+        if self._load_into_memory:
+            if hasattr(sample, 'compute'):
+                sample = sample.compute()
+            self._memory_sample = sample
+        return sample
+        
