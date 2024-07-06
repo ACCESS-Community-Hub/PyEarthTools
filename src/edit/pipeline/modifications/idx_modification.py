@@ -33,9 +33,9 @@ except (ImportError, ModuleNotFoundError) as _:
     DASK_IMPORTED = False
 
 MERGE_FUNCTIONS = {
-    xr.Dataset: partial(xr.concat, dim="time"),
+    xr.Dataset: xr.combine_by_coords,
     xr.DataArray: xr.merge,
-    np.ndarray: lambda x: np.stack(x) if len(x) > 1 else x[0],
+    np.ndarray: lambda x: np.hstack(x) if len(x) > 1 else x[0],
     list: lambda x: [*x],
     tuple: lambda x: x,
 }
@@ -265,6 +265,9 @@ class SequenceSpecification:
 class SequenceRetrieval(IdxModifier):
     """
     Subclassing from `IdxModifier`, retrieve a sequence of samples based on rules.
+
+    ## Notes
+    Will attempt to stack samples, and may create a new 0 axis.
 
     ## Int
 
