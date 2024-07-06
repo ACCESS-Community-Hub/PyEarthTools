@@ -33,16 +33,6 @@ class Rearrange(Operation):
     ) -> None:
         """Using Einops rearrange, rearrange data.
 
-        !!! Warning
-            This will occur on each iteration, and on `__getitem__`,
-            so it is best to leave patches code out if using [PatchingDataIndex][edit.pipeline.operations.PatchingDataIndex].
-
-            ```
-            'p t c h w' == 't c h w'
-            ```
-
-            As this will attempt to add the patch dim if the first attempt fails
-
         Args:
 
             rearrange (str):
@@ -68,6 +58,8 @@ class Rearrange(Operation):
         self.skip = skip
 
     def __rearrange(self, data: np.ndarray, pattern: str, catch=True):
+        return einops.rearrange(data, pattern, **self.rearrange_kwargs)
+    
         try:
             return einops.rearrange(data, pattern, **self.rearrange_kwargs)
         except einops.EinopsError as excep:
@@ -153,17 +145,17 @@ class Expand(Operation):
 
         self.axis = axis
 
+
     def apply_func(self, sample: np.ndarray) -> np.ndarray:
+        return np.expand_dims(sample, self.axis)
+
+    def undo_func(self, sample: np.ndarray) -> np.ndarray:
         try:
             sample = np.squeeze(sample, self.axis)
         except ValueError as e:
             e.args = (*e.args, f"Shape {sample.shape}")
             raise e
         return sample
-
-    def _apply_expand(self, sample: np.ndarray) -> np.ndarray:
-        return np.expand_dims(sample, self.axis)
-
 
 class Flattener:
     _unflattenshape = None

@@ -157,8 +157,11 @@ class Expand(Operation):
         self.record_initialisation()
 
         self.axis = axis
-
+        
     def apply_func(self, sample: da.Array) -> da.Array:
+        return da.expand_dims(sample, self.axis)
+    
+    def undo_func(self, sample: da.Array) -> da.Array:
         try:
             sample = da.squeeze(sample, self.axis)
         except ValueError as e:
@@ -166,8 +169,7 @@ class Expand(Operation):
             raise e
         return sample
 
-    def _apply_expand(self, sample: da.Array) -> da.Array:
-        return da.expand_dims(sample, self.axis)
+
 
 
 class Flattener:
