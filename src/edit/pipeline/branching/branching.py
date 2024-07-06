@@ -19,7 +19,6 @@ from edit.data.transforms import Transform, TransformCollection
 from edit.pipeline.step import PipelineStep
 from edit.pipeline.controller import PipelineIndex, Pipeline, _Pipeline
 from edit.pipeline.operation import Operation
-from edit.pipeline.filters import Filter
 
 from edit.pipeline import parallel
 from edit.pipeline.warnings import PipelineWarning
@@ -128,24 +127,6 @@ class PipelineBranchPoint(_Pipeline, Operation):
 
         return tuple(self.parallel_interface.collect(results))
 
-    # def _steps_function(self, sample, steps: tuple[Pipeline], func_name: Literal['apply', 'undo']):
-    #     """
-    #     Run `func_name` across all steps in `steps` for `sample`
-    #     """
-
-    #     for step in steps:
-    #         if not isinstance(step, (Pipeline, PipelineStep, Transform, TransformCollection)):
-    #             raise TypeError(f"When iterating through pipeline steps, found a {type(step)} which cannot be parsed.")
-    #         elif isinstance(step, (Pipeline, Operation)):
-    #             sample = getattr(step, func_name)(sample)
-    #         elif isinstance(step, (Transform, TransformCollection)):
-    #             if func_name == 'undo':
-    #                 pass
-    #             sample = step(sample)
-    #         else:
-    #             sample = step(sample)  # Run other `PipelineStep`'s.
-    #     return sample
-
     def apply(self, sample):
         """Apply each branch on the sample"""
 
@@ -225,7 +206,13 @@ class PipelineBranchPoint(_Pipeline, Operation):
                 # )
             result = tuple(self.parallel_interface.collect(sub_samples))
 
-        if all(len(pipe.steps) == 1 and isinstance(pipe.steps[0], Index) for pipe in self.sub_pipelines):
+        def check_if_index(pipe: Pipeline):
+            """Check if pipeline is an index pipeline/branch"""
+            if isinstance(pipe.steps[0], PipelineBranchPoint):
+                return all(map(check_if_index, pipe.steps[0].sub_pipelines))
+            return isinstance(pipe.steps[0], Index)
+
+        if all(len(pipe.steps) == 1 or check_if_index(pipe) for pipe in self.sub_pipelines):
             if all(map(lambda x: result[0] == x, result[1:])):
                 return result[0]
         return result
