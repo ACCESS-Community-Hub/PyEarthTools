@@ -69,11 +69,11 @@ def load(stream: Union[str, Path], **kwargs: Any) -> "edit.pipeline.Pipeline":
 
     Returns:
         (edit.pipeline.Pipeline):
-            _description_
+            Loaded Pipeline
     """
     contents = None
 
-    if os.path.sep in str(stream):
+    if os.path.sep in str(stream) or os.path.exists(stream):
         if Path(stream).is_dir():
             raise FileNotFoundError(f"{stream!r} is directory and cannot be opened.")
         try:
