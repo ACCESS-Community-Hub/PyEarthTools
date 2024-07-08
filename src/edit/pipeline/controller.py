@@ -157,11 +157,24 @@ class Pipeline(_Pipeline, Index):
 
     Provides a way to set a sequence of operations to be applied to samples / data retrieved from `edit.data`.
 
-    Examples
-    >>> edit.pipeline.Pipeline(
-            edit.data.download.cds.ERA5('tcwv'),
-            edit.pipeline.operations.xarray.conversion.ToNumpy(),
+    ## Example:
+    ```python
+    pipeline = edit.pipeline.Pipeline(
+        edit.data.download.cds.ERA5('tcwv'),
+        edit.pipeline.operations.xarray.conversion.ToNumpy()
     )
+    pipeline['2000-01-01T00]
+    ```
+
+    ## Usage:
+    A `Pipeline` can be used in three primary ways,
+
+    | Type | Code|
+    |----|----|
+    | Direct Indexing | `pipeline[idx]` |
+    | Iteration | `for i in pipeline` |
+    | Applying | `pipeline.apply` |
+
     """
 
     _sampler: samplers.Sampler
@@ -193,7 +206,7 @@ class Pipeline(_Pipeline, Index):
 
         The `steps` will be run in order of inclusion.
 
-
+        
         ## Branches
 
         If a tuple within the `steps` is encountered, it will be interpreted as a `BranchingPoint`,
@@ -245,7 +258,8 @@ class Pipeline(_Pipeline, Index):
         )
 
         ## Transforms
-
+        Transforms from `edit.data` can be added directly inline in a pipeline, and will be applied on the forward pass.
+        If they need to be applied on `undo`, or on both see, `edit.pipeline.operations.Transforms`
 
 
         Args:
@@ -441,12 +455,13 @@ class Pipeline(_Pipeline, Index):
         return self[idx]
 
     def apply(self, sample):
-        """Apply pipeline to `sample`
+        """
+        Apply pipeline to `sample`
 
         `Pipeline` should only consist of `PipelineStep`'s and `Transforms`, as `Indexes` cannot be applied,
         """
         for step in self.steps:
-            if not isinstance(step, (PipelineStep, Transform, TransformCollection)):
+            if not isinstance(step, (PipelineStep, Transform, TransformCollection, edit.pipeline.branching.PipelineBranchPoint)):
                 raise TypeError(f"When iterating through pipeline steps, found a {type(step)} which cannot be parsed.")
             if isinstance(step, Pipeline):
                 sample = step.apply(sample)  # type: ignore
@@ -688,3 +703,16 @@ class Pipeline(_Pipeline, Index):
         if len(self.flattened_steps) > 1 and edit.utils.config.get("pipeline.repr.show_graph"):
             display(HTML("<h2>Graph</h2>"))
             display(self.graph())
+
+    @classmethod
+    def sample(cls, variables: Optional[list[str]] = None):
+        """
+        Simple sample Pipeline for testing.
+        """
+        import edit.data
+        import edit.pipeline
+
+        return edit.pipeline.Pipeline(
+            edit.data.archive.ERA5.sample() if variables is None else edit.data.archive.ERA5(variables), # type: ignore
+            edit.pipeline.operations.xarray.conversion.ToNumpy()
+        ) 

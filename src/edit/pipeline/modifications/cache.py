@@ -50,7 +50,7 @@ class Cache(PipelineIndex):
         cache: Union[str, Path],
         pattern: Optional[Union[str, PatternIndex]] = None,
         pattern_kwargs: dict[str, Any] = {},
-        cache_validity: Literal["trust", "delete", "warn", "keep", "override"] = "warn",
+        cache_validity: Literal["trust", "delete", "warn", "keep", "override", "deleteF"] = "warn",
         **kwargs,
     ):
         """
