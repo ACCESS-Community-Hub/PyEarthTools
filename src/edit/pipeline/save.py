@@ -74,12 +74,10 @@ def load(stream: Union[str, Path], **kwargs: Any) -> "edit.pipeline.Pipeline":
     contents = None
 
     if os.path.sep in str(stream) or os.path.exists(stream):
-        if Path(stream).is_dir():
-            raise FileNotFoundError(f"{stream!r} is directory and cannot be opened.")
         try:
+            if Path(stream).is_dir():
+                raise FileNotFoundError(f"{stream!r} is directory and cannot be opened.")
             contents = "".join(open(str(stream)).readlines())
-        except FileNotFoundError as e:
-            raise e
         except OSError:
             pass
 
