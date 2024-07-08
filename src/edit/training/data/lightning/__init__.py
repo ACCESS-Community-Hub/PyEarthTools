@@ -8,5 +8,5 @@
 
 # ruff: noqa: F401
 
-from edit.training.data.lightning.datamodule import PipelineLightningDataModule 
+from edit.training.data.lightning.datamodule import PipelineLightningDataModule
 from edit.training.data.lightning.datasets import PytorchDataset, PytorchIterable

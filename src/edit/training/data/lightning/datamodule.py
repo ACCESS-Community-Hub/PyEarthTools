@@ -25,7 +25,32 @@ class PipelineLightningDataModule(PipelineDataModule, L.LightningDataModule):
 
     Wraps around `PipelineDataModule` to allow for usage with Lightning
     """
-    def __init__(self, pipelines: dict[str, Pipeline | tuple[Pipeline, ...]] | tuple[Pipeline, ...] | Pipeline, train_split: Iterator | None = None, valid_split: Iterator | None = None, iterator_dataset:bool = False, **kwargs):
+
+    def __init__(
+        self,
+        pipelines: dict[str, Pipeline | tuple[Pipeline, ...]] | tuple[Pipeline, ...] | Pipeline,
+        train_split: Iterator | None = None,
+        valid_split: Iterator | None = None,
+        iterator_dataset: bool = False,
+        **kwargs,
+    ):
+        """
+        Create Pytorch lighting datamodule out of `PipelineDataModule`
+
+        Args:
+            pipelines (dict[str, Pipeline  |  tuple[Pipeline, ...]] | tuple[Pipeline, ...] | Pipeline):
+                Pipelines to get data from
+            train_split (Iterator | None, optional):
+                Iterator defining training range. Defaults to None.
+            valid_split (Iterator | None, optional):
+                Iterator defining validation range. Defaults to None.
+            iterator_dataset (bool, optional):
+                Whether to use `PytorchIterable` or `PytorchDataset`. Defaults to False.
+            kwargs:
+                All kwargs passed to `torch.utils.DataLoader`.
+                batch_size, num_workers, ...
+
+        """
         super().__init__(pipelines, train_split, valid_split)
         self.record_initialisation()
         self._iterator_dataset = iterator_dataset
@@ -36,16 +61,17 @@ class PipelineLightningDataModule(PipelineDataModule, L.LightningDataModule):
             if self._iterator_dataset:
                 return PytorchIterable(obj)
             return PytorchDataset(obj)
+
         self._dataloader = self.map_function_to_pipelines(make_torch_dataset)
 
     def train_dataloader(self):
         self.train()
         return self.map_function(self._dataloader, DataLoader, **self._kwargs)
-    
+
     def valid_dataloader(self):
         self.eval()
         return self.map_function(self._dataloader, DataLoader, **self._kwargs)
-    
+
     def predict_dataloader(self):
         self.eval()
         return self.map_function(self._dataloader, DataLoader, **self._kwargs)

@@ -20,14 +20,15 @@ class BasePytorchPipeline:
 
     def save(self, *args, **kwargs):
         return self._pipeline.save(*args, **kwargs)
-    
+
     @property
     def iterator(self):
         return self._pipeline.iterator
-    
+
     @iterator.setter
     def iterator(self, val):
         self._pipeline.iterator = val
+
 
 class PytorchIterable(BasePytorchPipeline, IterableDataset):
     """
@@ -67,10 +68,9 @@ class PytorchIterable(BasePytorchPipeline, IterableDataset):
 
 class PytorchDataset(BasePytorchPipeline, Dataset):
     """Mapped Dataset of `Pipeline`"""
-    
+
     def __len__(self):
         return len(self._pipeline.iteration_order)
 
     def __getitem__(self, idx):
         return self._pipeline(self._pipeline.iteration_order[idx])
-    
