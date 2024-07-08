@@ -16,21 +16,27 @@ from typing import Union, Optional, Callable, Any
 import numpy as np
 
 from edit.pipeline import Pipeline, Iterator
-from edit.utils.initialisation import InitialisationRecordingMixin
+from edit.utils.initialisation import InitialisationRecordingMixin, save
+
 
 class PipelineDataModule(InitialisationRecordingMixin):
-    def __init__(self, pipelines: Union[dict[str,Union[Pipeline, tuple[Pipeline,...]]], tuple[Pipeline,...],Pipeline], train_split: Optional[Iterator] = None, valid_split: Optional[Iterator] = None):
+    def __init__(
+        self,
+        pipelines: Union[dict[str, Union[Pipeline, tuple[Pipeline, ...]]], tuple[Pipeline, ...], Pipeline],
+        train_split: Optional[Iterator] = None,
+        valid_split: Optional[Iterator] = None,
+    ):
         """
         Setup `Pipeline`'s for use with ML Training
 
         Args:
-            pipelines (Union[dict[str,Union[Pipeline, tuple[Pipeline,...]]], tuple[Pipeline,...],Pipeline]): 
+            pipelines (Union[dict[str,Union[Pipeline, tuple[Pipeline,...]]], tuple[Pipeline,...],Pipeline]):
                 Pipelines for data retrieval, can be dictionary and/or list/tuple of `Pipelines` or a single `Pipeline`
-            train_split (Optional[Iterator], optional): 
+            train_split (Optional[Iterator], optional):
                 Iterator to use for training. Defaults to None.
-            valid_split (Optional[Iterator], optional): 
+            valid_split (Optional[Iterator], optional):
                 Iterator to use for validation. Defaults to None.
-        """        
+        """
         super().__init__()
         self.record_initialisation()
 
@@ -42,9 +48,12 @@ class PipelineDataModule(InitialisationRecordingMixin):
     def pipelines(self):
         return self._pipelines
 
+    def save(self, *args, **kwargs):
+        save(self, *args, **kwargs)
+
     @classmethod
     def map_function(cls, obj, function: Callable[[Any], Any], **kwargs):
-        recur_function = functools.partial(PipelineDataModule.map_function, function = function, **kwargs)
+        recur_function = functools.partial(PipelineDataModule.map_function, function=function, **kwargs)
         if isinstance(obj, dict):
             return {key: recur_function(val) for key, val in obj.items()}
         if isinstance(obj, (list, tuple)):
@@ -56,15 +65,17 @@ class PipelineDataModule(InitialisationRecordingMixin):
         Map a function over `Pipelines`
         """
         return self.map_function(self._pipelines, function, **kwargs)
-    
+
     def train(self):
         """
         Set `Pipeline`s to iterate over `train_split`
         """
         if self._train_split is None:
             raise ValueError("Cannot enter training mode as `train_split` is None.")
+
         def set_iterator(obj: Pipeline):
             obj.iterator = self._train_split
+
         self.map_function_to_pipelines(set_iterator)
 
     def eval(self):
@@ -72,18 +83,22 @@ class PipelineDataModule(InitialisationRecordingMixin):
         Set `Pipeline`s to iterate over `valid_split`
         """
         if self._valid_split is None:
-            raise ValueError("Cannot enter training mode as `valid_split` is None.")
+            raise ValueError("Cannot enter validation mode as `valid_split` is None.")
+
         def set_iterator(obj: Pipeline):
             obj.iterator = self._valid_split
+
         self.map_function_to_pipelines(set_iterator)
 
     def get_sample(self, idx, *, fake_batch_dim: bool = False):
         """Get sample from `pipeline`s"""
         if fake_batch_dim:
+
             def add_batch_dim(obj):
                 if isinstance(obj, (list, tuple)):
                     return type(obj)(map(add_batch_dim, obj))
                 return np.expand_dims(obj, 0)
+
             return self.map_function_to_pipelines(lambda x: add_batch_dim(x[idx]))
         return self.map_function_to_pipelines(lambda x: x[idx])
 

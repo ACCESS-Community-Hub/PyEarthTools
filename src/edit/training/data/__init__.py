@@ -11,6 +11,6 @@
 from edit.training.data.datamodule import PipelineDataModule
 
 try:
-    from edit.training.data import lightning  
+    from edit.training.data import lightning
 except (ImportError, ModuleNotFoundError):
     pass
