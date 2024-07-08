@@ -35,7 +35,7 @@ except (ImportError, ModuleNotFoundError) as _:
 MERGE_FUNCTIONS = {
     xr.Dataset: xr.combine_by_coords,
     xr.DataArray: xr.merge,
-    np.ndarray: lambda x: np.hstack(x) if len(x) > 1 else x[0],
+    np.ndarray: lambda x: np.stack(x) if len(x) > 1 else x[0],
     list: lambda x: [*x],
     tuple: lambda x: x,
 }
@@ -72,7 +72,7 @@ class IdxModifier(PipelineIndex, ParallelEnabledMixin):
         modification: Union[Any, tuple[Union[Any, tuple[Any, ...]], ...]],
         *extra_mods: Any,
         merge: Union[bool, int] = False,
-        merge_function: Optional[Callable] = None,
+        merge_function: Optional[Callable[[Any,...], Any]] = None,
         merge_kwargs: Optional[dict[str, Any]] = None,
     ):
         """
