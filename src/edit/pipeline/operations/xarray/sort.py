@@ -73,7 +73,7 @@ class Sort(Operation):
             missing_vars = set(order) - set(current_data_vars)
             if not len(diff) == 0:
                 raise RuntimeError(
-                    f"When sorting, the data passed {('contained extra: '+ str(extra_vars)) if extra_vars else ''}{' and/or' if extra_vars and missing_vars else ''}{( 'missed: '+ str(missing_vars)) if missing_vars else ''}"
+                    f"When sorting, the data passed {('contained extra: '+ str(extra_vars)) if extra_vars else ''}{' and/or' if extra_vars and missing_vars else ''}{(' missed: '+ str(missing_vars)) if missing_vars else ''}"
                 )
 
         if order is None or len(order) == 0:
