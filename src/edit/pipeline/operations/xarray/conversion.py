@@ -37,6 +37,8 @@ class ToNumpy(Operation):
         reference_dataset: Optional[FILE_TYPES] = None,
         saved_records: Optional[FILE_TYPES] = None,
         run_parallel: bool = False,
+        *,
+        warn: bool = True,
     ):
         """DataOperation to convert data to [np.array][numpy.ndarray]
 
@@ -57,6 +59,8 @@ class ToNumpy(Operation):
                 Whether to run in parallel, will cause `undo` to fail without `saved_records`.
                 If an undo pipeline is needed, set this to False.
                 Defaults to False.
+            warn (bool, optional):
+                Whether to warn on invalid shape. Defaults to True.
         """
         super().__init__(
             recognised_types={"apply": (xr.Dataset, xr.DataArray, tuple), "undo": (np.ndarray,)},
@@ -74,7 +78,7 @@ class ToNumpy(Operation):
             raise ValueError("Cannot provide both `reference_dataset` and `saved_records`.")
 
         def make_converter() -> converter.NumpyConverter:
-            numpy_converter = converter.NumpyConverter()
+            numpy_converter = converter.NumpyConverter(warn = warn)
             if saved_records:
                 numpy_converter.load_records(saved_records)
             if reference_dataset:
@@ -99,18 +103,22 @@ class ToNumpy(Operation):
         return tuple(return_values)
 
     def apply_func(self, sample: Union[tuple[XARRAY_OBJECTS, ...], XARRAY_OBJECTS]):
-        if isinstance(sample, tuple) and self._run_parallel:
+        if self._run_parallel:
+            parallel_interface = self.get_parallel_interface(["Delayed", "Serial"])
 
             def run_converter(sub_samp: XARRAY_OBJECTS, converter: converter.NumpyConverter):
-                return converter.convert_from_xarray(sub_samp)
+                return converter.convert_from_xarray(sub_samp, pop=False)
 
-            parallel_interface = self.get_parallel_interface(["Delayed", "Serial"])
-            return tuple(
-                parallel_interface.collect(
-                    parallel_interface.map(
-                        lambda x: run_converter(*x), tuple(zip(sample, self._get_converters(len(sample))))
+            if isinstance(sample, tuple):
+                return tuple(
+                    parallel_interface.collect(
+                        parallel_interface.map(
+                            lambda x: run_converter(*x), tuple(zip(sample, self._get_converters(len(sample))))
+                        )
                     )
                 )
+            return parallel_interface.collect(
+                parallel_interface.submit(self._get_converters(1)[0].convert_to_xarray, sample, pop=False)
             )
 
         result = self._get_converters(1)[0].convert_from_xarray(sample, replace=True)
@@ -129,7 +137,15 @@ class ToDask(Operation):
 
     _override_interface = "Serial"
 
-    def __init__(self):
+    def __init__(self, warn : bool = True):
+        """
+        Convert xarray object to dask and back.
+
+        Args:
+            warn (bool, optional):
+                Whether to warn on invalid shape. Defaults to True.
+        """
+
         import dask.array as da
 
         super().__init__(
@@ -144,7 +160,7 @@ class ToDask(Operation):
             ),
         )
         self.record_initialisation()
-        self._converter = converter.DaskConverter()
+        self._converter = converter.DaskConverter(warn = warn)
 
     def apply_func(self, sample: XARRAY_OBJECTS):
         return self._converter.convert_from_xarray(sample, replace=True)

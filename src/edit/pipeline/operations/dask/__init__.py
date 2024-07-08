@@ -18,11 +18,14 @@ from edit.pipeline.operations.dask import (
     select,
     split,
     values,
+    conversion,
 )
 
 __all__ = [
     "Stack",
     "Concatenate",
+    "VStack",
+    "HStack",
     "Compute",
     "augment",
     "filters",
@@ -31,4 +34,5 @@ __all__ = [
     "split",
     "values",
     "normalisation",
+    "conversion"
 ]

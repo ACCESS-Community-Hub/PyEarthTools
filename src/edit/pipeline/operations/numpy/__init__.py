@@ -16,6 +16,7 @@ from edit.pipeline.operations.numpy import (
     select,
     split,
     values,
+    conversion,
 )
 
 __all__ = [
@@ -28,4 +29,5 @@ __all__ = [
     "split",
     "values",
     "normalisation",
+    "conversion",
 ]
