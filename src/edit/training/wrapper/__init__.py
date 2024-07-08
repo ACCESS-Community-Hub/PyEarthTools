@@ -12,3 +12,11 @@
 
 from edit.training.wrapper.wrapper import ModelWrapper
 from edit.training.wrapper import predict, train, utils
+from edit.training.wrapper.train import TrainingWrapper
+from edit.training.wrapper.predict import PredictionWrapper
+try:
+    ONNX_IMPORTED = True
+    from edit.training.wrapper import onnx
+except (ImportError, ModuleNotFoundError):
+    ONNX_IMPORTED = False
+
