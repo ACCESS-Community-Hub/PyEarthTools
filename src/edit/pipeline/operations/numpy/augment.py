@@ -45,7 +45,7 @@ class Rotate(Operation):
 
         self.rng = np.random.default_rng(seed)
         if not isinstance(axis, (list, tuple)):
-            raise TypeError(f"'axis' must be a tuple or list")
+            raise TypeError(f"'axis' must be a tuple or list, not {axis}.")
         self.axis = axis
 
     def apply_func(self, sample: np.ndarray) -> np.ndarray:
