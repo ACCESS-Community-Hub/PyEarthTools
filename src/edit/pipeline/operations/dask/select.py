@@ -82,7 +82,7 @@ class Select(Operation):
         return self._index(data, array_index)
 
 
-class Slicer(Operation):
+class Slice(Operation):
     """
     Slice a chunk of a dask array
 
