@@ -11,12 +11,28 @@
 
 
 from edit.training.wrapper.wrapper import ModelWrapper
+
 from edit.training.wrapper import predict, train, utils
+
 from edit.training.wrapper.train import TrainingWrapper
 from edit.training.wrapper.predict import PredictionWrapper
+
 try:
     ONNX_IMPORTED = True
     from edit.training.wrapper import onnx
 except (ImportError, ModuleNotFoundError):
     ONNX_IMPORTED = False
 
+try:
+    LIGHTNING_IMPORTED = True
+    from edit.training.wrapper import lightning
+except (ImportError, ModuleNotFoundError):
+    LIGHTNING_IMPORTED = False
+
+__all__ = ["ModelWrapper", "predict", "train", "utils", "TrainingWrapper", "PredictionWrapper"]
+
+if ONNX_IMPORTED:
+    __all__.append("onnx")
+
+if LIGHTNING_IMPORTED:
+    __all__.append("lightning")
