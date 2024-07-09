@@ -7,7 +7,7 @@
 # from the use of the software.
 
 # type: ignore[reportUnusedImport]
-# noqa: F401
+# ruff: noqa: F401
 
 """
 # `edit.pipeline`

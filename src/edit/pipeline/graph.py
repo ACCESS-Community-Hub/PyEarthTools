@@ -23,7 +23,6 @@ def format_graph_node(obj, parent: Optional[list[str]]) -> dict[str, Any]:
     if isinstance(obj, Index):
         shape = "rect"
 
-
     # elif parent is not None and len(parent) > 1:
     #     shape = 'triangle'
 
@@ -32,7 +31,7 @@ def format_graph_node(obj, parent: Optional[list[str]]) -> dict[str, Any]:
 
     if isinstance(obj, edit.pipeline.Marker):
         obj_name = obj.text
-        shape = obj.shape or 'note'
+        shape = obj.shape or "note"
 
     return {"label": obj_name, "shape": shape}
 

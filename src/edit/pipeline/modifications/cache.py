@@ -240,6 +240,7 @@ class Cache(PipelineIndex):
         configuration = self.as_pipeline().save()
         return sha512(bytes(str(configuration), "utf-8")).hexdigest()
 
+
 class StaticCache(Cache):
     """
     Static Cache.
@@ -248,6 +249,7 @@ class StaticCache(Cache):
 
     Will override the index, and cache the result.
     """
+
     _memory_sample = None
 
     def __init__(
@@ -299,10 +301,9 @@ class StaticCache(Cache):
             return self._memory_sample
 
         sample = self.cache[self._idx]
-        
+
         if self._load_into_memory:
-            if hasattr(sample, 'compute'):
+            if hasattr(sample, "compute"):
                 sample = sample.compute()
             self._memory_sample = sample
         return sample
-        

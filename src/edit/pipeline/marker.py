@@ -10,31 +10,34 @@ import xarray as xr
 
 from edit.pipeline.operation import PipelineStep
 
+
 def find_shape(obj):
-    if hasattr(obj, 'shape'):
+    if hasattr(obj, "shape"):
         return obj.shape
 
     if isinstance(obj, xr.Dataset):
         return tuple(obj[d].shape for d in obj.data_vars)
 
+
 class Marker(PipelineStep):
     """
     Marker in a pipeline
-    
+
     Useful for graph notes.
     """
-    def __init__(self, text: str, shape: str = 'note', print: bool = False, print_shape: bool = False):
+
+    def __init__(self, text: str, shape: str = "note", print: bool = False, print_shape: bool = False):
         """
         Pipeline marker
 
         Args:
-            text (str): 
+            text (str):
                 Text to display in graph
-            shape (str, optional): 
+            shape (str, optional):
                 Shape for graph. Defaults to 'note'.
-            print (bool, optional): 
+            print (bool, optional):
                 Whether to print `sample` when running. Defaults to False.
-        """        
+        """
         super().__init__()
         self.record_initialisation()
 

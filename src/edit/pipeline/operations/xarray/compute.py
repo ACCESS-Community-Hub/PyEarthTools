@@ -29,6 +29,6 @@ class Compute(Operation):
         self.record_initialisation()
 
     def apply_func(self, sample: T) -> T:
-        if hasattr(sample, 'compute'):
+        if hasattr(sample, "compute"):
             return sample.compute()
         return sample

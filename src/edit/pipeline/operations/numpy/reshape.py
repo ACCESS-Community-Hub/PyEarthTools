@@ -30,6 +30,7 @@ class Rearrange(Operation):
         skip: bool = False,
         reverse_rearrange: Optional[str] = None,
         rearrange_kwargs: Optional[dict[str, Any]] = None,
+        **kwargs,
     ) -> None:
         """Using Einops rearrange, rearrange data.
 
@@ -53,13 +54,16 @@ class Rearrange(Operation):
 
         self.pattern = rearrange
         self.reverse_pattern = reverse_rearrange
-        self.rearrange_kwargs = rearrange_kwargs or {}
+
+        rearrange_kwargs = rearrange_kwargs or {}
+        rearrange_kwargs.update(kwargs)
+        self.rearrange_kwargs = rearrange_kwargs
 
         self.skip = skip
 
     def __rearrange(self, data: np.ndarray, pattern: str, catch=True):
         return einops.rearrange(data, pattern, **self.rearrange_kwargs)
-    
+
         try:
             return einops.rearrange(data, pattern, **self.rearrange_kwargs)
         except einops.EinopsError as excep:
@@ -145,7 +149,6 @@ class Expand(Operation):
 
         self.axis = axis
 
-
     def apply_func(self, sample: np.ndarray) -> np.ndarray:
         return np.expand_dims(sample, self.axis)
 
@@ -156,6 +159,7 @@ class Expand(Operation):
             e.args = (*e.args, f"Shape {sample.shape}")
             raise e
         return sample
+
 
 class Flattener:
     _unflattenshape = None

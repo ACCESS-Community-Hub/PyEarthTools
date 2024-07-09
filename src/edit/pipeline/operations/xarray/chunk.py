@@ -48,7 +48,7 @@ class Chunk(Operation):
         self._chunk = chunk
 
     def apply_func(self, sample: T) -> T:
-        return sample.chunk(**self._chunk) #type: ignore
+        return sample.chunk(**self._chunk)  # type: ignore
 
     def undo_func(self, sample: T) -> T:
         return self.apply_func(sample)

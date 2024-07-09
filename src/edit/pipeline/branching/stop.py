@@ -12,8 +12,9 @@ from edit.pipeline.operation import Operation
 
 class StopUndo(Operation):
     """Halt undo operation at this step"""
+
     def __init__(self):
-        super().__init__(operation='undo')
+        super().__init__(operation="undo")
         self.record_initialisation
 
     def undo_func(self, sample):

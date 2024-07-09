@@ -72,7 +72,7 @@ class IdxModifier(PipelineIndex, ParallelEnabledMixin):
         modification: Union[Any, tuple[Union[Any, tuple[Any, ...]], ...]],
         *extra_mods: Any,
         merge: Union[bool, int] = False,
-        merge_function: Optional[Callable[[Any,...], Any]] = None,
+        merge_function: Optional[Callable[[Any, ...], Any]] = None,
         merge_kwargs: Optional[dict[str, Any]] = None,
     ):
         """

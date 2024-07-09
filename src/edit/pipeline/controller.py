@@ -206,7 +206,7 @@ class Pipeline(_Pipeline, Index):
 
         The `steps` will be run in order of inclusion.
 
-        
+
         ## Branches
 
         If a tuple within the `steps` is encountered, it will be interpreted as a `BranchingPoint`,
@@ -461,7 +461,9 @@ class Pipeline(_Pipeline, Index):
         `Pipeline` should only consist of `PipelineStep`'s and `Transforms`, as `Indexes` cannot be applied,
         """
         for step in self.steps:
-            if not isinstance(step, (PipelineStep, Transform, TransformCollection, edit.pipeline.branching.PipelineBranchPoint)):
+            if not isinstance(
+                step, (PipelineStep, Transform, TransformCollection, edit.pipeline.branching.PipelineBranchPoint)
+            ):
                 raise TypeError(f"When iterating through pipeline steps, found a {type(step)} which cannot be parsed.")
             if isinstance(step, Pipeline):
                 sample = step.apply(sample)  # type: ignore
@@ -713,6 +715,6 @@ class Pipeline(_Pipeline, Index):
         import edit.pipeline
 
         return edit.pipeline.Pipeline(
-            edit.data.archive.ERA5.sample() if variables is None else edit.data.archive.ERA5(variables), # type: ignore
-            edit.pipeline.operations.xarray.conversion.ToNumpy()
-        ) 
+            edit.data.archive.ERA5.sample() if variables is None else edit.data.archive.ERA5(variables),  # type: ignore
+            edit.pipeline.operations.xarray.conversion.ToNumpy(),
+        )

@@ -78,7 +78,7 @@ class ToNumpy(Operation):
             raise ValueError("Cannot provide both `reference_dataset` and `saved_records`.")
 
         def make_converter() -> converter.NumpyConverter:
-            numpy_converter = converter.NumpyConverter(warn = warn)
+            numpy_converter = converter.NumpyConverter(warn=warn)
             if saved_records:
                 numpy_converter.load_records(saved_records)
             if reference_dataset:
@@ -137,7 +137,7 @@ class ToDask(Operation):
 
     _override_interface = "Serial"
 
-    def __init__(self, warn : bool = True):
+    def __init__(self, warn: bool = True):
         """
         Convert xarray object to dask and back.
 
@@ -160,10 +160,10 @@ class ToDask(Operation):
             ),
         )
         self.record_initialisation()
-        self._converter = converter.DaskConverter(warn = warn)
+        self._converter = converter.DaskConverter(warn=warn)
 
     def apply_func(self, sample: XARRAY_OBJECTS):
         return self._converter.convert_from_xarray(sample, replace=True)
 
     def undo_func(self, sample):
-        return self._converter.convert_to_xarray(sample, pop = False)
+        return self._converter.convert_to_xarray(sample, pop=False)
