@@ -8,19 +8,20 @@
 
 # type: ignore[reportPrivateImportUsage]
 
-from typing import Any, Optional
+from typing import Optional
 
 import dask.array as da
 
-from edit.pipeline.operation import Operation
+from edit.pipeline.operations.dask.dask import DaskOperation
 
 
-class Select(Operation):
+class Select(DaskOperation):
     """
     Operation to select an element from a given array
     """
 
     _override_interface = ["Serial"]
+    _numpy_counterpart = "select.Select"
 
     def __init__(
         self,
@@ -82,7 +83,7 @@ class Select(Operation):
         return self._index(data, array_index)
 
 
-class Slice(Operation):
+class Slice(DaskOperation):
     """
     Slice a chunk of a dask array
 
@@ -98,6 +99,7 @@ class Slice(Operation):
     """
 
     _override_interface = ["Serial"]
+    _numpy_counterpart = "select.Slice"
 
     def __init__(self, *slices: tuple[Optional[int], ...], reverse_slice: bool = False):
         """

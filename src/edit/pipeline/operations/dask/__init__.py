@@ -34,5 +34,5 @@ __all__ = [
     "split",
     "values",
     "normalisation",
-    "conversion"
+    "conversion",
 ]

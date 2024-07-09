@@ -14,15 +14,16 @@
 import dask.array as da
 import numpy as np
 
-from edit.pipeline.operation import Operation
+from edit.pipeline.operations.dask.dask import DaskOperation
 
 
-class Rotate(Operation):
+class Rotate(DaskOperation):
     """
     Rotation Augmentation by 90 degrees in the plane specified by axes.
     """
 
     _override_interface = ["Serial"]
+    _numpy_counterpart = "augment.Rotate"
 
     def __init__(
         self,
@@ -50,7 +51,7 @@ class Rotate(Operation):
 
         self.rng = np.random.default_rng(seed)
         if not isinstance(axis, (list, tuple)):
-            raise TypeError(f"'axis' must be a tuple or list")
+            raise TypeError("'axis' must be a tuple or list")
         self.axis = axis
 
     def apply_func(self, sample: da.Array) -> da.Array:
@@ -58,12 +59,13 @@ class Rotate(Operation):
         return da.rot90(sample, k=random_num, axes=self.axis)
 
 
-class Flip(Operation):
+class Flip(DaskOperation):
     """
     Flip Augmentation on the specified axes.
     """
 
     _override_interface = ["Serial"]
+    _numpy_counterpart = "augment.Flip"
 
     def __init__(self, seed: int = 42, axis: int = -1):
         """
@@ -95,12 +97,13 @@ class Flip(Operation):
         return sample
 
 
-class Transform(Operation):
+class Transform(DaskOperation):
     """
     Flip & Rotation Augmentation.
     """
 
     _override_interface = ["Serial"]
+    _numpy_counterpart = "augment.Transform"
 
     def __init__(
         self,
@@ -124,7 +127,7 @@ class Transform(Operation):
         )
         self.record_initialisation()
 
-        self.transforms: list[Operation] = [Rotate(seed=seed, axis=axis)]
+        self.transforms: list[DaskOperation] = [Rotate(seed=seed, axis=axis)]
 
         for i, ax in enumerate(axis):
             self.transforms.append(Flip(seed=seed * i, axis=ax))

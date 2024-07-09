@@ -17,15 +17,16 @@ import numpy as np
 import dask.array as da
 from dask.delayed import delayed
 
-from edit.pipeline.operation import Operation
+from edit.pipeline.operations.dask.dask import DaskOperation
 
 
-class Rearrange(Operation):
+class Rearrange(DaskOperation):
     """
     Operation to rearrange data using einops
 
     """
 
+    _numpy_counterpart = "reshape.Rearrange"
     _override_interface = ["Serial"]
 
     def __init__(
@@ -34,6 +35,7 @@ class Rearrange(Operation):
         skip: bool = False,
         reverse_rearrange: Optional[str] = None,
         rearrange_kwargs: Optional[dict[str, Any]] = None,
+        **kwargs,
     ) -> None:
         """Using Einops rearrange, rearrange data.
 
@@ -67,7 +69,10 @@ class Rearrange(Operation):
 
         self.pattern = rearrange
         self.reverse_pattern = reverse_rearrange
-        self.rearrange_kwargs = rearrange_kwargs or {}
+
+        rearrange_kwargs = rearrange_kwargs or {}
+        rearrange_kwargs.update(kwargs)
+        self.rearrange_kwargs = rearrange_kwargs
 
         self.skip = skip
 
@@ -98,13 +103,13 @@ class Rearrange(Operation):
         return self._rearrange(data, pattern)
 
 
-class Squish(Operation):
+class Squish(DaskOperation):
     """
     Operation to Squish one Dimensional axis at 'axis' location
-
     """
 
     _override_interface = ["Serial"]
+    _numpy_counterpart = "reshape.Squish"
 
     def __init__(self, axis: Union[tuple[int, ...], int]) -> None:
         """Squish Dimension of Data
@@ -134,13 +139,14 @@ class Squish(Operation):
         return da.expand_dims(sample, self.axis)
 
 
-class Expand(Operation):
+class Expand(DaskOperation):
     """
     Operation to Expand One Dimensional axis at 'axis' location
 
     """
 
     _override_interface = ["Serial"]
+    _numpy_counterpart = "reshape.Expand"
 
     def __init__(self, axis: Union[tuple[int, ...], int]) -> None:
         """Expand Dimension of Data
@@ -157,10 +163,10 @@ class Expand(Operation):
         self.record_initialisation()
 
         self.axis = axis
-        
+
     def apply_func(self, sample: da.Array) -> da.Array:
         return da.expand_dims(sample, self.axis)
-    
+
     def undo_func(self, sample: da.Array) -> da.Array:
         try:
             sample = da.squeeze(sample, self.axis)
@@ -168,8 +174,6 @@ class Expand(Operation):
             e.args = (*e.args, f"Shape {sample.shape}")
             raise e
         return sample
-
-
 
 
 class Flattener:
@@ -253,12 +257,13 @@ class Flattener:
         raise ValueError(f"Unable to unflatten array of shape: {data.shape} with any of {attempts}")
 
 
-class Flatten(Operation):
+class Flatten(DaskOperation):
     """
     Operation to Flatten parts of data samples into a one dimensional array
     """
 
     _override_interface = ["Serial"]
+    _numpy_counterpart = "reshape.Flatten"
 
     def __init__(
         self,
@@ -354,8 +359,9 @@ class Flatten(Operation):
             return self._get_flatteners(1)[0].undo(sample)
 
 
-class SwapAxis(Operation):
+class SwapAxis(DaskOperation):
     _override_interface = ["Serial"]
+    _numpy_counterpart = "reshape.SwapAxis"
 
     def __init__(self, axis_1: int, axis_2: int) -> None:
         """Move axis

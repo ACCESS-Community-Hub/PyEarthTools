@@ -13,14 +13,16 @@ from typing import Optional
 import dask.array as da
 
 from edit.pipeline.branching.split import Spliter
+from edit.pipeline.operations.dask.dask import DaskOperation
 
 
-class OnAxis(Spliter):
+class OnAxis(Spliter, DaskOperation):
     """
     Split across an axis in a dask array
     """
 
     _override_interface = ["Serial"]
+    _numpy_counterpart = "split.OnAxis"
 
     def __init__(self, axis: int, axis_size: Optional[int] = None):
         """Split over a dask array axis
@@ -49,7 +51,7 @@ class OnAxis(Spliter):
     def join(self, sample: tuple[da.Array]) -> da.Array:
         """Join `sample` together, recovering initial shape"""
         if self.axis_size is None:
-            raise RuntimeError(f"`axis_size` not set.")
+            raise RuntimeError("`axis_size` not set.")
 
         data = da.concatenate(sample, axis=0)
         shape = data.shape
@@ -58,12 +60,13 @@ class OnAxis(Spliter):
         return data
 
 
-class OnSlice(Spliter):
+class OnSlice(Spliter, DaskOperation):
     """
     Split across slices on axis
     """
 
     _override_interface = ["Serial"]
+    _numpy_counterpart = "split.OnSlice"
 
     def __init__(self, *slices: tuple[int, ...], axis: int):
         """
@@ -101,59 +104,61 @@ class OnSlice(Spliter):
         return data
 
 
-class Vsplit(Spliter):
-    """
-    vsplit on dask arrays
+# class VSplit(Spliter, DaskOperation):
+#     """
+#     vsplit on dask arrays
 
-    """
+#     """
 
-    _override_interface = ["Serial"]
+#     _override_interface = ["Serial"]
+#     _numpy_counterpart = 'split.VSplit'
 
-    def __init__(
-        self,
-    ):
-        """
-        Setup slicing operation
-        """
+#     def __init__(
+#         self,
+#     ):
+#         """
+#         Setup slicing operation
+#         """
 
-        super().__init__(
-            recognised_types=da.Array,
-        )
+#         super().__init__(
+#             recognised_types=da.Array,
+#         )
 
-        self.record_initialisation()
+#         self.record_initialisation()
 
-    def split(self, sample: da.Array) -> tuple[da.Array]:
-        return da.vsplit(sample)  # type: ignore
+#     def split(self, sample: da.Array) -> tuple[da.Array]:
+#         return da(sample)  # type: ignore
 
-    def join(self, sample: tuple[da.Array]) -> da.Array:
-        """Join `sample` together"""
-        return da.vstack(sample)
+#     def join(self, sample: tuple[da.Array]) -> da.Array:
+#         """Join `sample` together"""
+#         return da.vstack(sample)
 
 
-class Hsplit(Spliter):
-    """
-    hsplit on dask arrays
+# class HSplit(Spliter, DaskOperation):
+#     """
+#     hsplit on dask arrays
 
-    """
+#     """
 
-    _override_interface = ["Serial"]
+#     _override_interface = ["Serial"]
+#     _numpy_counterpart = 'split.HSplit'
 
-    def __init__(
-        self,
-    ):
-        """
-        Setup slicing operation
-        """
+#     def __init__(
+#         self,
+#     ):
+#         """
+#         Setup slicing operation
+#         """
 
-        super().__init__(
-            recognised_types=da.Array,
-        )
+#         super().__init__(
+#             recognised_types=da.Array,
+#         )
 
-        self.record_initialisation()
+#         self.record_initialisation()
 
-    def split(self, sample: da.Array) -> tuple[da.Array]:
-        return da.hsplit(sample)  # type: ignore
+#     def split(self, sample: da.Array) -> tuple[da.Array]:
+#         return da.hsplit(sample)  # type: ignore
 
-    def join(self, sample: tuple[da.Array]) -> da.Array:
-        """Join `sample` together"""
-        return da.hstack(sample)
+#     def join(self, sample: tuple[da.Array]) -> da.Array:
+#         """Join `sample` together"""
+#         return da.hstack(sample)

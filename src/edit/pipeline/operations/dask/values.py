@@ -8,22 +8,23 @@
 
 # type: ignore[reportPrivateImportUsage]
 
-from typing import Literal, TypeVar, Union, Optional, Any
+from typing import Literal, Union, Optional
 
 import dask.array as da
 import numpy as np
 
 import edit.data
 
-from edit.pipeline.operation import Operation
+from edit.pipeline.operations.dask.dask import DaskOperation
 
 
-class FillNan(Operation):
+class FillNan(DaskOperation):
     """
     Fill any Nan's with a value
     """
 
     _override_interface = ["Serial"]
+    _numpy_counterpart = "values.FillNan"
 
     def __init__(
         self,
@@ -45,7 +46,7 @@ class FillNan(Operation):
                 Value to be used to fill negative infinity values,
                 If no value is passed then negative infinity values will be replaced with a very small (or negative) number. Defaults to None.
         """
-        raise NotImplementedError(f"Not implemented")
+        raise NotImplementedError("Not implemented")
 
         super().__init__(
             operation="apply",
@@ -64,7 +65,7 @@ class FillNan(Operation):
         return da.nan_to_num(da.array(sample), self.nan, self.posinf, self.neginf)
 
 
-class MaskValue(Operation):
+class MaskValue(DaskOperation):
     """
     DataOperation to mask values with a given replacement
 
@@ -72,6 +73,7 @@ class MaskValue(Operation):
     """
 
     _override_interface = ["Serial"]
+    _numpy_counterpart = "values.MaskValue"
 
     def __init__(
         self,
@@ -126,12 +128,13 @@ class MaskValue(Operation):
         return self._mask_transform(sample)  # type: ignore
 
 
-class ForceNormalised(Operation):
+class ForceNormalised(DaskOperation):
     """
     Operation to force data within a certain range, by default 0 & 1
     """
 
     _override_interface = ["Serial"]
+    _numpy_counterpart = "values.ForceNormalised"
 
     def __init__(
         self,

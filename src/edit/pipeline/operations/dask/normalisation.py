@@ -17,7 +17,7 @@ import numpy as np
 import dask.array as da
 
 from edit.utils.decorators import BackwardsCompatibility
-from edit.pipeline.operation import Operation
+from edit.pipeline.operations.dask.dask import DaskOperation
 
 
 FILE = Union[str, Path]
@@ -25,7 +25,7 @@ FILE = Union[str, Path]
 __all__ = ["daskNormalisation", "Anomaly", "Deviation", "Evaluated"]
 
 
-class daskNormalisation(Operation):
+class daskNormalisation(DaskOperation):
     """
     Parent dask normalisation class
 
@@ -59,6 +59,8 @@ class daskNormalisation(Operation):
 class Anomaly(daskNormalisation):
     """Anomaly Normalisation"""
 
+    _numpy_counterpart = "normalisation.Anomaly"
+
     def __init__(self, mean: FILE):
         super().__init__()
         self.record_initialisation()
@@ -74,6 +76,8 @@ class Anomaly(daskNormalisation):
 
 class Deviation(daskNormalisation):
     """Deviation Normalisation"""
+
+    _numpy_counterpart = "normalisation.Deviation"
 
     def __init__(self, mean: FILE, deviation: FILE):
         super().__init__()
@@ -91,6 +95,8 @@ class Deviation(daskNormalisation):
 
 class Division(daskNormalisation):
     """Division based Normalisation"""
+
+    _numpy_counterpart = "normalisation.Division"
 
     def __init__(self, division_factor: FILE):
         super().__init__()
@@ -113,6 +119,8 @@ class Evaluated(daskNormalisation):
     """
     `eval` based normalisation
     """
+
+    _numpy_counterpart = "normalisation.Evaluated"
 
     def __init__(self, normalisation_eval: str, unnormalisation_eval: str, **kwargs):
         """

@@ -13,9 +13,10 @@ from typing import Optional, Any
 import dask.array as da
 
 from edit.pipeline.branching.join import Joiner
+from edit.pipeline.operations.dask.dask import DaskOperation
 
 
-class Stack(Joiner):
+class Stack(Joiner, DaskOperation):
     """
     Stack a tuple of da.Array's
 
@@ -23,6 +24,7 @@ class Stack(Joiner):
     """
 
     _override_interface = ["Serial"]
+    _numpy_counterpart = "join.Stack"
 
     def __init__(self, axis: Optional[int] = None):
         super().__init__()
@@ -37,7 +39,7 @@ class Stack(Joiner):
         return super().unjoin(sample)
 
 
-class VStack(Joiner):
+class VStack(Joiner, DaskOperation):
     """
     Vertically Stack a tuple of da.Array's
 
@@ -45,6 +47,7 @@ class VStack(Joiner):
     """
 
     _override_interface = ["Serial"]
+    _numpy_counterpart = "join.VStack"
 
     def __init__(self):
         super().__init__()
@@ -60,7 +63,7 @@ class VStack(Joiner):
         return super().unjoin(sample)
 
 
-class HStack(Joiner):
+class HStack(Joiner, DaskOperation):
     """
     Horizontally Stack a tuple of da.Array's
 
@@ -68,6 +71,7 @@ class HStack(Joiner):
     """
 
     _override_interface = ["Serial"]
+    _numpy_counterpart = "join.HStack"
 
     def __init__(self):
         super().__init__()
@@ -83,7 +87,7 @@ class HStack(Joiner):
         return super().unjoin(sample)
 
 
-class Concatenate(Joiner):
+class Concatenate(Joiner, DaskOperation):
     """
     Concatenate a tuple of da.Array's
 
@@ -91,6 +95,7 @@ class Concatenate(Joiner):
     """
 
     _override_interface = ["Serial"]
+    _numpy_counterpart = "join.Concatenate"
 
     def __init__(self, axis: Optional[int] = None):
         super().__init__()

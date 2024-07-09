@@ -14,12 +14,12 @@ import dask.array as da
 
 from dask.delayed import Delayed
 
-from edit.pipeline.operation import Operation
+from edit.pipeline.operations.dask.dask import DaskOperation
 
 T = TypeVar("T", da.Array, Delayed)
 
 
-class Compute(Operation):
+class Compute(DaskOperation):
     """
     Compute dask array or delayed object
 
