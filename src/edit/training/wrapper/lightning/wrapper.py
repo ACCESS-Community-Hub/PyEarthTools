@@ -15,7 +15,7 @@ import pytorch_lightning as L
 import torch
 
 from edit.pipeline.controller import Pipeline
-from edit.training.data.datamodule import PipelineDataModule
+from edit.training.data.lightning import PipelineLightningDataModule
 from edit.training.wrapper.wrapper import ModelWrapper
 
 
@@ -30,11 +30,14 @@ class LightningWrapper(ModelWrapper):
     """
 
     model: L.LightningModule
+    _default_datamodule = PipelineLightningDataModule
 
     def __init__(
         self,
         model: L.LightningModule,
-        data: Pipeline | PipelineDataModule,
+        data: (
+            dict[str, Pipeline | tuple[Pipeline, ...]] | tuple[Pipeline, ...] | Pipeline | PipelineLightningDataModule
+        ),
         path: str | Path,
         trainer_kwargs: Optional[dict[str, Any]] = None,
         **kwargs,

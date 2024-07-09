@@ -5,10 +5,9 @@
 # performance of the software. In no event shall the copyright holder
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
+from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-
-from typing import Union
 
 from edit.utils.initialisation import InitialisationRecordingMixin
 from edit.pipeline import Pipeline
@@ -23,21 +22,28 @@ class ModelWrapper(InitialisationRecordingMixin, metaclass=ABCMeta):
     Defines the interface in which to use a `model`, and `datamodule/Pipeline`
     """
 
-    def __init__(self, model, data: Union[Pipeline, PipelineDataModule]):
+    _default_datamodule: type[PipelineDataModule] = PipelineDataModule
+
+    def __init__(
+        self,
+        model,
+        data: dict[str, Pipeline | tuple[Pipeline, ...]] | tuple[Pipeline, ...] | Pipeline | PipelineDataModule,
+    ):
         """
         Construct Base model wrapper
 
         Args:
             model (Any):
                 Model to use.
-            data (Union[Pipeline, PipelineDataModule]):
-                Data to use. If not `PipelineDataModule` will be made into base.
+            data (dict[str, Pipeline | tuple[Pipeline, ...]] | tuple[Pipeline, ...] | Pipeline | PipelineDataModule):
+                Data to use. If not `PipelineDataModule` will be made into `_default_datamodule`.
                 Will only then have `get_sample`.
         """
         super().__init__()
+        self.record_initialisation(ignore="model")
 
         if not isinstance(data, PipelineDataModule):
-            data = PipelineDataModule(data)
+            data = self._default_datamodule(data)
 
         self.model = model
         self.datamodule = data

@@ -18,7 +18,7 @@ from pytorch_lightning import callbacks
 from pytorch_lightning import loggers
 
 from edit.pipeline.controller import Pipeline
-from edit.training.data.datamodule import PipelineDataModule
+from edit.training.data.lightning import PipelineLightningDataModule
 from edit.training.wrapper.lightning.wrapper import LightningWrapper
 from edit.training.wrapper.train import TrainingWrapper
 
@@ -63,7 +63,9 @@ class LightingTraining(LightningWrapper, TrainingWrapper):
     def __init__(
         self,
         model: L.LightningModule,
-        data: Pipeline | PipelineDataModule,
+        data: (
+            dict[str, Pipeline | tuple[Pipeline, ...]] | tuple[Pipeline, ...] | Pipeline | PipelineLightningDataModule
+        ),
         path: str | Path,
         trainer_kwargs: dict[str, Any] | None = None,
         *,
@@ -71,6 +73,7 @@ class LightingTraining(LightningWrapper, TrainingWrapper):
         logger: Optional[str | dict[str, Any]] = None,
         **kwargs,
     ):
+
         super().__init__(model, data, path, trainer_kwargs, **kwargs)
         self.record_initialisation(ignore="model")
 

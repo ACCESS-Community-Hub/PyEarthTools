@@ -20,6 +20,16 @@ from edit.utils.initialisation import InitialisationRecordingMixin, save
 
 
 class PipelineDataModule(InitialisationRecordingMixin):
+    """
+    Base `PipelineDataModule`
+
+    `get_sample` can be used to retrieve from `pipelines`, and `fake_batch_dim` can be overriden if
+    special batch faking is needed.
+
+    `train` configures the pipelines from `train_split` and `valid` for validation.
+    """
+    _train: bool = False
+
     def __init__(
         self,
         pipelines: Union[dict[str, Union[Pipeline, tuple[Pipeline, ...]]], tuple[Pipeline, ...], Pipeline],
@@ -33,9 +43,9 @@ class PipelineDataModule(InitialisationRecordingMixin):
             pipelines (Union[dict[str,Union[Pipeline, tuple[Pipeline,...]]], tuple[Pipeline,...],Pipeline]):
                 Pipelines for data retrieval, can be dictionary and/or list/tuple of `Pipelines` or a single `Pipeline`
             train_split (Optional[Iterator], optional):
-                Iterator to use for training. Defaults to None.
+                Iterator to use for training. Pipelines configured by calling `.train()`. Defaults to None.
             valid_split (Optional[Iterator], optional):
-                Iterator to use for validation. Defaults to None.
+                Iterator to use for validation. Pipelines configured by calling `.valid()`. Defaults to None.
         """
         super().__init__()
         self.record_initialisation()
@@ -72,6 +82,8 @@ class PipelineDataModule(InitialisationRecordingMixin):
         """
         if self._train_split is None:
             raise ValueError("Cannot enter training mode as `train_split` is None.")
+        
+        self._train = True
 
         def set_iterator(obj: Pipeline):
             obj.iterator = self._train_split
@@ -84,11 +96,35 @@ class PipelineDataModule(InitialisationRecordingMixin):
         """
         if self._valid_split is None:
             raise ValueError("Cannot enter validation mode as `valid_split` is None.")
+        
+        self._train = False
 
         def set_iterator(obj: Pipeline):
             obj.iterator = self._valid_split
 
         self.map_function_to_pipelines(set_iterator)
+
+    def __getitem__(self, idx):
+        iterator = self._train_split if self._train else self._valid_split or self._train_split
+
+        if iterator is None:
+            raise TypeError("Cannot index into data without an iterator set.")
+        
+        idx = iterator.samples[idx]
+        return self.map_function_to_pipelines(lambda x: x[idx])
+
+    def __iter__(self):
+
+        def yield_sample(pipeline):
+            for i in pipeline:
+                yield i
+
+        iterator = self._train_split if self._train else self._valid_split or self._train_split
+        yield None
+
+    def fake_batch_dim(self, sample):
+        """Fake batch dim on `sample`"""
+        return np.expand_dims(sample, 0)
 
     def get_sample(self, idx, *, fake_batch_dim: bool = False):
         """Get sample from `pipeline`s"""
@@ -97,7 +133,7 @@ class PipelineDataModule(InitialisationRecordingMixin):
             def add_batch_dim(obj):
                 if isinstance(obj, (list, tuple)):
                     return type(obj)(map(add_batch_dim, obj))
-                return np.expand_dims(obj, 0)
+                return self.fake_batch_dim(obj)
 
             return self.map_function_to_pipelines(lambda x: add_batch_dim(x[idx]))
         return self.map_function_to_pipelines(lambda x: x[idx])
@@ -110,3 +146,5 @@ class PipelineDataModule(InitialisationRecordingMixin):
         if isinstance(obj, (list, tuple)):
             return type(obj)(map(PipelineDataModule.find_shape, obj))
         return obj.shape
+
+    
