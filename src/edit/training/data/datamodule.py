@@ -28,7 +28,7 @@ class PipelineDataModule(InitialisationRecordingMixin):
 
     `train` configures the pipelines from `train_split` and `valid` for validation.
     """
-    _train: bool = False
+    _train: Optional[bool] = None
 
     def __init__(
         self,
@@ -104,7 +104,15 @@ class PipelineDataModule(InitialisationRecordingMixin):
 
         self.map_function_to_pipelines(set_iterator)
 
+    def check_for_use(self):
+        """Check if `datamodule` is ready for use."""
+        if self._train is None:
+            raise RuntimeError("An iterator has not be configured, call either `.train()`, or `.eval()` for training / evaluation mode.")
+
+
     def __getitem__(self, idx):
+        self.check_for_use()
+
         iterator = self._train_split if self._train else self._valid_split or self._train_split
 
         if iterator is None:
@@ -114,13 +122,14 @@ class PipelineDataModule(InitialisationRecordingMixin):
         return self.map_function_to_pipelines(lambda x: x[idx])
 
     def __iter__(self):
+        self.check_for_use()
 
-        def yield_sample(pipeline):
-            for i in pipeline:
-                yield i
-
-        iterator = self._train_split if self._train else self._valid_split or self._train_split
-        yield None
+        generators = self.map_function_to_pipelines(iter)
+        while True:
+            try:
+                yield self.map_function(generators, next)
+            except StopIteration:
+                break
 
     def fake_batch_dim(self, sample):
         """Fake batch dim on `sample`"""
