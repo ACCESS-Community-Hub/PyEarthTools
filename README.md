@@ -11,6 +11,7 @@ As wrappers are needed to connect the model to the rest of the system only the f
 | Name | Description |
 | ---- | ----------- |
 | Lightning | Pytorch Lightning - Managed pytorch code |
+| ONNX | Complied models for prediction |
 | XGBoost | Gradient boosted Trees |
 
 
