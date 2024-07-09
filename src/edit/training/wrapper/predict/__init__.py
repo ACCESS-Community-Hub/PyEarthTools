@@ -13,3 +13,9 @@ Prediction Wrappers
 """
 
 from edit.training.wrapper.predict.predict import PredictionWrapper
+from edit.training.wrapper.predict.timeseries import (
+    TimeSeriesPredictionWrapper,
+    TimeSeriesAutoRecurrent,
+    TimeSeriesManagedRecurrent,
+    ManualTimeSeriesPredictionWrapper,
+)

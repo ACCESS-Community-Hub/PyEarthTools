@@ -20,13 +20,26 @@ from edit.training.wrapper.wrapper import ModelWrapper
 
 
 class PredictionWrapper(InitialisationRecordingMixin, metaclass=ABCMeta):
-    """Model wrapper to enable prediction"""
+    """
+    Model wrapper to enable prediction
+
+    Hooks:
+        `after_predict` (prediction) -> prediction:
+            Function executed after data has been reversed from prediction.
+
+    Usage:
+        ```python
+        model = ModelWrapper(MODEL_GOES_HERE, DATA_PIPELINE)
+        predictor = PredictionWrapper(model)
+        predictor.predict('2000-01-01T00')
+        ```
+    """
 
     def __init__(self, model: ModelWrapper, reverse_pipeline: Optional[Pipeline | int | str] = None):
         """
         Use a `model` to run a prediction.
 
-        Retrieves initial conditions fro `model.get_sample`, so set it's `Pipeline` accordingly.
+        Retrieves initial conditions for `model.get_sample`, so set it's `Pipeline` accordingly.
 
         Args:
             model (ModelWrapper):
@@ -53,6 +66,30 @@ class PredictionWrapper(InitialisationRecordingMixin, metaclass=ABCMeta):
 
     def get_sample(self, idx, *, fake_batch_dim: bool = False):
         return self.model.get_sample(idx, fake_batch_dim=fake_batch_dim)
+
+    @property
+    def pipelines(self):
+        return self.model.pipelines
+
+    @property
+    def datamodule(self):
+        return self.model.datamodule
+
+    @property
+    def reverse_pipeline(self) -> Pipeline:
+        if self._reverse_pipeline is None:
+            if not isinstance(self.pipelines, Pipeline):
+                raise TypeError("`reverse_pipeline` was not given but `datamodule` is not a simple `Pipeline`.")
+            return self.pipelines
+        elif isinstance(self._reverse_pipeline, Pipeline):
+            return self._reverse_pipeline
+        elif isinstance(self._reverse_pipeline, (str, int)):
+            if not isinstance(self.pipelines, (tuple, dict, list)):
+                raise TypeError(
+                    f"Cannot index into underlying `Pipelines` with {self._reverse_pipeline!r} as they are not indexable."
+                )
+            return self.pipelines[self._reverse_pipeline]  # type: ignore #TODO better error messaging
+        raise TypeError(f"Cannot parse `reverse_pipeline` of {type(self._reverse_pipeline)}.")
 
     def reverse(self, data):
         """
@@ -86,23 +123,3 @@ class PredictionWrapper(InitialisationRecordingMixin, metaclass=ABCMeta):
     def after_predict(self, prediction):
         """Hook to modify prediction, post `predict`."""
         return prediction
-
-    @property
-    def reverse_pipeline(self) -> Pipeline:
-        if self._reverse_pipeline is None:
-            if not isinstance(self.pipelines, Pipeline):
-                raise TypeError("`reverse_pipeline` was not given but `datamodule` is not a simple `Pipeline`.")
-            return self.pipelines
-        elif isinstance(self._reverse_pipeline, Pipeline):
-            return self._reverse_pipeline
-        elif isinstance(self._reverse_pipeline, (str, int)):
-            return self.pipelines[self._reverse_pipeline]  # type: ignore #TODO better error messaging
-        raise TypeError(f"Cannot parse `reverse_pipeline` of {type(self._reverse_pipeline)}.")
-
-    @property
-    def pipelines(self):
-        return self.model.pipelines
-    
-    @property
-    def datamodule(self):
-        return self.model.datamodule
