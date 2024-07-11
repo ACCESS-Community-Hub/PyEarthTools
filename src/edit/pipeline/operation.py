@@ -96,7 +96,7 @@ class Operation(PipelineStep, PotentialABC):
         if not self._operation["apply"]:
             return sample
         self.check_type(sample, func_name="apply")
-        if isinstance(sample, np.ndarray):
+        if isinstance(sample, np.ndarray) or (isinstance(sample, tuple) and any(map(lambda x: isinstance(x, np.ndarray), sample))):
             with parallel.disable:
                 return self._split_tuples_call(sample, _function="apply_func")
         return self._split_tuples_call(sample, _function="apply_func")
@@ -106,7 +106,7 @@ class Operation(PipelineStep, PotentialABC):
         if not self._operation["undo"]:
             return sample
         self.check_type(sample, func_name="undo")
-        if isinstance(sample, np.ndarray):
+        if isinstance(sample, np.ndarray) or (isinstance(sample, tuple) and any(map(lambda x: isinstance(x, np.ndarray), sample))):
             with parallel.disable:
                 return self._split_tuples_call(sample, _function="undo_func")
         return self._split_tuples_call(sample, _function="undo_func")

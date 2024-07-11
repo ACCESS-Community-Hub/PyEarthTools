@@ -164,8 +164,8 @@ class PipelineBranchPoint(_Pipeline, Operation):
                         )
                     sub_samples.append(self.parallel_interface.submit(sub_pipe.__getitem__, self._current_idx))
                 else:
-                    samp = type(sample)(sample)
-                    sub_samples.append(self.parallel_interface.submit(sub_pipe.apply, samp))
+                    # samp = type(sample)(sample)
+                    sub_samples.append(self.parallel_interface.submit(sub_pipe.apply, sample))
 
                 # steps = sub_pipe.steps
                 # sub_samples.append(

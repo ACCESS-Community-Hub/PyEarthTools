@@ -449,6 +449,11 @@ class Pipeline(_Pipeline, Index):
             else:
                 sample = step(sample)  # type: ignore
         return sample
+    
+    def __call__(self, obj):
+        if isinstance(obj, str):
+            return self[obj]
+        return self.apply(obj)
 
     def get(self, idx):
         """Get `idx` from `Pipeline`."""
@@ -694,7 +699,7 @@ class Pipeline(_Pipeline, Index):
             (Union[str, None]):
                 If `path` is None, `pipeline` in save form else None.
         """
-        return edit.pipeline.save(self, path)
+        return edit.pipeline.save(Pipeline(*self.complete_steps), path)
 
     def _ipython_display_(self):
         """Override for repr of `Pipeline`, shows initialisation arguments and graph"""
