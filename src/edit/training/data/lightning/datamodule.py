@@ -28,7 +28,7 @@ class PipelineLightningDataModule(PipelineDataModule, L.LightningDataModule):
 
     def __init__(
         self,
-        pipelines: dict[str, Pipeline | tuple[Pipeline, ...]] | tuple[Pipeline, ...] | Pipeline,
+        pipelines: dict[str, Pipeline | str | tuple[Pipeline, ...]] | tuple[Pipeline | str, ...] | Pipeline | str,
         train_split: Iterator | None = None,
         valid_split: Iterator | None = None,
         iterator_dataset: bool = False,
@@ -53,6 +53,8 @@ class PipelineLightningDataModule(PipelineDataModule, L.LightningDataModule):
         """
         super().__init__(pipelines, train_split, valid_split)
         self.record_initialisation()
+        self.update_initialisation(pipelines = self.pipelines)
+
         self._iterator_dataset = iterator_dataset
         self._kwargs = kwargs
 
@@ -68,9 +70,20 @@ class PipelineLightningDataModule(PipelineDataModule, L.LightningDataModule):
         self.train()
         return self.map_function(self._dataloader, DataLoader, **self._kwargs)
 
-    def valid_dataloader(self):
+    def val_dataloader(self):
+        """
+        Lightning appears to treat validation dataloaders differently, 
+        and splits a dictionary or tuple rather then passing through,
+        
+        Fix: Wrap it in another layer if a dict or tuple.
+        """
         self.eval()
-        return self.map_function(self._dataloader, DataLoader, **self._kwargs)
+        dataloader = self.map_function(self._dataloader, DataLoader, **self._kwargs)
+        if isinstance(dataloader, dict):
+            return {'validation': dataloader}
+        elif isinstance(dataloader, tuple):
+            return (dataloader,)
+        return dataloader
 
     def predict_dataloader(self):
         self.eval()
