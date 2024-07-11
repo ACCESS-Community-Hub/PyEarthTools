@@ -16,6 +16,9 @@ from typing import Union
 import numpy as np
 import dask.array as da
 
+
+from edit.data.utils import parse_path
+
 from edit.utils.decorators import BackwardsCompatibility
 from edit.pipeline.operations.dask.dask import DaskOperation
 
@@ -36,7 +39,7 @@ class daskNormalisation(DaskOperation):
     @classmethod
     def open_file(cls, file: FILE) -> da.Array:
         """Open dask file"""
-        return da.from_array(np.load(file))
+        return da.from_array(np.load(str(parse_path(file))))
 
     def __init__(self):
         super().__init__(split_tuples=True, recursively_split_tuples=True, recognised_types=(da.Array))

@@ -12,6 +12,8 @@ from typing import TypeVar, Union
 
 import xarray as xr
 
+from edit.data.utils import parse_path
+
 from edit.utils.decorators import BackwardsCompatibility
 from edit.pipeline.operation import Operation
 
@@ -31,7 +33,7 @@ class xarrayNormalisation(Operation):
     @classmethod
     def open_file(cls, file: FILE) -> xr.Dataset:
         """Open xarray file"""
-        return xr.open_dataset(file)
+        return xr.open_dataset(parse_path(file))
 
     def __init__(self):
         super().__init__(split_tuples=True, recursively_split_tuples=True, recognised_types=(xr.Dataset, xr.DataArray))
