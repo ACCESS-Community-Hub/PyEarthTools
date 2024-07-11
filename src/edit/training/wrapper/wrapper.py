@@ -27,7 +27,7 @@ class ModelWrapper(InitialisationRecordingMixin, metaclass=ABCMeta):
     def __init__(
         self,
         model,
-        data: dict[str, Pipeline | tuple[Pipeline, ...]] | tuple[Pipeline, ...] | Pipeline | PipelineDataModule,
+        data: dict[str, Pipeline | str | tuple[Pipeline, ...]] | tuple[Pipeline | str, ...] | str | Pipeline | PipelineDataModule,
     ):
         """
         Construct Base model wrapper
@@ -44,6 +44,8 @@ class ModelWrapper(InitialisationRecordingMixin, metaclass=ABCMeta):
 
         if not isinstance(data, PipelineDataModule):
             data = self._default_datamodule(data)
+        if not isinstance(data, self._default_datamodule):
+            data = self._default_datamodule(data.pipelines, train_split = data._train_split, valid_split = data._valid_split)
 
         self.model = model
         self.datamodule = data
@@ -55,6 +57,13 @@ class ModelWrapper(InitialisationRecordingMixin, metaclass=ABCMeta):
     @property
     def pipelines(self):
         return self.datamodule.pipelines
+    
+    @property
+    def splits(self):
+        return {
+            'training': self.datamodule._train_split,
+            'validation': self.datamodule._valid_split
+        }
 
     @abstractmethod
     def load(self, *args, **kwargs): ...

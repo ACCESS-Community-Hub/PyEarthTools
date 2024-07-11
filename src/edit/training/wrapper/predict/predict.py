@@ -35,7 +35,7 @@ class PredictionWrapper(InitialisationRecordingMixin, metaclass=ABCMeta):
         ```
     """
 
-    def __init__(self, model: ModelWrapper, reverse_pipeline: Optional[Pipeline | int | str] = None):
+    def __init__(self, model: ModelWrapper, reverse_pipeline: Pipeline | int | str | None):
         """
         Use a `model` to run a prediction.
 
@@ -44,16 +44,16 @@ class PredictionWrapper(InitialisationRecordingMixin, metaclass=ABCMeta):
         Args:
             model (ModelWrapper):
                 Model and Data source to use.
-            reverse_pipeline (Optional[Pipeline | int | str], optional):
-                Override for `Pipeline` to use on the undo operation.
+            reverse_pipeline (Pipeline | int | str | None):
                 If not given, will default to using `model.pipelines`.
+                Override for `Pipeline` to use on the undo operation.
                 If `str` or `int` use value to index into `model.pipelines`. Useful if `model.pipelines`
                 is a dictionay or tuple.
                 Or can be `Pipeline` it self to use. If `reverse_pipeline.has_source()` is True, run `reverse_pipeline.undo`. otherwise
                 apply pipeline with `reverse_pipeline.apply`
-                Defaults to None.
         """
         super().__init__()
+        self.record_initialisation()
         self.model = model
         self._reverse_pipeline = reverse_pipeline
 
@@ -79,7 +79,7 @@ class PredictionWrapper(InitialisationRecordingMixin, metaclass=ABCMeta):
     def reverse_pipeline(self) -> Pipeline:
         if self._reverse_pipeline is None:
             if not isinstance(self.pipelines, Pipeline):
-                raise TypeError("`reverse_pipeline` was not given but `datamodule` is not a simple `Pipeline`.")
+                raise TypeError("`reverse_pipeline` was not given but `datamodule` is not a simple `Pipeline`. Either set `reverse_pipeline` to an index, or a `Pipeline`.")
             return self.pipelines
         elif isinstance(self._reverse_pipeline, Pipeline):
             return self._reverse_pipeline
