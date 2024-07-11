@@ -110,6 +110,19 @@ class Operation(PipelineStep, PotentialABC):
             with parallel.disable:
                 return self._split_tuples_call(sample, _function="undo_func")
         return self._split_tuples_call(sample, _function="undo_func")
+    
+    @property
+    def T(self):
+        """
+        Transposed Operation.
+        
+        Swaps `apply` with `undo` so that this operation behaves inversely to normal.
+        
+        """
+        new_operation = self.copy()
+        new_operation.apply, new_operation.undo = new_operation.undo, new_operation.apply
+        new_operation._property = 'T'
+        return new_operation
 
     @potentialabstractmethod
     def apply_func(self, sample):
