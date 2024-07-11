@@ -61,7 +61,7 @@ class Rearrange(Operation):
 
         self.skip = skip
 
-    def __rearrange(self, data: np.ndarray, pattern: str, catch=True):
+    def _rearrange(self, data: np.ndarray, pattern: str, catch=True):
         return einops.rearrange(data, pattern, **self.rearrange_kwargs)
 
         try:
@@ -72,10 +72,10 @@ class Rearrange(Operation):
                     return data
                 raise excep
             pattern = "->".join(["p " + side for side in pattern.split("->")])
-            return self.__rearrange(data, pattern, catch=False)
+            return self._rearrange(data, pattern, catch=False)
 
     def apply_func(self, data: np.ndarray):
-        return self.__rearrange(data, self.pattern)
+        return self._rearrange(data, self.pattern)
 
     def undo_func(self, data: np.ndarray):
         if self.reverse_pattern:
@@ -84,7 +84,7 @@ class Rearrange(Operation):
             pattern = self.pattern.split("->")
             pattern.reverse()
             pattern = "->".join(pattern)
-        return self.__rearrange(data, pattern)
+        return self._rearrange(data, pattern)
 
 
 class Squish(Operation):

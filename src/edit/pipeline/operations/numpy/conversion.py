@@ -15,6 +15,7 @@ import edit.data
 from edit.pipeline.operation import Operation
 
 
+#TODO __dataset__ in attrs for  global attrs and eocndig
 class ToXarray(Operation):
     """
     Numpy -> Xarray Converter
@@ -48,7 +49,7 @@ class ToXarray(Operation):
             encoding (Optional[dict[str, Any]], optional):
                 Encoding to set, can be variable, or dimension. Defaults to None.
             attributes (Optional[dict[str, Any]], optional):
-                Attributes to set . Defaults to None.
+                Attributes to set. Can use `__dataset__` if dataset to update dataset attrs Defaults to None.
 
         Examples:
             ## Like
@@ -79,6 +80,8 @@ class ToXarray(Operation):
 
         self._array_shape = array_shape.split(" ") if isinstance(array_shape, str) else array_shape
         self._coords = coords or {}
+        self._coords.update(kwargs) # type: ignore
+        
         self._encoding = encoding or {}
         self._attributes = attributes or {}
 
@@ -88,6 +91,8 @@ class ToXarray(Operation):
         """
         if "variable" not in self._array_shape:
             xr_obj = xr.DataArray(sample, coords=self._coords, dims=self._array_shape, attrs=self._attributes)
+            xr_obj = edit.data.transform.attributes.SetAttributes(self._attributes, apply_on="dataarray")(xr_obj)  # type: ignore
+
         else:
             array_shape = list(self._array_shape)
             var_index = array_shape.index("variable")
@@ -98,6 +103,7 @@ class ToXarray(Operation):
             ds_coords.pop("variable", None)
 
             ds_attrs = dict(self._attributes)
+            dataset_attribute = ds_attrs.pop('__dataset__', {})
 
             xarray_coord = xr.Coordinates(ds_coords)
 
@@ -108,9 +114,9 @@ class ToXarray(Operation):
                 )
 
             xr_obj = xr.Dataset(data_vars=data_vars, coords=ds_coords)
+            xr_obj = edit.data.transform.attributes.SetAttributes(dataset_attribute, apply_on="dataarray")(xr_obj)  # type: ignore
 
         xr_obj = edit.data.transform.attributes.SetEncoding(self._encoding)(xr_obj)  # type: ignore
-        xr_obj = edit.data.transform.attributes.SetAttributes(self._attributes, apply_on="per_variable" if isinstance(xr_obj, xr.Dataset) else "dataarray")(xr_obj)  # type: ignore
         return xr_obj
 
     def undo_func(self, sample: Union[xr.DataArray, xr.Dataset]):
@@ -141,7 +147,7 @@ class ToXarray(Operation):
             array_shape = tuple(map(str, reference_dataset.dims))
             coords = {key: list(val.values) for key, val in reference_dataset.coords.items()}
             encoding = reference_dataset.encoding
-            attributes = reference_dataset.encoding
+            attributes = reference_dataset.attrs
 
         else:
             array_shape = ("variable", *tuple(map(str, reference_dataset[list(reference_dataset.data_vars)[0]].dims)))
@@ -154,6 +160,8 @@ class ToXarray(Operation):
                 var_names.append(var)
                 encoding[var] = reference_dataset[var].encoding
                 attributes[var] = reference_dataset[var].attrs
+            
+            attributes['__dataset__'] = reference_dataset.attrs
             coords["variable"] = var_names
 
         for coord in reference_dataset.coords:

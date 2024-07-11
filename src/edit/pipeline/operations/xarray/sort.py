@@ -84,7 +84,8 @@ class Sort(Operation):
         if not len(order) == len(current_data_vars) or not order == current_data_vars:
             add_to = list([str(index) for index in current_data_vars])
             for var in order:
-                add_to.remove(var)
+                if var in add_to:
+                    add_to.remove(var)
             # add_to.sort()
             order.extend(add_to)
             self.order = list(order)
