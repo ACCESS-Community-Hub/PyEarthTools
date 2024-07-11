@@ -362,6 +362,7 @@ class ParallelEnabledMixin:
         Get parallel interface.
 
         If `interface` is list, will iterate through until a successful candidate is hit.
+        Or if None available either through not given or `pipeline.parallel.enabled.inferface` is False return Serial interface
 
         Args:
             interface (Optional[Union[PARALLEL_INTERFACES, list[PARALLEL_INTERFACES]]], optional):
@@ -369,10 +370,6 @@ class ParallelEnabledMixin:
             **interface_kwargs (dict[str, Any]):
                 Extra kwargs to pass to Interface. Ensure key of references an Interface with its
                 value being the kwargs.
-
-        Raises:
-            ValueError:
-                If unable to successfully get an interface.
 
         Returns:
             (ParallelInterface):
@@ -391,11 +388,13 @@ class ParallelEnabledMixin:
             if key not in class_interface_kwargs:
                 class_interface_kwargs[key] = {}
             class_interface_kwargs[key].update(interface_kwargs[key])
+        
+        interface = interface or 'Serial'
+        interface = [interface] if not isinstance(interface, list) else interface
 
-        if isinstance(interface, list):
-            errors = []
-            for inter in interface:
-                return get_parallel(inter, **class_interface_kwargs)
-            raise ValueError(f"Unable to get any of {interface}, as they each failed.\n{errors}")
+        for inter in interface:
+            if not edit.utils.config.get(f'pipeline.parallel.enabled.{inter}', True):
+                continue
+            return get_parallel(inter, **class_interface_kwargs)
+        return get_parallel('Serial', **class_interface_kwargs)
 
-        return get_parallel(interface, **class_interface_kwargs)

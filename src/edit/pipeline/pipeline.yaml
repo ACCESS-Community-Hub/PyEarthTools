@@ -2,6 +2,9 @@ pipeline:
   run_parallel: True
   
   parallel:
+    enabled:
+      Delayed: False
+      Futures: True
     dask:
       start: True
       config: {}
