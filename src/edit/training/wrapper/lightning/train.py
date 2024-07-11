@@ -33,20 +33,28 @@ DEFAULT_CALLBACKS = {
 }
 
 
-def get_logger(logger: str, path: str, **kwargs):
+def get_logger(logger: str | bool, path: str, **kwargs):
     """Get logger"""
     tensorboard_installed = importlib.util.find_spec("tensorboard") is not None
 
-    logger = str(kwargs.pop("logger")).lower()
+    if isinstance(logger, bool):
+        if logger:
+            logger = 'tensorboard'
+        else:
+            return
+
     if logger == "tensorboard" and not tensorboard_installed:
-        warnings.warn("Logger was set to 'tensorboard' but 'tensorboard' is not installed.\nDefaulting to csv logging")
+        warnings.warn(
+            "Logger was set to 'tensorboard' but 'tensorboard' is not installed.\nDefaulting to csv logging ..."
+        )
         logger = "csv"
 
     if logger == "tensorboard":
-        kwargs["logger"] = loggers.TensorBoardLogger(path, **kwargs)
+        return loggers.TensorBoardLogger(path, **kwargs)
 
     elif logger == "csv":
-        kwargs["logger"] = loggers.CSVLogger(path, **kwargs)
+        return loggers.CSVLogger(path, **kwargs)
+    
 
 
 def make_callback(callback: str, kwargs: dict[str, Any], **formats):
@@ -54,25 +62,43 @@ def make_callback(callback: str, kwargs: dict[str, Any], **formats):
     for key, val in kwargs.items():
         if isinstance(val, str):
             for format_str in (format_str for format_str in formats.items() if "{" + f"{format_str[0]}" + "}" in val):
-                kwargs[key] = val.replace("{" + f"{format_str[0]}" + "}", format_str[1])
+                kwargs[key] = val.replace("{" + f"{format_str[0]}" + "}", str(format_str[1]))
 
     return getattr(callbacks, callback)(**kwargs)
 
 
 class LightingTraining(LightningWrapper, TrainingWrapper):
+
     def __init__(
         self,
         model: L.LightningModule,
         data: (
-            dict[str, Pipeline | tuple[Pipeline, ...]] | tuple[Pipeline, ...] | Pipeline | PipelineLightningDataModule
+            dict[str, Pipeline | str | tuple[Pipeline, ...]] | tuple[Pipeline | str, ...] | str | Pipeline | PipelineLightningDataModule
         ),
         path: str | Path,
         trainer_kwargs: dict[str, Any] | None = None,
         *,
         checkpointing: Optional[dict[str, Any] | tuple[dict[str, Any], ...] | bool] = None,
-        logger: Optional[str | dict[str, Any]] = None,
+        logger: Optional[str | dict[str, Any] | bool] = None,
         **kwargs,
     ):
+        """
+        Pytorch Lightning Training Logger
+
+        Args:
+            model (L.LightningModule): 
+                Lightning Model to use for prediction.
+            data (dict[str, Pipeline | str | tuple[Pipeline, ...]] | tuple[Pipeline | str , ...] | str | Pipeline | PipelineLightningDataModule): 
+                Pipeline to use to get data. Will be converted into a `PipelineLightningDataModule`.
+            path (str | Path): 
+                Root path to save logs and checkpoints into.
+            trainer_kwargs (dict[str, Any] | None, optional): 
+                Kwargs for `L.Trainer`, i.e. `max_epochs`, .... Defaults to None.
+            checkpointing (Optional[dict[str, Any] | tuple[dict[str, Any], ...] | bool], optional): 
+                Checkpointing config, can be True to use default epoch checkpointing, or dictionary of config / tuple of dictionaries. Defaults to None.
+            logger (Optional[str | dict[str, Any]], optional): 
+                Logging config, can be True to use default `tensorboard` config, or dictionary of config. Defaults to None.
+        """        
 
         super().__init__(model, data, path, trainer_kwargs, **kwargs)
         self.record_initialisation(ignore="model")
@@ -97,6 +123,10 @@ class LightingTraining(LightningWrapper, TrainingWrapper):
             else:
                 self.trainer_kwargs["logger"] = get_logger(logger, path=str(self.path))
 
+    @property
+    def callbacks(self):
+        return self.trainer_kwargs.get("callbacks", [])
+
     def fit(self, load: bool = True, **kwargs):
         """Using Pytorch Lightning `.fit` to train model, auto fills model and dataloaders
 
@@ -113,11 +143,15 @@ class LightingTraining(LightningWrapper, TrainingWrapper):
         data_config = {}
         if "train_dataloaders" in kwargs:
             data_config["train_dataloaders"] = kwargs.pop("train_dataloaders")
-            data_config["valid_dataloaders"] = kwargs.pop("valid_dataloaders", None)
+            data_config["val_dataloaders"] = kwargs.pop("valid_dataloaders", None)
         else:
-            data_config["datamodule"] = kwargs.pop("datamodule", self.datamodule)
+            data_config["train_dataloaders"] = kwargs.pop("datamodule", self.datamodule).train_dataloader()
+            try:
+                data_config["val_dataloaders"] = kwargs.pop("datamodule", self.datamodule).val_dataloader()
+            except ValueError:
+                pass
 
-        if self._loaded_file is not None:
+        if hasattr(self, "_loaded_file") and self._loaded_file is not None:
             kwargs["ckpt_path"] = str(self._loaded_file)
 
         self.trainer.fit(
@@ -126,7 +160,7 @@ class LightingTraining(LightningWrapper, TrainingWrapper):
             **kwargs,
         )
 
-    def _find_latest_path(self, path: str | Path) -> Path | None:
+    def _find_latest_path(self, path: str | Path, suffix=".ckpt") -> Path | None:
         """Find latest file or folder inside a given folder
 
         Args:
@@ -140,6 +174,8 @@ class LightingTraining(LightningWrapper, TrainingWrapper):
         latest_time = -1
         for item in Path(path).iterdir():
             time = max(os.stat(item))
+            if not Path(item).suffix == suffix:
+                continue
 
             if time > latest_time:
                 latest_time = time

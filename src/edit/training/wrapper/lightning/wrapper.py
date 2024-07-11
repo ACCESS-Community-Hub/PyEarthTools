@@ -7,6 +7,7 @@
 # from the use of the software.
 
 from __future__ import annotations
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Optional
 import warnings
@@ -31,21 +32,37 @@ class LightningWrapper(ModelWrapper):
 
     model: L.LightningModule
     _default_datamodule = PipelineLightningDataModule
+    _loaded_file: str | Path
+
+    _edit_repr = {"expand_attr": ["trainer_kwargs", 'pipelines', 'splits'], }
 
     def __init__(
         self,
         model: L.LightningModule,
         data: (
-            dict[str, Pipeline | tuple[Pipeline, ...]] | tuple[Pipeline, ...] | Pipeline | PipelineLightningDataModule
+            dict[str, Pipeline | str | tuple[Pipeline, ...]] | tuple[Pipeline | str , ...] | str | Pipeline | PipelineLightningDataModule
         ),
         path: str | Path,
         trainer_kwargs: Optional[dict[str, Any]] = None,
         **kwargs,
     ):
+        """
+        Base pytorch lightning model wrapper
+
+        Args:
+            model (L.LightningModule): 
+                Lightning Model to use for prediction.
+            data (dict[str, Pipeline | str | tuple[Pipeline, ...]] | tuple[Pipeline | str , ...] | str | Pipeline | PipelineLightningDataModule): 
+                Pipeline to use to get data. Will be converted into a `PipelineLightningDataModule`.
+            path (str | Path): 
+                Root path 
+            trainer_kwargs (Optional[dict[str, Any]], optional): 
+                Kwargs for `L.Trainer`. Defaults to None.
+        """        
         super().__init__(model, data)
 
         self.path = Path(path)
-        self.datamodule.save(self.path / "datamodule.yaml")
+        self.datamodule.save(self.path / "DataModule")
 
         self._trainer_kwargs = trainer_kwargs or dict(kwargs)
         self._trainer_kwargs["default_root_dir"] = path
@@ -56,7 +73,7 @@ class LightningWrapper(ModelWrapper):
 
     @property
     def trainer(self) -> L.Trainer:
-        return self.get_trainer()
+        return self.get_trainer(**self.trainer_kwargs)
 
     def get_trainer(self, **kwargs) -> L.Trainer:
         """Get Lightning trainer updated with `kwargs`."""

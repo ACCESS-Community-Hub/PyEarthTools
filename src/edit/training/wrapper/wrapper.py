@@ -45,7 +45,7 @@ class ModelWrapper(InitialisationRecordingMixin, metaclass=ABCMeta):
         if not isinstance(data, PipelineDataModule):
             data = self._default_datamodule(data)
         if not isinstance(data, self._default_datamodule):
-            data = self._default_datamodule(data.pipelines, train_split = data._train_split, valid_split = data._valid_split)
+            data = self._default_datamodule(data.pipelines, train_split = data._train_split, valid_split = data._valid_split) # type: ignore
 
         self.model = model
         self.datamodule = data

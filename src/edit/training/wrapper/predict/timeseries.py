@@ -387,6 +387,8 @@ class TimeSeriesManagedRecurrent(TimeSeriesAutoRecurrent):
 
         Can be used with `datamodules` that return dictionarys or data,
 
+        If `model` returns a dictionary, will look for a key `prediction` for predictions to pass to outputs.
+
         Args:
             idx (Any):
                 Index to get initial conditions at
