@@ -16,12 +16,15 @@ import warnings
 
 import yaml
 
+from edit.data.utils import parse_path
+
 from edit.utils.initialisation.imports import dynamic_import
 from edit.utils import initialisation
 
 import edit.pipeline
 
 CONFIG_KEY = "--CONFIG--"
+SUFFIX = '.pipe'
 
 
 def save(pipeline: "edit.pipeline.Pipeline", path: Optional[Union[str, Path]] = None) -> Union[None, str]:
@@ -50,10 +53,13 @@ def save(pipeline: "edit.pipeline.Pipeline", path: Optional[Union[str, Path]] = 
 
     if path is None:
         return full_yaml
+    
+    path = Path(parse_path(path))
 
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path = path.with_suffix(SUFFIX)
 
-    with open(path, "w") as file:
+    with open((path), "w") as file:
         file.write(full_yaml)
 
 
@@ -73,11 +79,11 @@ def load(stream: Union[str, Path], **kwargs: Any) -> "edit.pipeline.Pipeline":
     """
     contents = None
 
-    if os.path.sep in str(stream) or os.path.exists(stream):
+    if os.path.sep in str(stream) or os.path.exists(parse_path(stream)):
         try:
-            if Path(stream).is_dir():
-                raise FileNotFoundError(f"{stream!r} is directory and cannot be opened.")
-            contents = "".join(open(str(stream)).readlines())
+            if Path(parse_path(stream)).is_dir():
+                raise FileNotFoundError(f"{parse_path(stream)!r} is directory and cannot be opened.")
+            contents = "".join(open(str(parse_path(stream))).readlines())
         except OSError:
             pass
 
@@ -106,4 +112,7 @@ def load(stream: Union[str, Path], **kwargs: Any) -> "edit.pipeline.Pipeline":
                     UserWarning,
                 )
 
-    return yaml.load(contents, initialisation.Loader)
+    loaded_obj = yaml.load(contents, initialisation.Loader)
+    if not isinstance(loaded_obj, edit.pipeline.Pipeline):
+        raise FileNotFoundError(f"Cannot load {stream!r}, is it a valid Pipeline?")
+    return loaded_obj
