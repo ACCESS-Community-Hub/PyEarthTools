@@ -32,6 +32,12 @@ ATTRIBUTE_MARK = edit.data.transforms.attributes.set_attributes(
 
 
 class MLDataIndex(BaseCacheIndex, TimeIndex):
+    """
+    `edit.training` DataIndex
+    
+    Uses an underlying ML model to generate data to cache.    
+    """
+    _save_self = False
 
     def __init__(
         self,
@@ -49,7 +55,7 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
     ):
         """Setup ML Data Index from defined wrapper
 
-        !!! Info
+        Info:
             This can be used just like an [Index][edit.data.indexes] from [edit.data][edit.data],
             so calling or indexing into this object work, as well as supplying transforms.
 
