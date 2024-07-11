@@ -15,7 +15,6 @@ import edit.data
 from edit.pipeline.operation import Operation
 
 
-#TODO __dataset__ in attrs for  global attrs and eocndig
 class ToXarray(Operation):
     """
     Numpy -> Xarray Converter
