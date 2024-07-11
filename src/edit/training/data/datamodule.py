@@ -10,13 +10,28 @@
 Training DataModule from Pipelines
 """
 
+from __future__ import annotations
+
 import functools
-from typing import Union, Optional, Callable, Any
+from typing import Optional, Callable, Any
 
 import numpy as np
+from pathlib import Path
 
+import edit.pipeline
 from edit.pipeline import Pipeline, Iterator
-from edit.utils.initialisation import InitialisationRecordingMixin, save
+from edit.utils.initialisation import InitialisationRecordingMixin
+
+
+CONFIG_KEY = "--CONFIG--"
+SUFFIX = ".datamodule"
+
+
+def load_pipelines(pipeline: Pipeline | str) -> Pipeline:
+    """Load pipelines if str"""
+    if isinstance(pipeline, str):
+        return edit.pipeline.load(pipeline)
+    return pipeline
 
 
 class PipelineDataModule(InitialisationRecordingMixin):
@@ -28,11 +43,12 @@ class PipelineDataModule(InitialisationRecordingMixin):
 
     `train` configures the pipelines from `train_split` and `valid` for validation.
     """
+
     _train: Optional[bool] = None
 
     def __init__(
         self,
-        pipelines: Union[dict[str, Union[Pipeline, tuple[Pipeline, ...]]], tuple[Pipeline, ...], Pipeline],
+        pipelines: dict[str, str | Pipeline | tuple[Pipeline, ...]] | tuple[Pipeline | str, ...] | Pipeline | str,
         train_split: Optional[Iterator] = None,
         valid_split: Optional[Iterator] = None,
     ):
@@ -40,7 +56,7 @@ class PipelineDataModule(InitialisationRecordingMixin):
         Setup `Pipeline`'s for use with ML Training
 
         Args:
-            pipelines (Union[dict[str,Union[Pipeline, tuple[Pipeline,...]]], tuple[Pipeline,...],Pipeline]):
+            pipelines (dict[str, str | Pipeline | tuple[Pipeline, ...]] | tuple[Pipeline | str, ...] | Pipeline | str):
                 Pipelines for data retrieval, can be dictionary and/or list/tuple of `Pipelines` or a single `Pipeline`
             train_split (Optional[Iterator], optional):
                 Iterator to use for training. Pipelines configured by calling `.train()`. Defaults to None.
@@ -50,16 +66,16 @@ class PipelineDataModule(InitialisationRecordingMixin):
         super().__init__()
         self.record_initialisation()
 
-        self._pipelines = pipelines
+        self._pipelines = self.map_function(pipelines, load_pipelines)
+        
+        self.update_initialisation(pipelines = self._pipelines)
+        
         self._train_split = train_split
         self._valid_split = valid_split
 
     @property
-    def pipelines(self):
-        return self._pipelines
-
-    def save(self, *args, **kwargs):
-        save(self, *args, **kwargs)
+    def pipelines(self) -> dict[str, Pipeline | tuple[Pipeline, ...]] | tuple[Pipeline, ...] | Pipeline:
+        return self._pipelines  # type: ignore
 
     @classmethod
     def map_function(cls, obj, function: Callable[[Any], Any], **kwargs):
@@ -74,7 +90,7 @@ class PipelineDataModule(InitialisationRecordingMixin):
         """
         Map a function over `Pipelines`
         """
-        return self.map_function(self._pipelines, function, **kwargs)
+        return self.map_function(self.pipelines, function, **kwargs)
 
     def train(self):
         """
@@ -82,7 +98,7 @@ class PipelineDataModule(InitialisationRecordingMixin):
         """
         if self._train_split is None:
             raise ValueError("Cannot enter training mode as `train_split` is None.")
-        
+
         self._train = True
 
         def set_iterator(obj: Pipeline):
@@ -96,7 +112,7 @@ class PipelineDataModule(InitialisationRecordingMixin):
         """
         if self._valid_split is None:
             raise ValueError("Cannot enter validation mode as `valid_split` is None.")
-        
+
         self._train = False
 
         def set_iterator(obj: Pipeline):
@@ -107,8 +123,9 @@ class PipelineDataModule(InitialisationRecordingMixin):
     def check_for_use(self):
         """Check if `datamodule` is ready for use."""
         if self._train is None:
-            raise RuntimeError("An iterator has not be configured, call either `.train()`, or `.eval()` for training / evaluation mode.")
-
+            raise RuntimeError(
+                "An iterator has not be configured, call either `.train()`, or `.eval()` for training / evaluation mode."
+            )
 
     def __getitem__(self, idx):
         self.check_for_use()
@@ -117,7 +134,7 @@ class PipelineDataModule(InitialisationRecordingMixin):
 
         if iterator is None:
             raise TypeError("Cannot index into data without an iterator set.")
-        
+
         idx = iterator.samples[idx]
         return self.map_function_to_pipelines(lambda x: x[idx])
 
@@ -156,4 +173,37 @@ class PipelineDataModule(InitialisationRecordingMixin):
             return type(obj)(map(PipelineDataModule.find_shape, obj))
         return obj.shape
 
-    
+    def save(self, path: Optional[str | Path] = None) -> None | str:
+        """
+        Save `PipelineDataModule`
+
+        Args:
+            path (Optional[str | Path], optional):
+                File to save to. If not given return save str. Defaults to None.
+
+        Returns:
+            (Union[None, str]):
+                If `path` is None, `PipelineDataModule` in save form else None.
+        """
+        from edit.training.data.fileio import save
+
+        return save(self, path)
+
+    @classmethod
+    def load(cls, stream: str | Path, **kwargs: Any) -> "PipelineDataModule":
+        """
+        Load `PipelineDataModule` config
+
+        Args:
+            stream (str | Path):
+                File or dump to load
+            kwargs (Any):
+                Updates to default values include in the config.
+
+        Returns:
+            (PipelineDataModule):
+                Loaded PipelineDataModule
+        """
+        from edit.training.data.fileio import load
+
+        return load(stream, **kwargs)
