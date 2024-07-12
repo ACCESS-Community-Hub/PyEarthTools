@@ -8,23 +8,32 @@
 
 from __future__ import annotations
 
-from torch.utils.data import IterableDataset, get_worker_info
+from torch.utils.data import IterableDataset, get_worker_info, Dataset
 
 from edit.pipeline import Pipeline
 
 
-class PytorchIterable(IterableDataset):
-    """
-    Connect Data Pipeline with PyTorch IterableDataset
-
-    """
-
-    def __init__(self, pipeline: Pipeline) -> None:
-        super().__init__()
+class BasePytorchPipeline:
+    def __init__(self, pipeline: Pipeline, **kwargs) -> None:
+        super().__init__(**kwargs)
         self._pipeline = pipeline
 
     def save(self, *args, **kwargs):
         return self._pipeline.save(*args, **kwargs)
+
+    @property
+    def iterator(self):
+        return self._pipeline.iterator
+
+    @iterator.setter
+    def iterator(self, val):
+        self._pipeline.iterator = val
+
+
+class PytorchIterable(BasePytorchPipeline, IterableDataset):
+    """
+    Connect Data Pipeline with PyTorch IterableDataset
+    """
 
     def __iter__(self):
         pipeline = self._pipeline
@@ -56,6 +65,12 @@ class PytorchIterable(IterableDataset):
                 yield data
         self._current_index = None
 
-    @property
-    def ignore_debug(self):
-        return True
+
+class PytorchDataset(BasePytorchPipeline, Dataset):
+    """Mapped Dataset of `Pipeline`"""
+
+    def __len__(self):
+        return len(self._pipeline.iteration_order)
+
+    def __getitem__(self, idx):
+        return self._pipeline[self._pipeline.iteration_order[idx]]

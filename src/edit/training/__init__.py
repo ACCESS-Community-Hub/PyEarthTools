@@ -9,20 +9,22 @@
 """
 EDIT Training 
 
-Using [edit.data][edit.data.indexes] DataIndexes prepare data for training, 
+Using `edit` prepare data for training, 
 and allow rapid distributed training of Machine Learning Models.
-
 """
+# ruff: noqa: F401
 
-from edit.training import loader, trainer, manage
-from edit.training.trainer import MLDataIndex
+from edit.training import data, wrapper, manage
 
-try:
-    from edit.training import modules
-except ImportError:
-    pass
+from edit.training.wrapper import *  # type: ignore # noqa: F403
+from edit.training.index import MLDataIndex
 
-if __name__ == "__main__":
-    trainer.commands.entry_point()
+# try:
+#     from edit.training import modules
+# except ImportError:
+#     pass
 
-__version__ = "2024.07.02"
+# if __name__ == "__main__":
+#     trainer.commands.entry_point()
+
+__version__ = "2024.07.03"

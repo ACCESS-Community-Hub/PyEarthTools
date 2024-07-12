@@ -6,10 +6,16 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
-"""
-Pytorch Lightning `edit` wrappers
+# ruff: noqa: F401
 
 """
+Prediction Wrappers
+"""
 
-
-from edit.training.trainer.lightning.lightning import Inference, Training, LoggingContext
+from edit.training.wrapper.predict.predict import PredictionWrapper
+from edit.training.wrapper.predict.timeseries import (
+    TimeSeriesPredictionWrapper,
+    TimeSeriesAutoRecurrent,
+    TimeSeriesManagedRecurrent,
+    ManualTimeSeriesPredictionWrapper,
+)
