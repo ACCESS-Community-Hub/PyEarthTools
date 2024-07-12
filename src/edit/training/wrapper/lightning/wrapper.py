@@ -34,13 +34,19 @@ class LightningWrapper(ModelWrapper):
     _default_datamodule = PipelineLightningDataModule
     _loaded_file: str | Path
 
-    _edit_repr = {"expand_attr": ["trainer_kwargs", 'pipelines', 'splits'], }
+    _edit_repr = {
+        "expand_attr": ["trainer_kwargs", "pipelines", "splits"],
+    }
 
     def __init__(
         self,
         model: L.LightningModule,
         data: (
-            dict[str, Pipeline | str | tuple[Pipeline, ...]] | tuple[Pipeline | str , ...] | str | Pipeline | PipelineLightningDataModule
+            dict[str, Pipeline | str | tuple[Pipeline, ...]]
+            | tuple[Pipeline | str, ...]
+            | str
+            | Pipeline
+            | PipelineLightningDataModule
         ),
         path: str | Path,
         trainer_kwargs: Optional[dict[str, Any]] = None,
@@ -50,15 +56,15 @@ class LightningWrapper(ModelWrapper):
         Base pytorch lightning model wrapper
 
         Args:
-            model (L.LightningModule): 
+            model (L.LightningModule):
                 Lightning Model to use for prediction.
-            data (dict[str, Pipeline | str | tuple[Pipeline, ...]] | tuple[Pipeline | str , ...] | str | Pipeline | PipelineLightningDataModule): 
+            data (dict[str, Pipeline | str | tuple[Pipeline, ...]] | tuple[Pipeline | str , ...] | str | Pipeline | PipelineLightningDataModule):
                 Pipeline to use to get data. Will be converted into a `PipelineLightningDataModule`.
-            path (str | Path): 
-                Root path 
-            trainer_kwargs (Optional[dict[str, Any]], optional): 
+            path (str | Path):
+                Root path
+            trainer_kwargs (Optional[dict[str, Any]], optional):
                 Kwargs for `L.Trainer`. Defaults to None.
-        """        
+        """
         super().__init__(model, data)
 
         self.path = Path(path)

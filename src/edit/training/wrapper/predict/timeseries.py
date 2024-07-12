@@ -73,14 +73,13 @@ class TimeSeriesPredictionWrapper(PredictionWrapper):
             time_dim (str, optional):
                 Name of time dimension in undone data. Defaults to "time".
         """
-        super().__init__(model, reverse_pipeline) # type: ignore
+        super().__init__(model, reverse_pipeline)  # type: ignore
         self.record_initialisation()
 
         self._interval = TimeDelta(interval)
         self._time_dim = time_dim
         self._fix_time_dim = fix_time_dim
 
-        
     def fix_time_dim(self, idx, data: XR_TYPE, *, offset: int = 1) -> XR_TYPE:
         """
         Time dimension is usually wrong after running out, so this attempts to fix it.
@@ -335,7 +334,7 @@ class TimeSeriesManagedRecurrent(TimeSeriesAutoRecurrent):
                 E.g. variable_manager.split(model_output, output_order)
                 If model outputs inputs, and diagnostics, `output_order` would be `ID`.
             input_order (str, Optional):
-                Override for order of input data, if incoming data is not a dictionary. 
+                Override for order of input data, if incoming data is not a dictionary.
                 If not given, and `incoming data` is array will use default order from `variable_manager`.
                 Defaults to None.
             take_missing_from_input (bool):
@@ -358,10 +357,10 @@ class TimeSeriesManagedRecurrent(TimeSeriesAutoRecurrent):
         )
         self.record_initialisation()
         self.variable_manager = variable_manager
-        
+
         self._input_order = input_order
         self._output_order = output_order
-        
+
         self._take_missing_from_input = take_missing_from_input
         self._extra_pipelines = extra_pipelines
 
@@ -410,7 +409,9 @@ class TimeSeriesManagedRecurrent(TimeSeriesAutoRecurrent):
         input_dict = (
             dict(input_data)
             if isinstance(input_data, dict)
-            else self.variable_manager.split(input_data if not fake_batch_dim else input_data[0], order = self._input_order)
+            else self.variable_manager.split(
+                input_data if not fake_batch_dim else input_data[0], order=self._input_order
+            )
         )
 
         _ = self.reverse_pipeline
@@ -420,10 +421,10 @@ class TimeSeriesManagedRecurrent(TimeSeriesAutoRecurrent):
             current_time_step = EDITDatetime(idx) + (self._interval * step)
 
             model_output = self._predict(input_data)
-            
+
             if isinstance(model_output, dict):
                 output_components = dict(model_output)
-                model_output = model_output['prediction']
+                model_output = model_output["prediction"]
                 if fake_batch_dim:
                     model_output = model_output[0]
             else:
@@ -432,7 +433,6 @@ class TimeSeriesManagedRecurrent(TimeSeriesAutoRecurrent):
                 output_components = self.variable_manager.split(model_output, self._output_order)
 
             outputs.append(model_output)
-
 
             for data_name in input_dict.keys():  # type: ignore
                 if data_name not in output_components:
@@ -444,9 +444,9 @@ class TimeSeriesManagedRecurrent(TimeSeriesAutoRecurrent):
                         else:
                             pipeline_for_data = self.pipelines[data_name]  # type: ignore
                         output_components[data_name] = pipeline_for_data[str(current_time_step)]  # type: ignore
-            
+
             output_components = {key: output_components[key] for key in input_dict.keys()}
-            
+
             if input_as_dict:
                 if fake_batch_dim:
                     input_data = {key: self.datamodule.fake_batch_dim(val) for key, val in output_components.items()}

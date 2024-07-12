@@ -34,9 +34,10 @@ ATTRIBUTE_MARK = edit.data.transforms.attributes.set_attributes(
 class MLDataIndex(BaseCacheIndex, TimeIndex):
     """
     `edit.training` DataIndex
-    
-    Uses an underlying ML model to generate data to cache.    
+
+    Uses an underlying ML model to generate data to cache.
     """
+
     _save_self = False
 
     def __init__(

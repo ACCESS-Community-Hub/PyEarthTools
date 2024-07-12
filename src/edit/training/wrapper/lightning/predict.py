@@ -34,7 +34,7 @@ class LoggingContext:
     def __enter__(self, *args, **kwargs):
         if self.change:
             logging.getLogger("pytorch_lightning").setLevel(logging.ERROR)
-            logging.getLogger('lightning').setLevel(0)
+            logging.getLogger("lightning").setLevel(0)
             warnings.simplefilter(action="ignore", category=UserWarning)
 
     def __exit__(self, *args, **kwargs):
@@ -52,26 +52,32 @@ class LightingPrediction(LightningWrapper):
     def __init__(
         self,
         model: L.LightningModule,
-        data: dict[str, Pipeline | str | tuple[Pipeline, ...]] | tuple[Pipeline | str , ...] | str | Pipeline | PipelineLightningDataModule,
+        data: (
+            dict[str, Pipeline | str | tuple[Pipeline, ...]]
+            | tuple[Pipeline | str, ...]
+            | str
+            | Pipeline
+            | PipelineLightningDataModule
+        ),
         trainer_kwargs: dict[str, Any] | None = None,
         **kwargs,
     ):
         """
         Lightning Prediction Wrapper
-        
+
         Allows for prediction with a pytorch lightning model upon `edit` data.
 
         Args:
-            model (L.LightningModule): 
+            model (L.LightningModule):
                 Lightning Model to use for prediction.
-            data (dict[str, Pipeline | str | tuple[Pipeline, ...]] | tuple[Pipeline | str , ...] | str | Pipeline | PipelineLightningDataModule): 
+            data (dict[str, Pipeline | str | tuple[Pipeline, ...]] | tuple[Pipeline | str , ...] | str | Pipeline | PipelineLightningDataModule):
                 Pipeline to use to get data. Will be converted into a `PipelineLightningDataModule`.
-            trainer_kwargs (dict[str, Any] | None, optional): 
+            trainer_kwargs (dict[str, Any] | None, optional):
                 Kwargs to provide to Lightning Trainer. Defaults to None.
-        """        
+        """
         path, self.temp_dir = parse_root_dir("temp")
-        logging.getLogger('lightning').setLevel(0)
-        
+        logging.getLogger("lightning").setLevel(0)
+
         super().__init__(model, data, path, trainer_kwargs, **kwargs)
         self.record_initialisation(ignore="model")
 

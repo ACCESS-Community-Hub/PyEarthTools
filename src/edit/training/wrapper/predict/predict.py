@@ -79,7 +79,9 @@ class PredictionWrapper(InitialisationRecordingMixin, metaclass=ABCMeta):
     def reverse_pipeline(self) -> Pipeline:
         if self._reverse_pipeline is None:
             if not isinstance(self.pipelines, Pipeline):
-                raise TypeError("`reverse_pipeline` was not given but `datamodule` is not a simple `Pipeline`. Either set `reverse_pipeline` to an index, or a `Pipeline`.")
+                raise TypeError(
+                    "`reverse_pipeline` was not given but `datamodule` is not a simple `Pipeline`. Either set `reverse_pipeline` to an index, or a `Pipeline`."
+                )
             return self.pipelines
         elif isinstance(self._reverse_pipeline, Pipeline):
             return self._reverse_pipeline

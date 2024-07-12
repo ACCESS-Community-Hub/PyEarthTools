@@ -39,7 +39,7 @@ def get_logger(logger: str | bool, path: str, **kwargs):
 
     if isinstance(logger, bool):
         if logger:
-            logger = 'tensorboard'
+            logger = "tensorboard"
         else:
             return
 
@@ -54,7 +54,6 @@ def get_logger(logger: str | bool, path: str, **kwargs):
 
     elif logger == "csv":
         return loggers.CSVLogger(path, **kwargs)
-    
 
 
 def make_callback(callback: str, kwargs: dict[str, Any], **formats):
@@ -73,7 +72,11 @@ class LightingTraining(LightningWrapper, TrainingWrapper):
         self,
         model: L.LightningModule,
         data: (
-            dict[str, Pipeline | str | tuple[Pipeline, ...]] | tuple[Pipeline | str, ...] | str | Pipeline | PipelineLightningDataModule
+            dict[str, Pipeline | str | tuple[Pipeline, ...]]
+            | tuple[Pipeline | str, ...]
+            | str
+            | Pipeline
+            | PipelineLightningDataModule
         ),
         path: str | Path,
         trainer_kwargs: dict[str, Any] | None = None,
@@ -86,19 +89,19 @@ class LightingTraining(LightningWrapper, TrainingWrapper):
         Pytorch Lightning Training Logger
 
         Args:
-            model (L.LightningModule): 
+            model (L.LightningModule):
                 Lightning Model to use for prediction.
-            data (dict[str, Pipeline | str | tuple[Pipeline, ...]] | tuple[Pipeline | str , ...] | str | Pipeline | PipelineLightningDataModule): 
+            data (dict[str, Pipeline | str | tuple[Pipeline, ...]] | tuple[Pipeline | str , ...] | str | Pipeline | PipelineLightningDataModule):
                 Pipeline to use to get data. Will be converted into a `PipelineLightningDataModule`.
-            path (str | Path): 
+            path (str | Path):
                 Root path to save logs and checkpoints into.
-            trainer_kwargs (dict[str, Any] | None, optional): 
+            trainer_kwargs (dict[str, Any] | None, optional):
                 Kwargs for `L.Trainer`, i.e. `max_epochs`, .... Defaults to None.
-            checkpointing (Optional[dict[str, Any] | tuple[dict[str, Any], ...] | bool], optional): 
+            checkpointing (Optional[dict[str, Any] | tuple[dict[str, Any], ...] | bool], optional):
                 Checkpointing config, can be True to use default epoch checkpointing, or dictionary of config / tuple of dictionaries. Defaults to None.
-            logger (Optional[str | dict[str, Any]], optional): 
+            logger (Optional[str | dict[str, Any]], optional):
                 Logging config, can be True to use default `tensorboard` config, or dictionary of config. Defaults to None.
-        """        
+        """
 
         super().__init__(model, data, path, trainer_kwargs, **kwargs)
         self.record_initialisation(ignore="model")

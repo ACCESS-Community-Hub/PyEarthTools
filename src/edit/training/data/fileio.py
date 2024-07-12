@@ -75,7 +75,7 @@ def load(stream: str | Path, **kwargs: Any) -> PipelineDataModule:
         try:
             if Path(stream).is_dir():
                 raise FileNotFoundError(f"{stream!r} is directory and cannot be opened.")
-            contents = "".join(open(str(stream), 'r').readlines())
+            contents = "".join(open(str(stream), "r").readlines())
         except OSError:
             pass
 
