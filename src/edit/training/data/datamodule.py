@@ -67,9 +67,9 @@ class PipelineDataModule(InitialisationRecordingMixin):
         self.record_initialisation()
 
         self._pipelines = self.map_function(pipelines, load_pipelines)
-        
-        self.update_initialisation(pipelines = self._pipelines)
-        
+
+        self.update_initialisation(pipelines=self._pipelines)
+
         self._train_split = train_split
         self._valid_split = valid_split
 
