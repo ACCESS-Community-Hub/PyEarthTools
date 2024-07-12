@@ -7,13 +7,14 @@
 # from the use of the software.
 
 from __future__ import annotations
-from functools import lru_cache
 from pathlib import Path
 from typing import Any, Optional
 import warnings
 
 import pytorch_lightning as L
 import torch
+
+from edit.data.utils import parse_path
 
 from edit.pipeline.controller import Pipeline
 from edit.training.data.lightning import PipelineLightningDataModule
@@ -67,7 +68,7 @@ class LightningWrapper(ModelWrapper):
         """
         super().__init__(model, data)
 
-        self.path = Path(path)
+        self.path = Path(parse_path(path))
         self.datamodule.save(self.path / "DataModule")
 
         self._trainer_kwargs = trainer_kwargs or dict(kwargs)

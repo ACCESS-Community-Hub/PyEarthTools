@@ -73,4 +73,4 @@ class PytorchDataset(BasePytorchPipeline, Dataset):
         return len(self._pipeline.iteration_order)
 
     def __getitem__(self, idx):
-        return self._pipeline(self._pipeline.iteration_order[idx])
+        return self._pipeline[self._pipeline.iteration_order[idx]]

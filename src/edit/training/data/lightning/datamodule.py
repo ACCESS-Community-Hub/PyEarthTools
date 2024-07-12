@@ -10,6 +10,7 @@ from __future__ import annotations
 
 
 import lightning as L
+from lightning.pytorch.utilities import CombinedLoader
 from torch.utils.data import DataLoader
 
 from edit.pipeline.controller import Pipeline
@@ -31,6 +32,7 @@ class PipelineLightningDataModule(PipelineDataModule, L.LightningDataModule):
         pipelines: dict[str, Pipeline | str | tuple[Pipeline, ...]] | tuple[Pipeline | str, ...] | Pipeline | str,
         train_split: Iterator | None = None,
         valid_split: Iterator | None = None,
+        *,
         iterator_dataset: bool = False,
         **kwargs,
     ):
@@ -78,13 +80,4 @@ class PipelineLightningDataModule(PipelineDataModule, L.LightningDataModule):
         Fix: Wrap it in another layer if a dict or tuple.
         """
         self.eval()
-        dataloader = self.map_function(self._dataloader, DataLoader, **self._kwargs)
-        if isinstance(dataloader, dict):
-            return {"validation": dataloader}
-        elif isinstance(dataloader, tuple):
-            return (dataloader,)
-        return dataloader
-
-    def predict_dataloader(self):
-        self.eval()
-        return self.map_function(self._dataloader, DataLoader, **self._kwargs)
+        return CombinedLoader(self.map_function(self._dataloader, DataLoader, **self._kwargs), 'min_size')
