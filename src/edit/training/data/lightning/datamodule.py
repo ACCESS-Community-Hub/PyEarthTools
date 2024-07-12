@@ -88,4 +88,4 @@ class PipelineLightningDataModule(PipelineDataModule, L.LightningDataModule):
         Fix: Wrap it in another layer if a dict or tuple.
         """
         self.eval()
-        return CombinedLoader(self.map_function(self._dataloader, DataLoader, **self._kwargs), 'min_size')
+        return CombinedLoader(self.map_function(self._dataloader, DataLoader, **self._kwargs), "min_size")

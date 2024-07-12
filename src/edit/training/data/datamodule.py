@@ -28,6 +28,7 @@ SUFFIX = ".datamodule"
 
 T = TypeVar("T", Any, Any)
 
+
 def load_pipelines(pipeline: Pipeline | str) -> Pipeline:
     """Load pipelines if str"""
     if isinstance(pipeline, str):
@@ -44,7 +45,7 @@ class PipelineDataModule(InitialisationRecordingMixin):
 
     `train` configures the pipelines from `train_split` and `valid` for validation.
 
-    
+
     """
 
     _train: Optional[bool] = None
@@ -81,7 +82,9 @@ class PipelineDataModule(InitialisationRecordingMixin):
         return self._pipelines  # type: ignore
 
     @classmethod
-    def map_function(cls, obj: dict[str, T | tuple[T, ...]] | tuple[T, ...] | T, function: Callable[[Any], Any], **kwargs):
+    def map_function(
+        cls, obj: dict[str, T | tuple[T, ...]] | tuple[T, ...] | T, function: Callable[[Any], Any], **kwargs
+    ):
         recur_function = functools.partial(PipelineDataModule.map_function, function=function, **kwargs)
         if isinstance(obj, dict):
             return {key: recur_function(val) for key, val in obj.items()}

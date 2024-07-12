@@ -30,11 +30,12 @@ class BaseDefault:
     def __len__(self):
         return len(self._pipeline.iteration_order)
 
+
 class IterableDataset(BaseDefault):
     """
     Iterate over pipeline
     """
-    
+
     def __iter__(self):
         for sample in self._pipeline:
             yield sample

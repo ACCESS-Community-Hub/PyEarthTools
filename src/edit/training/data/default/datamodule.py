@@ -19,6 +19,7 @@ from edit.pipeline.iterators import Iterator
 from edit.training.data.datamodule import PipelineDataModule
 from edit.training.data.default.datasets import IndexableDataset, IterableDataset, BaseDefault
 
+
 def map_function(obj, function: Callable[[Any], Any], **kwargs):
     """Map function over `obj`."""
     recur_function = functools.partial(map_function, function=function, **kwargs)
@@ -28,12 +29,13 @@ def map_function(obj, function: Callable[[Any], Any], **kwargs):
         return type(obj)(map(recur_function, obj))
     return function(obj, **kwargs)
 
+
 def combine_batches(samples):
     """Combine batches of data"""
     if all(map(lambda x: isinstance(x, np.ndarray), samples)):
         return np.stack(samples)
     if all(map(lambda x: isinstance(x, (xr.Dataset, xr.DataArray)), samples)):
-        return xr.concat(samples, dim = 'batch').assign_coords(batch = range(len(samples)))
+        return xr.concat(samples, dim="batch").assign_coords(batch=range(len(samples)))
     raise TypeError(f"Cannot combine batches of type: {tuple(map(type, samples))}.")
 
 
@@ -43,7 +45,7 @@ class DataLoader:
 
 
     If combining xarray ensure coordinates are combinable,
-    as in, if using a random iterator to get batches, a true time 
+    as in, if using a random iterator to get batches, a true time
     dimension will cause issues with missing values. Instead use
     a lead_time dimension which should be the same across batches.
 
@@ -57,21 +59,25 @@ class DataLoader:
         for i in dataloader:
             i.keys() == ('testing',)
     """
+
     def __init__(
-        self, dataset: BaseDefault | dict[str, BaseDefault] | tuple[BaseDefault, ...], *, batch_size: int = 1,
+        self,
+        dataset: BaseDefault | dict[str, BaseDefault] | tuple[BaseDefault, ...],
+        *,
+        batch_size: int = 1,
     ):
         """
         Default DataLoader to allow batch of datasets for training applications.
 
         Args:
-            dataset (BaseDefault | dict[str, BaseDefault] | tuple[BaseDefault, ...]): 
+            dataset (BaseDefault | dict[str, BaseDefault] | tuple[BaseDefault, ...]):
                 Datasets to use. Can handle iterables of dict and tuples, and maintains upon iter.
-            batch_size (int, optional): 
+            batch_size (int, optional):
                 Number of elements to accumulate into a batch. Defaults to 1.
             ```
-        """        
+        """
         if not isinstance(dataset, BaseDefault):
-            dataset = map_function(dataset, DataLoader, batch_size=batch_size) # type: ignore
+            dataset = map_function(dataset, DataLoader, batch_size=batch_size)  # type: ignore
         self._dataset = dataset
         self.batch_size = batch_size
 
@@ -84,7 +90,9 @@ class DataLoader:
         """
         if isinstance(self._dataset, BaseDefault):
             if isinstance(self._dataset, IndexableDataset):
-                samples = tuple(self._dataset[i] for i in range(self._index, min(self._index + self.batch_size, len(self))))
+                samples = tuple(
+                    self._dataset[i] for i in range(self._index, min(self._index + self.batch_size, len(self)))
+                )
                 self._index += self.batch_size
             elif isinstance(self._dataset, IterableDataset):
                 if self._generator is None:
@@ -99,7 +107,7 @@ class DataLoader:
                     raise StopIteration()
             return combine_batches(samples)
         return map_function(self._dataset, next)
-        
+
     def __iter__(self):
         return self
 
@@ -112,8 +120,9 @@ class DataLoader:
             elif isinstance(obj, dict):
                 return min(map(find_len, obj.values()))
             raise TypeError(f"Cannot find length of {obj}.")
+
         return find_len(self._dataset)
-            
+
 
 class PipelineDefaultDataModule(PipelineDataModule):
     """
@@ -124,8 +133,8 @@ class PipelineDefaultDataModule(PipelineDataModule):
         datamodule = PipelineDefaultDataModule(
             pipleines = Pipeline(...),
             train_split = edit.pipeline.iterators.DateRange('1980', '2020', '6 hours')
-        )    
-        """
+        )
+    """
 
     def __init__(
         self,
@@ -140,16 +149,16 @@ class PipelineDefaultDataModule(PipelineDataModule):
         Default dataloader which mimics the `Lightning` datamodule,
 
         Args:
-            pipelines (dict[str, str  |  Pipeline  |  tuple[Pipeline, ...]] | tuple[Pipeline  |  str, ...] | Pipeline): 
+            pipelines (dict[str, str  |  Pipeline  |  tuple[Pipeline, ...]] | tuple[Pipeline  |  str, ...] | Pipeline):
                 Pipelines for data retrieval, can be dictionary and/or list/tuple of `Pipelines` or a single `Pipeline`
-            train_split (Iterator | None, optional): 
+            train_split (Iterator | None, optional):
                 Iterator to use for training. Pipelines configured by calling `.train()`. Defaults to None.
-            valid_split (Iterator | None, optional): 
+            valid_split (Iterator | None, optional):
                 Iterator to use for validation. Pipelines configured by calling `.valid()`. Defaults to None.
-            iterator_dataset (bool, optional): 
+            iterator_dataset (bool, optional):
                 Whether to use iterator dataset, which will iterate over pipeline instead of direct indexing. Defaults to False.
 
-        """        
+        """
         super().__init__(pipelines, train_split, valid_split)
         self.record_initialisation()
 
