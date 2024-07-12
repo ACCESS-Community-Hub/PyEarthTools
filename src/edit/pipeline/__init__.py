@@ -82,4 +82,4 @@ __all__ = [
     "operations",
     "modifications",
 ]
-__version__ = "2024.07.01"
+__version__ = "2024.07.02"
