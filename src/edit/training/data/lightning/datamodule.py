@@ -25,6 +25,14 @@ class PipelineLightningDataModule(PipelineDataModule, L.LightningDataModule):
     Pytorch Lightning DataModule.
 
     Wraps around `PipelineDataModule` to allow for usage with Lightning
+
+    Usage:
+        ```python
+        datamodule = PipelineLightningDataModule(
+            pipleines = Pipeline(...),
+            train_split = edit.pipeline.iterators.DateRange('1980', '2020', '6 hours')
+        )
+        ```
     """
 
     def __init__(

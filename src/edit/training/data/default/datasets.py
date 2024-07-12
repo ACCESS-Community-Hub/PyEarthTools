@@ -27,12 +27,14 @@ class BaseDefault:
     def iterator(self, val):
         self._pipeline.iterator = val
 
+    def __len__(self):
+        return len(self._pipeline.iteration_order)
 
 class IterableDataset(BaseDefault):
     """
     Iterate over pipeline
     """
-
+    
     def __iter__(self):
         for sample in self._pipeline:
             yield sample
@@ -41,8 +43,5 @@ class IterableDataset(BaseDefault):
 class IndexableDataset(BaseDefault):
     """Mapped Dataset of `Pipeline`"""
 
-    def __len__(self):
-        return len(self._pipeline.iteration_order)
-
     def __getitem__(self, idx):
-        return self._pipeline(self._pipeline.iteration_order[idx])
+        return self._pipeline[self._pipeline.iteration_order[idx]]

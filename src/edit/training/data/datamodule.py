@@ -13,7 +13,7 @@ Training DataModule from Pipelines
 from __future__ import annotations
 
 import functools
-from typing import Optional, Callable, Any
+from typing import Optional, Callable, Any, TypeVar
 
 import numpy as np
 from pathlib import Path
@@ -26,6 +26,7 @@ from edit.utils.initialisation import InitialisationRecordingMixin
 CONFIG_KEY = "--CONFIG--"
 SUFFIX = ".datamodule"
 
+T = TypeVar("T", Any, Any)
 
 def load_pipelines(pipeline: Pipeline | str) -> Pipeline:
     """Load pipelines if str"""
@@ -42,6 +43,8 @@ class PipelineDataModule(InitialisationRecordingMixin):
     special batch faking is needed.
 
     `train` configures the pipelines from `train_split` and `valid` for validation.
+
+    
     """
 
     _train: Optional[bool] = None
@@ -78,7 +81,7 @@ class PipelineDataModule(InitialisationRecordingMixin):
         return self._pipelines  # type: ignore
 
     @classmethod
-    def map_function(cls, obj, function: Callable[[Any], Any], **kwargs):
+    def map_function(cls, obj: dict[str, T | tuple[T, ...]] | tuple[T, ...] | T, function: Callable[[Any], Any], **kwargs):
         recur_function = functools.partial(PipelineDataModule.map_function, function=function, **kwargs)
         if isinstance(obj, dict):
             return {key: recur_function(val) for key, val in obj.items()}
