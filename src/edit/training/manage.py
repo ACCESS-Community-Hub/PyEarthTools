@@ -36,6 +36,8 @@ if TORCH_INSTALLED:
         list: (lambda x: itertools.chain(*x)),
     }
 
+# TODO allow order to be a tuple of strings rather then just single letters
+
 
 class Variables:
     """
@@ -236,9 +238,9 @@ class Variables:
                 raise ValueError(f"Data for {key!s} has incorrect length, expected {self.length(key)}, got {len(val)}.")
 
         if not all(
-            isinstance(type(kwargs[kwarg_names[0]]), type(kwargs[kwarg_names[i]])) for i in range(1, len(kwarg_names))
+            isinstance(kwargs[kwarg_names[i]], type(kwargs[kwarg_names[0]])) for i in range(1, len(kwarg_names))
         ):
-            raise TypeError("All given data must be of the same type.")
+            raise TypeError(f"All given data must be of the same type. Not {tuple(map(type, kwargs.values()))}")
 
         dtype = type(kwargs[kwarg_names[0]])
         return COMBINE_FUNCTIONS[dtype](tuple(kwargs[key] for key in self.names_from_order(order, reorder=True)))
@@ -463,7 +465,7 @@ class Variables:
             return length == data_length
         elif not length == data_length:
             raise ValueError(
-                f"Expected length and data length differed. {length} != {data_length}. \nExpected order {order or self.order} - {self.categories}."
+                f"Expected length and data length differed. (expected) {length} != (actual) {data_length}. \nExpected order {order or self.order} - {self.categories}."
             )
         return True
 
