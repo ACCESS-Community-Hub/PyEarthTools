@@ -57,7 +57,8 @@ def save(pipeline: "edit.pipeline.Pipeline", path: Optional[Union[str, Path]] = 
     path = Path(parse_path(path))
 
     path.parent.mkdir(parents=True, exist_ok=True)
-    path = path.with_suffix(SUFFIX)
+    if not path.suffix:
+        path = path.with_suffix(SUFFIX)
 
     with open((path), "w") as file:
         file.write(full_yaml)
