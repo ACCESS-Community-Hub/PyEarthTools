@@ -388,13 +388,12 @@ class ParallelEnabledMixin:
             if key not in class_interface_kwargs:
                 class_interface_kwargs[key] = {}
             class_interface_kwargs[key].update(interface_kwargs[key])
-        
-        interface = interface or 'Serial'
+
+        interface = interface or "Serial"
         interface = [interface] if not isinstance(interface, list) else interface
 
         for inter in interface:
-            if not edit.utils.config.get(f'pipeline.parallel.enabled.{inter}', True):
+            if not edit.utils.config.get(f"pipeline.parallel.enabled.{inter}", True):
                 continue
             return get_parallel(inter, **class_interface_kwargs)
-        return get_parallel('Serial', **class_interface_kwargs)
-
+        return get_parallel("Serial", **class_interface_kwargs)

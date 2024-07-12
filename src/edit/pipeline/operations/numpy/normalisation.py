@@ -18,7 +18,6 @@ from edit.utils.decorators import BackwardsCompatibility
 from edit.pipeline.operation import Operation
 
 
-
 FILE = Union[str, Path]
 
 __all__ = ["numpyNormalisation", "Anomaly", "Deviation"]

@@ -84,7 +84,7 @@ class ToXarray(DaskOperation):
 
         self._array_shape = array_shape.split(" ") if isinstance(array_shape, str) else array_shape
         self._coords = coords or {}
-        self._coords.update(kwargs) # type: ignore
+        self._coords.update(kwargs)  # type: ignore
 
         self._encoding = encoding or {}
         self._attributes = attributes or {}

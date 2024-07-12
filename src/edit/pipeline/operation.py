@@ -96,7 +96,9 @@ class Operation(PipelineStep, PotentialABC):
         if not self._operation["apply"]:
             return sample
         self.check_type(sample, func_name="apply")
-        if isinstance(sample, np.ndarray) or (isinstance(sample, tuple) and any(map(lambda x: isinstance(x, np.ndarray), sample))):
+        if isinstance(sample, np.ndarray) or (
+            isinstance(sample, tuple) and any(map(lambda x: isinstance(x, np.ndarray), sample))
+        ):
             with parallel.disable:
                 return self._split_tuples_call(sample, _function="apply_func")
         return self._split_tuples_call(sample, _function="apply_func")
@@ -106,22 +108,24 @@ class Operation(PipelineStep, PotentialABC):
         if not self._operation["undo"]:
             return sample
         self.check_type(sample, func_name="undo")
-        if isinstance(sample, np.ndarray) or (isinstance(sample, tuple) and any(map(lambda x: isinstance(x, np.ndarray), sample))):
+        if isinstance(sample, np.ndarray) or (
+            isinstance(sample, tuple) and any(map(lambda x: isinstance(x, np.ndarray), sample))
+        ):
             with parallel.disable:
                 return self._split_tuples_call(sample, _function="undo_func")
         return self._split_tuples_call(sample, _function="undo_func")
-    
+
     @property
     def T(self):
         """
         Transposed Operation.
-        
+
         Swaps `apply` with `undo` so that this operation behaves inversely to normal.
-        
+
         """
         new_operation = self.copy()
         new_operation.apply, new_operation.undo = new_operation.undo, new_operation.apply
-        new_operation._property = 'T'
+        new_operation._property = "T"
         return new_operation
 
     @potentialabstractmethod

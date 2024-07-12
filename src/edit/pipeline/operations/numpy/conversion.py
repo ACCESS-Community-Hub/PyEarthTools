@@ -79,8 +79,8 @@ class ToXarray(Operation):
 
         self._array_shape = array_shape.split(" ") if isinstance(array_shape, str) else array_shape
         self._coords = coords or {}
-        self._coords.update(kwargs) # type: ignore
-        
+        self._coords.update(kwargs)  # type: ignore
+
         self._encoding = encoding or {}
         self._attributes = attributes or {}
 
@@ -102,7 +102,7 @@ class ToXarray(Operation):
             ds_coords.pop("variable", None)
 
             ds_attrs = dict(self._attributes)
-            dataset_attribute = ds_attrs.pop('__dataset__', {})
+            dataset_attribute = ds_attrs.pop("__dataset__", {})
 
             xarray_coord = xr.Coordinates(ds_coords)
 
@@ -159,8 +159,8 @@ class ToXarray(Operation):
                 var_names.append(var)
                 encoding[var] = reference_dataset[var].encoding
                 attributes[var] = reference_dataset[var].attrs
-            
-            attributes['__dataset__'] = reference_dataset.attrs
+
+            attributes["__dataset__"] = reference_dataset.attrs
             coords["variable"] = var_names
 
         for coord in reference_dataset.coords:

@@ -24,7 +24,7 @@ from edit.utils import initialisation
 import edit.pipeline
 
 CONFIG_KEY = "--CONFIG--"
-SUFFIX = '.pipe'
+SUFFIX = ".pipe"
 
 
 def save(pipeline: "edit.pipeline.Pipeline", path: Optional[Union[str, Path]] = None) -> Union[None, str]:
@@ -53,7 +53,7 @@ def save(pipeline: "edit.pipeline.Pipeline", path: Optional[Union[str, Path]] = 
 
     if path is None:
         return full_yaml
-    
+
     path = Path(parse_path(path))
 
     path.parent.mkdir(parents=True, exist_ok=True)

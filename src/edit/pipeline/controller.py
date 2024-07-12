@@ -449,7 +449,7 @@ class Pipeline(_Pipeline, Index):
             else:
                 sample = step(sample)  # type: ignore
         return sample
-    
+
     def __call__(self, obj):
         if isinstance(obj, str):
             return self[obj]

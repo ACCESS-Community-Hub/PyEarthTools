@@ -85,7 +85,7 @@ class Cache(PipelineIndex):
             pattern_kwargs=pattern_kwargs,
             **kwargs,
         )
-        self.update_initialisation(cache = str(self.cache.cache))
+        self.update_initialisation(cache=str(self.cache.cache))
 
     def _generate(self, idx):
         return self.parent_pipeline()[idx]
