@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+from functools import cached_property
 import logging
 import warnings
 
@@ -83,6 +84,10 @@ class LightingPrediction(LightningWrapper):
 
         self.trainer_kwargs.update(PREDICT_KWARGS)
 
+    @cached_property
+    def trainer(self) -> L.Trainer:
+        return super().trainer
+    
     def predict(self, data):
         """
         Run forward pass with `model` on `data`
