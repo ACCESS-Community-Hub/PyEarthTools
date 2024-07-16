@@ -11,7 +11,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from functools import partial
 from typing import Any, Callable, Iterable, Optional, Type, Union
 import warnings
 
@@ -35,13 +34,13 @@ except (ImportError, ModuleNotFoundError) as _:
 MERGE_FUNCTIONS = {
     xr.Dataset: xr.combine_by_coords,
     xr.DataArray: xr.merge,
-    np.ndarray: lambda x: np.stack(x) if len(x) > 1 else x[0],
+    np.ndarray: lambda x, **k: np.merge(x, **k) if len(x) > 1 else x[0],
     list: lambda x: [*x],
     tuple: lambda x: x,
 }
 
 if DASK_IMPORTED:
-    MERGE_FUNCTIONS[da.Array] = lambda x: da.stack(x) if len(x) > 1 else x[0]
+    MERGE_FUNCTIONS[da.Array] = lambda x, **k: da.stack(x, **k) if len(x) > 1 else x[0]
 
 
 class IdxOverride(PipelineIndex):
@@ -72,6 +71,7 @@ class IdxModifier(PipelineIndex, ParallelEnabledMixin):
         modification: Union[Any, tuple[Union[Any, tuple[Any, ...]], ...]],
         *extra_mods: Any,
         merge: Union[bool, int] = False,
+        concat: bool = False,
         merge_function: Optional[Callable[[Any, ...], Any]] = None,
         merge_kwargs: Optional[dict[str, Any]] = None,
     ):
@@ -86,6 +86,8 @@ class IdxModifier(PipelineIndex, ParallelEnabledMixin):
                 If `int` corresponds to how many layers to merge from the bottom up.
                 If `True`, merge one layer.
                 Defaults to False.
+            concat (bool, optional):
+                Whether to concat arrays instead of stack. Defaults to False.
             merge_function (Optional[Callable], optional):
                 Override for function to use when merging.
                 Defaults to None.
@@ -114,6 +116,11 @@ class IdxModifier(PipelineIndex, ParallelEnabledMixin):
                 *extra_mods,
             )
         self._modification = modification
+
+        if concat:
+            MERGE_FUNCTIONS[np.ndarray] = lambda x, **k: np.concatenate(x, **k) if len(x) > 1 else x[0]
+            if DASK_IMPORTED:
+                MERGE_FUNCTIONS[da.Array] = lambda x, **k: da.concatenate(x, **k) if len(x) > 1 else x[0]
 
         merge = int(merge) if isinstance(merge, bool) else int(merge)
 
@@ -329,6 +336,7 @@ class SequenceRetrieval(IdxModifier):
         samples: Union[int, tuple[Union[tuple[int, ...], int], ...]],
         *,
         merge_function: Optional[Callable] = None,
+        concat: bool = False,
         merge_kwargs: Optional[dict[str, Any]] = None,
     ):
         """
@@ -347,6 +355,7 @@ class SequenceRetrieval(IdxModifier):
         super().__init__(
             self._convert(self._parse_samples(samples)),
             merge=self._merge_level,
+            concat = concat,
             merge_function=merge_function,
             merge_kwargs=merge_kwargs,
         )
@@ -424,10 +433,11 @@ class TemporalRetrieval(SequenceRetrieval):
         samples: Union[int, tuple[Union[tuple[int, ...], int], ...]],
         *,
         merge_function: Optional[Callable] = None,
+        concat: bool = False,
         merge_kwargs: Optional[dict[str, Any]] = None,
         delta_unit: Optional[str] = None,
     ):
-        super().__init__(samples, merge_function=merge_function, merge_kwargs=merge_kwargs)
+        super().__init__(samples, merge_function=merge_function, concat = concat, merge_kwargs=merge_kwargs)
 
         def map_to_tuple(mod):
             if isinstance(mod, tuple):
