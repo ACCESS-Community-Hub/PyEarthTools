@@ -120,7 +120,7 @@ class ToXarray(Operation):
         xr_obj = edit.data.transform.attributes.SetEncoding(self._encoding)(xr_obj)  # type: ignore
         xr_obj = edit.data.transform.attributes.SetAttributes(
             self._attributes, apply_on="per_variable" if isinstance(xr_obj, xr.Dataset) else "dataarray"
-        )(xr_obj)
+        )(xr_obj) # type: ignore
         return xr_obj
 
     def undo_func(self, sample: Union[xr.DataArray, xr.Dataset]):
