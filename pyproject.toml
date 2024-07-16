@@ -39,6 +39,7 @@ lightning = [
   "tensorboard",
   "torch", 
   "piqa",
+  "tensorly",
 ]
 pytorch =[
   "edit.training[lightning]",
