@@ -39,11 +39,11 @@ class ParallelToggle:
         self._state = state
 
     def __enter__(self):
-        self._enter_state = edit.utils.config.get("pipeline.run_parallel")
-        edit.utils.config.set({"pipeline.run_parallel": self._state == "enable"})
+        self._enter_state = edit.utils.config.get("pipeline.run-parallel")
+        edit.utils.config.set({"pipeline.run-parallel": self._state == "enable"})
 
     def __exit__(self, *args):
-        edit.utils.config.set({"pipeline.run_parallel": self._enter_state})
+        edit.utils.config.set({"pipeline.run-parallel": self._enter_state})
 
     def __repr__(self):
         return f"Context Manager to toggle parallelisation {'on' if self._state == 'enable' else 'off'}."
@@ -292,7 +292,7 @@ def get_parallel(interface: Optional[PARALLEL_INTERFACES] = None, **interface_kw
         ImportError:
             If cannot use specified `interface` due to its check failing.
     """
-    if not edit.utils.config.get("pipeline.run_parallel"):
+    if not edit.utils.config.get("pipeline.run-parallel"):
         return SerialInterface(**interface_kwargs)
 
     if interface:

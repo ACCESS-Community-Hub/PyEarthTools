@@ -86,7 +86,7 @@ class ExceptionIgnoreContext:
 
     def __init__(self, exceptions: tuple[Exception, ...], max_exceptions: Optional[int] = None):
 
-        self._max_exceptions = max_exceptions or edit.utils.config.get("pipeline.exceptions.max_filter")
+        self._max_exceptions = max_exceptions or edit.utils.config.get("pipeline.exceptions.max-filter")
         self._count = 0
         self._messages = []
         self._exceptions = exceptions

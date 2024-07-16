@@ -1,5 +1,5 @@
 pipeline:
-  run_parallel: True
+  run-parallel: True
   
   parallel:
     enabled:
@@ -11,8 +11,8 @@ pipeline:
     default: 'Serial'
 
   exceptions:
-    max_filter: 10
-    max_iterator: 20
+    max-filter: 10
+    max-iterator: 20
     default_ignore: []
 
   repr:
