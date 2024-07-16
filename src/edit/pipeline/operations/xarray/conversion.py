@@ -42,7 +42,7 @@ class ToNumpy(Operation):
     ):
         """DataOperation to convert data to [np.array][numpy.ndarray]
 
-        If speed is needed without an `undo`, set `run_parallel` to True, and split the data into seperate
+        If speed is needed without an `undo`, set `run_parallel` to True, and split the data into separate
         datasets as much as possible.
             `edit.pipeline.operations.xarray.split.OnVariables()` can be useful here
 
