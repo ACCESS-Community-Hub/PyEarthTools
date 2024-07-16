@@ -22,8 +22,8 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "edit-utils>24.07.1", 
-    "edit-data>24.07.1",
+    "edit-utils>=1.0.0", 
+    "edit-data>=1.0.0",
     "xarray",
     "pandas",
     "graphviz",

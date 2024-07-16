@@ -8,7 +8,7 @@ pipeline:
     dask:
       start: True
       config: {}
-    default: 'Delayed'
+    default: 'Serial'
 
   exceptions:
     max_filter: 10
