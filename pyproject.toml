@@ -34,11 +34,15 @@ readme = {file = ["README.md"], content-type = "text/markdown"}
 version = {attr = "edit.training.__version__"}
 
 [project.optional-dependencies]
-pytorch = [
-  "pytorch-lightning",
+lightning = [
+  "lightning",
   "tensorboard",
   "torch", 
   "piqa",
+  "tensorly",
+]
+pytorch =[
+  "edit.training[lightning]",
 ]
 xgboost = [
   "xgboost",
@@ -52,8 +56,9 @@ onnx_gpu = [
   "onnxruntime_gpu",
 ]
 all = [
-  "edit-training[pytorch]",
+  "edit-training[lightning]",
   "edit-training[xgboost]",
+  "edit-training[onnx_gpu]",
 ]
 
 

@@ -17,7 +17,7 @@ and allow rapid distributed training of Machine Learning Models.
 from edit.training import data, wrapper, manage
 
 from edit.training.wrapper import *  # type: ignore # noqa: F403
-from edit.training.index import MLDataIndex
+from edit.training.dataindex import MLDataIndex
 
 # try:
 #     from edit.training import modules
@@ -27,4 +27,4 @@ from edit.training.index import MLDataIndex
 # if __name__ == "__main__":
 #     trainer.commands.entry_point()
 
-__version__ = "2024.07.03"
+__version__ = "1.0.0"

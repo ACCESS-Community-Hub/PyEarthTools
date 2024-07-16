@@ -14,7 +14,10 @@ from edit.training.data import default
 
 from edit.training.data.fileio import save, load
 
+import logging
+
+LOG = logging.getLogger(__name__)
 try:
     from edit.training.data import lightning
-except (ImportError, ModuleNotFoundError):
-    pass
+except (ImportError, ModuleNotFoundError) as e:
+    LOG.warn(f"Lightning Datamodules could not be imported due to: {e}.")
