@@ -17,7 +17,7 @@ from edit.pipeline.controller import Pipeline
 from edit.pipeline.iterators import Iterator
 
 from edit.training.data.datamodule import PipelineDataModule
-from edit.training.data.lightning.datasets import PytorchDataset, PytorchIterable
+from edit.training.data.lightning.datasets import PytorchDataset, PytorchIterable, BasePytorchPipeline
 
 
 class PipelineLightningDataModule(PipelineDataModule, L.LightningDataModule):
@@ -69,23 +69,46 @@ class PipelineLightningDataModule(PipelineDataModule, L.LightningDataModule):
         self._kwargs = kwargs
 
         # def setup(self, stage = None):
-        def make_torch_dataset(obj: Pipeline):
+        def make_torch_dataset(obj: Pipeline) -> BasePytorchPipeline:
             if self._iterator_dataset:
-                return PytorchIterable(obj)
-            return PytorchDataset(obj)
+                return PytorchIterable(obj.copy())
+            return PytorchDataset(obj.copy())
 
-        self._dataloader = self.map_function_to_pipelines(make_torch_dataset)
+        self._train_dataloader = self.map_function_to_pipelines(make_torch_dataset)
+        self._valid_dataloader = self.map_function_to_pipelines(make_torch_dataset)
 
     def train_dataloader(self):
         self.train()
-        return self.map_function(self._dataloader, DataLoader, **self._kwargs)
+        return self.map_function(self._train_dataloader, DataLoader, **self._kwargs)
 
     def val_dataloader(self):
-        """
-        Lightning appears to treat validation dataloaders differently,
-        and splits a dictionary or tuple rather then passing through,
-
-        Fix: Wrap it in another layer if a dict or tuple.
-        """
         self.eval()
-        return CombinedLoader(self.map_function(self._dataloader, DataLoader, **self._kwargs), "min_size")
+        return CombinedLoader(self.map_function(self._valid_dataloader, DataLoader, **self._kwargs), "min_size")
+
+    def train(self):
+        """
+        Set `Pipeline`s to iterate over `train_split`
+        """
+        if self._train_split is None:
+            raise ValueError("Cannot enter training mode as `train_split` is None.")
+
+        self._train = True
+
+        def set_iterator(obj: BasePytorchPipeline):
+            obj._pipeline.iterator = self._train_split  # type: ignore
+
+        self.map_function(self._train_dataloader, set_iterator)
+
+    def eval(self):
+        """
+        Set `Pipeline`s to iterate over `valid_split`
+        """
+        if self._valid_split is None:
+            raise ValueError("Cannot enter validation mode as `valid_split` is None.")
+
+        self._train = False
+
+        def set_iterator(obj: BasePytorchPipeline):
+            obj._pipeline.iterator = self._valid_split  # type: ignore
+
+        self.map_function(self._valid_dataloader, set_iterator)

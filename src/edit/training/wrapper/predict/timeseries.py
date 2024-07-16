@@ -203,7 +203,7 @@ class TimeSeriesAutoRecurrent(TimeSeriesPredictionWrapper):
                 If `None`, do not combine before undo operation and use `xr.combine_by_coords` after.
                 Defaults to 'concat'.
             combine_axis (int, optional):
-                If to `combine` which axis to combine on.
+                If to `combine` which axis to combine on. Will remove the batch dim, so 0 is actually 1 with batch dim included.
         """
         super().__init__(model, reverse_pipeline, fix_time_dim=fix_time_dim, interval=interval, time_dim=time_dim)
         self.record_initialisation()

@@ -27,6 +27,7 @@ CONFIG_KEY = "--CONFIG--"
 SUFFIX = ".datamodule"
 
 T = TypeVar("T", Any, Any)
+R = TypeVar("R", Any, Any)
 
 
 def load_pipelines(pipeline: Pipeline | str) -> Pipeline:
@@ -83,13 +84,13 @@ class PipelineDataModule(InitialisationRecordingMixin):
 
     @classmethod
     def map_function(
-        cls, obj: dict[str, T | tuple[T, ...]] | tuple[T, ...] | T, function: Callable[[Any], Any], **kwargs
-    ):
+        cls, obj: dict[str, T | tuple[T, ...]] | tuple[T, ...] | T, function: Callable[[Any], R], **kwargs: Any
+    ) -> dict[str, R | tuple[R, ...]] | tuple[R, ...] | R:
         recur_function = functools.partial(PipelineDataModule.map_function, function=function, **kwargs)
         if isinstance(obj, dict):
-            return {key: recur_function(val) for key, val in obj.items()}
+            return {key: recur_function(val) for key, val in obj.items()}  # type: ignore
         if isinstance(obj, (list, tuple)):
-            return type(obj)(map(recur_function, obj))
+            return type(obj)(map(recur_function, obj))  # type: ignore
         return function(obj, **kwargs)
 
     def map_function_to_pipelines(self, function: Callable[[Pipeline], Any], **kwargs):

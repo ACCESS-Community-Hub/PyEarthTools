@@ -87,7 +87,7 @@ class LightingPrediction(LightningWrapper):
     @cached_property
     def trainer(self) -> L.Trainer:
         return super().trainer
-    
+
     def predict(self, data):
         """
         Run forward pass with `model` on `data`

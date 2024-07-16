@@ -15,6 +15,7 @@ from edit.training.data import default
 from edit.training.data.fileio import save, load
 
 import logging
+
 LOG = logging.getLogger(__name__)
 try:
     from edit.training.data import lightning
