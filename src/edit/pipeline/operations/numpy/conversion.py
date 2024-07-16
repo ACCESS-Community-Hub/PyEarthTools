@@ -12,8 +12,10 @@ import numpy as np
 import xarray as xr
 
 import edit.data
+
 from edit.pipeline.operation import Operation
 
+ATTRIBUTES_IGNORE = ['license', 'summary']
 
 class ToXarray(Operation):
     """
@@ -113,9 +115,12 @@ class ToXarray(Operation):
                 )
 
             xr_obj = xr.Dataset(data_vars=data_vars, coords=ds_coords)
-            xr_obj = edit.data.transform.attributes.SetAttributes(dataset_attribute, apply_on="dataarray")(xr_obj)  # type: ignore
+            xr_obj = edit.data.transform.attributes.SetAttributes(dataset_attribute, apply_on="dataset")(xr_obj)  # type: ignore
 
         xr_obj = edit.data.transform.attributes.SetEncoding(self._encoding)(xr_obj)  # type: ignore
+        xr_obj = edit.data.transform.attributes.SetAttributes(
+            self._attributes, apply_on="per_variable" if isinstance(xr_obj, xr.Dataset) else "dataarray"
+        )(xr_obj)
         return xr_obj
 
     def undo_func(self, sample: Union[xr.DataArray, xr.Dataset]):
@@ -142,6 +147,8 @@ class ToXarray(Operation):
             (ToXarray):
                 Converter setup to convert like `reference_dataset`.
         """
+        drop_coords = [drop_coords] if isinstance(drop_coords, str) else drop_coords
+
         if isinstance(reference_dataset, xr.DataArray):
             array_shape = tuple(map(str, reference_dataset.dims))
             coords = {key: list(val.values) for key, val in reference_dataset.coords.items()}
@@ -150,7 +157,7 @@ class ToXarray(Operation):
 
         else:
             array_shape = ("variable", *tuple(map(str, reference_dataset[list(reference_dataset.data_vars)[0]].dims)))
-            coords = {key: list(val.values) for key, val in reference_dataset.coords.items()}
+            coords = {key: val.values.tolist() for key, val in reference_dataset.coords.items()}
             encoding = reference_dataset.encoding
             attributes = reference_dataset.encoding
 
@@ -158,9 +165,9 @@ class ToXarray(Operation):
             for var in reference_dataset:
                 var_names.append(var)
                 encoding[var] = reference_dataset[var].encoding
-                attributes[var] = reference_dataset[var].attrs
+                attributes[var] = {key: val for key, val in reference_dataset[var].attrs.items() if key not in ATTRIBUTES_IGNORE}
 
-            attributes["__dataset__"] = reference_dataset.attrs
+            attributes["__dataset__"] = {key: val for key, val in reference_dataset.attrs.items() if key not in ATTRIBUTES_IGNORE}
             coords["variable"] = var_names
 
         for coord in reference_dataset.coords:

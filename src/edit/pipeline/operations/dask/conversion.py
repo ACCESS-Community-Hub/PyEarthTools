@@ -18,6 +18,7 @@ import edit.data
 
 from edit.pipeline.operations.dask.dask import DaskOperation
 
+ATTRIBUTES_IGNORE = ['license', 'summary']
 
 class ToXarray(DaskOperation):
     """
@@ -53,18 +54,18 @@ class ToXarray(DaskOperation):
             encoding (Optional[dict[str, Any]], optional):
                 Encoding to set, can be variable, or dimension. Defaults to None.
             attributes (Optional[dict[str, Any]], optional):
-                Attributes to set . Defaults to None.
+                Attributes to set. Can use `__dataset__` if dataset to update dataset attrs Defaults to None.
 
         Examples:
             ## Like
             ```python
                 import edit.data
                 import edit.pipeline
-                import numpy as np
+                import dask.array as da
 
                 sample = edit.data.archive.ERA5.sample()('2000-01-01T00')
                 converter = edit.pipeline.operations.numpy.conversion.ToXarray.like(sample)
-                converter.apply(np.ones((1, 1, 721, 1440)))
+                converter.apply(da.ones((1, 1, 721, 1440)))
             ```
 
             ## Manually
@@ -95,6 +96,8 @@ class ToXarray(DaskOperation):
         """
         if "variable" not in self._array_shape:
             xr_obj = xr.DataArray(sample, coords=self._coords, dims=self._array_shape, attrs=self._attributes)
+            xr_obj = edit.data.transform.attributes.SetAttributes(self._attributes, apply_on="dataarray")(xr_obj)  # type: ignore
+
         else:
             array_shape = list(self._array_shape)
             var_index = array_shape.index("variable")
@@ -105,6 +108,7 @@ class ToXarray(DaskOperation):
             ds_coords.pop("variable", None)
 
             ds_attrs = dict(self._attributes)
+            dataset_attribute = ds_attrs.pop("__dataset__", {})
 
             xarray_coord = xr.Coordinates(ds_coords)
 
@@ -115,6 +119,7 @@ class ToXarray(DaskOperation):
                 )
 
             xr_obj = xr.Dataset(data_vars=data_vars, coords=ds_coords)
+            xr_obj = edit.data.transform.attributes.SetAttributes(dataset_attribute, apply_on="dataset")(xr_obj)  # type: ignore
 
         xr_obj = edit.data.transform.attributes.SetEncoding(self._encoding)(xr_obj)  # type: ignore
         xr_obj = edit.data.transform.attributes.SetAttributes(
@@ -146,15 +151,17 @@ class ToXarray(DaskOperation):
             (ToXarray):
                 Converter setup to convert like `reference_dataset`.
         """
+        drop_coords = [drop_coords] if isinstance(drop_coords, str) else drop_coords
+
         if isinstance(reference_dataset, xr.DataArray):
             array_shape = tuple(map(str, reference_dataset.dims))
             coords = {key: list(val.values) for key, val in reference_dataset.coords.items()}
             encoding = reference_dataset.encoding
-            attributes = reference_dataset.encoding
+            attributes = reference_dataset.attrs
 
         else:
             array_shape = ("variable", *tuple(map(str, reference_dataset[list(reference_dataset.data_vars)[0]].dims)))
-            coords = {key: list(val.values) for key, val in reference_dataset.coords.items()}
+            coords = {key: val.values.tolist() for key, val in reference_dataset.coords.items()}
             encoding = reference_dataset.encoding
             attributes = reference_dataset.encoding
 
@@ -162,7 +169,9 @@ class ToXarray(DaskOperation):
             for var in reference_dataset:
                 var_names.append(var)
                 encoding[var] = reference_dataset[var].encoding
-                attributes[var] = reference_dataset[var].attrs
+                attributes[var] = {key: val for key, val in reference_dataset[var].attrs.items() if key not in ATTRIBUTES_IGNORE}
+
+            attributes["__dataset__"] = {key: val for key, val in reference_dataset.attrs.items() if key not in ATTRIBUTES_IGNORE}
             coords["variable"] = var_names
 
         for coord in reference_dataset.coords:
