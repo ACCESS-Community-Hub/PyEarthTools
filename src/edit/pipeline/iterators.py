@@ -56,6 +56,10 @@ class Iterator(PipelineRecordingMixin, metaclass=ABCMeta):
             return SuperIterator(self, other)
 
         return NotImplemented
+    
+    def randomise(self, seed: Optional[int] = 42):
+        """Randomise this interator"""
+        return Randomise(self, seed=seed)
 
 
 class Range(Iterator):
