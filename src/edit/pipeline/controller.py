@@ -42,7 +42,7 @@ VALID_PIPELINE_TYPES = Union[PIPELINE_TYPES, tuple[PIPELINE_TYPES, ...], tuple[t
 
 __all___ = ["Pipeline", "PipelineIndex"]
 
-LOG = logging.getLogger('edit.pipeline')
+LOG = logging.getLogger("edit.pipeline")
 
 
 class PipelineIndex(PipelineRecordingMixin, metaclass=ABCMeta):
@@ -409,7 +409,7 @@ class Pipeline(_Pipeline, Index):
         if not isinstance(val, samplers.Sampler):
             raise TypeError(f"Sampler must be a `edit.pipeline.Sampler`, not {type(val)}.")
         self._sampler = val
-        
+
     @property
     def exceptions_to_ignore(self):
         """Sampler of `Pipeline`"""
@@ -424,20 +424,21 @@ class Pipeline(_Pipeline, Index):
             val (Union[str, Exception, tuple[Union[str, Exception], ...]]):
                 Exceptions to ignore.
         """
+
         def parse(v) -> Type[Exception]:
             if isinstance(v, str):
                 return getattr(builtins, v)
             elif isinstance(v, Type):
                 return v
             raise TypeError(f"Cannot use {v} as an exception class.")
-        
+
         if val is None:
             pass
         else:
             val = (val,) if not isinstance(val, tuple) else val
             val = tuple(map(parse, val))
 
-        self._exceptions_to_ignore = val # type: ignore
+        self._exceptions_to_ignore = val  # type: ignore
 
     def has_source(self) -> bool:
         """Determine if this `Pipeline` contains a source of data, or is just a sequence of operations."""
@@ -739,7 +740,7 @@ class Pipeline(_Pipeline, Index):
                 If `path` is None, `pipeline` in save form else None.
         """
         if only_steps:
-            return edit.pipeline.save(Pipeline(*self.complete_steps), path) # type: ignore
+            return edit.pipeline.save(Pipeline(*self.complete_steps), path)  # type: ignore
         return edit.pipeline.save(Pipeline(*self.complete_steps, iterator=self.iterator, sampler=self.sampler, exceptions_to_ignore=self._exceptions_to_ignore), path)  # type: ignore
 
     def _ipython_display_(self):
