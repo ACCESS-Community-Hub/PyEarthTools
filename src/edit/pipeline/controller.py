@@ -687,18 +687,22 @@ class Pipeline(_Pipeline, Index):
 
         return NotImplemented
 
-    def save(self, path: Optional[Union[str, Path]] = None) -> Union[str, None]:
+    def save(self, path: Optional[Union[str, Path]] = None, only_steps: bool = False) -> Union[str, None]:
         """
         Save `Pipeline`
 
         Args:
             path (Optional[Union[str, Path]], optional):
                 File to save to. If not given return save str. Defaults to None.
+            only_steps (bool, optional):
+                Save only steps of the pipeline, dropping iterator, sampler, and exceptions_to_ignore.
 
         Returns:
             (Union[str, None]):
                 If `path` is None, `pipeline` in save form else None.
         """
+        if only_steps:
+            return edit.pipeline.save(Pipeline(*self.complete_steps), path) # type: ignore
         return edit.pipeline.save(Pipeline(*self.complete_steps, iterator=self.iterator, sampler=self.sampler, exceptions_to_ignore=self._exceptions_to_ignore), path)  # type: ignore
 
     def _ipython_display_(self):

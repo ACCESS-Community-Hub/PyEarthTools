@@ -238,7 +238,7 @@ class Cache(PipelineIndex):
         """
         Get sha512 hash of underlying index
         """
-        configuration = self.as_pipeline().save()
+        configuration = self.as_pipeline().save(only_steps = True)
         return sha512(bytes(str(configuration), "utf-8")).hexdigest()
 
 
