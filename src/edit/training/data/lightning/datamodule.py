@@ -84,9 +84,9 @@ class PipelineLightningDataModule(PipelineDataModule, L.LightningDataModule):
     def val_dataloader(self):
         """
         Returns a `L.CombinedLoader` due to differences with how Lightning handles validation loaders, and train loaders,
-    
+
         This attempts to ensure the behavior is identical.
-        
+
         # Note:
             A batch passed to a model will be a three element tuple,
                 `batch, batch_idx, dataloader_idx = batch`

@@ -75,7 +75,7 @@ class PipelineDataModule(InitialisationRecordingMixin):
             pipelines = tuple(pipelines)
         if isinstance(pipelines, (tuple, list)) and len(pipelines) == 1:
             pipelines = pipelines[0]
-            
+
         self._pipelines = self.map_function(pipelines, load_pipelines)
 
         self.update_initialisation(pipelines=self._pipelines)
