@@ -82,6 +82,16 @@ class PipelineLightningDataModule(PipelineDataModule, L.LightningDataModule):
         return self.map_function(self._train_dataloader, DataLoader, **self._kwargs)
 
     def val_dataloader(self):
+        """
+        Returns a `L.CombinedLoader` due to differences with how Lightning handles validation loaders, and train loaders,
+    
+        This attempts to ensure the behavior is identical.
+        
+        # Note:
+            A batch passed to a model will be a three element tuple,
+                `batch, batch_idx, dataloader_idx = batch`
+            So make sure this is handled in the model.
+        """
         self.eval()
         return CombinedLoader(self.map_function(self._valid_dataloader, DataLoader, **self._kwargs), "min_size")
 
