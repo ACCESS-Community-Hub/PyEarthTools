@@ -18,7 +18,8 @@ import edit.data
 
 from edit.pipeline.operations.dask.dask import DaskOperation
 
-ATTRIBUTES_IGNORE = ['license', 'summary']
+ATTRIBUTES_IGNORE = ["license", "summary"]
+
 
 class ToXarray(DaskOperation):
     """
@@ -169,9 +170,13 @@ class ToXarray(DaskOperation):
             for var in reference_dataset:
                 var_names.append(var)
                 encoding[var] = reference_dataset[var].encoding
-                attributes[var] = {key: val for key, val in reference_dataset[var].attrs.items() if key not in ATTRIBUTES_IGNORE}
+                attributes[var] = {
+                    key: val for key, val in reference_dataset[var].attrs.items() if key not in ATTRIBUTES_IGNORE
+                }
 
-            attributes["__dataset__"] = {key: val for key, val in reference_dataset.attrs.items() if key not in ATTRIBUTES_IGNORE}
+            attributes["__dataset__"] = {
+                key: val for key, val in reference_dataset.attrs.items() if key not in ATTRIBUTES_IGNORE
+            }
             coords["variable"] = var_names
 
         for coord in reference_dataset.coords:

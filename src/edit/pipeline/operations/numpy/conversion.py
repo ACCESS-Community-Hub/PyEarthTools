@@ -15,7 +15,8 @@ import edit.data
 
 from edit.pipeline.operation import Operation
 
-ATTRIBUTES_IGNORE = ['license', 'summary']
+ATTRIBUTES_IGNORE = ["license", "summary"]
+
 
 class ToXarray(Operation):
     """
@@ -120,7 +121,9 @@ class ToXarray(Operation):
         xr_obj = edit.data.transform.attributes.SetEncoding(self._encoding)(xr_obj)  # type: ignore
         xr_obj = edit.data.transform.attributes.SetAttributes(
             self._attributes, apply_on="per_variable" if isinstance(xr_obj, xr.Dataset) else "dataarray"
-        )(xr_obj) # type: ignore
+        )(
+            xr_obj
+        )  # type: ignore
         return xr_obj
 
     def undo_func(self, sample: Union[xr.DataArray, xr.Dataset]):
@@ -165,9 +168,13 @@ class ToXarray(Operation):
             for var in reference_dataset:
                 var_names.append(var)
                 encoding[var] = reference_dataset[var].encoding
-                attributes[var] = {key: val for key, val in reference_dataset[var].attrs.items() if key not in ATTRIBUTES_IGNORE}
+                attributes[var] = {
+                    key: val for key, val in reference_dataset[var].attrs.items() if key not in ATTRIBUTES_IGNORE
+                }
 
-            attributes["__dataset__"] = {key: val for key, val in reference_dataset.attrs.items() if key not in ATTRIBUTES_IGNORE}
+            attributes["__dataset__"] = {
+                key: val for key, val in reference_dataset.attrs.items() if key not in ATTRIBUTES_IGNORE
+            }
             coords["variable"] = var_names
 
         for coord in reference_dataset.coords:

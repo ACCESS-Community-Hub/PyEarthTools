@@ -82,8 +82,9 @@ class Sampler(PipelineRecordingMixin, metaclass=ABCMeta):
 
         elif isinstance(other, Sampler):
             return SuperSampler(other, self)
-        
+
         return NotImplemented
+
 
 class Default(Sampler):
     """
@@ -102,6 +103,7 @@ class Default(Sampler):
             # If None is encountered, exit the generator
             if obj is None:
                 break
+
 
 class SuperSampler(Sampler):
     """
@@ -170,6 +172,7 @@ class SuperSampler(Sampler):
                 if i == len(generators) - 1:
                     yield sam
 
+
 class Random(Sampler):
     """
     Randomly sample objects from stream.
@@ -219,6 +222,7 @@ class Random(Sampler):
         while len(buffer) > 0:
             yield buffer.pop(rng.integers(0, len(buffer)))
 
+
 class DropOut(Sampler):
     """
     DropOut samples from the stream at a given interval.
@@ -254,6 +258,7 @@ class DropOut(Sampler):
                 break
 
             i += 1
+
 
 class RandomDropOut(Sampler):
     """

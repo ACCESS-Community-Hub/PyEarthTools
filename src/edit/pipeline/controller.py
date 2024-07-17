@@ -699,7 +699,7 @@ class Pipeline(_Pipeline, Index):
             (Union[str, None]):
                 If `path` is None, `pipeline` in save form else None.
         """
-        return edit.pipeline.save(Pipeline(*self.complete_steps, iterator=self.iterator, sampler = self.sampler, exceptions_to_ignore = self._exceptions_to_ignore), path) # type: ignore
+        return edit.pipeline.save(Pipeline(*self.complete_steps, iterator=self.iterator, sampler=self.sampler, exceptions_to_ignore=self._exceptions_to_ignore), path)  # type: ignore
 
     def _ipython_display_(self):
         """Override for repr of `Pipeline`, shows initialisation arguments and graph"""
@@ -713,11 +713,11 @@ class Pipeline(_Pipeline, Index):
 
     @classmethod
     def sample(
-            cls, 
-            variables: Optional[list[str]] = None, 
-            iterator: Optional[Union[iterators.Iterator, tuple[iterators.Iterator, ...]]] = None,
-            sampler: Optional[Union[samplers.Sampler, tuple[samplers.Sampler, ...]]] = None
-        ):
+        cls,
+        variables: Optional[list[str]] = None,
+        iterator: Optional[Union[iterators.Iterator, tuple[iterators.Iterator, ...]]] = None,
+        sampler: Optional[Union[samplers.Sampler, tuple[samplers.Sampler, ...]]] = None,
+    ):
         """
         Simple sample Pipeline for testing.
         """
@@ -727,6 +727,6 @@ class Pipeline(_Pipeline, Index):
         return edit.pipeline.Pipeline(
             edit.data.archive.ERA5.sample() if variables is None else edit.data.archive.ERA5(variables),  # type: ignore
             edit.pipeline.operations.xarray.conversion.ToNumpy(),
-            iterator = iterator,
-            sampler = sampler,
+            iterator=iterator,
+            sampler=sampler,
         )

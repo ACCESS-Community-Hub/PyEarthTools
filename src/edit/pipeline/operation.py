@@ -50,7 +50,7 @@ class Operation(PipelineStep, PotentialABC):
             recursively_split_tuples (bool, optional):
                 Recursively split tuples. Defaults to False.
             operation (Literal['apply', 'undo', 'both'], optional):
-                Which functions to apply operation to. 
+                Which functions to apply operation to.
                 If not 'apply' apply does nothing, same for `undo`. Defaults to "both".
             recognised_types (Optional[Union[tuple[Type, ...], Type, dict[str, Union[tuple[Type, ...], Type]]] ], optional):
                 Types recognised, can be dictionary to reference different types per function Defaults to None.
@@ -127,8 +127,8 @@ class Operation(PipelineStep, PotentialABC):
         new_operation = self.copy()
         new_operation.apply, new_operation.undo = new_operation.undo, new_operation.apply
 
-        new_operation._operation['apply'] = self._operation['undo']
-        new_operation._operation['undo'] = self._operation['apply']
+        new_operation._operation["apply"] = self._operation["undo"]
+        new_operation._operation["undo"] = self._operation["apply"]
 
         new_operation._property = "T"
         return new_operation

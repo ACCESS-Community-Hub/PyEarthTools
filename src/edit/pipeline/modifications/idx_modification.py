@@ -355,7 +355,7 @@ class SequenceRetrieval(IdxModifier):
         super().__init__(
             self._convert(self._parse_samples(samples)),
             merge=self._merge_level,
-            concat = concat,
+            concat=concat,
             merge_function=merge_function,
             merge_kwargs=merge_kwargs,
         )
@@ -437,7 +437,7 @@ class TemporalRetrieval(SequenceRetrieval):
         merge_kwargs: Optional[dict[str, Any]] = None,
         delta_unit: Optional[str] = None,
     ):
-        super().__init__(samples, merge_function=merge_function, concat = concat, merge_kwargs=merge_kwargs)
+        super().__init__(samples, merge_function=merge_function, concat=concat, merge_kwargs=merge_kwargs)
 
         def map_to_tuple(mod):
             if isinstance(mod, tuple):
