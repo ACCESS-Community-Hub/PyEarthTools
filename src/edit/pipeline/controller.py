@@ -16,7 +16,9 @@ from abc import ABCMeta, abstractmethod
 from typing import Any, ContextManager, Literal, Union, Optional, Type, overload
 from pathlib import Path
 import functools
+import logging
 
+import builtins
 import graphviz
 
 import edit.utils
@@ -39,6 +41,8 @@ VALID_PIPELINE_TYPES = Union[PIPELINE_TYPES, tuple[PIPELINE_TYPES, ...], tuple[t
 
 
 __all___ = ["Pipeline", "PipelineIndex"]
+
+LOG = logging.getLogger('edit.pipeline')
 
 
 class PipelineIndex(PipelineRecordingMixin, metaclass=ABCMeta):
@@ -180,7 +184,7 @@ class Pipeline(_Pipeline, Index):
     _sampler: samplers.Sampler
     _iterator: Optional[iterators.Iterator]
     _steps: tuple[Union[Index, PipelineStep, _Pipeline, tuple[VALID_PIPELINE_TYPES, ...]], ...]
-    _exceptions_to_ignore: Optional[tuple[Exception, ...]]
+    _exceptions_to_ignore: Optional[tuple[Type[Exception], ...]]
 
     _edit_repr = {"ignore": ["args"], "expand_attr": ["Steps@flattened_steps"]}
 
@@ -198,7 +202,7 @@ class Pipeline(_Pipeline, Index):
         ],
         iterator: Optional[Union[iterators.Iterator, tuple[iterators.Iterator, ...]]] = None,
         sampler: Optional[Union[samplers.Sampler, tuple[samplers.Sampler, ...]]] = None,
-        exceptions_to_ignore: Optional[tuple[Exception, ...]] = None,
+        exceptions_to_ignore: Optional[tuple[Union[str, Type[Exception]], ...]] = None,
         **kwargs,
     ):
         """
@@ -272,7 +276,7 @@ class Pipeline(_Pipeline, Index):
                 `Sampler` to use to sample the samples when iterating. If not given will yield all samples.
                 Can be used to randomly sample, drop out and more
                 Defaults to None.
-            exceptions_to_ignore (Optional[tuple[Exception, ...]], optional):
+            exceptions_to_ignore (Optional[tuple[Union[str, Type[Exception]], ...]], optional):
                 Which exceptions to ignore when iterating. Defaults to None.
         """
         self.iterator = iterator
@@ -281,7 +285,7 @@ class Pipeline(_Pipeline, Index):
         super().__init__(*steps, **kwargs)
         self.record_initialisation()
 
-        self._exceptions_to_ignore = exceptions_to_ignore
+        self.exceptions_to_ignore = exceptions_to_ignore
 
     @property
     def flattened_steps(self) -> tuple:
@@ -405,6 +409,35 @@ class Pipeline(_Pipeline, Index):
         if not isinstance(val, samplers.Sampler):
             raise TypeError(f"Sampler must be a `edit.pipeline.Sampler`, not {type(val)}.")
         self._sampler = val
+        
+    @property
+    def exceptions_to_ignore(self):
+        """Sampler of `Pipeline`"""
+        return self._exceptions_to_ignore
+
+    @exceptions_to_ignore.setter
+    def exceptions_to_ignore(self, val: Optional[Union[str, Type[Exception], tuple[Union[str, Type[Exception]], ...]]]):
+        """
+        Set exceptions_to_ignore for `Pipeline`
+
+        Args:
+            val (Union[str, Exception, tuple[Union[str, Exception], ...]]):
+                Exceptions to ignore.
+        """
+        def parse(v) -> Type[Exception]:
+            if isinstance(v, str):
+                return getattr(builtins, v)
+            elif isinstance(v, Type):
+                return v
+            raise TypeError(f"Cannot use {v} as an exception class.")
+        
+        if val is None:
+            pass
+        else:
+            val = (val,) if not isinstance(val, tuple) else val
+            val = tuple(map(parse, val))
+
+        self._exceptions_to_ignore = val # type: ignore
 
     def has_source(self) -> bool:
         """Determine if this `Pipeline` contains a source of data, or is just a sequence of operations."""
@@ -427,9 +460,11 @@ class Pipeline(_Pipeline, Index):
 
         for index, step in enumerate(self.steps[::-1]):
             if isinstance(step, PipelineIndex):
+                LOG.debug(f"Getting initial sample from {step} at {idx}")
                 return step[idx], len(self.steps) - (index + 1)
 
         if isinstance(self.steps[0], (_Pipeline, Index)):
+            LOG.debug(f"Getting initial sample from {self.steps[0]} at {idx}")
             return self.steps[0][idx], 0
 
         raise TypeError(f"Cannot find an `Index` to get data from. Found {type(self.steps[0]).__qualname__}")
@@ -441,6 +476,8 @@ class Pipeline(_Pipeline, Index):
         for step in self.steps[step_index + 1 :]:
             if not isinstance(step, (Pipeline, PipelineStep, Transform, TransformCollection)):
                 raise TypeError(f"When iterating through pipeline steps, found a {type(step)} which cannot be parsed.")
+            LOG.debug(f"Apply step upon sample. {step}")
+
             if isinstance(step, Pipeline):
                 sample = step.apply(sample)
             elif isinstance(step, edit.pipeline.branching.PipelineBranchPoint):
@@ -477,16 +514,16 @@ class Pipeline(_Pipeline, Index):
         return sample
 
     @property
-    def get_and_catch(self):
+    def get_and_catch(pipeline_self):
         """Get indexable object like pipeline which will ignore any expections known to be ignored."""
-        if self._exceptions_to_ignore is None:
-            return self
+        if pipeline_self._exceptions_to_ignore is None:
+            return pipeline_self
 
         class catch:
             def __getitem__(self, idx: Any):
                 try:
-                    return self[idx]
-                except self._exceptions_to_ignore:  # type: ignore
+                    return pipeline_self[idx]
+                except pipeline_self._exceptions_to_ignore:  # type: ignore
                     return None
 
         return catch()
