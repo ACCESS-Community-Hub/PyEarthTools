@@ -48,8 +48,9 @@ class IdxOverride(PipelineIndex):
 
     def __init__(self, index: Any):
         super().__init__()
-        self._index = index
         self.record_initialisation()
+
+        self._index = index
 
     def __getitem__(self, *_, **__):
         return self.parent_pipeline()[self._index]

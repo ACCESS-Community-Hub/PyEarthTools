@@ -59,7 +59,7 @@ class Filter(PipelineStep, metaclass=ABCMeta):
 
 class FilterCheck(Filter):
     """
-    Subclass of `Filter` to automate exception,
+    Subclass of `Filter` to automate exception raising,
 
     Just needs `check` to return a `bool`.
     """

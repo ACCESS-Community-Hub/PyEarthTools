@@ -7,7 +7,7 @@
 # from the use of the software.
 
 
-from typing import Any, Optional
+from typing import Any, Optional, Type
 import warnings
 
 import edit.utils
@@ -84,11 +84,11 @@ class ExceptionIgnoreContext:
     Will count how many `Exceptions` have been thrown, and warn if over `max_exceptions`.
     """
 
-    def __init__(self, exceptions: tuple[Exception, ...], max_exceptions: Optional[int] = None):
+    def __init__(self, exceptions: tuple[Type[Exception], ...], max_exceptions: Optional[int] = None):
 
         self._max_exceptions = max_exceptions or edit.utils.config.get("pipeline.exceptions.max-filter")
         self._count = 0
-        self._messages = []
+        self._messages: list[str] = []
         self._exceptions = exceptions
 
     def __enter__(self):

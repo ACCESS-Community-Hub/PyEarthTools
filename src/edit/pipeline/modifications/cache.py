@@ -47,10 +47,12 @@ class Cache(PipelineIndex):
 
     def __init__(
         self,
-        cache: Union[str, Path],
+        cache: Optional[Union[str, Path]] = None,
         pattern: Optional[Union[str, PatternIndex]] = None,
+        *,
         pattern_kwargs: dict[str, Any] = {},
         cache_validity: Literal["trust", "delete", "warn", "keep", "override", "deleteF"] = "warn",
+        save_kwargs: dict[str, Any] | None = None,
         **kwargs,
     ):
         """
@@ -73,6 +75,10 @@ class Cache(PipelineIndex):
                 | 'override' | Override the cache data when generating data, removes the caching benefit. |
                 | 'delete'   | Delete the cache if the hash is different. Will ask for input, include 'F' to force. |
                 Defaults to 'warn'.
+            save_kwargs (dict[str, Any], optional):
+                Keywords arguments to pass to saving function. Defaults to None.
+            kwargs (Any, optional):
+                All other kwargs passed to `edit.data.indexes.FunctionalCacheIndex`.
         """
         super().__init__()
         self.record_initialisation()
@@ -83,6 +89,7 @@ class Cache(PipelineIndex):
             pattern,
             function=self._generate,
             pattern_kwargs=pattern_kwargs,
+            save_kwargs = save_kwargs,
             **kwargs,
         )
         self.update_initialisation(cache=str(self.cache.cache))
@@ -238,7 +245,7 @@ class Cache(PipelineIndex):
         """
         Get sha512 hash of underlying index
         """
-        configuration = self.as_pipeline().save(only_steps=True)
+        configuration = self.parent_pipeline().save(only_steps=True) # Hash only parent pipeline
         return sha512(bytes(str(configuration), "utf-8")).hexdigest()
 
 
