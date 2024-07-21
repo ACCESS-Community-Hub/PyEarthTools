@@ -41,8 +41,9 @@ class daskNormalisation(DaskOperation):
         """Open dask file"""
         return da.from_array(np.load(str(parse_path(file))))
 
-    def __init__(self):
+    def __init__(self, expand: bool = True):
         super().__init__(split_tuples=True, recursively_split_tuples=True, recognised_types=(da.Array))
+        self._expand = expand
 
     def apply_func(self, sample: da.Array) -> da.Array:
         return self.normalise(sample)
@@ -58,23 +59,31 @@ class daskNormalisation(DaskOperation):
     def unnormalise(self, sample: da.Array) -> da.Array:
         return sample
 
+    def expand(self, factor, sample):
+        if not self._expand:
+            return factor
+        if len(factor.shape) == len(sample.shape):
+            return factor
+
+        dims = tuple(range(len(factor.shape), len(sample.shape)))
+        return np.expand_dims(factor, dims)
 
 class Anomaly(daskNormalisation):
     """Anomaly Normalisation"""
 
     _numpy_counterpart = "normalisation.Anomaly"
 
-    def __init__(self, mean: FILE):
-        super().__init__()
+    def __init__(self, mean: FILE, expand: bool = True):
+        super().__init__(expand)
         self.record_initialisation()
 
         self.mean = self.open_file(mean)
 
     def normalise(self, sample):
-        return sample - self.mean
+        return sample - self.expand(self.mean, sample)
 
     def unnormalise(self, sample):
-        return sample + self.mean
+        return sample + self.expand(self.mean, sample)
 
 
 class Deviation(daskNormalisation):
@@ -82,18 +91,19 @@ class Deviation(daskNormalisation):
 
     _numpy_counterpart = "normalisation.Deviation"
 
-    def __init__(self, mean: FILE, deviation: FILE):
-        super().__init__()
+    def __init__(self, mean: FILE, deviation: FILE, expand: bool = True):
+        super().__init__(expand)
         self.record_initialisation()
 
         self.mean = self.open_file(mean)
         self.deviation = self.open_file(deviation)
 
     def normalise(self, sample):
-        return (sample - self.mean) / self.deviation
+        return (sample - self.expand(self.mean, sample)) / self.expand(self.deviation, sample)
 
     def unnormalise(self, sample):
-        return (sample * self.deviation) + self.mean
+        return (sample * self.expand(self.deviation, sample)) + self.expand(self.mean, sample)
+
 
 
 class Division(daskNormalisation):
@@ -101,17 +111,17 @@ class Division(daskNormalisation):
 
     _numpy_counterpart = "normalisation.Division"
 
-    def __init__(self, division_factor: FILE):
-        super().__init__()
+    def __init__(self, division_factor: FILE, expand: bool = True):
+        super().__init__(expand)
         self.record_initialisation()
 
         self.division_factor = self.open_file(division_factor)
 
     def normalise(self, sample):
-        return sample / self.division_factor
+        return sample / self.expand(self.division_factor, sample)
 
     def unnormalise(self, sample):
-        return sample * self.division_factor
+        return sample * self.expand(self.division_factor, sample)
 
 
 @BackwardsCompatibility(Division)
