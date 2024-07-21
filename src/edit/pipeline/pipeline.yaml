@@ -3,7 +3,7 @@ pipeline:
   
   parallel:
     enabled:
-      Delayed: False
+      Delayed: True
       Futures: True
     dask:
       start: True
