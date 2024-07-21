@@ -56,6 +56,18 @@ class Iterator(PipelineRecordingMixin, metaclass=ABCMeta):
             return SuperIterator(self, other)
 
         return NotImplemented
+    
+    def __radd__(self, other: Iterator):
+        """
+        Combine multiple `Sampler`'s together into a `SuperSampler`
+        """
+        if isinstance(other, SuperIterator):
+            return SuperIterator(*other._iterators, self)
+
+        elif isinstance(other, Iterator):
+            return SuperIterator(other, self)
+
+        return NotImplemented
 
     def randomise(self, seed: Optional[int] = 42):
         """Randomise this interator"""
@@ -84,7 +96,7 @@ class Range(Iterator):
         super().__init__()
         self.record_initialisation()
 
-        self._range = range(min, max, step)
+        self._range = tuple(range(min, max, step))
 
     def __iter__(self) -> Generator[Hashable, None, None]:
         for i in self._range:
