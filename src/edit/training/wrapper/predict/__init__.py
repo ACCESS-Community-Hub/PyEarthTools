@@ -12,10 +12,24 @@
 Prediction Wrappers
 """
 
-from edit.training.wrapper.predict.predict import PredictionWrapper
+from edit.utils.decorators import BackwardsCompatibility
+
+from edit.training.wrapper.predict.predict import Predictor
 from edit.training.wrapper.predict.timeseries import (
-    TimeSeriesPredictionWrapper,
-    TimeSeriesAutoRecurrent,
-    TimeSeriesManagedRecurrent,
-    ManualTimeSeriesPredictionWrapper,
+    TimeSeriesPredictor,
+    TimeSeriesAutoRecurrentPredictor,
+    TimeSeriesManagedPredictor,
+    ManualTimeSeriesPredictor,
 )
+
+@BackwardsCompatibility(TimeSeriesPredictor)
+def TimeSeriesPredictionWrapper(): ...
+
+@BackwardsCompatibility(TimeSeriesAutoRecurrentPredictor)
+def TimeSeriesAutoRecurrent(): ...
+
+@BackwardsCompatibility(TimeSeriesManagedPredictor)
+def TimeSeriesManagedRecurrent(): ...
+
+@BackwardsCompatibility(ManualTimeSeriesPredictor)
+def ManualTimeSeriesPredictionWrapper(): ...

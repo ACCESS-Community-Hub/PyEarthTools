@@ -22,14 +22,14 @@ from edit.data import TimeDelta, EDITDatetime, TimeRange
 
 from edit.pipeline.controller import Pipeline
 from edit.training.wrapper.wrapper import ModelWrapper
-from edit.training.wrapper.predict.predict import PredictionWrapper
+from edit.training.wrapper.predict.predict import Predictor
 
 from edit.training.manage import Variables
 
 XR_TYPE = TypeVar("XR_TYPE", xr.Dataset, xr.DataArray)
 
 
-class TimeSeriesPredictionWrapper(PredictionWrapper):
+class TimeSeriesPredictor(Predictor):
     """
     Temporal predictions
 
@@ -140,7 +140,7 @@ class TimeSeriesPredictionWrapper(PredictionWrapper):
     def recurrent(self, idx, steps: int, **kwargs): ...
 
 
-class ManualTimeSeriesPredictionWrapper(TimeSeriesPredictionWrapper):
+class ManualTimeSeriesPredictor(TimeSeriesPredictor):
     """
     Interface for TimeSeries prediction in which the `model` itself handles all of the recurrency.
     """
@@ -149,7 +149,7 @@ class ManualTimeSeriesPredictionWrapper(TimeSeriesPredictionWrapper):
         raise NotImplementedError("Model handles the recurrency itself, call `predict` instead")
 
 
-class TimeSeriesAutoRecurrent(TimeSeriesPredictionWrapper):
+class TimeSeriesAutoRecurrentPredictor(TimeSeriesPredictor):
     """
     AutoRecurrent temporal predictions.
     """
@@ -274,7 +274,7 @@ class TimeSeriesAutoRecurrent(TimeSeriesPredictionWrapper):
         return self._combine(idx, outputs)
 
 
-class TimeSeriesManagedRecurrent(TimeSeriesAutoRecurrent):
+class TimeSeriesManagedPredictor(TimeSeriesAutoRecurrentPredictor):
     """
     AutoRecurrent prediction where output != input.
 

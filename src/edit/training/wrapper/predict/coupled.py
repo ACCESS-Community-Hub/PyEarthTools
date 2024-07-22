@@ -20,14 +20,14 @@ import tqdm.auto as tqdm
 
 from edit.pipeline.controller import Pipeline
 from edit.training.wrapper.wrapper import ModelWrapper
-from edit.training.wrapper.predict.timeseries import TimeSeriesPredictionWrapper
+from edit.training.wrapper.predict.timeseries import TimeSeriesPredictor
 
 from edit.training.manage import Variables
 
 XR_TYPE = TypeVar("XR_TYPE", xr.Dataset, xr.DataArray)
 
 
-class CoupledPredictionWrapper(TimeSeriesPredictionWrapper):
+class CoupledPredictionWrapper(TimeSeriesPredictor):
     """
     Coupled Prediction Wrapper
     """

@@ -157,6 +157,9 @@ class PipelineDefaultDataModule(PipelineDataModule):
                 Iterator to use for validation. Pipelines configured by calling `.valid()`. Defaults to None.
             iterator_dataset (bool, optional):
                 Whether to use iterator dataset, which will iterate over pipeline instead of direct indexing. Defaults to False.
+            kwargs:
+                Keyword arguments to pass to `DataLoader`.
+                e.g.: `batch_size`.
 
         """
         super().__init__(pipelines, train_split, valid_split)
