@@ -34,7 +34,7 @@ except (ImportError, ModuleNotFoundError) as _:
 MERGE_FUNCTIONS = {
     xr.Dataset: xr.combine_by_coords,
     xr.DataArray: xr.merge,
-    np.ndarray: lambda x, **k: np.merge(x, **k) if len(x) > 1 else x[0],
+    np.ndarray: lambda x, **k: np.stack(x, **k) if len(x) > 1 else x[0],
     list: lambda x: [*x],
     tuple: lambda x: x,
 }
