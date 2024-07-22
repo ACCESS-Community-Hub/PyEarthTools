@@ -42,7 +42,7 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
 
     def __init__(
         self,
-        wrapper: edit.training.wrapper.PredictionWrapper,
+        wrapper: edit.training.wrapper.Predictor,
         *,
         data_interval: tuple,
         cache: str | Path | None = None,
