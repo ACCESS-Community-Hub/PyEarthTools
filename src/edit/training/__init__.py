@@ -27,4 +27,4 @@ from edit.training.dataindex import MLDataIndex
 # if __name__ == "__main__":
 #     trainer.commands.entry_point()
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"

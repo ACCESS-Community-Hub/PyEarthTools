@@ -140,6 +140,13 @@ class PipelineDataModule(InitialisationRecordingMixin):
             )
 
     def __getitem__(self, idx):
+        """
+        Index into datamodule
+
+        Converts int `idx` into iterators idx'nth sample.
+        i.e. idx = 1
+            >>> train_split.samples[idx]
+        """
         self.check_for_use()
 
         iterator = self._train_split if self._train else self._valid_split or self._train_split
