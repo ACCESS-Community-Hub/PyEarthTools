@@ -14,6 +14,8 @@ and allow rapid distributed training of Machine Learning Models.
 """
 # ruff: noqa: F401
 
+from edit.training import logger as _
+
 from edit.training import data, wrapper, manage
 
 from edit.training.wrapper import *  # type: ignore # noqa: F403
