@@ -13,8 +13,6 @@ from typing import Literal, TypeVar, Any, Optional
 
 from abc import abstractmethod
 
-
-import torch
 import xarray as xr
 import numpy as np
 import tqdm.auto as tqdm
@@ -438,9 +436,9 @@ class TimeSeriesManagedPredictor(TimeSeriesAutoRecurrentPredictor):
                 if fake_batch_dim:
                     model_output = model_output[0]
 
-                model_output = torch.moveaxis(model_output, self._variable_axis, 0)
+                model_output = np.moveaxis(model_output, self._variable_axis, 0)
                 output_components = {
-                    key: torch.moveaxis(val, 0, self._variable_axis)
+                    key: np.moveaxis(val, 0, self._variable_axis)
                     for key, val in self.variable_manager.split(model_output, self._output_order).items()
                 }
 

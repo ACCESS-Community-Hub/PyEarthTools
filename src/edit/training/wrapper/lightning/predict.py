@@ -116,6 +116,7 @@ class LightingPrediction(LightningWrapper):
             FakeDataLoader(data),
             batch_size=None,
         )
+
         warnings.filterwarnings("ignore", ".*does not have many workers.*")
         with LoggingContext():
             predictions_raw = self.trainer.predict(model=self.model, dataloaders=fake_data)
