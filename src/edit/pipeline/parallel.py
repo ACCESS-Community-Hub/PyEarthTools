@@ -39,11 +39,11 @@ class ParallelToggle:
         self._state = state
 
     def __enter__(self):
-        self._enter_state = edit.utils.config.get("pipeline.run-parallel")
-        edit.utils.config.set({"pipeline.run-parallel": self._state == "enable"})
+        self._enter_state = edit.utils.config.get("pipeline.run_parallel")
+        edit.utils.config.set({"pipeline.run_parallel": self._state == "enable"})
 
     def __exit__(self, *args):
-        edit.utils.config.set({"pipeline.run-parallel": self._enter_state})
+        edit.utils.config.set({"pipeline.run_parallel": self._enter_state})
 
     def __repr__(self):
         return f"Context Manager to toggle parallelisation {'on' if self._state == 'enable' else 'off'}."
@@ -149,19 +149,23 @@ class DaskParallelInterface(ParallelInterface):
         """Get dask client"""
         from dask.distributed import Client
         import distributed
+        import dask
 
         try:
             client = distributed.get_client()
         except ValueError:
             client = None
 
-        dask_config = edit.utils.config.get("pipeline.parallel.dask.config")
-        dask_config["processes"] = dask_config.pop("processes", False)
 
         if client is None and not edit.utils.config.get("pipeline.parallel.dask.start"):
             raise RuntimeError("Cannot start dask cluster when `pipeline.parallel.dask.start` is False.")
+        
 
-        return client or Client(**dask_config)
+        client_config = edit.utils.config.get("pipeline.parallel.dask.client")
+        client = client or Client(**client_config)
+        dask.config.set(edit.utils.config.get("pipeline.parallel.dask.config", {})) # type: ignore
+
+        return client
 
     @classmethod
     def check(cls):
@@ -292,7 +296,7 @@ def get_parallel(interface: Optional[PARALLEL_INTERFACES] = None, **interface_kw
         ImportError:
             If cannot use specified `interface` due to its check failing.
     """
-    if not edit.utils.config.get("pipeline.run-parallel"):
+    if not edit.utils.config.get("pipeline.run_parallel"):
         return SerialInterface(**interface_kwargs)
 
     if interface:
@@ -302,7 +306,7 @@ def get_parallel(interface: Optional[PARALLEL_INTERFACES] = None, **interface_kw
             "Serial": SerialInterface,
         }
         if interface == "Dask":
-            raise Exception("Use Futures instead")
+            raise Exception("Use 'Futures' instead of 'Dask'.")
         check = interface_dict[interface].check()
         if check is not None:
             raise ImportError(f"Unable to use {interface} as it's check failed.\n{check}")
