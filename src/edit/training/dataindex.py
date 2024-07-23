@@ -13,6 +13,8 @@ This will allow data to be retrieved as normal, with the user not having to worr
 """
 from __future__ import annotations
 
+import os
+
 from pathlib import Path
 import yaml
 from typing import Any
@@ -45,13 +47,13 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         wrapper: edit.training.wrapper.Predictor,
         *,
         data_interval: tuple,
-        cache: str | Path | None = None,
+        cache: os.PathLike | None = None,
         prediction_function: str = "predict",
         prediction_config: dict[str, Any] | None = None,
         offsetInterval: bool | tuple | TimeDelta = False,
         post_transforms: Transform | TransformCollection | None = None,
         override: bool = False,
-        data_attributes: str | Path | None = None,
+        data_attributes: os.PathLike | None = None,
         **kwargs,
     ):
         """Setup ML Data Index from defined wrapper
@@ -83,7 +85,7 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
             **kwargs (dict, optional):
                 Any keyword arguments to pass to [BaseCacheIndex][edit.data.BaseCacheIndex]
         """
-        super().__init__(cache=cache, **dict(kwargs))
+        super().__init__(cache=str(cache), **dict(kwargs))
         self.record_initialisation()
 
         self.set_interval(data_interval)

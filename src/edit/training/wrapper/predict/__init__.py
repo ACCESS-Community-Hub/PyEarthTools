@@ -22,14 +22,18 @@ from edit.training.wrapper.predict.timeseries import (
     ManualTimeSeriesPredictor,
 )
 
+
 @BackwardsCompatibility(TimeSeriesPredictor)
 def TimeSeriesPredictionWrapper(): ...
+
 
 @BackwardsCompatibility(TimeSeriesAutoRecurrentPredictor)
 def TimeSeriesAutoRecurrent(): ...
 
+
 @BackwardsCompatibility(TimeSeriesManagedPredictor)
 def TimeSeriesManagedRecurrent(): ...
+
 
 @BackwardsCompatibility(ManualTimeSeriesPredictor)
 def ManualTimeSeriesPredictionWrapper(): ...

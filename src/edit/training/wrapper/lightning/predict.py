@@ -120,7 +120,7 @@ class LightingPrediction(LightningWrapper):
         with LoggingContext():
             predictions_raw = self.trainer.predict(model=self.model, dataloaders=fake_data)
             if predictions_raw is None:
-                raise RuntimeError("Predictions were None, cannot parse, try running prediction on only one gpu.")
+                raise RuntimeError("Predictions were None, cannot be parsed, try running prediction on only one gpu.")
 
         prediction = np.vstack(predictions_raw)
         return prediction
