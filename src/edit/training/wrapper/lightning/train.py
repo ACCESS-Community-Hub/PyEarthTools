@@ -130,7 +130,7 @@ class LightingTraining(LightningWrapper, TrainingWrapper):
     def callbacks(self):
         return self.trainer_kwargs.get("callbacks", [])
 
-    def fit(self, load: bool = True, **kwargs):
+    def fit(self, load: bool | str = True, **kwargs):
         """Using Pytorch Lightning `.fit` to train model, auto fills model and dataloaders
 
         Args:
@@ -139,9 +139,12 @@ class LightingTraining(LightningWrapper, TrainingWrapper):
         """
 
         if load:
-            latest_path = self._find_latest_path(self.path)
-            if latest_path is not None:
-                self.load(latest_path)
+            if isinstance(load, bool):
+                latest_path = self._find_latest_path(self.path)
+                if latest_path is not None:
+                    self.load(latest_path)
+            else:
+                self.load(load)
 
         data_config = {}
         if "train_dataloaders" in kwargs:
@@ -175,7 +178,7 @@ class LightingTraining(LightningWrapper, TrainingWrapper):
         """
         latest_item = None
         latest_time = -1
-        for item in Path(path).iterdir():
+        for item in Path(path).rglob(f"*{suffix}"):
             time = max(os.stat(item))
             if not Path(item).suffix == suffix:
                 continue
