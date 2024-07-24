@@ -34,13 +34,13 @@ class LoggingContext:
 
     def __enter__(self, *args, **kwargs):
         if self.change:
-            logging.getLogger("pytorch_lightning").setLevel(logging.ERROR)
+            logging.getLogger("pytorch_lightning.utilities.rank_zero").setLevel(logging.ERROR)
             logging.getLogger("lightning").setLevel(0)
             warnings.simplefilter(action="ignore", category=UserWarning)
 
     def __exit__(self, *args, **kwargs):
         if self.change:
-            logging.getLogger("pytorch_lightning").setLevel(logging.INFO)
+            logging.getLogger("pytorch_lightning.utilities.rank_zero").setLevel(logging.INFO)
             logging.getLogger("lightning").setLevel(logging.INFO)
             warnings.simplefilter(action="default", category=UserWarning)
 
