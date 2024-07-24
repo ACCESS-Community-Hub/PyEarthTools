@@ -23,6 +23,7 @@ classifiers = [
 ]
 dependencies = [
     "edit-pipeline",
+    "edit-utils>=1.1.0",
     "einops", 
     "scikit-learn", 
     "scipy", 
