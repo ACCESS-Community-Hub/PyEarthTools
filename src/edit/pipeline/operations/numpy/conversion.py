@@ -184,3 +184,24 @@ class ToXarray(Operation):
         if drop_coords:
             tuple(coords.pop(key) for key in drop_coords)
         return ToXarray(array_shape, coords, encoding, attributes)
+
+
+class ToDask(Operation):
+    """
+    Numpy -> dask Converter
+    """
+
+    _override_interface = "Serial"
+
+    def __init__(self, chunks: int | str | tuple[int, str] = "auto"):
+        super().__init__(split_tuples=True, recursively_split_tuples=True, recognised_types={"apply": np.ndarray})
+        self.record_initialisation()
+        self._chunks = chunks
+
+    def apply_func(self, sample: np.ndarray):
+        import dask.array as da
+
+        return da.from_array(sample)
+
+    def undo_func(self, sample):
+        return sample.compute()
