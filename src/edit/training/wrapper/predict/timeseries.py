@@ -28,7 +28,8 @@ from edit.training.wrapper.predict.predict import Predictor
 from edit.training.manage import Variables
 
 XR_TYPE = TypeVar("XR_TYPE", xr.Dataset, xr.DataArray)
-LOG = logging.getLogger('edit.training')
+LOG = logging.getLogger("edit.training")
+
 
 class TimeSeriesPredictor(Predictor):
     """
