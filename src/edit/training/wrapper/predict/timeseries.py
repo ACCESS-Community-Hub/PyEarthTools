@@ -16,6 +16,8 @@ from abc import abstractmethod
 import xarray as xr
 import numpy as np
 import tqdm.auto as tqdm
+import logging
+
 
 from edit.data import TimeDelta, EDITDatetime, TimeRange
 
@@ -26,6 +28,7 @@ from edit.training.wrapper.predict.predict import Predictor
 from edit.training.manage import Variables
 
 XR_TYPE = TypeVar("XR_TYPE", xr.Dataset, xr.DataArray)
+LOG = logging.getLogger("edit.training")
 
 
 class TimeSeriesPredictor(Predictor):
