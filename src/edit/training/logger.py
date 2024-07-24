@@ -7,4 +7,5 @@
 # from the use of the software.
 
 from edit.utils.logger import initiate_logging
-initiate_logging('training')
+
+initiate_logging("training")
