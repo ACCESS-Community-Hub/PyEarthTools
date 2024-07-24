@@ -156,14 +156,12 @@ class DaskParallelInterface(ParallelInterface):
         except ValueError:
             client = None
 
-
         if client is None and not edit.utils.config.get("pipeline.parallel.dask.start"):
             raise RuntimeError("Cannot start dask cluster when `pipeline.parallel.dask.start` is False.")
-        
 
         client_config = edit.utils.config.get("pipeline.parallel.dask.client")
         client = client or Client(**client_config)
-        dask.config.set(edit.utils.config.get("pipeline.parallel.dask.config", {})) # type: ignore
+        dask.config.set(edit.utils.config.get("pipeline.parallel.dask.config", {}))  # type: ignore
 
         return client
 

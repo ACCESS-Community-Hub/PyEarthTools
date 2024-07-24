@@ -56,7 +56,7 @@ class Iterator(PipelineRecordingMixin, metaclass=ABCMeta):
             return SuperIterator(self, other)
 
         return NotImplemented
-    
+
     def __radd__(self, other: Iterator):
         """
         Combine multiple `Sampler`'s together into a `SuperSampler`

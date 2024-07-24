@@ -15,7 +15,7 @@ import xarray as xr
 import edit.data
 from edit.data import Transform
 
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger("edit.pipeline")
 
 
 class AddCoordinates(Transform):

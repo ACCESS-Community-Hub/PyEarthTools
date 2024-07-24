@@ -89,7 +89,7 @@ class Cache(PipelineIndex):
             pattern,
             function=self._generate,
             pattern_kwargs=pattern_kwargs,
-            save_kwargs = save_kwargs,
+            save_kwargs=save_kwargs,
             **kwargs,
         )
         self.update_initialisation(cache=str(self.cache.cache))
@@ -245,7 +245,7 @@ class Cache(PipelineIndex):
         """
         Get sha512 hash of underlying index
         """
-        configuration = self.parent_pipeline().save(only_steps=True) # Hash only parent pipeline
+        configuration = self.parent_pipeline().save(only_steps=True)  # Hash only parent pipeline
         return sha512(bytes(str(configuration), "utf-8")).hexdigest()
 
 
