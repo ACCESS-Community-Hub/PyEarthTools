@@ -19,9 +19,9 @@ from edit.pipeline.controller import Pipeline
 from edit.training.wrapper.wrapper import ModelWrapper
 
 
-class PredictionWrapper(InitialisationRecordingMixin, metaclass=ABCMeta):
+class Predictor(InitialisationRecordingMixin, metaclass=ABCMeta):
     """
-    Model wrapper to enable prediction
+    Wrapper to enable prediction
 
     Hooks:
         `after_predict` (prediction) -> prediction:
@@ -30,7 +30,7 @@ class PredictionWrapper(InitialisationRecordingMixin, metaclass=ABCMeta):
     Usage:
         ```python
         model = ModelWrapper(MODEL_GOES_HERE, DATA_PIPELINE)
-        predictor = PredictionWrapper(model)
+        predictor = Predictor(model)
         predictor.predict('2000-01-01T00')
         ```
     """

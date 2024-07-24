@@ -101,7 +101,7 @@ class LightingPrediction(LightningWrapper):
                 Predicted data
         """
         if isinstance(data, str):
-            data = self.get_sample(data)
+            data = self.get_sample(data, fake_batch_dim=True)
 
         from torch.utils.data import DataLoader, IterableDataset
 
@@ -116,11 +116,12 @@ class LightingPrediction(LightningWrapper):
             FakeDataLoader(data),
             batch_size=None,
         )
+
         warnings.filterwarnings("ignore", ".*does not have many workers.*")
         with LoggingContext():
             predictions_raw = self.trainer.predict(model=self.model, dataloaders=fake_data)
             if predictions_raw is None:
-                raise RuntimeError("Predictions were None, cannot parse, try runninng prediction on only one gpu.")
+                raise RuntimeError("Predictions were None, cannot be parsed, try running prediction on only one gpu.")
 
         prediction = np.vstack(predictions_raw)
         return prediction

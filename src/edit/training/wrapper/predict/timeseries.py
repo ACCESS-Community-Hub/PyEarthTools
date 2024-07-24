@@ -13,7 +13,6 @@ from typing import Literal, TypeVar, Any, Optional
 
 from abc import abstractmethod
 
-
 import xarray as xr
 import numpy as np
 import tqdm.auto as tqdm
@@ -22,14 +21,14 @@ from edit.data import TimeDelta, EDITDatetime, TimeRange
 
 from edit.pipeline.controller import Pipeline
 from edit.training.wrapper.wrapper import ModelWrapper
-from edit.training.wrapper.predict.predict import PredictionWrapper
+from edit.training.wrapper.predict.predict import Predictor
 
 from edit.training.manage import Variables
 
 XR_TYPE = TypeVar("XR_TYPE", xr.Dataset, xr.DataArray)
 
 
-class TimeSeriesPredictionWrapper(PredictionWrapper):
+class TimeSeriesPredictor(Predictor):
     """
     Temporal predictions
 
@@ -140,7 +139,7 @@ class TimeSeriesPredictionWrapper(PredictionWrapper):
     def recurrent(self, idx, steps: int, **kwargs): ...
 
 
-class ManualTimeSeriesPredictionWrapper(TimeSeriesPredictionWrapper):
+class ManualTimeSeriesPredictor(TimeSeriesPredictor):
     """
     Interface for TimeSeries prediction in which the `model` itself handles all of the recurrency.
     """
@@ -149,7 +148,7 @@ class ManualTimeSeriesPredictionWrapper(TimeSeriesPredictionWrapper):
         raise NotImplementedError("Model handles the recurrency itself, call `predict` instead")
 
 
-class TimeSeriesAutoRecurrent(TimeSeriesPredictionWrapper):
+class TimeSeriesAutoRecurrentPredictor(TimeSeriesPredictor):
     """
     AutoRecurrent temporal predictions.
     """
@@ -274,7 +273,7 @@ class TimeSeriesAutoRecurrent(TimeSeriesPredictionWrapper):
         return self._combine(idx, outputs)
 
 
-class TimeSeriesManagedRecurrent(TimeSeriesAutoRecurrent):
+class TimeSeriesManagedPredictor(TimeSeriesAutoRecurrentPredictor):
     """
     AutoRecurrent prediction where output != input.
 
@@ -309,12 +308,13 @@ class TimeSeriesManagedRecurrent(TimeSeriesAutoRecurrent):
         reverse_pipeline: Pipeline | str | None = None,
         *,
         input_order: Optional[str] = None,
+        variable_axis: int = 0,
         take_missing_from_input: bool = False,
         fix_time_dim: bool = True,
         interval: int | str | TimeDelta = 1,
         time_dim: str = "time",
         combine: None | Literal["stack"] | Literal["concat"] = "concat",
-        combine_axis: int = 0,
+        combine_axis: int = 1,
         **extra_pipelines: Pipeline,
     ):
         """
@@ -337,6 +337,10 @@ class TimeSeriesManagedRecurrent(TimeSeriesAutoRecurrent):
                 Override for order of input data, if incoming data is not a dictionary.
                 If not given, and `incoming data` is array will use default order from `variable_manager`.
                 Defaults to None.
+            variable_axis (int, Optional):
+                Axis of tensor of variables. Used to ensure seperation of according to `output_order`.
+                Only used if model returns a tensor.
+                Defaults to 0.
             take_missing_from_input (bool):
                 Whether to take missing data from the input. Defaults to False.
             extra_pipelines (Pipeline, optional):
@@ -357,6 +361,7 @@ class TimeSeriesManagedRecurrent(TimeSeriesAutoRecurrent):
         )
         self.record_initialisation()
         self.variable_manager = variable_manager
+        self._variable_axis = variable_axis
 
         self._input_order = input_order
         self._output_order = output_order
@@ -430,14 +435,19 @@ class TimeSeriesManagedRecurrent(TimeSeriesAutoRecurrent):
             else:
                 if fake_batch_dim:
                     model_output = model_output[0]
-                output_components = self.variable_manager.split(model_output, self._output_order)
+
+                model_output = np.moveaxis(model_output, self._variable_axis, 0)
+                output_components = {
+                    key: np.moveaxis(val, 0, self._variable_axis)
+                    for key, val in self.variable_manager.split(model_output, self._output_order).items()
+                }
 
             outputs.append(model_output)
 
             for data_name in input_dict.keys():  # type: ignore
                 if data_name not in output_components:
                     if self._take_missing_from_input:
-                        output_components[data_name] = input_dict[data_name]
+                        output_components[data_name] = input_dict[data_name]  # type: ignore
                     else:
                         if self._extra_pipelines is not None and data_name in self._extra_pipelines:
                             pipeline_for_data = self._extra_pipelines[data_name]

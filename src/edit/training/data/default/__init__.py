@@ -13,5 +13,5 @@ Default DataModules
 
 # ruff: noqa: F401
 
-from edit.training.data.default.datamodule import PipelineDefaultDataModule
+from edit.training.data.default.datamodule import PipelineDefaultDataModule, DataLoader
 from edit.training.data.default.datasets import IndexableDataset, IterableDataset

@@ -15,7 +15,7 @@ from edit.training.wrapper.wrapper import ModelWrapper
 from edit.training.wrapper import predict, train, utils
 
 from edit.training.wrapper.train import TrainingWrapper
-from edit.training.wrapper.predict import PredictionWrapper
+from edit.training.wrapper.predict import Predictor
 
 try:
     ONNX_IMPORTED = True
@@ -29,7 +29,7 @@ try:
 except (ImportError, ModuleNotFoundError):
     LIGHTNING_IMPORTED = False
 
-__all__ = ["ModelWrapper", "predict", "train", "utils", "TrainingWrapper", "PredictionWrapper"]
+__all__ = ["ModelWrapper", "predict", "train", "utils", "TrainingWrapper", "Predictor"]
 
 if ONNX_IMPORTED:
     __all__.append("onnx")
