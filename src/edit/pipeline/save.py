@@ -16,6 +16,8 @@ import warnings
 
 import yaml
 
+import logging
+
 from edit.data.utils import parse_path
 
 from edit.utils.initialisation.imports import dynamic_import
@@ -25,6 +27,8 @@ import edit.pipeline
 
 CONFIG_KEY = "--CONFIG--"
 SUFFIX = ".pipe"
+
+LOG = logging.getLogger("edit.pipeline")
 
 
 def save(pipeline: "edit.pipeline.Pipeline", path: Optional[Union[str, Path]] = None) -> Union[None, str]:
@@ -78,6 +82,8 @@ def load(stream: Union[str, Path], **kwargs: Any) -> "edit.pipeline.Pipeline":
         (edit.pipeline.Pipeline):
             Loaded Pipeline
     """
+    LOG.debug(f"Loading stream {stream}")
+
     contents = None
 
     if os.path.sep in str(stream) or os.path.exists(parse_path(stream)):
@@ -114,6 +120,9 @@ def load(stream: Union[str, Path], **kwargs: Any) -> "edit.pipeline.Pipeline":
                 )
 
     loaded_obj = yaml.load(contents, initialisation.Loader)
+
+    LOG.debug(f"Loaded pipeline object: {loaded_obj = }")
+
     if not isinstance(loaded_obj, edit.pipeline.Pipeline):
         raise FileNotFoundError(f"Cannot load {stream!r}, is it a valid Pipeline?")
     return loaded_obj

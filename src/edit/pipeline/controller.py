@@ -39,7 +39,6 @@ from edit.pipeline.graph import Graphed, format_graph_node
 PIPELINE_TYPES = Union[Index, PipelineStep, Transform, TransformCollection]
 VALID_PIPELINE_TYPES = Union[PIPELINE_TYPES, tuple[PIPELINE_TYPES, ...], tuple[tuple, ...]]
 
-
 __all___ = ["Pipeline", "PipelineIndex"]
 
 LOG = logging.getLogger("edit.pipeline")
@@ -473,6 +472,7 @@ class Pipeline(_Pipeline, Index):
     def __getitem__(self, idx: Any):
         """Retrieve from pipeline at `idx`"""
         sample, step_index = self._get_initial_sample(idx)
+        LOG.debug(f"Call pipeline __getitem__ for {idx = }")
 
         for step in self.steps[step_index + 1 :]:
             if not isinstance(step, (Pipeline, PipelineStep, Transform, TransformCollection)):

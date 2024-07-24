@@ -34,7 +34,7 @@ class numpyNormalisation(Operation):
     @classmethod
     def open_file(cls, file: FILE) -> np.ndarray:
         """Open numpy file"""
-        return np.load(str(parse_path(file))) # type: ignore
+        return np.load(str(parse_path(file)))  # type: ignore
 
     def __init__(self, expand: bool = True):
         super().__init__(split_tuples=True, recursively_split_tuples=True, recognised_types=(np.ndarray))

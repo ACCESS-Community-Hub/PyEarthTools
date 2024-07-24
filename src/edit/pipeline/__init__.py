@@ -33,6 +33,7 @@ pipeline['2000-01-01T00']
 ```
 
 """
+import edit.pipeline.logger
 
 from edit.pipeline.save import save, load
 from edit.pipeline.controller import Pipeline, PipelineIndex

@@ -68,6 +68,7 @@ class daskNormalisation(DaskOperation):
         dims = tuple(range(len(factor.shape), len(sample.shape)))
         return np.expand_dims(factor, dims)
 
+
 class Anomaly(daskNormalisation):
     """Anomaly Normalisation"""
 
@@ -103,7 +104,6 @@ class Deviation(daskNormalisation):
 
     def unnormalise(self, sample):
         return (sample * self.expand(self.deviation, sample)) + self.expand(self.mean, sample)
-
 
 
 class Division(daskNormalisation):
