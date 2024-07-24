@@ -37,6 +37,9 @@ class TimeSeriesPredictor(Predictor):
 
     Adds `recurrent`, which is expected to be implemented by subclass.
 
+    Provides `prepare_output` as a function hook to modify model outputs before using
+    as input.
+
     Usage:
         ```python
         model = ModelWrapper(MODEL_GOES_HERE, DATA_PIPELINE)
@@ -141,6 +144,10 @@ class TimeSeriesPredictor(Predictor):
     @abstractmethod
     def recurrent(self, idx, steps: int, **kwargs): ...
 
+    def prepare_output(self, output):
+        """Hook to prepare output for inputs"""
+        return output
+
 
 class ManualTimeSeriesPredictor(TimeSeriesPredictor):
     """
@@ -203,6 +210,7 @@ class TimeSeriesAutoRecurrentPredictor(TimeSeriesPredictor):
             combine (Optional[Literal['stack', 'combine']], optional):
                 How to combine timesteps, either stack on `combine_axis` or concat.
                 If `None`, do not combine before undo operation and use `xr.combine_by_coords` after.
+                `concat` concatenates on existing axis, whereas `stack` stacks on new axis.
                 Defaults to 'concat'.
             combine_axis (int, optional):
                 If to `combine` which axis to combine on. Will remove the batch dim, so 0 is actually 1 with batch dim included.
@@ -219,15 +227,21 @@ class TimeSeriesAutoRecurrentPredictor(TimeSeriesPredictor):
         """
 
         if self._combine_func is not None:
+            LOG.debug(f"Combining steps with {self._combine_func!r}.")
+
             combine_func = np.stack if self._combine_func == "stack" else np.concatenate
+            LOG.debug(f"Prior to combine outputs[0] had shape {outputs[0].shape}.")
             stacked_outputs = combine_func(outputs, axis=self._combine_axis)
+
+            LOG.debug(f"Combined data was of shape: {stacked_outputs.shape}")
+
             reversed_data = self.reverse(stacked_outputs)
             return self.after_predict(self.fix_time_dim(idx, reversed_data))  # type: ignore
 
         reversed_outputs = []
         for step, out in enumerate(outputs):
             reversed_data = self.reverse(out)
-            reversed_outputs.append(self.fix_time_dim(idx, reversed_data, offset=step + 1))  # type: ignore
+            reversed_outputs.append(self.fix_time_dim(idx, reversed_data, offset=step * out.shape[self._combine_axis]))  # type: ignore
 
         return self.after_predict(xr.combine_by_coords(reversed_outputs))
 
@@ -268,11 +282,14 @@ class TimeSeriesAutoRecurrentPredictor(TimeSeriesPredictor):
         outputs = []
         for step in tqdm.trange(steps, disable=not verbose, desc="Predicting Autorecurrently"):
             model_output = self._predict(input_data)
+
+            LOG.debug(f"At step {step} model output was of shape {model_output.shape}")
+
             if fake_batch_dim:
                 outputs.append(model_output[0])
             else:
                 outputs.append(model_output)
-            input_data = model_output
+            input_data = self.prepare_output(model_output)
         return self._combine(idx, outputs)
 
 
@@ -326,6 +343,8 @@ class TimeSeriesManagedPredictor(TimeSeriesAutoRecurrentPredictor):
         Expects `model.datamodule.pipelines` to be a dictionary, and `variable_manager` to use the same names.
         Based on `output_order` finds the missing data needed for a prediction, and queries the `datamodule` for it
         if `take_missing_from_input` is False, otherwise pull from input.
+
+        `combine_axis` is used to identify number of time steps predicted in one pass of the model.
 
         Args:
             model (ModelWrapper):
@@ -426,7 +445,6 @@ class TimeSeriesManagedPredictor(TimeSeriesAutoRecurrentPredictor):
 
         outputs = []
         for step in tqdm.trange(steps, disable=not verbose, desc="Predicting Autorecurrently"):
-            current_time_step = EDITDatetime(idx) + (self._interval * step)
 
             model_output = self._predict(input_data)
 
@@ -439,13 +457,21 @@ class TimeSeriesManagedPredictor(TimeSeriesAutoRecurrentPredictor):
                 if fake_batch_dim:
                     model_output = model_output[0]
 
-                model_output = np.moveaxis(model_output, self._variable_axis, 0)
+                LOG.debug(f"At step {step} model output was of shape {model_output.shape}")
+
+                model_output_shaped = np.moveaxis(model_output, self._variable_axis, 0)
                 output_components = {
                     key: np.moveaxis(val, 0, self._variable_axis)
-                    for key, val in self.variable_manager.split(model_output, self._output_order).items()
+                    for key, val in self.variable_manager.split(model_output_shaped, self._output_order).items()
                 }
 
+            current_time_step = EDITDatetime(idx) + (self._interval * step * model_output.shape[self._combine_axis])
             outputs.append(model_output)
+
+            output_components = self.prepare_output(output_components)
+
+            output_components_shape = {key: val.shape for key, val in output_components.items()}
+            LOG.debug(f"At step {step} model output components was of shape {output_components_shape}")
 
             for data_name in input_dict.keys():  # type: ignore
                 if data_name not in output_components:
