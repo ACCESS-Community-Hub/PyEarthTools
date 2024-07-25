@@ -7,7 +7,7 @@
 # from the use of the software.
 
 """
-Training DataModule from Pipelines
+Training DataModule to source data from `pipeline`'s.
 """
 
 from __future__ import annotations

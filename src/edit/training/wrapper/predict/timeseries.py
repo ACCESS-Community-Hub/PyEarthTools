@@ -16,6 +16,8 @@ from abc import abstractmethod
 import xarray as xr
 import numpy as np
 import tqdm.auto as tqdm
+import logging
+
 
 from edit.data import TimeDelta, EDITDatetime, TimeRange
 
@@ -26,6 +28,7 @@ from edit.training.wrapper.predict.predict import Predictor
 from edit.training.manage import Variables
 
 XR_TYPE = TypeVar("XR_TYPE", xr.Dataset, xr.DataArray)
+LOG = logging.getLogger("edit.training")
 
 
 class TimeSeriesPredictor(Predictor):
@@ -33,6 +36,11 @@ class TimeSeriesPredictor(Predictor):
     Temporal predictions
 
     Adds `recurrent`, which is expected to be implemented by subclass.
+
+
+    Hooks:
+        `prepare_output` (prediction) -> prediction:
+            Function executed to prepare model outputs for the inputs.
 
     Usage:
         ```python
@@ -61,7 +69,7 @@ class TimeSeriesPredictor(Predictor):
                 Override for `Pipeline` to use on the undo operation.
                     If not given, will default to using `model.pipelines`.
                     If `str` or `int` use value to index into `model.pipelines`. Useful if `model.pipelines`
-                    is a dictionay or tuple.
+                    is a dictionary or tuple.
                     Or can be `Pipeline` it self to use. If `reverse_pipeline.has_source()` is True, run `reverse_pipeline.undo`. otherwise
                     apply pipeline with `reverse_pipeline.apply`
                 Defaults to None.
@@ -138,14 +146,18 @@ class TimeSeriesPredictor(Predictor):
     @abstractmethod
     def recurrent(self, idx, steps: int, **kwargs): ...
 
+    def prepare_output(self, output):
+        """Hook to prepare output for inputs"""
+        return output
+
 
 class ManualTimeSeriesPredictor(TimeSeriesPredictor):
     """
-    Interface for TimeSeries prediction in which the `model` itself handles all of the recurrency.
+    Interface for TimeSeries prediction in which the `model` itself handles all of the recurrence.
     """
 
     def recurrent(self, *_, **__):
-        raise NotImplementedError("Model handles the recurrency itself, call `predict` instead")
+        raise NotImplementedError("Model handles the recurrence itself, call `predict` instead")
 
 
 class TimeSeriesAutoRecurrentPredictor(TimeSeriesPredictor):
@@ -187,7 +199,7 @@ class TimeSeriesAutoRecurrentPredictor(TimeSeriesPredictor):
                 Override for `Pipeline` to use on the undo operation.
                     If not given, will default to using `model.pipelines`.
                     If `str` or `int` use value to index into `model.pipelines`. Useful if `model.pipelines`
-                    is a dictionay or tuple.
+                    is a dictionary or tuple.
                     Or can be `Pipeline` it self to use. If `reverse_pipeline.has_source()` is True, run `reverse_pipeline.undo`. otherwise
                     apply pipeline with `reverse_pipeline.apply`
                 Defaults to None.
@@ -200,6 +212,7 @@ class TimeSeriesAutoRecurrentPredictor(TimeSeriesPredictor):
             combine (Optional[Literal['stack', 'combine']], optional):
                 How to combine timesteps, either stack on `combine_axis` or concat.
                 If `None`, do not combine before undo operation and use `xr.combine_by_coords` after.
+                `concat` concatenates on existing axis, whereas `stack` stacks on new axis.
                 Defaults to 'concat'.
             combine_axis (int, optional):
                 If to `combine` which axis to combine on. Will remove the batch dim, so 0 is actually 1 with batch dim included.
@@ -216,15 +229,21 @@ class TimeSeriesAutoRecurrentPredictor(TimeSeriesPredictor):
         """
 
         if self._combine_func is not None:
+            LOG.debug(f"Combining steps with {self._combine_func!r}.")
+
             combine_func = np.stack if self._combine_func == "stack" else np.concatenate
+            LOG.debug(f"Prior to combine outputs[0] had shape {outputs[0].shape}.")
             stacked_outputs = combine_func(outputs, axis=self._combine_axis)
+
+            LOG.debug(f"Combined data was of shape: {stacked_outputs.shape}")
+
             reversed_data = self.reverse(stacked_outputs)
             return self.after_predict(self.fix_time_dim(idx, reversed_data))  # type: ignore
 
         reversed_outputs = []
         for step, out in enumerate(outputs):
             reversed_data = self.reverse(out)
-            reversed_outputs.append(self.fix_time_dim(idx, reversed_data, offset=step + 1))  # type: ignore
+            reversed_outputs.append(self.fix_time_dim(idx, reversed_data, offset=step * out.shape[self._combine_axis]))  # type: ignore
 
         return self.after_predict(xr.combine_by_coords(reversed_outputs))
 
@@ -265,11 +284,14 @@ class TimeSeriesAutoRecurrentPredictor(TimeSeriesPredictor):
         outputs = []
         for step in tqdm.trange(steps, disable=not verbose, desc="Predicting Autorecurrently"):
             model_output = self._predict(input_data)
+
+            LOG.debug(f"At step {step} model output was of shape {model_output.shape}")
+
             if fake_batch_dim:
                 outputs.append(model_output[0])
             else:
                 outputs.append(model_output)
-            input_data = model_output
+            input_data = self.prepare_output(model_output)
         return self._combine(idx, outputs)
 
 
@@ -324,6 +346,8 @@ class TimeSeriesManagedPredictor(TimeSeriesAutoRecurrentPredictor):
         Based on `output_order` finds the missing data needed for a prediction, and queries the `datamodule` for it
         if `take_missing_from_input` is False, otherwise pull from input.
 
+        `combine_axis` is used to identify number of time steps predicted in one pass of the model.
+
         Args:
             model (ModelWrapper):
                 Model and Data source to use.
@@ -338,7 +362,7 @@ class TimeSeriesManagedPredictor(TimeSeriesAutoRecurrentPredictor):
                 If not given, and `incoming data` is array will use default order from `variable_manager`.
                 Defaults to None.
             variable_axis (int, Optional):
-                Axis of tensor of variables. Used to ensure seperation of according to `output_order`.
+                Axis of tensor of variables. Used to ensure separation of according to `output_order`.
                 Only used if model returns a tensor.
                 Defaults to 0.
             take_missing_from_input (bool):
@@ -389,7 +413,7 @@ class TimeSeriesManagedPredictor(TimeSeriesAutoRecurrentPredictor):
 
         Will split the outputs based on `output_order`, find missing keys, and get from `pipelines` or `input`.
 
-        Can be used with `datamodules` that return dictionarys or data,
+        Can be used with `datamodules` that return dictionaries or data,
 
         If `model` returns a dictionary, will look for a key `prediction` for predictions to pass to outputs.
 
@@ -423,7 +447,6 @@ class TimeSeriesManagedPredictor(TimeSeriesAutoRecurrentPredictor):
 
         outputs = []
         for step in tqdm.trange(steps, disable=not verbose, desc="Predicting Autorecurrently"):
-            current_time_step = EDITDatetime(idx) + (self._interval * step)
 
             model_output = self._predict(input_data)
 
@@ -436,19 +459,29 @@ class TimeSeriesManagedPredictor(TimeSeriesAutoRecurrentPredictor):
                 if fake_batch_dim:
                     model_output = model_output[0]
 
-                model_output = np.moveaxis(model_output, self._variable_axis, 0)
+                LOG.debug(f"At step {step} model output was of shape {model_output.shape}")
+
+                model_output_shaped = np.moveaxis(model_output, self._variable_axis, 0)
                 output_components = {
                     key: np.moveaxis(val, 0, self._variable_axis)
-                    for key, val in self.variable_manager.split(model_output, self._output_order).items()
+                    for key, val in self.variable_manager.split(model_output_shaped, self._output_order).items()
                 }
 
+            current_time_step = EDITDatetime(idx) + (self._interval * step * model_output.shape[self._combine_axis])
             outputs.append(model_output)
+
+            output_components = self.prepare_output(output_components)
+
+            output_components_shape = {key: val.shape for key, val in output_components.items()}
+            LOG.debug(f"At step {step} model output components was of shape {output_components_shape}")
 
             for data_name in input_dict.keys():  # type: ignore
                 if data_name not in output_components:
                     if self._take_missing_from_input:
+                        LOG.debug(f"At {step = } filling missing {data_name = } with inputs")
                         output_components[data_name] = input_dict[data_name]  # type: ignore
                     else:
+                        LOG.debug(f"At {step = } filling missing {data_name = } with time: {current_time_step}")
                         if self._extra_pipelines is not None and data_name in self._extra_pipelines:
                             pipeline_for_data = self._extra_pipelines[data_name]
                         else:

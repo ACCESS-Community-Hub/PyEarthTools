@@ -102,7 +102,7 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         self.data_attributes = data_attributes
 
         self.offsetInterval = offsetInterval
-        self.to_override = override
+        self._override = override
 
     def offset_time(self, time: str | EDITDatetime) -> EDITDatetime:
         """
@@ -159,9 +159,6 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         return predictions
 
     def filesystem(self, *args, **kwargs) -> Path | dict[str, str | Path] | list[str | Path]:
-        if self.to_override:
-            with self.override:
-                return super().filesystem(*args, **kwargs)
         return super().filesystem(*args, **kwargs)
 
     @property
