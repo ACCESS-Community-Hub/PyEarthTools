@@ -168,7 +168,9 @@ class ToXarray(Operation):
             var_names = []
             for var in reference_dataset:
                 var_names.append(var)
-                encoding[var] = {key: val for key, val in reference_dataset[var].encoding.items() if key in ENCODING_INCLUDE}
+                encoding[var] = {
+                    key: val for key, val in reference_dataset[var].encoding.items() if key in ENCODING_INCLUDE
+                }
                 attributes[var] = {
                     key: val for key, val in reference_dataset[var].attrs.items() if key not in ATTRIBUTES_IGNORE
                 }
@@ -179,7 +181,9 @@ class ToXarray(Operation):
             coords["variable"] = var_names
 
         for coord in reference_dataset.coords:
-            encoding[coord] = {key: val for key, val in reference_dataset[coord].encoding.items() if key in ENCODING_INCLUDE}
+            encoding[coord] = {
+                key: val for key, val in reference_dataset[coord].encoding.items() if key in ENCODING_INCLUDE
+            }
             attributes[coord] = {
                 key: val for key, val in reference_dataset[coord].attrs.items() if key not in ATTRIBUTES_IGNORE
             }

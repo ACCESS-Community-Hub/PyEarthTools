@@ -8,7 +8,9 @@
 
 import warnings
 
+
 class PipelineWarning(UserWarning):
     """Pipeline Warning"""
 
-warnings.simplefilter("default", category = PipelineWarning)
+
+warnings.simplefilter("default", category=PipelineWarning)

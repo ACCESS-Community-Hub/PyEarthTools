@@ -55,7 +55,8 @@ XR_TYPE = TypeVar("XR_TYPE", xr.Dataset, xr.DataArray)
 
 HEALPIX_COORDS = ["face", "height", "width"]
 
-LOG = logging.getLogger('edit.pipeline')
+LOG = logging.getLogger("edit.pipeline")
+
 
 class HEALPix(BaseRemap):
     """

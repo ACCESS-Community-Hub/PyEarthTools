@@ -170,7 +170,9 @@ class ToXarray(DaskOperation):
             var_names = []
             for var in reference_dataset:
                 var_names.append(var)
-                encoding[var] = {key: val for key, val in reference_dataset[var].encoding.items() if key in ENCODING_INCLUDE}
+                encoding[var] = {
+                    key: val for key, val in reference_dataset[var].encoding.items() if key in ENCODING_INCLUDE
+                }
                 attributes[var] = {
                     key: val for key, val in reference_dataset[var].attrs.items() if key not in ATTRIBUTES_IGNORE
                 }
@@ -181,7 +183,9 @@ class ToXarray(DaskOperation):
             coords["variable"] = var_names
 
         for coord in reference_dataset.coords:
-            encoding[coord] = {key: val for key, val in reference_dataset[coord].encoding.items() if key in ENCODING_INCLUDE}
+            encoding[coord] = {
+                key: val for key, val in reference_dataset[coord].encoding.items() if key in ENCODING_INCLUDE
+            }
             attributes[coord] = {
                 key: val for key, val in reference_dataset[coord].attrs.items() if key not in ATTRIBUTES_IGNORE
             }
@@ -189,6 +193,7 @@ class ToXarray(DaskOperation):
         if drop_coords:
             tuple(coords.pop(key) for key in drop_coords)
         return ToXarray(array_shape, coords, encoding, attributes)
+
 
 class ToNumpy(DaskOperation):
     """
@@ -204,6 +209,6 @@ class ToNumpy(DaskOperation):
 
     def apply_func(self, sample):
         return sample.compute()
-    
+
     def undo_func(self, sample):
         return da.from_array(sample)
