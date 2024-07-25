@@ -16,12 +16,3 @@ stages:
 variables:
   LINE_LENGTH: 120
 
-
-workflow:
-  rules:
-    # Run the pipeline for merge requests
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    # Do not run the pipeline for commits to open merge requests
-    - if: "$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS"
-      when: never
-    - if: $CI_COMMIT_BRANCH == "main"
