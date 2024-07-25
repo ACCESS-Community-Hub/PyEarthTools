@@ -476,8 +476,10 @@ class TimeSeriesManagedPredictor(TimeSeriesAutoRecurrentPredictor):
             for data_name in input_dict.keys():  # type: ignore
                 if data_name not in output_components:
                     if self._take_missing_from_input:
+                        LOG.debug(f"At {step = } filling missing {data_name = } with inputs")
                         output_components[data_name] = input_dict[data_name]  # type: ignore
                     else:
+                        LOG.debug(f"At {step = } filling missing {data_name = } with time: {current_time_step}")
                         if self._extra_pipelines is not None and data_name in self._extra_pipelines:
                             pipeline_for_data = self._extra_pipelines[data_name]
                         else:
