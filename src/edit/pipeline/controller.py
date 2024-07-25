@@ -477,7 +477,7 @@ class Pipeline(_Pipeline, Index):
         for step in self.steps[step_index + 1 :]:
             if not isinstance(step, (Pipeline, PipelineStep, Transform, TransformCollection)):
                 raise TypeError(f"When iterating through pipeline steps, found a {type(step)} which cannot be parsed.")
-            LOG.debug(f"Apply step upon sample. {step}")
+            LOG.debug(f"Apply step upon sample: {step.__class__.__qualname__}")
 
             if isinstance(step, Pipeline):
                 sample = step.apply(sample)

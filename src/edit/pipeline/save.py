@@ -26,7 +26,7 @@ from edit.utils import initialisation
 import edit.pipeline
 
 CONFIG_KEY = "--CONFIG--"
-SUFFIX = ".pipe"
+SUFFIX = ".epi"
 
 LOG = logging.getLogger("edit.pipeline")
 
@@ -58,7 +58,7 @@ def save(pipeline: "edit.pipeline.Pipeline", path: Optional[Union[str, Path]] = 
     if path is None:
         return full_yaml
 
-    path = Path(parse_path(path))
+    path = parse_path(Path(path))
 
     path.parent.mkdir(parents=True, exist_ok=True)
     if not path.suffix:
@@ -86,11 +86,11 @@ def load(stream: Union[str, Path], **kwargs: Any) -> "edit.pipeline.Pipeline":
 
     contents = None
 
-    if os.path.sep in str(stream) or os.path.exists(parse_path(stream)):
+    if os.path.sep in str(stream) or parse_path(Path(stream)).exists():
         try:
-            if Path(parse_path(stream)).is_dir():
-                raise FileNotFoundError(f"{parse_path(stream)!r} is directory and cannot be opened.")
-            contents = "".join(open(str(parse_path(stream))).readlines())
+            if parse_path(Path(stream)).is_dir():
+                raise FileNotFoundError(f"{parse_path(Path(stream))!r} is directory and cannot be opened.")
+            contents = "".join(open(str(parse_path(Path(stream)))).readlines())
         except OSError:
             pass
 

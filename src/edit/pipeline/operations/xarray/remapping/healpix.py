@@ -43,6 +43,8 @@ import xarray as xr
 import reproject as rp
 import astropy as ap
 
+import logging
+
 import edit.data
 from edit.pipeline.warnings import PipelineWarning
 
@@ -53,6 +55,7 @@ XR_TYPE = TypeVar("XR_TYPE", xr.Dataset, xr.DataArray)
 
 HEALPIX_COORDS = ["face", "height", "width"]
 
+LOG = logging.getLogger('edit.pipeline')
 
 class HEALPix(BaseRemap):
     """
@@ -88,6 +91,8 @@ class HEALPix(BaseRemap):
                 Include spatial_coords as variables for each face. Defaults to False.
             manual_rechunking (bool, optional):
                 Manually rechunk to one chunk per spatial grid. Defaults to True.
+            template_dataset (Optional[str], optional):
+                Override for template dataset to get coords from. Defaults to None.
             check_for_nans (bool, optional):
                 Check for nans after remapping. Defaults to False.
 

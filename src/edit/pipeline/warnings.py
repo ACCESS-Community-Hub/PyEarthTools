@@ -6,6 +6,9 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
+import warnings
 
-class PipelineWarning(RuntimeWarning):
+class PipelineWarning(UserWarning):
     """Pipeline Warning"""
+
+warnings.simplefilter("default", category = PipelineWarning)

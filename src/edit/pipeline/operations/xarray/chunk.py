@@ -31,7 +31,7 @@ class Chunk(Operation):
 
         Args:
             chunk (Optional[dict[str, int]], optional):
-                Chunk dictionary. coord: size. Defaults to None.
+                Chunk dictionary. `coord: size`. Defaults to None.
             operation (Literal['apply', 'undo', 'both']):
                 When to apply rechunking. Defaults to 'apply'.
             **extra_chunk_kwargs (int):

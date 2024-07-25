@@ -19,6 +19,7 @@ import edit.data
 from edit.pipeline.operations.dask.dask import DaskOperation
 
 ATTRIBUTES_IGNORE = ["license", "summary"]
+ENCODING_INCLUDE = ["dtype"]
 
 
 class ToXarray(DaskOperation):
@@ -55,7 +56,7 @@ class ToXarray(DaskOperation):
             encoding (Optional[dict[str, Any]], optional):
                 Encoding to set, can be variable, or dimension. Defaults to None.
             attributes (Optional[dict[str, Any]], optional):
-                Attributes to set. Can use `__dataset__` if dataset to update dataset attrs Defaults to None.
+                Attributes to set. Can use `__dataset` if dataset to update dataset attrs Defaults to None.
 
         Examples:
             ## Like
@@ -109,7 +110,7 @@ class ToXarray(DaskOperation):
             ds_coords.pop("variable", None)
 
             ds_attrs = dict(self._attributes)
-            dataset_attribute = ds_attrs.pop("__dataset__", {})
+            dataset_attribute = ds_attrs.pop("__dataset", {})
 
             xarray_coord = xr.Coordinates(ds_coords)
 
@@ -157,32 +158,52 @@ class ToXarray(DaskOperation):
         if isinstance(reference_dataset, xr.DataArray):
             array_shape = tuple(map(str, reference_dataset.dims))
             coords = {key: list(val.values) for key, val in reference_dataset.coords.items()}
-            encoding = reference_dataset.encoding
-            attributes = reference_dataset.attrs
+            encoding = {key: val for key, val in reference_dataset.encoding.items() if key in ENCODING_INCLUDE}
+            attributes = {key: val for key, val in reference_dataset.attrs.items() if key not in ATTRIBUTES_IGNORE}
 
         else:
             array_shape = ("variable", *tuple(map(str, reference_dataset[list(reference_dataset.data_vars)[0]].dims)))
             coords = {key: val.values.tolist() for key, val in reference_dataset.coords.items()}
-            encoding = reference_dataset.encoding
-            attributes = reference_dataset.encoding
+            encoding = {}
+            attributes = {}
 
             var_names = []
             for var in reference_dataset:
                 var_names.append(var)
-                encoding[var] = reference_dataset[var].encoding
+                encoding[var] = {key: val for key, val in reference_dataset[var].encoding.items() if key in ENCODING_INCLUDE}
                 attributes[var] = {
                     key: val for key, val in reference_dataset[var].attrs.items() if key not in ATTRIBUTES_IGNORE
                 }
 
-            attributes["__dataset__"] = {
+            attributes["__dataset"] = {
                 key: val for key, val in reference_dataset.attrs.items() if key not in ATTRIBUTES_IGNORE
             }
             coords["variable"] = var_names
 
         for coord in reference_dataset.coords:
-            encoding[coord] = reference_dataset[coord].encoding
-            attributes[coord] = reference_dataset[coord].attrs
+            encoding[coord] = {key: val for key, val in reference_dataset[coord].encoding.items() if key in ENCODING_INCLUDE}
+            attributes[coord] = {
+                key: val for key, val in reference_dataset[coord].attrs.items() if key not in ATTRIBUTES_IGNORE
+            }
 
         if drop_coords:
             tuple(coords.pop(key) for key in drop_coords)
         return ToXarray(array_shape, coords, encoding, attributes)
+
+class ToNumpy(DaskOperation):
+    """
+    Dask -> Numpy Converter
+    """
+
+    _override_interface = "Serial"
+
+    def __init__(self, chunks: int | str | tuple[int, str] = "auto"):
+        super().__init__(split_tuples=True, recursively_split_tuples=True, recognised_types={"apply": da.Array})
+        self.record_initialisation()
+        self._chunks = chunks
+
+    def apply_func(self, sample):
+        return sample.compute()
+    
+    def undo_func(self, sample):
+        return da.from_array(sample)
