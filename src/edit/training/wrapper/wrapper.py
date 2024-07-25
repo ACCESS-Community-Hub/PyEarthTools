@@ -23,6 +23,7 @@ class ModelWrapper(InitialisationRecordingMixin, metaclass=ABCMeta):
     """
 
     _default_datamodule: type[PipelineDataModule] = PipelineDataModule
+    _record_model: bool = False
 
     def __init__(
         self,
@@ -38,6 +39,9 @@ class ModelWrapper(InitialisationRecordingMixin, metaclass=ABCMeta):
         """
         Construct Base model wrapper
 
+        `model` will not be recorded in the initialisation by default, set `_record_model` to change
+        this behaviour.
+
         Args:
             model (Any):
                 Model to use.
@@ -46,7 +50,7 @@ class ModelWrapper(InitialisationRecordingMixin, metaclass=ABCMeta):
                 Will only then have `get_sample`.
         """
         super().__init__()
-        self.record_initialisation(ignore="model")
+        self.record_initialisation(ignore="model" if self._record_model else None)
 
         if not isinstance(data, PipelineDataModule):
             data = self._default_datamodule(data)
@@ -57,22 +61,33 @@ class ModelWrapper(InitialisationRecordingMixin, metaclass=ABCMeta):
         self.datamodule = data
 
     def get_sample(self, idx, *, fake_batch_dim: bool = False):
-        """Get sample from `datamodule`."""
+        """Get sample from the `datamodule`."""
         return self.datamodule.get_sample(idx, fake_batch_dim=fake_batch_dim)
 
     @property
     def pipelines(self):
+        """Get pipelines from the `datamodule`."""
         return self.datamodule.pipelines
 
     @property
     def splits(self):
+        """Training and Validation split as configured by the `datamodule`."""
         return {"training": self.datamodule._train_split, "validation": self.datamodule._valid_split}
 
     @abstractmethod
-    def load(self, *args, **kwargs): ...
+    def load(self, *args, **kwargs):
+        """Load model"""
 
     @abstractmethod
-    def save(self, *args, **kwargs): ...
+    def save(self, *args, **kwargs):
+        """Save model"""
 
     @abstractmethod
-    def predict(self, data, *args, **kwargs): ...
+    def predict(self, data, *args, **kwargs):
+        """
+        Run a forward pass with the model
+
+        Args:
+            data:
+                Data to run prediction with
+        """

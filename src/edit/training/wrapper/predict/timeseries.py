@@ -37,8 +37,10 @@ class TimeSeriesPredictor(Predictor):
 
     Adds `recurrent`, which is expected to be implemented by subclass.
 
-    Provides `prepare_output` as a function hook to modify model outputs before using
-    as input.
+
+    Hooks:
+        `prepare_output` (prediction) -> prediction:
+            Function executed to prepare model outputs for the inputs.
 
     Usage:
         ```python
@@ -67,7 +69,7 @@ class TimeSeriesPredictor(Predictor):
                 Override for `Pipeline` to use on the undo operation.
                     If not given, will default to using `model.pipelines`.
                     If `str` or `int` use value to index into `model.pipelines`. Useful if `model.pipelines`
-                    is a dictionay or tuple.
+                    is a dictionary or tuple.
                     Or can be `Pipeline` it self to use. If `reverse_pipeline.has_source()` is True, run `reverse_pipeline.undo`. otherwise
                     apply pipeline with `reverse_pipeline.apply`
                 Defaults to None.
@@ -151,11 +153,11 @@ class TimeSeriesPredictor(Predictor):
 
 class ManualTimeSeriesPredictor(TimeSeriesPredictor):
     """
-    Interface for TimeSeries prediction in which the `model` itself handles all of the recurrency.
+    Interface for TimeSeries prediction in which the `model` itself handles all of the recurrence.
     """
 
     def recurrent(self, *_, **__):
-        raise NotImplementedError("Model handles the recurrency itself, call `predict` instead")
+        raise NotImplementedError("Model handles the recurrence itself, call `predict` instead")
 
 
 class TimeSeriesAutoRecurrentPredictor(TimeSeriesPredictor):
@@ -197,7 +199,7 @@ class TimeSeriesAutoRecurrentPredictor(TimeSeriesPredictor):
                 Override for `Pipeline` to use on the undo operation.
                     If not given, will default to using `model.pipelines`.
                     If `str` or `int` use value to index into `model.pipelines`. Useful if `model.pipelines`
-                    is a dictionay or tuple.
+                    is a dictionary or tuple.
                     Or can be `Pipeline` it self to use. If `reverse_pipeline.has_source()` is True, run `reverse_pipeline.undo`. otherwise
                     apply pipeline with `reverse_pipeline.apply`
                 Defaults to None.
@@ -360,7 +362,7 @@ class TimeSeriesManagedPredictor(TimeSeriesAutoRecurrentPredictor):
                 If not given, and `incoming data` is array will use default order from `variable_manager`.
                 Defaults to None.
             variable_axis (int, Optional):
-                Axis of tensor of variables. Used to ensure seperation of according to `output_order`.
+                Axis of tensor of variables. Used to ensure separation of according to `output_order`.
                 Only used if model returns a tensor.
                 Defaults to 0.
             take_missing_from_input (bool):
@@ -411,7 +413,7 @@ class TimeSeriesManagedPredictor(TimeSeriesAutoRecurrentPredictor):
 
         Will split the outputs based on `output_order`, find missing keys, and get from `pipelines` or `input`.
 
-        Can be used with `datamodules` that return dictionarys or data,
+        Can be used with `datamodules` that return dictionaries or data,
 
         If `model` returns a dictionary, will look for a key `prediction` for predictions to pass to outputs.
 

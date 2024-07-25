@@ -48,7 +48,7 @@ class Predictor(InitialisationRecordingMixin, metaclass=ABCMeta):
                 If not given, will default to using `model.pipelines`.
                 Override for `Pipeline` to use on the undo operation.
                 If `str` or `int` use value to index into `model.pipelines`. Useful if `model.pipelines`
-                is a dictionay or tuple.
+                is a dictionary or tuple.
                 Or can be `Pipeline` it self to use. If `reverse_pipeline.has_source()` is True, run `reverse_pipeline.undo`. otherwise
                 apply pipeline with `reverse_pipeline.apply`
         """
@@ -90,7 +90,12 @@ class Predictor(InitialisationRecordingMixin, metaclass=ABCMeta):
                 raise TypeError(
                     f"Cannot index into underlying `Pipelines` with {self._reverse_pipeline!r} as they are not indexable."
                 )
-            return self.pipelines[self._reverse_pipeline]  # type: ignore #TODO better error messaging
+            try:
+                return self.pipelines[self._reverse_pipeline]  # type: ignore
+            except IndexError as e:
+                raise IndexError(
+                    f"Indexing into the pipelines of type {type(self.pipelines)} with index {self._reverse_pipeline!r} failed"
+                ) from e
         raise TypeError(f"Cannot parse `reverse_pipeline` of {type(self._reverse_pipeline)}.")
 
     def reverse(self, data):

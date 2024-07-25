@@ -131,7 +131,7 @@ class PipelineDefaultDataModule(PipelineDataModule):
     Usage:
         ```python
         datamodule = PipelineDefaultDataModule(
-            pipleines = Pipeline(...),
+            pipelines = Pipeline(...),
             train_split = edit.pipeline.iterators.DateRange('1980', '2020', '6 hours')
         )
     """
