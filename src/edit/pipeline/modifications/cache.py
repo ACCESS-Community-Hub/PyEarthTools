@@ -315,3 +315,72 @@ class StaticCache(Cache):
                 sample = sample.compute()
             self._memory_sample = sample
         return sample
+
+
+class MemCache(PipelineIndex):
+    """
+    An `edit.pipeline` implementation of the `MemCache` from `edit.data`.
+
+    Allows for samples to be cached to memory when using the pipeline.
+
+    Examples:
+        >>> era_index = edit.data.archive.ERA5.sample()
+        >>> pipeline = edit.pipeline.Pipeline(
+                era_index,
+                edit.pipeline.pipelines.MemCache()
+            )
+        >>> pipeline['2000-01-01T00'] # Data will be cached to memory
+    """
+
+    _cache: edit.data.indexes.FunctionalMemCacheIndex
+
+    def __init__(
+        self,
+        pattern: Optional[Union[str, PatternIndex]] = None,
+        *,
+        pattern_kwargs: dict[str, Any] = {},
+        **kwargs,
+    ):
+        """
+        Pipeline step to cache samples
+
+        Args:
+            pattern (str | PatternIndex, optional):
+                Pattern to use to cache data, if str use `pattern_kwargs` to initialise. Defaults to None.
+            pattern_kwargs (dict[str, Any], optional):
+                Kwargs to initalise the pattern with. Defaults to {}.
+            kwargs (Any, optional):
+                All other kwargs passed to `edit.data.indexes.FunctionalMemCacheIndex`.
+        """
+        super().__init__()
+        self.record_initialisation()
+
+        self._cache = edit.data.indexes.FunctionalMemCacheIndex(
+            pattern=pattern,
+            function=self._generate,  # type: ignore
+            pattern_kwargs=pattern_kwargs,
+            **kwargs,
+        )
+
+    def _generate(self, idx):
+        return self.parent_pipeline()[idx]
+
+    def __getitem__(self, idx):
+        """
+        Get a sample from the cache, will generate it if it doesn't exist in the cache.
+        """
+        return self.cache[idx]
+
+    @property
+    def cache(self) -> edit.data.indexes.FunctionalMemCacheIndex:
+        return self._cache
+
+    @property
+    def override(self):
+        """Get a context window in which data will be overwritten in the cache"""
+        return self.cache.override
+
+    @property
+    def global_override(self):
+        """Get a context window in which data will be overwritten in all caches"""
+        return self.cache.global_override
