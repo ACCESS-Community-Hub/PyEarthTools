@@ -30,7 +30,8 @@ import edit.utils
 
 Future = TypeVar("Future", Any, Any)
 
-LOG = logging.getLogger('edit.pipeline')
+LOG = logging.getLogger("edit.pipeline")
+
 
 class ParallelToggle:
     """Parallel Toggle Context Manager"""
