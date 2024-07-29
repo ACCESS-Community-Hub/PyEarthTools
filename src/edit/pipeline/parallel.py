@@ -21,6 +21,7 @@ import functools
 
 from importlib.util import find_spec
 
+import logging
 from typing import Callable, Literal, Optional, Type, TypeVar, Any, Union
 
 from edit.utils.decorators import classproperty
@@ -29,6 +30,7 @@ import edit.utils
 
 Future = TypeVar("Future", Any, Any)
 
+LOG = logging.getLogger('edit.pipeline')
 
 class ParallelToggle:
     """Parallel Toggle Context Manager"""
@@ -40,9 +42,11 @@ class ParallelToggle:
 
     def __enter__(self):
         self._enter_state = edit.utils.config.get("pipeline.run_parallel")
+        LOG.info(f"Toggling `run_parallel` to {self._state == 'enable'}")
         edit.utils.config.set({"pipeline.run_parallel": self._state == "enable"})
 
     def __exit__(self, *args):
+        LOG.info(f"Toggling `run_parallel` to {self._enter_state == 'enable'}")
         edit.utils.config.set({"pipeline.run_parallel": self._enter_state})
 
     def __repr__(self):
@@ -160,6 +164,7 @@ class DaskParallelInterface(ParallelInterface):
             raise RuntimeError("Cannot start dask cluster when `pipeline.parallel.dask.start` is False.")
 
         client_config = edit.utils.config.get("pipeline.parallel.dask.client")
+        LOG.info(f"Statring dask cluster with {client_config=}")
         client = client or Client(**client_config)
         dask.config.set(edit.utils.config.get("pipeline.parallel.dask.config", {}))  # type: ignore
 
