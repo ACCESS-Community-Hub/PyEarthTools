@@ -44,6 +44,9 @@ class Iterator(PipelineRecordingMixin, metaclass=ABCMeta):
     def samples(self) -> tuple[Any, ...]:
         """Get tuple of samples returned by this `Iterator`."""
         return tuple(self)
+    
+    def __getitem__(self, idx):
+        return self.samples[idx]
 
     def __add__(self, other: Iterator):
         """

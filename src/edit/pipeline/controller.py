@@ -471,6 +471,12 @@ class Pipeline(_Pipeline, Index):
 
     def __getitem__(self, idx: Any):
         """Retrieve from pipeline at `idx`"""
+        if isinstance(idx, slice):
+            indexes = self.iterator[idx]
+            LOG.debug(f"Call pipeline __getitem__ for {indexes = }")
+            return map(self.__getitem__, indexes)
+
+            
         sample, step_index = self._get_initial_sample(idx)
         LOG.debug(f"Call pipeline __getitem__ for {idx = }")
 
@@ -505,11 +511,15 @@ class Pipeline(_Pipeline, Index):
         """
         for step in self.steps:
             if not isinstance(
-                step, (PipelineStep, Transform, TransformCollection, edit.pipeline.branching.PipelineBranchPoint)
+                step, (PipelineStep, Operation, Pipeline, Transform, TransformCollection, edit.pipeline.branching.PipelineBranchPoint)
             ):
                 raise TypeError(f"When iterating through pipeline steps, found a {type(step)} which cannot be parsed.")
             if isinstance(step, Pipeline):
                 sample = step.apply(sample)  # type: ignore
+            elif isinstance(step, PipelineStep):
+                sample = step.run(sample)
+            elif isinstance(step, Operation):
+                sample = step.apply(sample)
             else:
                 sample = step(sample)  # type: ignore
         return sample
