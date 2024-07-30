@@ -378,6 +378,11 @@ class MemCache(PipelineIndex):
         return self._cache
 
     @property
+    def size(self):
+        """Size of in memory cache"""
+        return self.cache.size
+
+    @property
     def override(self):
         """Get a context window in which data will be overwritten in the cache"""
         return self.cache.override
