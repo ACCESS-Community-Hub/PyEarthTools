@@ -337,6 +337,7 @@ class MemCache(PipelineIndex):
     def __init__(
         self,
         pattern: Optional[Union[str, PatternIndex]] = None,
+        max_size: Optional[str] = None, 
         *,
         pattern_kwargs: dict[str, Any] = {},
         **kwargs,
@@ -358,6 +359,7 @@ class MemCache(PipelineIndex):
         self._cache = edit.data.indexes.FunctionalMemCacheIndex(
             pattern=pattern,
             function=self._generate,  # type: ignore
+            max_size = max_size,
             pattern_kwargs=pattern_kwargs,
             **kwargs,
         )
