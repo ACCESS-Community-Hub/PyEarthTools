@@ -37,6 +37,12 @@ class numpyNormalisation(Operation):
         return np.load(str(parse_path(file)))  # type: ignore
 
     def __init__(self, expand: bool = True):
+        """Base Numpy Normalisation
+
+        Args:
+            expand (bool, optional): 
+                Expand normalisation arrays to shape of `sample` by appending axis of size 1. Defaults to True.
+        """        
         super().__init__(split_tuples=True, recursively_split_tuples=True, recognised_types=(np.ndarray))
         self._expand = expand
 

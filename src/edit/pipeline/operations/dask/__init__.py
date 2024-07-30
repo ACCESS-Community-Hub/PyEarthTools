@@ -6,6 +6,24 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
+"""
+Dask operations
+
+| Category | Description | Available |
+| -------- | ----------- | --------- |
+| augument | Augument numpy data | `Rotate`, `Flip`, `Transform` | 
+| Compute  | Call compute on an dask object | `Compute` |
+| conversion | Convert between data types | `ToXarray`, `ToNumpy` |
+| filters | Filter data when iterating | `DropAnyNan`, `DropAllNan`, `DropValue`, `Shape` |
+| join | Combine tuples of `np.ndarrays` | `Stack`, `VStack`, `HStack`, `Concatenate` |
+| normalisation | Normalise arrays | `Anomaly`, `Deviation`, `Division`, `Evaluated`  |
+| reshape | Reshape numpy array | `Rearrange`, `Squish`, `Expand`, `Flatten`, `SwapAxis` |
+| select | Select elements from array | `Select`, `Slice` |
+| split  | Split numpy arrays into tuples | `OnAxis`, `OnSlice`, `VSplit`, `HSplit` |
+| values | Modify values of arrays | `FillNan`, `MaskValue`, `ForceNormalised` |
+"""
+
+
 from edit.pipeline.operations.dask.join import Stack, Concatenate, VStack, HStack
 
 from edit.pipeline.operations.dask.compute import Compute
