@@ -13,7 +13,7 @@ from edit.pipeline.modifications.idx_modification import (
     SequenceRetrieval,
     TemporalRetrieval,
 )
-from edit.pipeline.modifications.cache import Cache, StaticCache
+from edit.pipeline.modifications.cache import Cache, StaticCache, MemCache
 
 
 from edit.pipeline.modifications import idx_modification
@@ -21,6 +21,7 @@ from edit.pipeline.modifications import idx_modification
 __all__ = [
     "Cache",
     "StaticCache",
+    "MemCache",
     "IdxModifier",
     "IdxOverride",
     "TimeIdxModifier",
