@@ -8,6 +8,7 @@
 
 import xarray as xr
 
+from edit.pipeline.graph import Graphed
 from edit.pipeline.operation import PipelineStep
 
 
@@ -49,5 +50,28 @@ class Marker(PipelineStep):
     def run(self, sample):
         if self._print:
             to_print = sample if not self._print_shape else find_shape(sample)
-            print(f"At marker {self.text!r} sample was:\n{to_print}\n")
+            print(f"At marker {self.text!r} sample was:\n{to_print}")
         return sample
+
+class Empty(PipelineStep, Graphed):
+    """Empty Operation to do nothing to the data"""
+    def run(self, sample):
+        return sample
+    
+    def _get_tree(
+        self, parent, graph = None
+    ):
+        """
+        Get graphviz graph
+
+        Args:
+            parent (Optional[list[str]], optional):
+                Parent elements of first layer in this `graph`
+            graph (Optional[graphviz.Digraph]):
+                Subgraph to build in. Defaults to None.
+
+        Returns:
+            (tuple[graphviz.Digraph, list[str]]):
+                Generated graph, elements to be parent of next step
+        """
+        return graph, parent

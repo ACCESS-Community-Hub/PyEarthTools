@@ -50,7 +50,7 @@ from edit.pipeline import (
     modifications,
 )
 
-from edit.pipeline.marker import Marker
+from edit.pipeline.marker import Marker, Empty
 
 from edit.pipeline.modifications import Cache, SequenceRetrieval, TemporalRetrieval
 
