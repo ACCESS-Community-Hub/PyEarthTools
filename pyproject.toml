@@ -44,6 +44,7 @@ remapping = [
 ]
 all = [
   "edit-pipeline[distributed, remapping]",
+  "edit-data[all]",
 ]
 
 [project.urls]
