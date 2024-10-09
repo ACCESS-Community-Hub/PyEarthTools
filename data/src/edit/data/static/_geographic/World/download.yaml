@@ -1,6 +1,0 @@
-
----
-# Download Config For World Data
-url: https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/world-administrative-boundaries/exports/shp?lang=en&timezone=Australia%2FSydney
-save_name: World.zip
-zip: true

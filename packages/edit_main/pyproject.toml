@@ -1,0 +1,58 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+
+[project]
+name = "edit"
+description = "Environmental Data Intelligence Toolkit"
+dynamic = ["version"]
+readme = "README.md"
+requires-python = ">=3.9"
+keywords = ["edit"]
+authors = [
+  {email = "harrison.cook@bom.gov.au"},
+  {name = "Harrison Cook"}
+]
+maintainers = [
+  {name = "Harrison Cook", email = "harrison.cook@bom.gov.au"}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  "edit-utils>=1.0.0",
+  "edit-data>=1.0.0",
+#  "edit-pipeline>=1.0.0",
+]
+
+[project.optional-dependencies]
+training = [
+  "edit-training>=1.0.0",
+]
+models = [
+  "edit-models>=1.0.0",
+]
+test = ["pytest"]
+
+[project.urls]
+homepage = "http://bom.gov.au"
+documentation = "https://git.nci.org.au/bom/dset/edit-package/documentation"
+repository = "https://git.nci.org.au/bom/dset/edit-package/"
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 120
+
+[tool.mypy]
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.hatch.version]
+path = "src/edit/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/edit/"]

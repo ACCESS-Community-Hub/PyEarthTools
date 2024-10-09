@@ -1,0 +1,52 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+
+[project]
+name = "era5lowres"
+description = "EDIT archive for NCI"
+requires-python = ">=3.9"
+keywords = ["edit"]
+authors = [
+  {email = "tennessee.leeuwenburg@bom.gov.au"},
+  {name = "Tennessee Leeuwenburg"}
+]
+maintainers = [
+  {name = "Tennessee Leeuwenburg", email = "tennessee.leeuwenburg@bom.gov.au"}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  "edit.data>=1.0.0",
+]
+dynamic = ["version", "readme"]
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.md"], content-type = "text/markdown"}
+
+[project.urls]
+homepage = "http://bom.gov.au"
+documentation = "https://git.nci.org.au/bom/dset/edit-package/archives/NCI"
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 120
+
+[tool.mypy]
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.setuptools.packages.find]
+where = ["src"] 
+
+[tool.hatch.version]
+path = "src/era5lowres/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/era5lowres"]
+

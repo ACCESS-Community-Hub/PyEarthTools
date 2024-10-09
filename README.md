@@ -1,25 +1,30 @@
-# EDIT - Ecosystem of Data Intelligence Tools
+# EDIT
 
-Provided here is a copy of the development branches of EDIT, as of the 15/04/2024.
+*This is a placeholder README.*
 
-## Descriptions
+First clone the repository using the `monorepo` branch:
 
-### data
+```
+git clone -b monorepo git@github.com:informatics-lab/EDIT.git
+cd EDIT
+```
 
-- Data indexing and retrieval operations.
-- Common transforms to prepare data
+Then create a Python virtual environment:
 
-### utils
+```
+python3 -m venv venv
+venv/bin/activate
+```
 
-- Utilities used by other edit components
+or a Conda environment to install all dependencies:
 
-### archives
+```
+conda create -p ./venv -y python=3.11
+conda activate ./venv
+```
 
-- Specification of archives on disk,
-- Specific to environment
+And finally install all dependencies via pip:
 
-#### UKMO Archive
-- MASS Root Class
-- UM & UM Forecast
-##### TODO
-- Improve _stash.py
+```
+pip install -r requirements-dev.txt
+```

@@ -1,6 +1,0 @@
-#
-# Check if at UKMO
-#
-module: edit_archive_ukmo
-
-folder: /opt/ukmo

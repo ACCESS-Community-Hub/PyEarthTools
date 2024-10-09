@@ -1,0 +1,55 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "edit-utils"
+description = "Utilities for EDIT"
+requires-python = ">=3.8"
+keywords = ["edit"]
+authors = [
+  {email = "harrison.cook@bom.gov.au", name = "Harrison Cook"},
+  {name = "Tennessee Leeuwenburg", email = "tennessee.leeuwenburg@bom.gov.au"},
+]
+maintainers = [
+  {name = "Harrison Cook", email = "harrison.cook@bom.gov.au"},
+  {name = "Tennessee Leeuwenburg", email = "tennessee.leeuwenburg@bom.gov.au"},
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "tqdm",
+    "IPython",
+    "pillow",
+    "pyyaml",
+    "numpy",
+    "scikit-learn",
+    "xarray",    
+]
+dynamic = ["version", "readme"]
+
+[project.urls]
+homepage = "https://bom.gov.au"
+documentation = "https://git.nci.org.au/bom/dset/edit-package/documentation"
+repository = "https://git.nci.org.au/bom/dset/edit-package/utils"
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 120
+
+[tool.mypy]
+warn_return_any = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+ignore_missing_imports = true
+
+[tool.hatch.version]
+path = "src/edit/utils/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/edit/"]

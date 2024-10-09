@@ -1,5 +1,0 @@
-#Specifics
-*.*
-!.gitignore
-!*.yaml
-!*.py

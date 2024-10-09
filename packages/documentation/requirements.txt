@@ -1,0 +1,13 @@
+mkdocs 
+pymdown-extensions
+mkdocstrings 
+mkdocs-material 
+mkdocs-gen-files 
+mkdocs-literate-nav 
+mkdocs-section-index 
+mkdocstrings-python 
+xarray 
+black 
+mkdocs-encryptcontent-plugin 
+mknotebooks 
+mkdocs-jupyter

@@ -1,0 +1,79 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+
+[project]
+name = "edit-data"
+description = "Data Obfuscation and manipulation tools"
+requires-python = ">=3.9"
+keywords = ["edit"]
+authors = [
+  {email = "harrison.cook@bom.gov.au"},
+  {name = "Harrison Cook"}
+]
+maintainers = [
+  {name = "Harrison Cook", email = "harrison.cook@bom.gov.au"}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  "xarray[complete]",
+  "geopandas",
+  "shapely",
+  "tqdm",
+  "pyyaml",
+  "edit-utils>=1.1.0",
+  "click",
+  "filelock",
+  "urllib3",
+]
+dynamic = ["version", "readme"]
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.md"], content-type = "text/markdown"}
+
+[project.optional-dependencies]
+download = [
+  "cdsapi",
+  "ecmwf-opendata",
+  "eccodes",
+  "gcsfs",
+]
+intake = [
+  "intake-esm",
+  "intake",
+]
+all = [
+  "edit-data[download, intake]",
+]
+
+[project.urls]
+homepage = "http://bom.gov.au"
+documentation = "https://git.nci.org.au/bom/dset/edit-package/documentation"
+repository = "https://git.nci.org.au/bom/dset/edit-package/data"
+
+[project.scripts]
+edit-data = "edit.data.commands:entry_point"
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 120
+
+[tool.ruff]
+line-length = 120
+
+[tool.mypy]
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.hatch.version]
+path = "src/edit/data/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/edit/"]

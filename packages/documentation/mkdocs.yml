@@ -1,0 +1,131 @@
+site_name: "Environmental Data Intelligence Toolkit"
+site_url: https://bureau-sig.nci.org.au/edit
+
+theme:
+  name: "material"
+  highlightjs: true
+  hljs_languages:
+      - python
+      - yaml
+      - shell
+  navigation_depth: 2
+  logo: assets/logo.png
+  favicon: assets/logo.png
+  icon:
+    repo: fontawesome/brands/git-alt 
+  features:
+  - content.code.annotate
+  - navigation.tabs
+  - navigation.tabs.sticky
+  - navigation.top
+  - navigation.footer
+  - navigation.tracking       # The URL in the address bar is automatically updated with active anchor
+  - search.highlight
+  - search.suggest
+  - content.code.select
+  - content.code.copy
+  - content.code.annotate 
+  - toc.follow                # the sidebar is automatically scrolled to the active anchor
+
+  palette:
+  - media: "(prefers-color-scheme: light)"
+    scheme: default
+    primary: aqua
+    accent: blue
+    toggle:
+      icon: material/weather-sunny
+      name: Switch to dark mode
+  - media: "(prefers-color-scheme: dark)"
+    scheme: slate
+    primary: black
+    accent: purple
+    toggle:
+      icon: material/weather-night
+      name: Switch to light mode
+
+plugins:
+# - coverage
+- search
+# - encryptcontent:
+#     global_password: 'edit'
+#     title_prefix: ''
+- autorefs
+- gen-files:
+    scripts:
+    - scripts/gen_ref_pages.py
+- literate-nav:
+    nav_file: SUMMARY.md
+- section-index
+- mkdocstrings:
+    default_handler: python
+    handlers:
+      python:
+        import:
+        - https://docs.python.org/3/objects.inv
+        - https://docs.xarray.dev/en/stable/objects.inv
+        - https://numpy.org/doc/stable/objects.inv
+        - http://pandas.pydata.org/pandas-docs/stable/objects.inv
+        docstring_style: "google"
+        paths: [../data/src, ../training/src, ../utils/src, ../verification/src, ../plotting/src, ../pipeline/src, ../pipeline_v2/src, ../model/src]
+        members_order: source
+        show_submodules: True
+        options:
+          allow_inspection: true
+          show_source: true
+          separate_signature: true
+          merge_init_into_class: true
+          docstring_options:
+            ignore_init_summary: false
+- mkdocs-jupyter:
+    ignore: ["**/.ipynb_checkpoints/*"]
+    ignore_h1_titles: false
+    include_source: True
+# - mknotebooks
+
+nav:
+- Home: index.md
+#- About: about.md
+- Getting Started: started/
+# defer to gen-files + literate-nav
+# - Examples: examples/  
+- Documentation: documentation/  
+# - Examples: examples/  
+- Models: models/  
+- Reference: reference/
+- EDIT_101: EDIT_101/
+
+extra_css:
+  - css/code_select.css
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true 
+
+repo_url: https://git.nci.org.au/bom/dset/edit-package
+repo_name: DSET/EDIT
+
+extra_javascript:
+  - https://unpkg.com/tablesort@5.3.0/dist/tablesort.min.js
+  - javascripts/tablesort.js
+  - https://cdn.jsdelivr.net/gh/atteggiani/animated-terminal/animated-terminal.min.js # Terminal animations
+  
+extra:
+  version:
+    provider: mike
+

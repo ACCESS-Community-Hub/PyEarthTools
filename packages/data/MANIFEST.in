@@ -1,0 +1,4 @@
+global-include download.yaml
+include edit/data/RegionLookup.yaml
+
+recursive-include src/edit/data/ *.struc *.valid *.yaml *.txt
