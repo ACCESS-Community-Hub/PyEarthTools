@@ -43,8 +43,23 @@ ERA_RESOLUTION = (1, "hour")
 ERA5_RENAME = {"t2m": "2t", "u10": "10u", "v10": "10v", "siconc": "ci"}
 
 V_TO_PATH = {
-    'u': 'u_component_of_wind',
-    'v': 'v_component_of_wind',
+    "10m_u_component_of_wind": "10m_u_component_of_wind",
+    "10m_v_component_of_wind": "10m_v_component_of_wind",
+    "2m_temperature": "2m_temperature",
+    #"constants": "constants",  # FIXME not working
+    "geopotential": "geopotential",
+    #"geopotential_500": "geopotential_500",  # FIXME not working
+    "potential_vorticity": "potential_vorticity",
+    "rh": "relative_humidity",
+    "specific_humidity": "specific_humidity",
+    "temperature": "temperature",
+    #"temperature_850": "temperature_850",  # FIXME not working
+    "toa_incident_solar_radiation": "toa_incident_solar_radiation",
+    "total_cloud_cover": "total_cloud_cover",
+    "total_precipitation": "total_precipitation",
+    "u": "u_component_of_wind",
+    "v": "v_component_of_wind",
+    "vorticity": "vorticity",
 }
 
 @functools.lru_cache()
