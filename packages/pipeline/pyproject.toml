@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=61", "setuptools-scm>=8.0"]
+
+[project]
+name = "edit-pipeline"
+description = "Data Pipelines with EDIT"
+requires-python = ">=3.9"
+license = {file = "LICENSE"}
+keywords = ["edit"]
+authors = [
+  {email = "harrison.cook@bom.gov.au"},
+  {name = "Harrison Cook"}
+]
+maintainers = [
+  {name = "Harrison Cook", email = "harrison.cook@bom.gov.au"}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "edit-utils>=1.1.0",
+    "edit-data>=1.0.0",
+    "xarray",
+    "pandas",
+    "graphviz",
+    "einops",
+]
+
+
+dynamic = ["version", "readme"]
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.md"], content-type = "text/markdown"}
+
+[project.optional-dependencies]
+distributed = [
+  "dask",
+  "distributed",
+]
+remapping = [
+  "healpy","reproject",
+]
+all = [
+  "edit-pipeline[distributed, remapping]",
+  "edit-data[all]",
+]
+
+[project.urls]
+homepage = "https://bom.gov.au"
+documentation = "https://git.nci.org.au/bom/dset/edit-package/documentation"
+repository = "https://git.nci.org.au/bom/dset/edit-package/pipeline_v2"
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 120
+
+[tool.mypy]
+warn_return_any = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+ignore_missing_imports = true
+
+[tool.setuptools.packages.find]
+include = ["edit.pipeline"]
+where = ["src/"]
+
+[tool.setuptools_scm]
+version_file = "src/edit/pipeline/_version.py"
+
+[tool.ruff.lint]
+ignore-init-module-imports = false
