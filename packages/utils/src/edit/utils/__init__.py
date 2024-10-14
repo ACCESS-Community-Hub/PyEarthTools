@@ -12,7 +12,7 @@
 EDIT Utilities
 """
 
-__version__ = "1.2dev"
+__version__ = "1.2.dev1"
 
 import importlib
 

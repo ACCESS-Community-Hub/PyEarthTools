@@ -1,5 +1,6 @@
 [build-system]
-requires = ["setuptools>=61", "setuptools-scm>=8.0"]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "edit-pipeline"
@@ -30,9 +31,6 @@ dependencies = [
 
 
 dynamic = ["version", "readme"]
-
-[tool.setuptools.dynamic]
-readme = {file = ["README.md"], content-type = "text/markdown"}
 
 [project.optional-dependencies]
 distributed = [
@@ -74,3 +72,9 @@ version_file = "src/edit/pipeline/_version.py"
 
 [tool.ruff.lint]
 ignore-init-module-imports = false
+
+[tool.hatch.version]
+path = "src/edit/pipeline/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/edit/"]

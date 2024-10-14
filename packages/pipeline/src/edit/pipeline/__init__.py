@@ -33,6 +33,9 @@ pipeline['2000-01-01T00']
 ```
 
 """
+
+__version__ = "1.2.dev1"
+
 import edit.pipeline.logger
 
 from edit.pipeline.save import save, load
