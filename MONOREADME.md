@@ -5,7 +5,7 @@
 First clone the repository using the `monorepo` branch:
 
 ```
-git clone -b monorepo git@github.com:informatics-lab/EDIT.git
+git clone git@github.com:informatics-lab/EDIT.git
 cd EDIT
 ```
 
@@ -23,8 +23,22 @@ conda create -p ./venv -y python=3.11
 conda activate ./venv
 ```
 
-And finally install all dependencies via pip:
+And install all dependencies via pip:
 
 ```
 pip install -r requirements-dev.txt
+```
+
+You can run some of the tests to check that your installation worked:
+
+```
+pytest packages/data/tests/
+```
+
+To run example [notebooks from the ERA5 low-res package](packages/era5lowres/nbook), you may need to also install a Jupyter kernel for your environment:
+
+```
+# from the activate virtual or conda environment
+pip install ipykernel
+python -m ipykernel install --user --name EDIT
 ```
