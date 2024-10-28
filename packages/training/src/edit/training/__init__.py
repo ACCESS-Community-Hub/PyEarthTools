@@ -21,6 +21,8 @@ from edit.training import data, wrapper, manage
 from edit.training.wrapper import *  # type: ignore # noqa: F403
 from edit.training.dataindex import MLDataIndex
 
+__version__ = "1.2.dev1"
+
 # try:
 #     from edit.training import modules
 # except ImportError:
