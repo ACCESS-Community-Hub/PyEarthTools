@@ -31,6 +31,7 @@ These patterns stand alone
 | [Argument][edit.data.patterns.argument.Argument]  |  Argument as Filename      |
 | [ArgumentExpansion][edit.data.patterns.argument.ArgumentExpansion]  |  Argument Expansion Filename      |
 | [Static][edit.data.patterns.static.Static]  |  Single Static File     |
+| [ParsingPattern][edit.data.patterns.parser.ParsingPattern]  |  F string based parser   |
 
 ## Examples
 Each Pattern has it's own examples, but here is one

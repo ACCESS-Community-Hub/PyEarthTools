@@ -8,15 +8,18 @@
 
 from __future__ import annotations
 
+import sys
 from abc import abstractmethod
 from functools import cached_property
 from pathlib import Path
 from typing import Any, Literal, Callable
 import warnings
 import logging
+from hashlib import sha512
+import time
+from multiprocessing import Process
 
 import xarray as xr
-from multiprocessing import Process
 
 import edit.data
 
@@ -27,9 +30,11 @@ from edit.data.warnings import EDITDataWarning
 
 from edit.data.indexes import (
     ArchiveIndex,
-    DataFileSystemIndex,
+    FileSystemIndex,
     ForecastIndex,
     TimeIndex,
+    DataIndex,
+    Index,
 )
 from edit.data.indexes.utilities.delete_files import delete_older_than, delete_path
 from edit.data.indexes.utilities.folder_size import ByteSize, FolderSize
@@ -40,12 +45,206 @@ LOG = logging.getLogger("edit.data")
 OVERRIDE = False
 
 
-class BaseCacheIndex(DataFileSystemIndex):
+class BaseCacheIndex(DataIndex):
     """
-    DataIndex Object that has no data on disk intially,
+    Base CacheIndex
+
+    Cannot be used directly, see `MemCache` or `FileSystemCacheIndex`.
+    """
+
+    _override: bool = False
+
+    @property
+    def override(self):
+        """Get a context manager within which data will be overridden in the cache."""
+        return ChangeValue(self, "_override", True)
+
+    @property
+    def global_override(self):
+        """Get a context manager within which data will be overridden in all caches."""
+        from edit.data.indexes import cacheIndex
+
+        return ChangeValue(cacheIndex, "OVERRIDE", True)
+
+    @abstractmethod
+    def _generate(
+        self,
+        *args,
+        **kwargs,
+    ) -> xr.Dataset:
+        """
+        Generate Data.
+        Must be overriden by child class
+        """
+        raise NotImplementedError("Parent class does not implement `_generate`. Child class must.")
+
+
+def get_size(obj, seen=None):
+    """Recursively finds size of objects"""
+    size = sys.getsizeof(obj)
+    if seen is None:
+        seen = set()
+    obj_id = id(obj)
+    if obj_id in seen:
+        return 0
+    # Important mark as seen *before* entering recursion to gracefully handle
+    # self-referential objects
+    seen.add(obj_id)
+    if isinstance(obj, (xr.DataArray, xr.Dataset)):
+        size += obj.nbytes
+    elif isinstance(obj, dict):
+        size += sum([get_size(v, seen) for v in obj.values()])
+        size += sum([get_size(k, seen) for k in obj.keys()])
+    elif hasattr(obj, "__dict__"):
+        size += get_size(obj.__dict__, seen)
+    elif hasattr(obj, "__iter__") and not isinstance(obj, (str, bytes, bytearray)):
+        size += sum([get_size(i, seen) for i in obj])
+    return size
+
+
+class MemCache(BaseCacheIndex):
+    """
+    Memory Cache
+
+    ## Example
+    ```python
+    import edit.data
+
+    mem_cache = edit.data.indexes.FunctionalMemCacheIndex(function = edit.data.archive.ERA5.sample())
+    mem_cache_test('2000-01-01T00')
+    # Cached into memory
+    ```
+    """
+
+    _cache: dict[str, Any]
+    _access_time: dict[str, float]
+
+    def __init__(
+        self,
+        pattern: str | type | PatternIndex | None = None,
+        pattern_kwargs: dict[str, Any] | None = None,
+        *,
+        max_size: str | ByteSize | None = None,
+        compute: bool = False,
+        transforms: Transform | TransformCollection = TransformCollection(),
+        add_default_transforms: bool = True,
+        **kwargs,
+    ):
+        """
+        Cache into memory
+
+        Uses either hash of args and kwargs or `pattern` to create key,
+
+        Args:
+            pattern (str | type | PatternIndex | None, optional):
+                Pattern to use to create path to act as key. Defaults to None.
+            pattern_kwargs (dict[str, Any] | None, optional):
+                Kwargs for `pattern` if given. Defaults to None.
+            max_size (str | ByteSize | None, optional):
+                Max size of cache, set to None for no limit. Defaults to None.
+            compute (bool, optional):
+                Compute xarra / dask objects when given. Defaults to False.
+            transforms (Transform | TransformCollection, optional):
+                Transforms to add upon data retrieval. Defaults to TransformCollection().
+        """
+
+        self._pattern = pattern
+        self.pattern_kwargs = pattern_kwargs
+        self._max_size = max_size if max_size is None else ByteSize(max_size)
+        self._compute = compute
+
+        super().__init__(transforms=transforms, add_default_transforms=add_default_transforms, **kwargs)
+        self.record_initialisation()
+
+        self._cache = {}
+        self._access_time = {}
+
+    @property
+    def size(self):
+        """Size of current cache,
+
+        Will fully count size of `xarray` objects even if delayed
+        """
+        return get_size(self._cache)
+
+    def cleanup(self, complete: bool = False):
+        """
+        Cleanup cache, limiting size to `max_size` if given.
+
+        Args:
+            complete (bool, optional):
+                Completely remove cache. Defaults to False.
+        """
+        if complete:
+            self._cache = {}
+
+        if self._max_size is None:
+            return
+
+        while self.size > self._max_size:
+            sorted_access_times = sorted(self._access_time.items(), key=lambda x: x[1] - time.time(), reverse=False)
+            if len(sorted_access_times) <= 1:
+                break  # Break out if only 1 entry
+            oldest_key = sorted_access_times[0][0]
+
+            self._access_time.pop(oldest_key, None)
+            self._cache.pop(oldest_key, None)
+
+    @cached_property
+    def pattern(self) -> PatternIndex | None:
+        """Get Pattern from `__init__` args"""
+
+        if self._pattern is None:
+            return None
+
+        pattern_kwargs = dict(self.pattern_kwargs or {})
+        pattern_kwargs["root_dir"] = pattern_kwargs.pop("root_dir", "/")
+
+        if isinstance(self._pattern, str):
+            return getattr(patterns, self._pattern)(**pattern_kwargs)
+        elif isinstance(self._pattern, PatternIndex):
+            return self._pattern
+        elif isinstance(self._pattern, type):
+            return self._pattern(**pattern_kwargs)
+        else:
+            raise TypeError(f"Cannot parse `pattern` of {type(self._pattern)}")
+
+    def get_hash(self, *args) -> str:
+        """
+        Get hash of args for unique key of data
+
+        If `pattern` is set, use it to create a path.
+        """
+        if self.pattern is not None:
+            pattern_path = self.pattern.search(*args)
+            return str(pattern_path)
+        return sha512(bytes(str("-".join(str(a) for a in args)), "utf-8")).hexdigest()
+
+    def get(self, *args, **kwargs):
+        """
+        Get data from Memory Cache
+        """
+        hash_value = self.get_hash(*args)
+
+        self._access_time[hash_value] = time.time()
+        self.cleanup()
+
+        if hash_value in self._cache and (not self._override or not OVERRIDE):
+            return self._cache[hash_value]
+
+        data = self._generate(*args, **kwargs)
+        if hasattr(data, "compute") and self._compute:
+            data = data.compute()
+
+        self._cache[hash_value] = data
+        return self._cache[hash_value]
+
+
+class FileSystemCacheIndex(BaseCacheIndex, FileSystemIndex):
+    """
+    DataIndex Object that has no data on disk initially,
     but is being generated from other sources and saved in given cache.
 
-    A child must implement the [_generate][edit.data.indexes.cacheIndex.CachingIndex._generate] function
 
     ## Data Flowchart
     ``` mermaid
@@ -58,9 +257,7 @@ class BaseCacheIndex(DataFileSystemIndex):
     ```
     """
 
-    _override: bool = False
     _cleanup: dict[str, Any] | float | int | str | None = None
-
     _save_self = True  # Save self as `index.cat` when saving
 
     def __init__(
@@ -77,7 +274,7 @@ class BaseCacheIndex(DataFileSystemIndex):
         **kwargs,
     ):
         """
-        Base DataIndex Object to Cache data on the fly
+        Base FileSystemCacheIndex Object to Cache data on the fly
 
         If only `cache` is given, ExpandedDate, or TemporalExpandedDate will be used by default. If `cache` and `pattern` not given,
         will not save data, and the point of this class is lost.
@@ -171,7 +368,6 @@ class BaseCacheIndex(DataFileSystemIndex):
 
     @property
     def cache(self):
-        LOG.debug("in the indexing function...")
         if self._input_cache is None:
             return None
         return self.pattern.root_dir
@@ -354,22 +550,6 @@ class BaseCacheIndex(DataFileSystemIndex):
         if delta is not None:
             delete_older_than(files, delta, key=key, verbose=verbose, remove_empty_dirs=True)
 
-    @abstractmethod
-    def _generate(
-        self,
-        *args,
-        **kwargs,
-    ) -> xr.Dataset:
-        """
-        Generate Data.
-        Must be overriden by child class
-
-        Using `self.pattern.search` the generate class can find the path to be saved at.
-        If data is saved during `generate` it is used.
-
-        """
-        raise NotImplementedError("Parent class does not implement `_generate`. Child class must.")
-
     def get(self, *args, **kwargs) -> xr.Dataset:
         """
         Retrieve Data given a key
@@ -408,6 +588,19 @@ class BaseCacheIndex(DataFileSystemIndex):
                 pass
             return data
 
+    def _check_if_exists(self, *args) -> bool:
+        """Check if data exists, overriding it if it does and `OVERRIDE = True`"""
+        pattern = self.pattern
+
+        # Check to see if data has already been generated and saved
+        if pattern.exists(*args):
+            if self._override or OVERRIDE:
+                LOG.info(f"At cache {self.cache} data was found but being overwritten.")
+                delete_path(pattern.search(*args))  # type: ignore
+            else:
+                return True
+        return False
+
     def generate(self, *args, **kwargs):
         """
         Using child classes implemented `_generate`, generate data, and save
@@ -418,18 +611,14 @@ class BaseCacheIndex(DataFileSystemIndex):
         Only args is passed to save pattern to find the path to save at.
 
         Returns:
-            (Path | list[str | Path] | dict[str, str | Path]):
-                Location of saved data
+            (Any):
+                Saved and reloaded data
         """
         pattern = self.pattern
 
         # Check to see if data has already been generated and saved
-        if pattern.exists(*args):
-            if self._override or OVERRIDE:
-                LOG.info(f"At cache {self.cache} data was found but being overwritten.")
-                delete_path(pattern.search(*args))  # type: ignore
-            else:
-                return pattern(*args)
+        if self._check_if_exists(*args):
+            return pattern(*args)
 
         LOG.debug(f"Cache is generating according to: {args}, {kwargs} at {self.cache}.")
 
@@ -442,18 +631,6 @@ class BaseCacheIndex(DataFileSystemIndex):
         #     return data
 
         return pattern(*args)
-
-    @property
-    def override(self):
-        """Get a context manager within which data will be overridden in the cache."""
-        return ChangeValue(self, "_override", True)
-
-    @property
-    def global_override(self):
-        """Get a context manager within which data will be overridden in all caches."""
-        from edit.data.indexes import cacheIndex
-
-        return ChangeValue(cacheIndex, "OVERRIDE", True)
 
     def save_record(self):
         """
@@ -469,7 +646,7 @@ class BaseCacheIndex(DataFileSystemIndex):
         if self._save_self:
             self.save_index(Path(self.cache) / "index.cat")
 
-    def filesystem(self, querykey: Any, *args) -> Path | list[str | Path] | dict[str, str | Path]:
+    def filesystem(self, *args) -> Path | list[str | Path] | dict[str, str | Path]:
         """
         Search for generated data if cache is given.
         If data does not exist yet, generate it, save it, and return the path to it
@@ -478,8 +655,8 @@ class BaseCacheIndex(DataFileSystemIndex):
         work on filesystem, and thus any dask things work well.
 
         Args:
-            querykey (Any):
-                Querykey to search for / generate data for
+            args (Any):
+                Args to search for / generate data for
 
         Returns:
             (Path | list[str | Path] | dict[str, str | Path]):
@@ -489,6 +666,7 @@ class BaseCacheIndex(DataFileSystemIndex):
             NotImplementedError:
                 If `cache` is not set, cannot cache data.
         """
+        self.save_record()
 
         if self.cache is None and self.pattern_type is None:
             raise NotImplementedError("CachingIndex cannot retrieve data from a filesystem without a `cache` location.")
@@ -497,17 +675,13 @@ class BaseCacheIndex(DataFileSystemIndex):
         Process(target=self.cleanup).run()
 
         try:
-            if pattern.exists(querykey, *args):
-                if self._override or OVERRIDE:
-                    LOG.info(f"At cache {self.cache} data was found but being overwritten.")
-                    delete_path(pattern.search(querykey, *args))  # type: ignore
-                else:
-                    return pattern.search(querykey, *args)
+            if self._check_if_exists(*args):
+                return pattern.search(*args)
         except DataNotFoundError:
             LOG.debug("Failed to find data despite it looking like it existed, moving to generation.")
 
-        self.generate(querykey, *args)
-        return pattern.search(querykey, *args)
+        self.generate(*args)
+        return pattern.search(*args)
 
     def __del__(self):
         Process(target=self.cleanup).run()
@@ -518,31 +692,40 @@ class BaseCacheIndex(DataFileSystemIndex):
             pass
 
 
-class CachingIndex(BaseCacheIndex, ArchiveIndex):
-    """
-    Standard CachingIndex which behaves like a standard archive but with cached data
-    """
+def CacheFactory(basecache: type, index: type[Index], *, name: str | None = None, doc: str | None = None) -> type:
+    """Create Cache Subclasses"""
 
-    pass
+    class SubCache(basecache, index):
+        pass
 
-
-class TimeCachingIndex(BaseCacheIndex, TimeIndex):
-    """
-    Standard CachingIndex which can handle simple time based requests
-    """
-
-    pass
+    if name:
+        SubCache.__name__ = name
+        SubCache.__qualname__ = name
+    if doc:
+        SubCache.__doc__ = doc
+    return SubCache
 
 
-class CachingForecastIndex(BaseCacheIndex, ForecastIndex):
-    """
-    CachingIndex which is a forecast product
-    """
+CachingIndex: type[ArchiveIndex] = CacheFactory(
+    FileSystemCacheIndex,
+    ArchiveIndex,
+    name="CachingIndex",
+    doc="Standard CachingIndex which behaves like a standard archive but with cached data",
+)
 
-    pass
+TimeCachingIndex: type[TimeIndex] = CacheFactory(
+    FileSystemCacheIndex,
+    TimeIndex,
+    name="TimeCachingIndex",
+    doc="Standard CachingIndex which can handle simple time based requests",
+)
+
+CachingForecastIndex: type[ForecastIndex] = CacheFactory(
+    FileSystemCacheIndex, ForecastIndex, name="TimeCachingIndex", doc="CachingIndex which is a forecast product"
+)
 
 
-class FunctionalCacheIndex(BaseCacheIndex):
+class FunctionalCache(BaseCacheIndex):
     # @wraps(BaseCacheIndex.__init__)
     _save_self = False
 
@@ -555,16 +738,7 @@ class FunctionalCacheIndex(BaseCacheIndex):
         return self._function(*args, **kwargs)
 
 
-# class CachefromIndex(CachingIndex):
-#     # TODO
-#     def __init__(
-#         self,
-#         cache: str | Path = None,
-#         pattern: str | PatternIndex = None,
-#         pattern_kwargs: dict = {},
-#         *,
-#         transforms: Transform | TransformCollection = TransformCollection(),
-#         **kwargs,
-#     ):
-#         """Wrap an index with a cacher"""
-#         super().__init__(cache, pattern, pattern_kwargs, transforms=transforms, **kwargs)
+FunctionalCacheIndex: type[FileSystemCacheIndex] = CacheFactory(
+    FunctionalCache, FileSystemCacheIndex, name="FunctionalCacheIndex"
+)
+FunctionalMemCacheIndex: type[MemCache] = CacheFactory(FunctionalCache, MemCache, name="FunctionalMemCacheIndex")

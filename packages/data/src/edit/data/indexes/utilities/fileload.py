@@ -18,6 +18,7 @@ import pandas as pd
 from pathlib import Path
 from importlib.resources import files, as_file
 import yaml
+import copy
 
 
 import edit.utils
@@ -64,9 +65,9 @@ def open_dataset(
     """
 
     def get_config(mf: bool = False):
-        open_kwargs = dict(edit.utils.config.get("data.open.xarray"))
+        open_kwargs = copy.copy(edit.utils.config.get("data.open.xarray"))
         if mf:
-            open_kwargs.update(dict(edit.utils.config.get("data.open.xarray_mf")))
+            open_kwargs.update(copy.copy(edit.utils.config.get("data.open.xarray_mf")))
         open_kwargs.update(kwargs)
         return open_kwargs
 

@@ -73,11 +73,11 @@ class ARCOERA5(AdvancedTimeDataIndex):
         variables=["variable"],
         level=["levels", "level_value"],
     )
-    @decorators.variable_modifications("variables")
     @decorators.check_arguments(
         variables="edit.data.download.arco.variables.ERA5.valid",
         level=ERA5_LEVELS,
     )
+    @decorators.variable_modifications("variables")
     def __init__(
         self,
         variables: str | list[str],

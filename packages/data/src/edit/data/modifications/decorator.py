@@ -302,6 +302,8 @@ def variable_modifications(
 
             # Get modifications
             modifications, stripped_variables = _get_modifications(variables)
+            if len(modifications.keys()) == 0:
+                return func(*args, **kwargs)
 
             if remove_variables:  # Remove variables being modified from base index
                 stripped_variables = list(set(stripped_variables).difference(list(modifications.keys())))
@@ -311,14 +313,12 @@ def variable_modifications(
             result = func(*args, **kwargs)
 
             index_initialised: TimeDataIndex = args[0]
-
-            invalid_class = not isinstance(index_initialised, TimeDataIndex)
-            if invalid_class and not skip_if_invalid_class:
+            if not isinstance(index_initialised, TimeDataIndex):
                 raise TypeError(
-                    f"Cannot set modifications on {type(index_initialised)} if it does not subclass from `TimeDataIndex`."
+                    f"Cannot add modification to {index_initialised.__class__!r}, must be a subclass of `TimeDataIndex`."
                 )
 
-            if modifications and not invalid_class:  # Add modifications if any detected
+            if modifications:  # Add modifications if any detected
                 index_initialised.update_initialisation(**{variable_keyword: variables})  # type: ignore
 
                 # Add as transform

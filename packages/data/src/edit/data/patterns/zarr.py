@@ -6,8 +6,11 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
+import os
+
 from edit.data.archive import zarr
 
+from edit.data import patterns
 from edit.data.patterns.default import PatternIndex
 
 
@@ -22,8 +25,10 @@ class ZarrIndex(zarr.ZarrIndex, PatternIndex):
     For actual usage, `template` = False.
     """
 
-    def __init__(self, root_dir: zarr.PathLike, **kwargs):
+    def __init__(self, root_dir: os.PathLike, **kwargs):
+        root_dir, temp_dir = patterns.utils.parse_root_dir(str(root_dir))
         super().__init__(root_dir, **kwargs, root_dir=root_dir)
+        self.temp_dir = temp_dir
 
     def search(self, *_):
         # Prevents args being passed to underlying search

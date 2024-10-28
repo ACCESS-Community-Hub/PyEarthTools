@@ -125,12 +125,14 @@ class AdvancedTimeDerivedValue(TimeDerivedValue, AdvancedTimeDataIndex):
         start,
         end,
         interval: TimeDelta | tuple[int | float, str] | int | None = None,
-        **kwargs,
+        **_,
     ):
         if not self._split_time:
             return self.derive(list(map(lambda x: x.datetime64(), TimeRange(start, end, self._get_interval(interval)))))
 
-        return xr.combine_by_coords(tuple(self(x) for x in TimeRange(start, end, self._get_interval(interval))))
+        return xr.combine_by_coords(
+            tuple(self.derive(x.datetime64()) for x in TimeRange(start, end, self._get_interval(interval)))
+        )
 
     def __dir__(self):
         dir = list(super().__dir__())

@@ -14,6 +14,9 @@ import re
 import os
 
 from pathlib import Path
+import logging
+
+LOG = logging.getLogger("edit.data")
 
 
 def parse_path(path: os.PathLike[Any] | str) -> Path:
@@ -32,6 +35,12 @@ def parse_path(path: os.PathLike[Any] | str) -> Path:
 
     """
     path_str = str(path)
+
+    if path_str == "temp":
+        LOG.warn(
+            "Path being parsed was 'temp', yet this parser does not autocreate temp directories. Use `patterns` to use auto temp dirs."
+        )
+
     matches: list[str] = re.findall(r"(\$[A-z0-9]+)", path_str)  # type: ignore
     for match in matches:
         key = match.replace("$", "")
@@ -40,4 +49,4 @@ def parse_path(path: os.PathLike[Any] | str) -> Path:
                 f"{match} was not present in the os environment. Cannot parse {path_str!r}.",
             )
         path_str = path_str.replace(match, os.environ[key])
-    return Path(path_str).resolve().absolute()
+    return Path(path_str).expanduser().resolve().absolute()

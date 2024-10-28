@@ -122,10 +122,12 @@ from edit.data.indexes.indexes import (
     StaticDataIndex,
 )
 from edit.data.indexes.cacheIndex import (
-    BaseCacheIndex,
+    FileSystemCacheIndex,
     CachingIndex,
     CachingForecastIndex,
     FunctionalCacheIndex,
+    MemCache,
+    FunctionalMemCacheIndex,
 )
 from edit.data.indexes import utilities, decorators
 from edit.data.indexes.extensions import register_accessor

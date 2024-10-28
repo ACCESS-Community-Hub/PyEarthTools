@@ -37,8 +37,10 @@ DELTA = {  # Delta to expand bins by
 def binning(
     data: xr.Dataset | xr.DataArray,
     setup: Literal[tuple(BINNING_SETUP.keys())],
+    *,
     dimension: str = "time",
     expand: bool = True,
+    offset: int | str | TimeDelta | None = None,
 ) -> "xr.DatasetGroupBy | xr.DataArrayGroupBy":
     """
     Bin `data` based on a binning setup.
@@ -60,7 +62,10 @@ def binning(
         dimension (str, optional):
             Dimension to bin across. Defaults to 'time'.
         expand (bool, optional):
-            Whether to expand bins. Defaults to True.
+            Whether to expand bins to encompass all the data. Defaults to True.
+        offset (int | TimeDelta | None, optional):
+            Offset to add to starting time. Will be the minimum value
+            upon `time` axis. Defaults to None.
 
     Raises:
         ValueError:
@@ -80,6 +85,8 @@ def binning(
         raise AttributeError(f"Cannot groupby dimension {dimension!r}, when data contains {data.dims}. Set `dimension`")
 
     min_value = data[dimension].min()
+    if offset is not None:
+        min_value += TimeDelta(offset) if isinstance(offset, str) else offset
     delta = (data[dimension].max() - min_value).values
 
     bins = BINNING_SETUP[setup]

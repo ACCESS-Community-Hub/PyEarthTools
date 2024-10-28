@@ -13,11 +13,13 @@ import os
 
 from typing import Literal, Sequence
 from pathlib import Path
+import functools
 import yaml
 import re
 import time
 
 
+@functools.total_ordering
 class ByteSize:
     _KB = 1024
     _suffixes = "B", "KB", "MB", "GB", "TB", "PB"
@@ -49,11 +51,11 @@ class ByteSize:
         self.terabytes = self.TB = self.bytes / self._KB**4
         self.petabytes = self.PB = self.bytes / self._KB**5
 
-        *suffixes, last = self._suffixes
-        suffix = next(
-            (suffix for suffix in suffixes if 1 < getattr(self, suffix) < self._KB),
-            last,
-        )
+        for suffix in self._suffixes:
+            if getattr(self, suffix) < 1:
+                suffix = self._suffixes[max(self._suffixes.index(suffix) - 1, 0)]
+                break
+
         self.readable = suffix, getattr(self, suffix)
 
         super().__init__()
@@ -69,16 +71,16 @@ class ByteSize:
         return "{val:{fmt}} {suf}".format(val=val, fmt=format_spec, suf=suffix)
 
     def __lt__(self, other):
-        return self.bytes < other.bytes if isinstance(other, ByteSize) else other
+        return self.bytes < (other.bytes if isinstance(other, ByteSize) else other)
 
     def __gt__(self, other):
-        return self.bytes > other.bytes if isinstance(other, ByteSize) else other
+        return self.bytes > (other.bytes if isinstance(other, ByteSize) else other)
 
     def __eq__(self, other):
-        return self.bytes == other.bytes if isinstance(other, ByteSize) else other
+        return self.bytes == (other.bytes if isinstance(other, ByteSize) else other)
 
     def __sub__(self, other):
-        return self.bytes - other.bytes if isinstance(other, ByteSize) else other
+        return self.bytes - (other.bytes if isinstance(other, ByteSize) else other)
 
 
 class FolderSize(ByteSize):

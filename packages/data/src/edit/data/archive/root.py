@@ -9,10 +9,13 @@
 from __future__ import annotations
 
 import warnings
+import logging
 
 import edit.data
 from edit.data import archive
 from edit.data.warnings import EDITDataWarning
+
+LOG = logging.getLogger("edit.data")
 
 
 def config_root():
@@ -21,7 +24,7 @@ def config_root():
         ROOT_DIRECTORIES: dict = archive.ROOT_DIRECTORIES  # type: ignore
         setattr(archive, "_BACKUP_ROOT_DIRECTORIES", dict(ROOT_DIRECTORIES))
     else:
-        warnings.warn(
+        LOG.info(
             "`ROOT_DIRECTORIES` not found underneath `edit.data.archive`, either archives are not installed or misconfigured. Root Directories cannot be changed. ",
             UserWarning,
         )

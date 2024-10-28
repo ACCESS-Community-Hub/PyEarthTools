@@ -11,8 +11,8 @@ Calculated / Derived Value Indexes
 """
 
 
-from edit.data.derived.derived import DerivedValue, TimeDerivedValue, AdvancedTimeDataIndex
+from edit.data.derived.derived import DerivedValue, TimeDerivedValue, AdvancedTimeDerivedValue
 from edit.data.derived.insolation import Insolation
 
 
-__all__ = ["DerivedValue", "TimeDerivedValue", "AdvancedTimeDataIndex", "Insolation"]
+__all__ = ["DerivedValue", "TimeDerivedValue", "AdvancedTimeDerivedValue", "Insolation"]

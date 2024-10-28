@@ -25,9 +25,14 @@ except (ModuleNotFoundError, ImportError):
     DASK_IMPORTED = False
 
 ar = da if DASK_IMPORTED else np
-array = lambda x: (
-    da.from_array(x) if not isinstance(x, da.Array) else da.rechunk(x) if DASK_IMPORTED else np.array
-)  # noqa: E731
+
+
+def array(x):
+    return (
+        da.from_array(x) if not isinstance(x, da.Array) else (da.rechunk(x) if DASK_IMPORTED else np.array(x))
+    )  # noqa: E731
+
+
 to_list = lambda x: x.compute().tolist() if DASK_IMPORTED else lambda x: x.tolist()  # noqa: E731
 
 
@@ -42,7 +47,8 @@ class Insolation(AdvancedTimeDerivedValue):
         self,
         latitude,
         longitude,
-        interval: tuple[int, str] | int | str,
+        interval: tuple[int, str] | int | str | None = None,
+        *,
         S: float = 1.0,
         daily: bool = False,
         clip_zero: bool = True,
@@ -54,14 +60,15 @@ class Insolation(AdvancedTimeDerivedValue):
         https://brian-rose.github.io/ClimateLaboratoryBook/courseware/insolation.html
 
         Args:
-            latitude (np.ndarray):
+            latitude (np.ndarray | list):
                 1d or 2d array of latitudes
-            longitude (np.ndarray):
+            longitude (np.ndarray | list):
                 1d or 2d array of longitudes (0-360deg). If 2d, must match the shape of latitude.
-            interval (tuple[int, str] | int | str):
-                TimeDelta of data. E.g. `6 hour`. Used for series retrieval. Can be None to not have interval awareness.
+            interval (tuple[int, str] | int | str | None, optional):
+                TimeDelta of data. E.g. `6 hour`. Used for series retrieval. Can be None to not default have interval awareness.
+                Defaults to None.
             S (float, optional):
-                scaling factor (solar constant). Defaults to 1..
+                scaling factor (solar constant). Defaults to 1.0.
             daily (bool, optional):
                 if True, return the daily max solar radiation (lat and day of year dependent only). Defaults to False.
             clip_zero (bool, optional):
@@ -71,7 +78,7 @@ class Insolation(AdvancedTimeDerivedValue):
             ValueError:
                 If `latitude` or `longitude` are invalid.
         """
-        super().__init__(interval, split_time=True)
+        super().__init__(interval, split_time=False)
         self.record_initialisation()
 
         latitude = array(np.array(latitude))
@@ -144,7 +151,11 @@ class Insolation(AdvancedTimeDerivedValue):
         if self._clip_zero:
             sol[sol < 0.0] = 0.0
 
-        return xr.Dataset(
+        insolation = xr.Dataset(
             data_vars={"insolation": (["time", "latitude", "longitude"], array(sol))},
             coords={"time": time, "latitude": self._latitude[:, 0], "longitude": self._longitude[0, :]},
         )
+        insolation.time.encoding.update(
+            {"dtype": "int32", "units": "hours since 1900-01-01 00:00:00.0", "calendar": "gregorian"}
+        )
+        return insolation

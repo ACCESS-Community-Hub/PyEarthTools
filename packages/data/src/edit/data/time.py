@@ -29,7 +29,7 @@ import yaml
 
 from edit.utils import initialisation
 
-VALID_RESOLUTIONS = Literal["year", "month", "day", "hour", "minute", "second", "nanosecond"]
+VALID_RESOLUTIONS = Literal["year", "month", "day", "hour", "minute", "min", "second", "nanosecond"]
 RESOLUTION_COMPONENTS: list[VALID_RESOLUTIONS] = [
     "year",
     "month",

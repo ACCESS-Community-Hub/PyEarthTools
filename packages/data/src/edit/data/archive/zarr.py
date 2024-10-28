@@ -259,7 +259,7 @@ class ZarrIndex(DataFileSystemIndex):
                 else:
                     save_kwargs["mode"] = "w"
 
-            save(dataset, self, save_kwargs=dict(compute=False, **save_kwargs))
+            save(dataset, self, save_kwargs=dict(compute=False, **save_kwargs), zarr=True)
 
     def exists(self, search_dict: dict[str, Any] | None = None, **kwargs) -> bool:
         """

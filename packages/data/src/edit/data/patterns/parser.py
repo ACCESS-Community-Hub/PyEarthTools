@@ -49,7 +49,8 @@ class ParsingPattern(PatternIndex):
 
     Values for the formatting are expected in **kwargs / if data is saved will be added.
 
-    Will split datasets based on what is specified in the `parse_str`
+    Will split datasets based on what is specified in the `parse_str`.
+    If a kwarg is given as a list, will look for all perturbations.
     """
 
     def __init__(
@@ -81,15 +82,15 @@ class ParsingPattern(PatternIndex):
             preprocess_transforms (Transform | TransformCollection | Callable | None, optional):
                 Transforms to always add. Defaults to None.
             kwargs (Any, optional):
-                Any values to fill `parse_str` with.
+                Any values to fill `parse_str` with, if given as a list, will look for all perturbations.
 
         Examples:
             >>> pattern = ParsingPattern('temp', '{level:04d}.nc', level = 10)
             >>> pattern.search()
-            [PosixPath('/tmp/tmpz99k9xzy/0010.nc')]
+            [PosixPath('/temp/0010.nc')]
             >>> pattern = ParsingPattern('temp', '{level:04d}.nc', level = [10,20])
             >>> pattern.search()
-            [PosixPath('/tmp/tmpz99k9xzy/0010.nc'), PosixPath('/tmp/tmpz99k9xzy/0020.nc')]
+            [PosixPath('/temp/0010.nc'), PosixPath('/temp/0020.nc')]
             >>> pattern = ParsingPattern('temp', '{time:%Y}.nc')
             >>> pattern.save(data)
 

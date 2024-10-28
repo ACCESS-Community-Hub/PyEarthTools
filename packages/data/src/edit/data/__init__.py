@@ -101,7 +101,6 @@ from edit.data.indexes import (
     ArchiveIndex,
     ForecastIndex,
     StaticDataIndex,
-    BaseCacheIndex,
     CachingIndex,
     CachingForecastIndex,
     IntakeIndex,

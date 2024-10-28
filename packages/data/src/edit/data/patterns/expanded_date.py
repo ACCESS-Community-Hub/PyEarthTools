@@ -291,7 +291,7 @@ def ExpandedDateFactory(
             Created `_ExpandedDate` pattern.
     """
     if forecast and temporal:
-        raise ValueError(f"A pattern cannot be both temporally aware and a forecast product, must be either, not both.")
+        raise ValueError("A pattern cannot be both temporally aware and a forecast product, must be either, not both.")
 
     cls = ExpandedDate
     if not any((temporal, forecast, variable)):

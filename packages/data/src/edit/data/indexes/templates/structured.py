@@ -13,11 +13,10 @@ Template for structured data
 from __future__ import annotations
 from pathlib import Path
 
-from edit.data import EDITDatetime, DataNotFoundError
+from edit.data import EDITDatetime
 from edit.data.indexes import ArchiveIndex, decorators
 from edit.data.indexes.utilities.spellcheck import VARIABLE_DEFAULT, VariableDefault
 from edit.data.transforms import Transform, TransformCollection
-from edit.data.archive import register_archive
 
 
 class Structured(ArchiveIndex):

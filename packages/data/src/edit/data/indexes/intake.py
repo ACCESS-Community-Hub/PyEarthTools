@@ -13,14 +13,14 @@ Intake - ESM Index
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Callable, Iterable
+from typing import Any, Callable
 
 import xarray as xr
 import logging
 import functools
 
 from edit.data.indexes.indexes import DataIndex
-from edit.data.indexes.cacheIndex import BaseCacheIndex
+from edit.data.indexes.cacheIndex import FileSystemCacheIndex
 from edit.data.transforms import Transform, TransformCollection
 from edit.data.patterns.argument import flattened_combinations
 
@@ -34,6 +34,17 @@ class IntakeIndex(DataIndex):
     Index designed to operate on Intake ESM Catalogs
 
     Will not cache the data anywhere.
+
+    ## Example:
+    ```python
+    import edit.data
+    import intake_esm
+
+    cat_url = intake_esm.tutorial.get_url("google_cmip6")
+
+    intakeIndex = edit.data.IntakeIndex(cat_url)
+    intakeIndex(experiment_id=["historical", "ssp585"],table_id="Oyr",variable_id="o2",grid_label="gn")
+    ```
     """
 
     @property
@@ -76,7 +87,7 @@ class IntakeIndex(DataIndex):
 
             self._intake_catalog = intake.open_esm_datastore(catalog_file)  # type: ignore
         except (ModuleNotFoundError, ImportError, AttributeError) as e:
-            raise ImportError(f"Could not import `intake`, and access `intake-esm`, ensure they are installed.") from e
+            raise ImportError("Could not import `intake`, and access `intake-esm`, ensure they are installed.") from e
 
         self._search_kwargs: dict[str, Any] = {}
         self.update_filter(filter_dict or {}, **kwargs)
@@ -104,8 +115,9 @@ class IntakeIndex(DataIndex):
             filter_dict (dict[str, Any], optional):
                 Filter update. Defaults to {}.
         """
+        filter_dict = filter_dict or {}
         filter_dict.update(kwargs)
-        self._search_kwargs.update(filter_dict or {})
+        self._search_kwargs.update(filter_dict)
 
     def pop_filter(self, pop: list[str] = [], *args: str) -> None:
         """
@@ -125,7 +137,7 @@ class IntakeIndex(DataIndex):
         for p in pop:
             self._search_kwargs.pop(p)
 
-    def search_intake(self, filter_dict: dict[str, Any] = {}, **kwargs: Any) -> "intake_esm.source.ESMDataSource":
+    def search_intake(self, filter_dict: dict[str, Any] = {}, **kwargs: Any) -> "intake_esm.source.ESMDataSource":  # type: ignore  # noqa: F821
         """
         Search Intake Catalog
 
@@ -141,10 +153,9 @@ class IntakeIndex(DataIndex):
         """
         filter = dict(self._search_kwargs)
         filter.update(**filter_dict, **kwargs)
-
         return self._intake_catalog.search(**filter)  # type: ignore
 
-    def search(self, filter: dict[str, Any] = {}, **kwargs: Any) -> "intake_esm.source.ESMDataSource":
+    def search(self, filter: dict[str, Any] = {}, **kwargs: Any) -> "intake_esm.source.ESMDataSource":  # type: ignore  # noqa: F821
         """
         Override for Index search,
 
@@ -166,7 +177,7 @@ class IntakeIndex(DataIndex):
 
     def _get_from_intake(
         self, filter: dict[str, Any] = {}, merge: bool = True, **kwargs: Any
-    ) -> xr.Dataset | dict[str, xr.Dataset]:
+    ) -> xr.Dataset | xr.DataArray | dict[str, xr.Dataset | xr.DataArray]:
         """
         Get data from Intake ESM Catalog
 
@@ -194,13 +205,13 @@ class IntakeIndex(DataIndex):
             raise KeyError(f"Searching with filter, {kwargs} & {self._search_kwargs} yielded no results.")
 
         if not merge:
-            return ds_dict
+            return ds_dict  # type: ignore
 
         try:
-            return xr.merge(ds_dict.values())
-        except Exception:
-            pass
-        return ds_dict
+            return xr.combine_by_coords(ds_dict.values())
+        except Exception as e:
+            LOG.info(f"Failed to combine_by_coords data with keys: {ds_dict.keys()}. {e}")
+        return ds_dict  # type: ignore
 
     def get(self, **kwargs):
         """
@@ -228,11 +239,11 @@ class IntakeIndex(DataIndex):
         try:
             return self._intake_catalog[idx]  # type: ignore
         except Exception as e:
-            LOG.debug(f"Cannot find {idx} in intake catalog, default to super() method.")
+            LOG.debug(f"Cannot find {idx} in intake catalog, default to super() method. {e}")
         return super().__getitem__(idx)
 
 
-class IntakeIndexCache(BaseCacheIndex, IntakeIndex):
+class IntakeIndexCache(FileSystemCacheIndex, IntakeIndex):
     """
     Intake ESM Index which caches to a local location.
 
@@ -269,8 +280,10 @@ class IntakeIndexCache(BaseCacheIndex, IntakeIndex):
             **kwargs (Any, optional):
                 Additional filters.
 
-        See `edit.data.BaseCacheIndex` for remaining arguments docs.
+        See `edit.data.indexes.BaseCacheIndex` for remaining arguments docs.
         """
+        pattern_kwargs = pattern_kwargs or {}
+
         pattern_kwargs["expand_tuples"] = True
         super().__init__(
             cache,
@@ -284,15 +297,15 @@ class IntakeIndexCache(BaseCacheIndex, IntakeIndex):
         )
         self.record_initialisation()
 
-    def _generate(self, **kwargs: Any) -> xr.Dataset | dict[str, xr.Dataset]:
+    def _generate(self, **kwargs: Any) -> xr.Dataset | xr.DataArray | dict[str, xr.Dataset | xr.DataArray]:
         """
         Get data from Intake ESM Catalog
         """
         return super()._get_from_intake(**kwargs)
 
-    def _convert_to_args(self, key: str, df: "intake_esm.source.ESMDataSource", **kwargs: Any) -> list[str]:
+    def _convert_to_args(self, key: str, df: "intake_esm.source.ESMDataSource", **kwargs: Any) -> list[str]:  # type: ignore # noqa: F821
         """
-        Convert Intake ESM key to arguments for `ArgumentIndex`
+        Convert Intake ESM key to arguments for `ArgumentExpansion`
 
         Args:
             key (str):
@@ -326,7 +339,7 @@ class IntakeIndexCache(BaseCacheIndex, IntakeIndex):
         key_elements.insert(0, key_elements.pop())
         return key_elements
 
-    def get(self, **kwargs: Any) -> xr.Dataset | dict[str, xr.Dataset]:
+    def get(self, **kwargs: Any) -> xr.Dataset | xr.DataArray | dict[str, xr.Dataset | xr.DataArray]:
         """
         Retrieve Data given filter kwargs
 
@@ -345,41 +358,9 @@ class IntakeIndexCache(BaseCacheIndex, IntakeIndex):
         """
 
         if self.cache is None and self.pattern_type is None:
-            return self.generate(**kwargs)
+            return self._generate(**kwargs)
 
-        return self.load(self.filesystem(**kwargs), soft_fail=True)
-
-    def generate(self, **kwargs: Any) -> list[str | Path]:
-        """
-        Get data from the Intake catalog, and save it out based on the filter args.
-
-        If any data is cached, will not override.
-
-        Returns:
-            (list[str | Path]):
-                Location of cached data
-        """
-        pattern = self.pattern
-
-        data_df = self.search_intake(**kwargs)
-        if len(data_df) == 0:
-            raise KeyError(f"Searching with filter, {kwargs} & {self._search_kwargs} yielded no results.")
-
-        # Check to see if data has been saved
-        data_paths: list = []
-
-        for key, val in data_df.items():
-            key_elements = self._convert_to_args(key, data_df, **kwargs)
-            data_paths.append(pattern.search(*key_elements))
-
-            if pattern.exists(*key_elements):
-                continue
-
-            pattern.save(val.to_dask(), *key_elements)
-
-        self._save_catalog()
-
-        return data_paths
+        return self.generate(**kwargs)
 
     def _split_queries(function: Callable) -> Callable:  # type: ignore
         """
@@ -404,6 +385,34 @@ class IntakeIndexCache(BaseCacheIndex, IntakeIndex):
         return wrapper
 
     @_split_queries
+    def generate(self, **kwargs: Any) -> xr.Dataset | dict[str, xr.Dataset]:
+        """
+        Get data from the Intake catalog, and save it out based on the filter args.
+
+        If any data is cached, will not override.
+
+        Returns:
+            (list[str | Path]):
+                Location of cached data
+        """
+        pattern = self.pattern
+
+        data_df = self.search_intake(**kwargs)
+        if len(data_df) == 0:
+            raise KeyError(f"Searching with filter, {kwargs} & {self._search_kwargs} yielded no results.")
+
+        # Check to see if data has been saved
+        data_paths: list = []
+
+        for key, val in data_df.items():
+            key_elements = self._convert_to_args(key, data_df, **kwargs)
+            if not self._check_if_exists(*key_elements):
+                pattern.save(val.to_dask(), *key_elements)
+            data_paths.append(pattern.search(*key_elements))
+
+        return self.load(data_paths, soft_fail=True)
+
+    @_split_queries
     def filesystem(self, **kwargs: Any) -> list[str | Path]:
         """
         Search for generated data if cache is given.
@@ -422,9 +431,10 @@ class IntakeIndexCache(BaseCacheIndex, IntakeIndex):
             RuntimeError:
                 If `cache` is not set, cannot cache data.
         """
+        self.save_record()
 
         if self.cache is None and self.pattern_type is None:
-            raise RuntimeError(f"`CachingIndex` cannot save data without a `cache` location.")
+            raise RuntimeError("`CachingIndex` cannot save data without a `cache` location.")
 
         pattern = self.pattern
 
@@ -436,22 +446,21 @@ class IntakeIndexCache(BaseCacheIndex, IntakeIndex):
         data_paths: list = []
         all_cached = True
 
-        for key, _ in data_df.items():
-            key_elements = self._convert_to_args(key, data_df, **kwargs)
-
-            if pattern.exists(*key_elements):
-                if not self._override:
-                    data_paths.append(pattern.search(*key_elements))
-                    continue
-                delete_path(pattern.search(*key_elements))
-            all_cached = False
+        all_elements = list(self._convert_to_args(key, data_df, **kwargs) for key, _ in data_df.items())
+        print(all_elements)
+        for elem in all_elements:
+            if not self._check_if_exists(*elem):
+                all_cached = False
+                break
+            data_paths.append(pattern.search(*elem))
 
         if all_cached:
             return data_paths
 
-        return self._generate_data(**kwargs)
+        self.generate(**kwargs)
+        return list(pattern.search(elem) for elem in all_elements)  # type: ignore
 
-    @functools.wraps(BaseCacheIndex.search)
+    @functools.wraps(FileSystemCacheIndex.search)
     def search(self, *args: Any, **kwargs: Any):
         """
         Override for `.search` to follow behaviour of other `FileSystemIndex`'s.
