@@ -21,7 +21,8 @@ from typing import Any
 
 import edit.data
 from edit.data import EDITDatetime, Transform, TransformCollection, TimeDelta
-from edit.data.indexes import BaseCacheIndex, TimeIndex
+from edit.data.indexes import TimeIndex
+from edit.data.indexes.cacheIndex import BaseCacheIndex
 
 import edit.training.wrapper
 
