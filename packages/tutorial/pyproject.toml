@@ -20,8 +20,9 @@ classifiers = [
 ]
 dependencies = [
   "edit.data>=1.0.0",
+  "edit.pipeline",
+  "edit.training"
 ]
-# TODO add edit pipeline and training
 dynamic = ["version", "readme"]
 
 [tool.setuptools.dynamic]
@@ -40,9 +41,6 @@ line-length = 120
 [tool.mypy]
 warn_return_any = true
 warn_unused_configs = true
-
-[tool.setuptools.packages.find]
-where = ["src"] 
 
 [tool.hatch.version]
 path = "src/edit/tutorial/__init__.py"

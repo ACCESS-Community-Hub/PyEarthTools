@@ -1,0 +1,5 @@
+-e ../data
+-e ../pipeline
+-e ../training[lightning]
+-e ../utils
+-e .
