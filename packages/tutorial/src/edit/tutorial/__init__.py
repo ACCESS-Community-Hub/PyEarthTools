@@ -37,4 +37,3 @@ register_archive("ROOT_DIRECTORIES")(ROOT_DIRECTORIES)
 # into the EDIT namespace. This registered the Python module for the datasets
 # into the EDIT archives.
 register_archive("LOW")(ERA5DataClass)
-

@@ -35,7 +35,7 @@ You can run some of the tests to check that your installation worked:
 pytest packages/data/tests/
 ```
 
-To run example [notebooks from the ERA5 low-res package](packages/era5lowres/nbook), you may need to also install a Jupyter kernel for your environment:
+To run example [notebooks from the tutorial package](packages/tutorial/nbook), you may need to also install a Jupyter kernel for your environment:
 
 ```
 # from the activate virtual or conda environment

@@ -2,10 +2,9 @@
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-
 [project]
-name = "era5lowres"
-description = "EDIT archive for NCI"
+name = "edit-tutorial"
+description = "Tutorials for EDIT"
 requires-python = ">=3.9"
 keywords = ["edit"]
 authors = [
@@ -22,6 +21,7 @@ classifiers = [
 dependencies = [
   "edit.data>=1.0.0",
 ]
+# TODO add edit pipeline and training
 dynamic = ["version", "readme"]
 
 [tool.setuptools.dynamic]
@@ -45,8 +45,7 @@ warn_unused_configs = true
 where = ["src"] 
 
 [tool.hatch.version]
-path = "src/era5lowres/__init__.py"
+path = "src/edit/tutorial/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/era5lowres"]
-
+packages = ["src/edit/"]

@@ -34,7 +34,7 @@ from edit.data.indexes import ArchiveIndex, decorators
 from edit.data.transforms import Transform, TransformCollection
 from edit.data.archive import register_archive
 
-from era5lowres.ancilliary.ERA5lowres import ERA5_SINGLE_VARIABLES, ERA5_PRESSURE_VARIABLES
+from edit.tutorial.ancilliary.ERA5lowres import ERA5_SINGLE_VARIABLES, ERA5_PRESSURE_VARIABLES
 
 # This tells EDIT what the actual resolution or time-step of the data is inside the files
 ERA_RESOLUTION = (1, "hour")
