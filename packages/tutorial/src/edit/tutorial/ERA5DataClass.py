@@ -180,3 +180,8 @@ class ERA5LowResIndex(ArchiveIndex):
                 f"Unable to find data for: basetime: {querytime}, variables: {variable} at {var_path}"
             )
         return paths
+
+    @property
+    def _import(self):
+        """module to import for to load this step in an Pipeline"""
+        return "edit.tutorial"
