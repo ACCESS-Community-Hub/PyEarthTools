@@ -21,7 +21,9 @@ classifiers = [
 dependencies = [
   "edit.data>=1.0.0",
   "edit.pipeline",
-  "edit.training"
+  "edit.training",
+  "rich",
+  "ipywidgets",
 ]
 dynamic = ["version", "readme"]
 
