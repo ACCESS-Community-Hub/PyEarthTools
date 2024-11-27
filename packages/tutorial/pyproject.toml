@@ -24,6 +24,7 @@ dependencies = [
   "edit.training",
   "rich",
   "ipywidgets",
+  "scores"
 ]
 dynamic = ["version", "readme"]
 
