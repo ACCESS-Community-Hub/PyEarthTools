@@ -69,7 +69,7 @@ At the moment, data is confined to geospatial netcdf sources.
     ```
 """
 
-__version__ = "1.2.dev1"
+__version__ = "0.1.0"
 
 from pyearthtools.data import logger
 from pyearthtools.data import config

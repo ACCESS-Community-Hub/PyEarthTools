@@ -12,7 +12,7 @@
 Index for ERA5 lowres, including downloading helper code and disk indexing for pyearthtools
 """
 
-__version__ = '0.1.dev1'
+__version__ = '0.1.0'
 
 import os
 
