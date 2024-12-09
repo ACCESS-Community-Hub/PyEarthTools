@@ -1,6 +1,13 @@
 # pyearthtools
 
-*This is a placeholder README.*
+* THIS REPO IS UNDER CONSTRUCTION *
+
+This repository contains code which is under construction, and should not yet be used by anyone.
+The development team are actively working to make this project ready for new users, but for
+the time being things are not ready. Feel free to take a look around if you like, but much is likely
+to change in the next few months.
+
+** Installation **
 
 First clone the repository using the `monorepo` branch:
 
