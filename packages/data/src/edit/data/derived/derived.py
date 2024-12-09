@@ -19,8 +19,8 @@ from abc import abstractmethod, ABCMeta
 import xarray as xr
 
 
-from edit.data.time import EDITDatetime, TimeDelta, TimeRange
-from edit.data.indexes import DataIndex, TimeDataIndex, AdvancedTimeDataIndex
+from pyearthtools.data.time import pyearthtoolsDatetime, TimeDelta, TimeRange
+from pyearthtools.data.indexes import DataIndex, TimeDataIndex, AdvancedTimeDataIndex
 
 
 class DerivedValue(DataIndex, metaclass=ABCMeta):
@@ -46,7 +46,7 @@ class DerivedValue(DataIndex, metaclass=ABCMeta):
         """Override for get to use `derive`."""
         args = list(args)
         for i, arg in enumerate(args):
-            if isinstance(arg, EDITDatetime):
+            if isinstance(arg, pyearthtoolsDatetime):
                 args[i] = arg.datetime64()
         return self.derive(*args, **kwargs)
 
@@ -60,7 +60,7 @@ class DerivedValue(DataIndex, metaclass=ABCMeta):
 
         Examples:
         ```python
-        era = edit.data.archive.ERA5.sample()
+        era = pyearthtools.data.archive.ERA5.sample()
         derived = DerivedValue.like(era['2000-01-01T00'])
         ```
         """

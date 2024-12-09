@@ -12,7 +12,7 @@ Data saving tools for use by DataIndexes.
 Automatically infers how to save the data based on the type
 """
 
-from edit.data.save.dispatcher import save
-from edit.data.save.utils import ManageFiles, ManageTemp
+from pyearthtools.data.save.dispatcher import save
+from pyearthtools.data.save.utils import ManageFiles, ManageTemp
 
 __all__ = ["save", "ManageFiles", "ManageTemp"]

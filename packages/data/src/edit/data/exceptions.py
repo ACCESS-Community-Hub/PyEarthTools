@@ -7,7 +7,7 @@
 # from the use of the software.
 
 """
-`edit.data` Exceptions
+`pyearthtools.data` Exceptions
 """
 
 from __future__ import annotations

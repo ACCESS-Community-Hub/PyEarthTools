@@ -13,11 +13,11 @@ from typing import Callable, Any
 import numpy as np
 import xarray as xr
 
-from edit.pipeline.controller import Pipeline
-from edit.pipeline.iterators import Iterator
+from pyearthtools.pipeline.controller import Pipeline
+from pyearthtools.pipeline.iterators import Iterator
 
-from edit.training.data.datamodule import PipelineDataModule
-from edit.training.data.default.datasets import IndexableDataset, IterableDataset, BaseDefault
+from pyearthtools.training.data.datamodule import PipelineDataModule
+from pyearthtools.training.data.default.datasets import IndexableDataset, IterableDataset, BaseDefault
 
 
 def map_function(obj, function: Callable[[Any], Any], **kwargs):
@@ -132,7 +132,7 @@ class PipelineDefaultDataModule(PipelineDataModule):
         ```python
         datamodule = PipelineDefaultDataModule(
             pipelines = Pipeline(...),
-            train_split = edit.pipeline.iterators.DateRange('1980', '2020', '6 hours')
+            train_split = pyearthtools.pipeline.iterators.DateRange('1980', '2020', '6 hours')
         )
     """
 

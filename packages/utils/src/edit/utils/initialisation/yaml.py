@@ -12,20 +12,20 @@ from collections.abc import Mapping
 from pathlib import Path
 import yaml
 
-import edit.utils
-from edit.utils.initialisation.imports import dynamic_import
-from edit.utils.initialisation.mixin import InitialisationRecordingMixin
+import pyearthtools.utils
+from pyearthtools.utils.initialisation.imports import dynamic_import
+from pyearthtools.utils.initialisation.mixin import InitialisationRecordingMixin
 
 Self = TypeVar("Self", Any, Any)
 
-YAML_KEY = "!edit@"
+YAML_KEY = "!pyearthtools@"
 
 
 # define the representer, responsible for serialization
-def edit_initialisation_representer(dumper: yaml.Dumper, data: InitialisationRecordingMixin):
+def pyearthtools_initialisation_representer(dumper: yaml.Dumper, data: InitialisationRecordingMixin):
     type_data = type(data)
 
-    extra_params = getattr(data, edit.utils.initialisation.OVERRIDE_KEY, {})
+    extra_params = getattr(data, pyearthtools.utils.initialisation.OVERRIDE_KEY, {})
 
     initialisation_dict = data.initialisation
     if data._property is not None:
@@ -42,7 +42,7 @@ def edit_initialisation_representer(dumper: yaml.Dumper, data: InitialisationRec
     )
 
 
-def edit_initialisation_constructor(
+def pyearthtools_initialisation_constructor(
     loader: Union[yaml.loader.Loader, yaml.loader.FullLoader, yaml.loader.UnsafeLoader], tag_suffix: str, node
 ):
     tag_suffix = tag_suffix.replace(YAML_KEY, "")
@@ -68,13 +68,13 @@ class Loader(yaml.Loader):
 
 
 class Dumper(yaml.Dumper):
-    """edit yaml dumper"""
+    """pyearthtools yaml dumper"""
 
 
 Loader.add_constructor("!include", Loader.include)
-Loader.add_multi_constructor(YAML_KEY, edit_initialisation_constructor)
+Loader.add_multi_constructor(YAML_KEY, pyearthtools_initialisation_constructor)
 
-Dumper.add_multi_representer(InitialisationRecordingMixin, edit_initialisation_representer)
+Dumper.add_multi_representer(InitialisationRecordingMixin, pyearthtools_initialisation_representer)
 
 
 __all__ = ["Loader", "Dumper"]

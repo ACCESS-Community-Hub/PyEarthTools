@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 
-from edit.training.wrapper.wrapper import ModelWrapper
+from pyearthtools.training.wrapper.wrapper import ModelWrapper
 
 
 class TrainingWrapper(ModelWrapper):

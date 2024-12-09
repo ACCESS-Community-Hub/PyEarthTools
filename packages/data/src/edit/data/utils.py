@@ -16,7 +16,7 @@ import os
 from pathlib import Path
 import logging
 
-LOG = logging.getLogger("edit.data")
+LOG = logging.getLogger("pyearthtools.data")
 
 
 def parse_path(path: os.PathLike[Any] | str) -> Path:

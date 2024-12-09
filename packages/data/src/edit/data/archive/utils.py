@@ -23,10 +23,10 @@ import logging
 from typing import Any
 import warnings
 
-from edit.data import archive
-from edit.data.indexes.utilities.fileload import open_static
+from pyearthtools.data import archive
+from pyearthtools.data.indexes.utilities.fileload import open_static
 
-LOG = logging.getLogger("edit.data")
+LOG = logging.getLogger("pyearthtools.data")
 
 
 class ImportTest:
@@ -79,10 +79,10 @@ def auto_import() -> None:
     """
     Attempt to auto import archives using registered files.
     """
-    import_files: list[str] = list(open_static("edit.data.archive.registered", "register.txt"))
+    import_files: list[str] = list(open_static("pyearthtools.data.archive.registered", "register.txt"))
 
     for import_config_name in import_files:  # Run across all registered
-        import_config: dict[str, Any] = open_static("edit.data.archive.registered", f"{import_config_name}.yaml")  # type: ignore
+        import_config: dict[str, Any] = open_static("pyearthtools.data.archive.registered", f"{import_config_name}.yaml")  # type: ignore
 
         import_module: str = import_config.pop("module")
         deprecated: bool = import_config.pop("deprecated", False)
@@ -120,7 +120,7 @@ def auto_import() -> None:
 def post_import():
     """Run post importing of archives"""
     if not hasattr(archive, "ERA5"):
-        from edit.data.download import arco
+        from pyearthtools.data.download import arco
 
         setattr(archive, "ERA5", arco.ERA5)
 

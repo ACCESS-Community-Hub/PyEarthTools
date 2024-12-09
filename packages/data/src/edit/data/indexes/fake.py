@@ -11,10 +11,10 @@ from __future__ import annotations
 import xarray as xr
 import numpy as np
 
-from edit.data.time import EDITDatetime
-from edit.data.indexes.indexes import AdvancedTimeDataIndex
+from pyearthtools.data.time import pyearthtoolsDatetime
+from pyearthtools.data.indexes.indexes import AdvancedTimeDataIndex
 
-from edit.data.indexes.decorators import variable_modifications
+from pyearthtools.data.indexes.decorators import variable_modifications
 
 
 class FakeIndex(AdvancedTimeDataIndex):
@@ -68,8 +68,8 @@ class FakeIndex(AdvancedTimeDataIndex):
 
         self._data_function = self.rng.random if random else np.ones
 
-    def get(self, time: EDITDatetime | str) -> xr.Dataset:
-        time = EDITDatetime(time)
+    def get(self, time: pyearthtoolsDatetime | str) -> xr.Dataset:
+        time = pyearthtoolsDatetime(time)
 
         def make_data(name) -> xr.Dataset:
             data = xr.DataArray(
@@ -97,7 +97,7 @@ class FakeIndex(AdvancedTimeDataIndex):
                 {
                     # 'Conventions': 'CF-1.6',
                     "summary": "Random Fake Data generated for testing purposes only",
-                    # 'title': '`edit.data` Fake Data'
+                    # 'title': '`pyearthtools.data` Fake Data'
                 }
             )
             return data

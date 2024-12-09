@@ -8,10 +8,10 @@
 
 import os
 
-from edit.data.archive import zarr
+from pyearthtools.data.archive import zarr
 
-from edit.data import patterns
-from edit.data.patterns.default import PatternIndex
+from pyearthtools.data import patterns
+from pyearthtools.data.patterns.default import PatternIndex
 
 
 class ZarrIndex(zarr.ZarrIndex, PatternIndex):

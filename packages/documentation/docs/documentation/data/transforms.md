@@ -1,6 +1,6 @@
 # Transforms
 
-Using `edit.data.DataIndex`'s which most archives subclass from, allows the use of `Transforms`.
+Using `pyearthtools.data.DataIndex`'s which most archives subclass from, allows the use of `Transforms`.
 
 ## Definition
 
@@ -13,7 +13,7 @@ Examples include,
 - Interpolation
 - ...
 
-These can be easily added to various parts of the data loading pipeline to directly modify the data, or can be used outside of `edit.data.Indexes`, and directly used on xarray object.s
+These can be easily added to various parts of the data loading pipeline to directly modify the data, or can be used outside of `pyearthtools.data.Indexes`, and directly used on xarray object.s
 
 Ultimately, a `Transform` operates on a given data object seperate to its source. It introduces no new information, but simply 'transforms' the information already contained.
 
@@ -21,7 +21,7 @@ For a more complex `Transform` like operation, checkout [Modifications](./Modifi
 
 ## Example
 
-Below is the actual `Transform` for variable trimming, (`edit.data.transforms.variables.Trim`).
+Below is the actual `Transform` for variable trimming, (`pyearthtools.data.transforms.variables.Trim`).
 
 The root `Transform` class handles the extra neccessary functionality for class manipulation, calling and combining of multiple transforms. A child `Transform` needs only implement `apply`. `apply` is the actual functionality and will be given a `dataset` object, and must return the same type of object.
 

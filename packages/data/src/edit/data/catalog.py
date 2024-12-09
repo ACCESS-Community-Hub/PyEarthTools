@@ -7,15 +7,15 @@
 # from the use of the software.
 
 """
-`edit` Catalog's
+`pyearthtools` Catalog's
 
-Record information about an [index][edit.data.indexes] or other class, and allow it to be saved and loaded to/from disk.
+Record information about an [index][pyearthtools.data.indexes] or other class, and allow it to be saved and loaded to/from disk.
 
-This [CatalogEntry][edit.data.CatalogEntry] can be called like any other index, with [Catalog][edit.data.Catalog]
-automatically returning a [Collection][edit.data.Collection] of data if multiple entries recorded.
+This [CatalogEntry][pyearthtools.data.CatalogEntry] can be called like any other index, with [Catalog][pyearthtools.data.Catalog]
+automatically returning a [Collection][pyearthtools.data.Collection] of data if multiple entries recorded.
 
-If an [index][edit.data.indexes] has called `record_initialisation`, a [Catalog][edit.data.CatalogEntry] is accessible at `.catalog`,
-and the [catalog][edit.data.CatalogEntry] is used as part of the repr.
+If an [index][pyearthtools.data.indexes] has called `record_initialisation`, a [Catalog][pyearthtools.data.CatalogEntry] is accessible at `.catalog`,
+and the [catalog][pyearthtools.data.CatalogEntry] is used as part of the repr.
 
 Any class can specify the property `to_init_dict` to work with the Catalog. This function must return a single element dictionary,
 with the key being the class, and the value of the following form,
@@ -43,17 +43,17 @@ import types
 import warnings
 from functools import lru_cache
 
-from edit.utils.parsing import function_name
-from edit.utils.imports import dynamic_import
+from pyearthtools.utils.parsing import function_name
+from pyearthtools.utils.imports import dynamic_import
 
-import edit.data
-from edit.data.collection import Collection, LabelledCollection
+import pyearthtools.data
+from pyearthtools.data.collection import Collection, LabelledCollection
 
-from edit.utils.decorators import alias_arguments
+from pyearthtools.utils.decorators import alias_arguments
 
 UTILS_REPR = False
 try:
-    import edit.utils
+    import pyearthtools.utils
 
     UTILS_REPR = True
 except ImportError:
@@ -189,7 +189,7 @@ class CatalogEntry:
             Converts non serialisable to serialisable
             """
             for key, value in kwargs.items():
-                if isinstance(value, (edit.data.TimeDelta, edit.data.TimeResolution, Path)):
+                if isinstance(value, (pyearthtools.data.TimeDelta, pyearthtools.data.TimeResolution, Path)):
                     kwargs[key] = str(value)
             return kwargs
 
@@ -343,7 +343,7 @@ class CatalogEntry:
         if not UTILS_REPR:
             return str(self)
 
-        return edit.utils.repr_utils.standard(
+        return pyearthtools.utils.repr_utils.standard(
             self,
             name="Catalog Entry",
             documentation_attr="_doc_",
@@ -355,7 +355,7 @@ class CatalogEntry:
         if not UTILS_REPR:
             return repr(self)
 
-        return edit.utils.repr_utils.html(
+        return pyearthtools.utils.repr_utils.html(
             self,
             name="Catalog Entry",
             documentation_attr="_doc_",
@@ -379,11 +379,11 @@ class Catalog:
         Initalise a new Catalog of Data Sources
 
         Args:
-            *args (str, Path, 'Catalog', CatalogEntry | edit.data.Index):
+            *args (str, Path, 'Catalog', CatalogEntry | pyearthtools.data.Index):
                 Entries to add to catalog
             name (str, optional):
                 Name for this catalog. Defaults to None.
-            **kwargs (str, Path, 'Catalog', CatalogEntry | edit.data.Index):
+            **kwargs (str, Path, 'Catalog', CatalogEntry | pyearthtools.data.Index):
                 Named entries to add to catalog
 
         Examples:
@@ -408,7 +408,7 @@ class Catalog:
 
     def append(
         self,
-        other: "str | Path | Catalog | CatalogEntry | edit.data.DataIndex | dict",
+        other: "str | Path | Catalog | CatalogEntry | pyearthtools.data.DataIndex | dict",
         *,
         name: str | None = None,
     ):
@@ -416,14 +416,14 @@ class Catalog:
         Append Elements to Catalog.
 
         Args:
-            other (str, Path, Catalog, CatalogEntry | edit.data.DataIndex | dict):
+            other (str, Path, Catalog, CatalogEntry | pyearthtools.data.DataIndex | dict):
                 Items to add to Catalog
             name (str, optional):
                 Override for name of entry. Defaults to None.
 
         Raises:
             KeyError:
-                If `edit.data.Index` has no attr `catalog`
+                If `pyearthtools.data.Index` has no attr `catalog`
             TypeError:
                 If other not recognised
         """
@@ -452,14 +452,14 @@ class Catalog:
             self._catalog[name] = other
             setattr(self, name, other)
 
-        elif isinstance(other, edit.data.DataIndex) or (
+        elif isinstance(other, pyearthtools.data.DataIndex) or (
             hasattr(other, "catalog") and isinstance(other.catalog, (CatalogEntry, Catalog))
         ):  # Allow any class to have a `catalog` property.
             self.append(other.catalog, name=name or other.catalog.name or get_name(other))
 
-        elif isinstance(other, edit.data.DataIndex) and not hasattr(other, "catalog"):
+        elif isinstance(other, pyearthtools.data.DataIndex) and not hasattr(other, "catalog"):
             raise AttributeError(
-                f"Object to append appears to be a `edit.data.DataIndex`, but has no `catalog`.\n"
+                f"Object to append appears to be a `pyearthtools.data.DataIndex`, but has no `catalog`.\n"
                 "Ensure, `.record_initialisation()` has been run in the `__init__` of the Index."
             )
 
@@ -545,7 +545,7 @@ class Catalog:
             direct_load = False
 
         save_catalog["direct_load"] = direct_load
-        save_catalog["VERSION"] = edit.data.__version__
+        save_catalog["VERSION"] = pyearthtools.data.__version__
 
         if output_file:
             try:
@@ -571,7 +571,7 @@ class Catalog:
         !!! Tip:
             If pointed at a folder, will search the folder looking for a catalog file of `.cat`.
             If found that catalog will be loaded, instead.
-            Used to create folders loadable from edit.
+            Used to create folders loadable from pyearthtools.
 
         Args:
             catalog_to_load (str | Path): Filepath to catalog file
@@ -603,7 +603,7 @@ class Catalog:
                 if len(possible_catalogs) > 1:
                     raise FileNotFoundError(f"Multiple catalogs found in {catalog_to_load!s}")
                 raise FileNotFoundError(
-                    f"Given file was actually a directory, and no valid `edit` catalog was found inside."
+                    f"Given file was actually a directory, and no valid `pyearthtools` catalog was found inside."
                     "\nEnsure the catalog ends in '.cat'"
                 )
 
@@ -686,7 +686,7 @@ class Catalog:
         if not UTILS_REPR:
             return str(self)
 
-        return edit.utils.repr_utils.standard(
+        return pyearthtools.utils.repr_utils.standard(
             *list(self),
             name=self.name or "Catalog",
             documentation_attr="_doc_",
@@ -698,7 +698,7 @@ class Catalog:
         if not UTILS_REPR:
             return repr(self)
 
-        return edit.utils.repr_utils.html(
+        return pyearthtools.utils.repr_utils.html(
             *list(self),
             name=self.name or "Catalog",
             documentation_attr="_doc_",

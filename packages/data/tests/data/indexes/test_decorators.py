@@ -8,7 +8,7 @@
 
 import pytest
 
-from edit.data.indexes import decorators
+from pyearthtools.data.indexes import decorators
 
 
 @decorators.alias_arguments(value=["v", "val"])

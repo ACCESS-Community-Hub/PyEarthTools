@@ -9,7 +9,7 @@
 """Convenience classes for OpenData"""
 
 import functools
-from edit.data.download.ecmwf_opendata.opendata import OpenData
+from pyearthtools.data.download.ecmwf_opendata.opendata import OpenData
 
 
 class AIFS(OpenData):

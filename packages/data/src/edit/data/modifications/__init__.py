@@ -77,7 +77,7 @@ class AggregationGeneral(Aggregation):
 
 `single` takes a single timestep and expects a dataset to be returned with the variable as modified.
 
-`series` takes a start, end and interval, as can be parsed by `edit.data.TimeRange`, and expects 
+`series` takes a start, end and interval, as can be parsed by `pyearthtools.data.TimeRange`, and expects 
 a dataset to be returned with the variable as modified but all timesteps as defined by the range.
 
 `variable` contains the variable being modified.
@@ -101,12 +101,12 @@ a dataset to be returned with the variable as modified but all timesteps as defi
 """
 
 
-from edit.data.modifications.modification import Modification
+from pyearthtools.data.modifications.modification import Modification
 
-from edit.data.modifications.register import register_modification
-from edit.data.modifications.decorator import variable_modifications
+from pyearthtools.data.modifications.register import register_modification
+from pyearthtools.data.modifications.decorator import variable_modifications
 
-from edit.data.modifications import aggregations, reductions, constants
+from pyearthtools.data.modifications import aggregations, reductions, constants
 
 
 __all__ = ["register_modification", "variable_modifications", "Modification"]

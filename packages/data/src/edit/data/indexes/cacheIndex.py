@@ -21,14 +21,14 @@ from multiprocessing import Process
 
 import xarray as xr
 
-import edit.data
+import pyearthtools.data
 
-from edit.data import patterns, TimeDelta, DataNotFoundError
-from edit.data.transforms import Transform, TransformCollection
-from edit.data.patterns.default import PatternIndex
-from edit.data.warnings import EDITDataWarning
+from pyearthtools.data import patterns, TimeDelta, DataNotFoundError
+from pyearthtools.data.transforms import Transform, TransformCollection
+from pyearthtools.data.patterns.default import PatternIndex
+from pyearthtools.data.warnings import pyearthtoolsDataWarning
 
-from edit.data.indexes import (
+from pyearthtools.data.indexes import (
     ArchiveIndex,
     FileSystemIndex,
     ForecastIndex,
@@ -36,12 +36,12 @@ from edit.data.indexes import (
     DataIndex,
     Index,
 )
-from edit.data.indexes.utilities.delete_files import delete_older_than, delete_path
-from edit.data.indexes.utilities.folder_size import ByteSize, FolderSize
+from pyearthtools.data.indexes.utilities.delete_files import delete_older_than, delete_path
+from pyearthtools.data.indexes.utilities.folder_size import ByteSize, FolderSize
 
-from edit.utils.context import ChangeValue
+from pyearthtools.utils.context import ChangeValue
 
-LOG = logging.getLogger("edit.data")
+LOG = logging.getLogger("pyearthtools.data")
 OVERRIDE = False
 
 
@@ -62,7 +62,7 @@ class BaseCacheIndex(DataIndex):
     @property
     def global_override(self):
         """Get a context manager within which data will be overridden in all caches."""
-        from edit.data.indexes import cacheIndex
+        from pyearthtools.data.indexes import cacheIndex
 
         return ChangeValue(cacheIndex, "OVERRIDE", True)
 
@@ -108,9 +108,9 @@ class MemCache(BaseCacheIndex):
 
     ## Example
     ```python
-    import edit.data
+    import pyearthtools.data
 
-    mem_cache = edit.data.indexes.FunctionalMemCacheIndex(function = edit.data.archive.ERA5.sample())
+    mem_cache = pyearthtools.data.indexes.FunctionalMemCacheIndex(function = pyearthtools.data.archive.ERA5.sample())
     mem_cache_test('2000-01-01T00')
     # Cached into memory
     ```
@@ -386,11 +386,11 @@ class FileSystemCacheIndex(BaseCacheIndex, FileSystemIndex):
             if search_location is None or not Path(search_location).exists():
                 return kwargs
             try:
-                loaded_catalog = edit.data.load(search_location)
+                loaded_catalog = pyearthtools.data.load(search_location)
             except FileNotFoundError:
                 return kwargs
             except Exception as e:
-                warnings.warn(f"An error occurred updating kwargs from existing cache,\n{e}", EDITDataWarning)
+                warnings.warn(f"An error occurred updating kwargs from existing cache,\n{e}", pyearthtoolsDataWarning)
                 return kwargs
 
             if not isinstance(loaded_catalog, PatternIndex):

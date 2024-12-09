@@ -14,8 +14,8 @@ from html import escape
 from importlib.resources import read_binary
 
 STATIC_FILES = (
-    ("edit.utils.repr_utils.static.html", "icons-svg-inline.html"),
-    ("edit.utils.repr_utils.static.css", "style.css"),
+    ("pyearthtools.utils.repr_utils.static.html", "icons-svg-inline.html"),
+    ("pyearthtools.utils.repr_utils.static.css", "style.css"),
 )
 
 

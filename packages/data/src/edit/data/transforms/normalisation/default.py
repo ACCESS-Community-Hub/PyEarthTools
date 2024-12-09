@@ -17,27 +17,27 @@ import logging
 
 import xarray as xr
 
-import edit.data
+import pyearthtools.data
 
-from edit.data import EDITDatetime
-from edit.data.transforms.normalisation._utils import format_class_name
-from edit.data.transforms.transform import (
+from pyearthtools.data import pyearthtoolsDatetime
+from pyearthtools.data.transforms.normalisation._utils import format_class_name
+from pyearthtools.data.transforms.transform import (
     FunctionTransform,
     Transform,
     get_default_transforms,
 )
-from edit.data.indexes.utilities.fileload import open_files
+from pyearthtools.data.indexes.utilities.fileload import open_files
 
-from edit.utils.initialisation.imports import dynamic_import
+from pyearthtools.utils.initialisation.imports import dynamic_import
 
-LOG = logging.getLogger("edit.data")
+LOG = logging.getLogger("pyearthtools.data")
 
 
 def open_file(file: str | tuple | dict):
     data = open_files(file)
     if isinstance(data, (xr.Dataset, xr.DataArray)):
         data = get_default_transforms()(data)
-        data = edit.data.transforms.coordinates.drop("time", ignore_missing=True)(data)
+        data = pyearthtools.data.transforms.coordinates.drop("time", ignore_missing=True)(data)
     return data
 
 
@@ -57,9 +57,9 @@ def get_and_print(lambda_func: Callable, print_message: str, print_control: bool
 class normaliser:
     def __init__(
         self,
-        index: edit.data.AdvancedTimeIndex,
-        start: EDITDatetime | EDITDatetime | None = None,
-        end: EDITDatetime | EDITDatetime | None = None,
+        index: pyearthtools.data.AdvancedTimeIndex,
+        start: pyearthtoolsDatetime | pyearthtoolsDatetime | None = None,
+        end: pyearthtoolsDatetime | pyearthtoolsDatetime | None = None,
         interval: int | tuple | None = None,
         *,
         override: str | Path | dict | None = None,
@@ -81,11 +81,11 @@ class normaliser:
 
 
         Args:
-            index (edit.data.AdvancedTimeIndex, optional):
+            index (pyearthtools.data.AdvancedTimeIndex, optional):
                 AdvancedTimeIndex being normalised, used to get aggregation & range
-            start (EDITDatetime | EDITDatetime, optional):
+            start (pyearthtoolsDatetime | pyearthtoolsDatetime, optional):
                 Start Date for retrieval
-            end (EDITDatetime | EDITDatetime, optional):
+            end (pyearthtoolsDatetime | pyearthtoolsDatetime, optional):
                 End Date for retrieval
             interval (int | tuple, optional):
                 Interval between samples. Use pandas.to_timedelta notation, (10, 'minute')
@@ -163,7 +163,7 @@ class normaliser:
         **kwargs,
     ) -> xr.Dataset:
         """
-        Get result of aggregation function on data using [aggregation][edit.data.AdvancedTimeIndex.aggregation]
+        Get result of aggregation function on data using [aggregation][pyearthtools.data.AdvancedTimeIndex.aggregation]
 
         Args:
             variable_name (str):
@@ -187,7 +187,7 @@ class normaliser:
         # ) + retrieval_args.pop("transform", None)
 
         save_pattern = (
-            edit.data.patterns.ArgumentExpansion(
+            pyearthtools.data.patterns.ArgumentExpansion(
                 Path(self.cache_dir) / f"{str(save_prefix)+'_' if save_prefix else ''}{method}",
                 extension=".nc",
             )
@@ -207,7 +207,7 @@ class normaliser:
         # )
 
         aggregated_data = get_and_print(
-            lambda: edit.data.transforms.aggregation.over(method, dims)(
+            lambda: pyearthtools.data.transforms.aggregation.over(method, dims)(
                 self.index.series(
                     **retrieval_args,
                     transforms=transforms,
@@ -281,7 +281,7 @@ class normaliser:
 
     def get_range(self, variable_name: Hashable) -> dict:
         """
-        Get Range of Data using [range][edit.data.AdvancedTimeIndex.range]
+        Get Range of Data using [range][pyearthtools.data.AdvancedTimeIndex.range]
 
         Args:
             variable_name (str):
@@ -305,7 +305,7 @@ class normaliser:
         # ) + retrieval_args.pop("transform", None)
 
         save_pattern = (
-            edit.data.patterns.ArgumentExpansion(Path(self.cache_dir) / "range", extension=".json")
+            pyearthtools.data.patterns.ArgumentExpansion(Path(self.cache_dir) / "range", extension=".json")
             if self.cache_dir
             else None
         )

@@ -12,10 +12,10 @@ from typing import Union
 
 import numpy as np
 
-from edit.data.utils import parse_path
+from pyearthtools.data.utils import parse_path
 
-from edit.utils.decorators import BackwardsCompatibility
-from edit.pipeline.operation import Operation
+from pyearthtools.utils.decorators import BackwardsCompatibility
+from pyearthtools.pipeline.operation import Operation
 
 
 FILE = Union[str, Path]

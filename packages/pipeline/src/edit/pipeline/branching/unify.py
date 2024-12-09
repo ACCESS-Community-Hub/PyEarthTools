@@ -11,8 +11,8 @@ from abc import ABCMeta, abstractmethod
 from typing import Any, Union
 
 
-from edit.pipeline.operation import Operation
-from edit.pipeline.exceptions import PipelineUnificationException
+from pyearthtools.pipeline.operation import Operation
+from pyearthtools.pipeline.exceptions import PipelineUnificationException
 
 
 __all__ = ["Unifier", "Equality"]

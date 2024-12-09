@@ -20,25 +20,25 @@ from pathlib import Path
 # DEFAULT_TRANSFORM_LOCATIONS = [
 #     "__main__.",
 #     "",
-#     "edit.data.transforms.",
-#     "edit.data.",
+#     "pyearthtools.data.transforms.",
+#     "pyearthtools.data.",
 # ]
 
 
 # def get_transforms(
 #     sources: dict, order: list | None = None
-# ) -> edit.data.transforms.Transform | edit.data.transforms.TransformCollection:
-#     """Load [Transforms][edit.data.transforms] and initialise them from a dictionary.
+# ) -> pyearthtools.data.transforms.Transform | pyearthtools.data.transforms.TransformCollection:
+#     """Load [Transforms][pyearthtools.data.transforms] and initialise them from a dictionary.
 
 #     !!! tip "Path Tip"
 #         A path to the class doesn't always have to be specified, the below are automatically tried.
 
 #         - `__main__.`
-#         - `edit.data.transforms.`
-#         - `edit.data.`
+#         - `pyearthtools.data.transforms.`
+#         - `pyearthtools.data.`
 
 #     !!! tip "Multiple Tip"
-#         If two or more of the same [Transform][edit.data.transforms] are wanted, add '[NUMBER]', to distinguish the key, this will be removed before import
+#         If two or more of the same [Transform][pyearthtools.data.transforms] are wanted, add '[NUMBER]', to distinguish the key, this will be removed before import
 
 #     Args:
 #         sources (dict):
@@ -55,7 +55,7 @@ from pathlib import Path
 #             If an error occurs initialising the transforms
 
 #     Returns:
-#         (edit.data.transforms.Transform | edit.data.transforms.TransformCollection):
+#         (pyearthtools.data.transforms.Transform | pyearthtools.data.transforms.TransformCollection):
 #             Imported and Initialised Transforms from the configuration
 
 #     Examples:
@@ -65,16 +65,16 @@ from pathlib import Path
 #     """
 #     transforms = []
 
-#     if isinstance(sources, edit.data.transforms.Transform):
+#     if isinstance(sources, pyearthtools.data.transforms.Transform):
 #         return sources
 
 #     transforms = get_items(
 #         sources,
 #         order,
-#         edit.data.transforms,
+#         pyearthtools.data.transforms,
 #         import_locations=DEFAULT_TRANSFORM_LOCATIONS,
 #     )
-#     return edit.data.transforms.TransformCollection(transforms)
+#     return pyearthtools.data.transforms.TransformCollection(transforms)
 
 
 def parse_dataset(value: str | Path | Any) -> Any:

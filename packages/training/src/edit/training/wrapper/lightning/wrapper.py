@@ -14,11 +14,11 @@ import warnings
 import pytorch_lightning as L
 import torch
 
-from edit.data.utils import parse_path
+from pyearthtools.data.utils import parse_path
 
-from edit.pipeline.controller import Pipeline
-from edit.training.data.lightning import PipelineLightningDataModule
-from edit.training.wrapper.wrapper import ModelWrapper
+from pyearthtools.pipeline.controller import Pipeline
+from pyearthtools.training.data.lightning import PipelineLightningDataModule
+from pyearthtools.training.wrapper.wrapper import ModelWrapper
 
 
 class LightningWrapper(ModelWrapper):
@@ -26,16 +26,16 @@ class LightningWrapper(ModelWrapper):
     Pytorch Lightning ModelWrapper
 
     For prediction use
-        `edit.training.lightning.Predict`
+        `pyearthtools.training.lightning.Predict`
     For training use
-        `edit.training.lightning.Train`
+        `pyearthtools.training.lightning.Train`
     """
 
     model: L.LightningModule
     _default_datamodule = PipelineLightningDataModule
     _loaded_file: str | Path
 
-    _edit_repr = {
+    _pyearthtools_repr = {
         "expand_attr": ["trainer_kwargs", "pipelines", "splits"],
     }
 
@@ -146,5 +146,5 @@ class LightningWrapper(ModelWrapper):
 
     def predict(self, data):
         raise NotImplementedError(
-            "This is the base lightning wrapper, use `edit.training.lightning.Predict` for prediction."
+            "This is the base lightning wrapper, use `pyearthtools.training.lightning.Predict` for prediction."
         )

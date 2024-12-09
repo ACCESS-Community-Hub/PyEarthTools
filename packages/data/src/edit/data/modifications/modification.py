@@ -17,11 +17,11 @@ from abc import ABCMeta, abstractmethod
 from typing import Any, Union
 import xarray as xr
 
-import edit.data
-from edit.data.indexes import TimeDataIndex
-from edit.data.indexes.utilities.dimensions import identify_time_dimension
+import pyearthtools.data
+from pyearthtools.data.indexes import TimeDataIndex
+from pyearthtools.data.indexes.utilities.dimensions import identify_time_dimension
 
-from edit.data.transforms.transform import TransformCollection
+from pyearthtools.data.transforms.transform import TransformCollection
 
 
 class Modification(metaclass=ABCMeta):
@@ -44,7 +44,7 @@ class Modification(metaclass=ABCMeta):
 
         `single` takes a single timestep and expects a dataset to be returned with the variable as modified.
 
-        `series` takes a start, end and interval, as can be parsed by `edit.data.TimeRange`, and expects
+        `series` takes a start, end and interval, as can be parsed by `pyearthtools.data.TimeRange`, and expects
         a dataset to be returned with the variable as modified but all timesteps as defined by the range.
 
         `variable` contains the variable being modified.
@@ -142,4 +142,4 @@ class Modification(metaclass=ABCMeta):
         if isinstance(data, xr.Dataset):
             data = data[variable]
 
-        return edit.data.transforms.attributes.update(self.attribute_update)(data)
+        return pyearthtools.data.transforms.attributes.update(self.attribute_update)(data)

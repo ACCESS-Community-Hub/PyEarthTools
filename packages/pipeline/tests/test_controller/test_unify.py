@@ -9,13 +9,13 @@ from __future__ import annotations
 
 import pytest
 
-import edit.utils
+import pyearthtools.utils
 
-from edit.pipeline import Pipeline, branching, exceptions
+from pyearthtools.pipeline import Pipeline, branching, exceptions
 
 from tests.fake_pipeline_steps import FakeIndex
 
-edit.utils.config.set({"pipeline.run_parallel": False})
+pyearthtools.utils.config.set({"pipeline.run_parallel": False})
 
 # TODO
 

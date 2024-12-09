@@ -1,3 +1,3 @@
-# EDIT 101
+# pyearthtools 101
 
-Notebooks showing how to use `edit`.
+Notebooks showing how to use `pyearthtools`.

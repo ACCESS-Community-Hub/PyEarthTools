@@ -7,7 +7,7 @@
 # from the use of the software.
 
 """
-EDIT Trainer Commands
+pyearthtools Trainer Commands
 """
 from __future__ import annotations
 
@@ -40,7 +40,7 @@ def fit(ctx, yaml_file: str | click.Path, load: bool, paths: list[str]):
 
     yaml_file (str): Path to yaml config
     """
-    from edit.training.trainer.yaml import from_yaml
+    from pyearthtools.training.trainer.yaml import from_yaml
 
     for path in paths:
         sys.path.append(path)
@@ -92,8 +92,8 @@ def predict(
         stride_size (int, optional): Update to stride size. Defaults to None.
         recurrence (int, optional): Times to recur. Defaults to None.
     """
-    from edit.pipeline.context import PatchingUpdate
-    from edit.training.trainer.yaml import from_yaml
+    from pyearthtools.pipeline.context import PatchingUpdate
+    from pyearthtools.training.trainer.yaml import from_yaml
 
     trainer = from_yaml(yaml_file)
 

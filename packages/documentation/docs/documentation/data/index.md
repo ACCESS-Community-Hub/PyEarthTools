@@ -1,17 +1,17 @@
-# EDIT.data
+# pyearthtools.data
 
-[edit.data][edit.data] aims to provide a simple interface with which to index into Earth Science related Datasets. Currently this is limited to netcdf geospatial data sources, with extensions to other grids, meshes or formats expected.
+[pyearthtools.data][pyearthtools.data] aims to provide a simple interface with which to index into Earth Science related Datasets. Currently this is limited to netcdf geospatial data sources, with extensions to other grids, meshes or formats expected.
 
-One of the base classes of `edit.data` is the `DataIndex`, which provides a unified interface to accessing data, and common data retrieval techniques.
+One of the base classes of `pyearthtools.data` is the `DataIndex`, which provides a unified interface to accessing data, and common data retrieval techniques.
 
 Each of the implemented data sources requires it's own initialisation parameters to get started. But once initialised only the timestamp is needed.
 
 !!! Note
-    If the dataset you want is not already implemented, it is easy to implement it yourself and still gain the full benefits of [edit.data][edit.data]. The process for this can be found [here](/documentation/data/Developing Your Own/index.md)
+    If the dataset you want is not already implemented, it is easy to implement it yourself and still gain the full benefits of [pyearthtools.data][pyearthtools.data]. The process for this can be found [here](/documentation/data/Developing Your Own/index.md)
 
 ## Currently Implemented
 
-`edit.data` consists of the archive indexes, pattern based indexes, and downloading indexes. This allows a seperation between various data locations, user created data, or globally accessible data. The following tables list the implemented sources.
+`pyearthtools.data` consists of the archive indexes, pattern based indexes, and downloading indexes. This allows a seperation between various data locations, user created data, or globally accessible data. The following tables list the implemented sources.
 
 ### Archives
 
@@ -30,7 +30,7 @@ Only NCI has built archives, so if another archive system is needed, these archi
 
 ### Patterns
 
-If data follows a clear pattern, a [PatternIndex][edit.data.patterns] can be used to access the data. This `Index` is particularly useful for saving out user generated data into a consistent structure, and is thusly used in the downloader, and CachingIndex.
+If data follows a clear pattern, a [PatternIndex][pyearthtools.data.patterns] can be used to access the data. This `Index` is particularly useful for saving out user generated data into a consistent structure, and is thusly used in the downloader, and CachingIndex.
 
 - ExpandedDate
 - Direct
@@ -40,9 +40,9 @@ This patterns then have support for being a temporal index, or splitting per var
 
 ### Download
 
-If operating on a system without saved data, `edit.data` is beginning to support downloading data from various sources, and caching it to disk.
+If operating on a system without saved data, `pyearthtools.data` is beginning to support downloading data from various sources, and caching it to disk.
 
-To create another subclass [DownloadIndex][edit.data.download.DownloadIndex] and provide a `download` method.
+To create another subclass [DownloadIndex][pyearthtools.data.download.DownloadIndex] and provide a `download` method.
 
 - cds (Copernicus Data Store)
 - ERA5 - cds
@@ -50,7 +50,7 @@ To create another subclass [DownloadIndex][edit.data.download.DownloadIndex] and
 
 ### Derived
 
-Some data can be calculated are accessible at `edit.data.derived`.
+Some data can be calculated are accessible at `pyearthtools.data.derived`.
 
 - Insolation
 
@@ -60,13 +60,13 @@ Take note how similar each data retrieval option is
 
 === "ERA5"
     ```python
-    import edit.data
+    import pyearthtools.data
 
     ## Date of interest
     doi = '2022-04-01T03:00'
 
     ## Initialise the Data Loader
-    dataloader = edit.data.archive.ERA5(variables = 'tmax', level = 'single')
+    dataloader = pyearthtools.data.archive.ERA5(variables = 'tmax', level = 'single')
 
     ## Get Data
     dataloader(doi)
@@ -83,13 +83,13 @@ Take note how similar each data retrieval option is
     ```
 === "satellite"
     ```python
-    import edit.data
+    import pyearthtools.data
 
     ## Date of interest
     doi = '2022-04-01T03:00'
 
     ## Initialise the Data Loader
-    dataloader = edit.data.archive.satellite(variables = 'cloud_optical_depth')
+    dataloader = pyearthtools.data.archive.satellite(variables = 'cloud_optical_depth')
 
     ## Get Data
     dataloader(doi)
@@ -106,13 +106,13 @@ Take note how similar each data retrieval option is
 
 === "BRAN"
     ```python
-    import edit.data
+    import pyearthtools.data
 
     ## Date of interest
     doi = '2022-04-01'
 
     ## Initialise the Data Loader
-    dataloader = edit.data.archive.BRAN(variables = 'ocean_eta_t', type = 'daily')
+    dataloader = pyearthtools.data.archive.BRAN(variables = 'ocean_eta_t', type = 'daily')
 
     ## Get Data
     dataloader(doi)
@@ -129,7 +129,7 @@ Take note how similar each data retrieval option is
 
 ## Structure
 
-The following diagram details how the base inheritance structure works for `edit.data`
+The following diagram details how the base inheritance structure works for `pyearthtools.data`
 
 ```mermaid
     classDiagram

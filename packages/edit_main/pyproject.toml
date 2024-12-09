@@ -4,12 +4,12 @@ build-backend = "hatchling.build"
 
 
 [project]
-name = "edit"
+name = "pyearthtools"
 description = "Environmental Data Intelligence Toolkit"
 dynamic = ["version"]
 readme = "README.md"
 requires-python = ">=3.9"
-keywords = ["edit"]
+keywords = ["pyearthtools"]
 authors = [
   {email = "harrison.cook@bom.gov.au"},
   {name = "Harrison Cook"}
@@ -22,24 +22,24 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-  "edit-utils>=1.0.0",
-  "edit-data>=1.0.0",
-#  "edit-pipeline>=1.0.0",
+  "pyearthtools-utils>=1.0.0",
+  "pyearthtools-data>=1.0.0",
+#  "pyearthtools-pipeline>=1.0.0",
 ]
 
 [project.optional-dependencies]
 training = [
-  "edit-training>=1.0.0",
+  "pyearthtools-training>=1.0.0",
 ]
 models = [
-  "edit-models>=1.0.0",
+  "pyearthtools-models>=1.0.0",
 ]
 test = ["pytest"]
 
 [project.urls]
 homepage = "http://bom.gov.au"
-documentation = "https://git.nci.org.au/bom/dset/edit-package/documentation"
-repository = "https://git.nci.org.au/bom/dset/edit-package/"
+documentation = "https://git.nci.org.au/bom/dset/pyearthtools-package/documentation"
+repository = "https://git.nci.org.au/bom/dset/pyearthtools-package/"
 
 [tool.isort]
 profile = "black"
@@ -52,7 +52,7 @@ warn_return_any = true
 warn_unused_configs = true
 
 [tool.hatch.version]
-path = "src/edit/__init__.py"
+path = "src/pyearthtools/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/edit/"]
+packages = ["src/pyearthtools/"]

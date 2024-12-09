@@ -17,9 +17,9 @@ from typing import Type, Union, Optional
 import functools
 import numpy as np
 
-import edit.utils
+import pyearthtools.utils
 
-from edit.pipeline.operation import Operation
+from pyearthtools.pipeline.operation import Operation
 
 
 class DaskOperation(Operation):
@@ -27,7 +27,7 @@ class DaskOperation(Operation):
     Override for Operations with `dask`.
 
     If set `_numpy_counterpart` use a counterpart numpy class if data given is a numpy array.
-    Can be str specifying path after `edit.pipeline.operations.numpy` or full class.
+    Can be str specifying path after `pyearthtools.pipeline.operations.numpy` or full class.
     """
 
     _override_interface = ["Serial"]
@@ -51,10 +51,10 @@ class DaskOperation(Operation):
             self._add_np_to_types()
 
             if isinstance(self._numpy_counterpart, str):
-                self._numpy_counterpart = edit.utils.dynamic_import(
-                    f"edit.pipeline.operations.numpy.{self._numpy_counterpart}"
+                self._numpy_counterpart = pyearthtools.utils.dynamic_import(
+                    f"pyearthtools.pipeline.operations.numpy.{self._numpy_counterpart}"
                 )
-            with edit.utils.context.ChangeValue(
+            with pyearthtools.utils.context.ChangeValue(
                 self, "apply_func", functools.partial(self._numpy_counterpart.apply_func, self)
             ):
                 sample = super().apply(sample)
@@ -69,10 +69,10 @@ class DaskOperation(Operation):
             self._add_np_to_types()
 
             if isinstance(self._numpy_counterpart, str):
-                self._numpy_counterpart = edit.utils.dynamic_import(
-                    f"edit.pipeline.operations.numpy.{self._numpy_counterpart}"
+                self._numpy_counterpart = pyearthtools.utils.dynamic_import(
+                    f"pyearthtools.pipeline.operations.numpy.{self._numpy_counterpart}"
                 )
-            with edit.utils.context.ChangeValue(
+            with pyearthtools.utils.context.ChangeValue(
                 self, "undo_func", functools.partial(self._numpy_counterpart.undo_func, self)
             ):
                 sample = super().undo(sample)

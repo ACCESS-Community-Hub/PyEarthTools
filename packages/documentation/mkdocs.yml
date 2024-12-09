@@ -1,5 +1,5 @@
 site_name: "Environmental Data Intelligence Toolkit"
-site_url: https://bureau-sig.nci.org.au/edit
+site_url: https://bureau-sig.nci.org.au/pyearthtools
 
 theme:
   name: "material"
@@ -47,7 +47,7 @@ plugins:
 # - coverage
 - search
 # - encryptcontent:
-#     global_password: 'edit'
+#     global_password: 'pyearthtools'
 #     title_prefix: ''
 - autorefs
 - gen-files:
@@ -92,7 +92,7 @@ nav:
 # - Examples: examples/  
 - Models: models/  
 - Reference: reference/
-- EDIT_101: EDIT_101/
+- pyearthtools_101: pyearthtools_101/
 
 extra_css:
   - css/code_select.css
@@ -117,8 +117,8 @@ markdown_extensions:
   - pymdownx.tabbed:
       alternate_style: true 
 
-repo_url: https://git.nci.org.au/bom/dset/edit-package
-repo_name: DSET/EDIT
+repo_url: https://git.nci.org.au/bom/dset/pyearthtools-package
+repo_name: DSET/pyearthtools
 
 extra_javascript:
   - https://unpkg.com/tablesort@5.3.0/dist/tablesort.min.js

@@ -10,22 +10,22 @@
 # ruff: noqa: F401
 
 
-from edit.training.wrapper.wrapper import ModelWrapper
+from pyearthtools.training.wrapper.wrapper import ModelWrapper
 
-from edit.training.wrapper import predict, train, utils
+from pyearthtools.training.wrapper import predict, train, utils
 
-from edit.training.wrapper.train import TrainingWrapper
-from edit.training.wrapper.predict import Predictor
+from pyearthtools.training.wrapper.train import TrainingWrapper
+from pyearthtools.training.wrapper.predict import Predictor
 
 try:
     ONNX_IMPORTED = True
-    from edit.training.wrapper import onnx
+    from pyearthtools.training.wrapper import onnx
 except (ImportError, ModuleNotFoundError):
     ONNX_IMPORTED = False
 
 try:
     LIGHTNING_IMPORTED = True
-    from edit.training.wrapper import lightning
+    from pyearthtools.training.wrapper import lightning
 except (ImportError, ModuleNotFoundError):
     LIGHTNING_IMPORTED = False
 

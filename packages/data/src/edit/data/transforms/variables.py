@@ -10,10 +10,10 @@ from __future__ import annotations
 
 import xarray as xr
 
-import edit.data.transforms.attributes as attr
-from edit.data.transforms.transform import Transform
+import pyearthtools.data.transforms.attributes as attr
+from pyearthtools.data.transforms.transform import Transform
 
-from edit.utils.decorators import BackwardsCompatibility
+from pyearthtools.utils.decorators import BackwardsCompatibility
 
 # Backwards compatability
 rename_variables = attr.rename

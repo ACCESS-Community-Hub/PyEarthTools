@@ -14,7 +14,7 @@
 import dask.array as da
 import numpy as np
 
-from edit.pipeline.operations.dask.dask import DaskOperation
+from pyearthtools.pipeline.operations.dask.dask import DaskOperation
 
 
 class Rotate(DaskOperation):

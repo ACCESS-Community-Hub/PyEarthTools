@@ -15,8 +15,8 @@ from typing import Any, Literal
 
 import xarray as xr
 
-from edit.data.transforms import Transform
-from edit.utils.decorators import BackwardsCompatibility
+from pyearthtools.data.transforms import Transform
+from pyearthtools.utils.decorators import BackwardsCompatibility
 
 
 def _get_attributes_from_ds(reference: xr.DataArray | xr.Dataset) -> dict[str, dict[str, Any]]:

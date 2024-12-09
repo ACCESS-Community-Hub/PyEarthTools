@@ -16,10 +16,10 @@ from __future__ import annotations
 from typing import Union
 import xarray as xr
 
-from edit.data.time import EDITDatetime, TimeDelta, TimeResolution
-from edit.data.indexes.utilities.dimensions import identify_time_dimension
+from pyearthtools.data.time import pyearthtoolsDatetime, TimeDelta, TimeResolution
+from pyearthtools.data.indexes.utilities.dimensions import identify_time_dimension
 
-from edit.data.modifications import Modification, register_modification
+from pyearthtools.data.modifications import Modification, register_modification
 
 
 class Reduction(Modification):
@@ -40,8 +40,8 @@ class Groupby(Reduction):
         self.time_component = time_component
         self.method = method
 
-    def _reconstruct_time_dim(self, time: Union[str, EDITDatetime], new_coord: xr.DataArray):
-        time = EDITDatetime(time)
+    def _reconstruct_time_dim(self, time: Union[str, pyearthtoolsDatetime], new_coord: xr.DataArray):
+        time = pyearthtoolsDatetime(time)
 
         return list(
             map(
@@ -63,13 +63,13 @@ class Groupby(Reduction):
         )
 
     def single(self, time) -> xr.Dataset:
-        start = str(EDITDatetime(time).at_resolution(TimeResolution(self.time_component)))
-        end = str(EDITDatetime(time).at_resolution(TimeResolution(self.time_component)) + 1)
+        start = str(pyearthtoolsDatetime(time).at_resolution(TimeResolution(self.time_component)))
+        end = str(pyearthtoolsDatetime(time).at_resolution(TimeResolution(self.time_component)) + 1)
         return self._get_data(start, end)
 
     def series(self, start, end, interval) -> xr.Dataset:
-        start = str(EDITDatetime(start).at_resolution(TimeResolution(self.time_component)))
-        end = str(EDITDatetime(end).at_resolution(TimeResolution(self.time_component)) + 1)
+        start = str(pyearthtoolsDatetime(start).at_resolution(TimeResolution(self.time_component)))
+        end = str(pyearthtoolsDatetime(end).at_resolution(TimeResolution(self.time_component)) + 1)
 
         return self._get_data(start, end)
 

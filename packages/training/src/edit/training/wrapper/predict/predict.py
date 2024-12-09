@@ -13,10 +13,10 @@ from typing import Any
 from abc import ABCMeta
 
 
-from edit.utils.initialisation import InitialisationRecordingMixin
+from pyearthtools.utils.initialisation import InitialisationRecordingMixin
 
-from edit.pipeline.controller import Pipeline
-from edit.training.wrapper.wrapper import ModelWrapper
+from pyearthtools.pipeline.controller import Pipeline
+from pyearthtools.training.wrapper.wrapper import ModelWrapper
 
 
 class Predictor(InitialisationRecordingMixin, metaclass=ABCMeta):

@@ -1,10 +1,10 @@
 # Python Package
 
-`edit.models` exists as a python package, and can be used to run predictions either from the command line or within a python instance.
+`pyearthtools.models` exists as a python package, and can be used to run predictions either from the command line or within a python instance.
 
 ## Usage
 
-`edit.models` provides the following top level functions for easy usage in a python environment.
+`pyearthtools.models` provides the following top level functions for easy usage in a python environment.
 
 ### `.data`
 
@@ -14,9 +14,9 @@ Particularly, as some pipelines require the downloading of data from another sou
 
 ???+ note "Example"
     ```python
-    import edit.models
+    import pyearthtools.models
 
-    data = edit.models.data('model_name_here', 'pipeline_name_here', *args, **kwargs)
+    data = pyearthtools.models.data('model_name_here', 'pipeline_name_here', *args, **kwargs)
     ```
 
 ### `.predict`
@@ -29,9 +29,9 @@ This function will then import the model, download the assets if needed, and the
 
 ???+ note "Example"
     ```python
-    import edit.models
+    import pyearthtools.models
 
-    predictions = edit.models.predict('model_name_here', 'pipeline_name_here', *args, **kwargs)
+    predictions = pyearthtools.models.predict('model_name_here', 'pipeline_name_here', *args, **kwargs)
     ```
 
 ### `.interactive`
@@ -42,21 +42,21 @@ This function is effectively a wrapper around `.predict` but will prompt the use
 
 ???+ note "Example"
     ```python
-    import edit.models
+    import pyearthtools.models
 
-    predictions = edit.models.interactive(model = 'model_name_here')
-    predictions = edit.models.interactive()
+    predictions = pyearthtools.models.interactive(model = 'model_name_here')
+    predictions = pyearthtools.models.interactive()
     Which model would you like to use? [MODELS], (Key: model): USER_INPUT_HERE
     ```
 
 ## Direct Model Usage
 
-Any installed and imported model will be accessible underneath `edit.models.*` for direct usage.
+Any installed and imported model will be accessible underneath `pyearthtools.models.*` for direct usage.
 
 ```python
 import sfno
-import edit.models
+import pyearthtools.models
 
-edit.models.SFNO() # Exists
+pyearthtools.models.SFNO() # Exists
 
 ```

@@ -9,33 +9,33 @@
 # ruff: noqa: F401
 
 """
-Indexes for EDIT.
+Indexes for pyearthtools.
 
-These are the effective backbone of all of `edit`, providing the API in which to retrieve data.
-Shown below are all `indexes` which are used by both the [archive][edit.data.archive], [pattern][edit.data.patterns],
-and the [static][edit.data.static] data sources.
+These are the effective backbone of all of `pyearthtools`, providing the API in which to retrieve data.
+Shown below are all `indexes` which are used by both the [archive][pyearthtools.data.archive], [pattern][pyearthtools.data.patterns],
+and the [static][pyearthtools.data.static] data sources.
 
 ## Indexes
 | Index | Purpose |
 | ----- | ------------------------ |
-| [Index][edit.data.indexes.Index] | Base Index to define API and common functions |
-| [FileSystemIndex][edit.data.indexes.FileSystemIndex] | Add filesystem retrieval |
-| [DataIndex][edit.data.indexes.DataIndex] | Introduce Transforms |
-| [TimeIndex][edit.data.indexes.TimeIndex] | Add time specific indexing |
-| [AdvancedTimeIndex][edit.data.indexes.AdvancedTimeIndex] | Extend time indexing for advanced uses.|
-| [AdvancedTimeDataIndex][edit.data.indexes.AdvancedTimeDataIndex] | Combine AdvancedTimeIndex and DataIndex |
-| [ArchiveIndex][edit.data.indexes.ArchiveIndex] | Default class for Archived data |
-| [ForecastIndex][edit.data.indexes.ForecastIndex] | Base class for forecast data, combines DataIndex and FileSystemIndex |
-| [StaticDataIndex][edit.data.indexes.StaticDataIndex] | Base class for static on disk data, combines DataIndex and FileSystemIndex |
-| [CachingIndex][edit.data.indexes.CachingIndex] | Data generated on the fly cached to a given location |
+| [Index][pyearthtools.data.indexes.Index] | Base Index to define API and common functions |
+| [FileSystemIndex][pyearthtools.data.indexes.FileSystemIndex] | Add filesystem retrieval |
+| [DataIndex][pyearthtools.data.indexes.DataIndex] | Introduce Transforms |
+| [TimeIndex][pyearthtools.data.indexes.TimeIndex] | Add time specific indexing |
+| [AdvancedTimeIndex][pyearthtools.data.indexes.AdvancedTimeIndex] | Extend time indexing for advanced uses.|
+| [AdvancedTimeDataIndex][pyearthtools.data.indexes.AdvancedTimeDataIndex] | Combine AdvancedTimeIndex and DataIndex |
+| [ArchiveIndex][pyearthtools.data.indexes.ArchiveIndex] | Default class for Archived data |
+| [ForecastIndex][pyearthtools.data.indexes.ForecastIndex] | Base class for forecast data, combines DataIndex and FileSystemIndex |
+| [StaticDataIndex][pyearthtools.data.indexes.StaticDataIndex] | Base class for static on disk data, combines DataIndex and FileSystemIndex |
+| [CachingIndex][pyearthtools.data.indexes.CachingIndex] | Data generated on the fly cached to a given location |
 
 ## Usage
-To use the indexes, or to extend EDIT's capability to a new dataset or data source, one of the above listed classes should be subclassed.
+To use the indexes, or to extend pyearthtools's capability to a new dataset or data source, one of the above listed classes should be subclassed.
 
 Which one depends on the use case and data specifications, but `ArchiveIndex`, `ForecastIndex` or `StaticDataIndex` are good places to start for on disk data,
 with `DataIndex` or `CachingIndex` useful for ondemand generated data.
 
-See [archive][edit.data.archive] for prebuilt indexes.
+See [archive][pyearthtools.data.archive] for prebuilt indexes.
 
 ## Class Diagram
 
@@ -107,7 +107,7 @@ classDiagram
 
 """
 
-from edit.data.indexes.indexes import (
+from pyearthtools.data.indexes.indexes import (
     Index,
     DataIndex,
     FileSystemIndex,
@@ -121,7 +121,7 @@ from edit.data.indexes.indexes import (
     ForecastIndex,
     StaticDataIndex,
 )
-from edit.data.indexes.cacheIndex import (
+from pyearthtools.data.indexes.cacheIndex import (
     FileSystemCacheIndex,
     CachingIndex,
     CachingForecastIndex,
@@ -129,20 +129,20 @@ from edit.data.indexes.cacheIndex import (
     MemCache,
     FunctionalMemCacheIndex,
 )
-from edit.data.indexes import utilities, decorators
-from edit.data.indexes.extensions import register_accessor
+from pyearthtools.data.indexes import utilities, decorators
+from pyearthtools.data.indexes.extensions import register_accessor
 
-from edit.data.indexes.utilities.spellcheck import VariableDefault, VARIABLE_DEFAULT
-from edit.data.indexes.utilities.structure import structure
+from pyearthtools.data.indexes.utilities.spellcheck import VariableDefault, VARIABLE_DEFAULT
+from pyearthtools.data.indexes.utilities.structure import structure
 
-from edit.data.indexes.decorators import alias_arguments, check_arguments
+from pyearthtools.data.indexes.decorators import alias_arguments, check_arguments
 
-from edit.data.indexes.intake import IntakeIndex, IntakeIndexCache
-from edit.data.indexes.templates import Structured
+from pyearthtools.data.indexes.intake import IntakeIndex, IntakeIndexCache
+from pyearthtools.data.indexes.templates import Structured
 
-from edit.data.indexes.fake import FakeIndex
+from pyearthtools.data.indexes.fake import FakeIndex
 
-from edit.data.indexes.utilities.folder_size import ByteSize
+from pyearthtools.data.indexes.utilities.folder_size import ByteSize
 
 __all__ = [
     "Index",

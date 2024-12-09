@@ -20,12 +20,12 @@ import functools
 from typing import Callable, Any, Optional, Type, Union
 import xarray as xr
 
-from edit.data.indexes import TimeDataIndex
+from pyearthtools.data.indexes import TimeDataIndex
 
-from edit.data.transforms.transform import Transform
-from edit.data.modifications.modification import Modification
+from pyearthtools.data.transforms.transform import Transform
+from pyearthtools.data.modifications.modification import Modification
 
-from edit.data.modifications.register import MODIFICATION_DICT
+from pyearthtools.data.modifications.register import MODIFICATION_DICT
 
 
 __all__ = ["variable_modifications", "Modification"]
@@ -341,7 +341,7 @@ class Modifier(Transform):
     `Transform` to apply the modification to variables
     """
 
-    _edit_repr = {"ignore": ["index", "index_kwargs", "variable_keyword"]}
+    _pyearthtools_repr = {"ignore": ["index", "index_kwargs", "variable_keyword"]}
 
     def __init__(
         self,

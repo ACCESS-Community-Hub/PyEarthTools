@@ -8,12 +8,12 @@
 
 import pytest
 
-from edit.pipeline import Pipeline, iterators, filters, exceptions, Operation
+from pyearthtools.pipeline import Pipeline, iterators, filters, exceptions, Operation
 from tests.fake_pipeline_steps import FakeIndex
 
-import edit.utils
+import pyearthtools.utils
 
-edit.utils.config.set({"pipeline.run_parallel": False})
+pyearthtools.utils.config.set({"pipeline.run_parallel": False})
 
 
 class ReplaceOnKey(Operation):

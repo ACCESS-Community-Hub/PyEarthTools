@@ -24,11 +24,11 @@ Dask operations
 """
 
 
-from edit.pipeline.operations.dask.join import Stack, Concatenate, VStack, HStack
+from pyearthtools.pipeline.operations.dask.join import Stack, Concatenate, VStack, HStack
 
-from edit.pipeline.operations.dask.compute import Compute
+from pyearthtools.pipeline.operations.dask.compute import Compute
 
-from edit.pipeline.operations.dask import (
+from pyearthtools.pipeline.operations.dask import (
     augment,
     filters,
     normalisation,

@@ -11,8 +11,8 @@ from typing import Any, Literal, Union, Optional
 import xarray as xr
 
 
-import edit.data
-from edit.pipeline.operation import Operation
+import pyearthtools.data
+from pyearthtools.pipeline.operation import Operation
 
 
 class SelectDataset(Operation):
@@ -45,7 +45,7 @@ class SelectDataset(Operation):
         self.variables = variables
 
     def apply_func(self, sample: xr.Dataset):
-        return edit.data.transforms.variables.trim(self.variables)(sample)
+        return pyearthtools.data.transforms.variables.trim(self.variables)(sample)
 
 
 class DropDataset(Operation):
@@ -80,7 +80,7 @@ class DropDataset(Operation):
         self.variables = variables
 
     def apply_func(self, sample: xr.Dataset):
-        return edit.data.transforms.variables.drop(self.variables)(sample)
+        return pyearthtools.data.transforms.variables.drop(self.variables)(sample)
 
 
 class SliceDataset(Operation):

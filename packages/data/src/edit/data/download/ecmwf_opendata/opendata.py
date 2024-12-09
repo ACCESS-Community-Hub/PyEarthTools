@@ -12,16 +12,16 @@ from typing import Literal, Any
 import warnings
 import xarray as xr
 
-import edit.data
-from edit.data.indexes import (
+import pyearthtools.data
+from pyearthtools.data.indexes import (
     alias_arguments,
     check_arguments,
     VariableDefault,
     VARIABLE_DEFAULT,
 )
 
-from edit.data.download.ecmwf_opendata import opendata_variables
-from edit.data.download import DownloadIndex
+from pyearthtools.data.download.ecmwf_opendata import opendata_variables
+from pyearthtools.data.download import DownloadIndex
 
 
 VALID_MODELS = Literal["aifs", "ifs"]
@@ -37,7 +37,7 @@ VARIABLES = [*opendata_variables.single, *opendata_variables.pressure, "all"]
 RENAME_DICT = {"t2m": "2t", "u10": "10u", "v10": "10v"}
 
 
-def rounder(time: edit.data.EDITDatetime, round_value: int = 6) -> int:
+def rounder(time: pyearthtools.data.pyearthtoolsDatetime, round_value: int = 6) -> int:
     return (time.hour // round_value) * round_value
 
 
@@ -62,14 +62,14 @@ class OpenData(DownloadIndex):
 
     ## Usage
     AIFS latest download
-    >>> import edit.data
-    >>> opendata_index = edit.data.download.opendata.AIFS('msl', step = (0, 120, 6), cache = '~/AIFS_Data/')
+    >>> import pyearthtools.data
+    >>> opendata_index = pyearthtools.data.download.opendata.AIFS('msl', step = (0, 120, 6), cache = '~/AIFS_Data/')
     >>> opendata_index.latest()
 
     IFS latest download, subsetting on level
 
-    >>> import edit.data
-    >>> opendata_index = edit.data.download.opendata.IFS(['q', 't'], stream = 'oper', step = 120, levels = [1000], cache = '~/IFS_Data/')
+    >>> import pyearthtools.data
+    >>> opendata_index = pyearthtools.data.download.opendata.IFS(['q', 't'], stream = 'oper', step = 120, levels = [1000], cache = '~/IFS_Data/')
     >>> opendata_index.latest()
 
     ## Overriding
@@ -91,7 +91,7 @@ class OpenData(DownloadIndex):
             "Documentation": "https://www.ecmwf.int/en/forecasts/datasets/open-data",
         }
 
-    @check_arguments("edit.data.download.ecmwf_opendata.opendata.struc", variables=VARIABLES)
+    @check_arguments("pyearthtools.data.download.ecmwf_opendata.opendata.struc", variables=VARIABLES)
     def __init__(
         self,
         variables: list[str] | str,
@@ -157,16 +157,16 @@ class OpenData(DownloadIndex):
 
         self._request_base: dict[str, Any] = dict(type=type, stream=stream, step=step, number=number)
 
-        transforms = kwargs.pop("transforms", edit.data.TransformCollection())
+        transforms = kwargs.pop("transforms", pyearthtools.data.TransformCollection())
         # Rename variables to match other indexes, and trim out any not requested
-        self.download_transforms = edit.data.transforms.variables.rename_variables(
+        self.download_transforms = pyearthtools.data.transforms.variables.rename_variables(
             **RENAME_DICT  # type: ignore
-        ) + edit.data.transforms.variables.variable_trim(
+        ) + pyearthtools.data.transforms.variables.variable_trim(
             *variables
-        )  # + edit.data.transforms.coordinates.drop("meanSea", "valid_time", "heightAboveGround", "entireAtmosphere", ignore_missing=True)
+        )  # + pyearthtools.data.transforms.coordinates.drop("meanSea", "valid_time", "heightAboveGround", "entireAtmosphere", ignore_missing=True)
 
         if levels:
-            transforms += edit.data.transforms.coordinates.select(level=levels, ignore_missing=True)
+            transforms += pyearthtools.data.transforms.coordinates.select(level=levels, ignore_missing=True)
 
         pattern_kwargs = kwargs.pop("pattern_kwargs", {})
         pattern_kwargs.update(variables=self._variables)
@@ -188,7 +188,7 @@ class OpenData(DownloadIndex):
         """Get the latest data from `ecwmf-opendata`"""
         return self(self._get_latest())
 
-    def download(self, querytime: str | edit.data.EDITDatetime) -> xr.Dataset:
+    def download(self, querytime: str | pyearthtools.data.pyearthtoolsDatetime) -> xr.Dataset:
         """Download data from `ecwmf-opendata`"""
         if self._client is None:
             raise ImportError(f"`ecwmwf.opendata` was not imported, cannot download new data.")
@@ -196,8 +196,8 @@ class OpenData(DownloadIndex):
         if querytime == "l1atest":
             querytime = self._get_latest()
 
-        date = edit.data.EDITDatetime(querytime).at_resolution("day")
-        time = rounder(edit.data.EDITDatetime(querytime))
+        date = pyearthtools.data.pyearthtoolsDatetime(querytime).at_resolution("day")
+        time = rounder(pyearthtools.data.pyearthtoolsDatetime(querytime))
 
         request = dict(self._request_base)
         path = self.get_tempdir()
@@ -244,6 +244,6 @@ class OpenData(DownloadIndex):
                 saved_paths.append(pressure_path.parent / "pressure_download.nc")
 
         except Exception as e:
-            raise edit.data.DataNotFoundError("Could not download data from ECMWF Data Store.") from e
+            raise pyearthtools.data.DataNotFoundError("Could not download data from ECMWF Data Store.") from e
 
         return self.download_transforms(xr.open_mfdataset(saved_paths))

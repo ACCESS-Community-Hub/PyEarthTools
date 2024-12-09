@@ -7,7 +7,7 @@
 # from the use of the software.
 
 """
-Parallel Interfaces for `edit.pipeline`
+Parallel Interfaces for `pyearthtools.pipeline`
 
 Provides a class exposing main parallel functions, with the actual implementation
 abstracted away.
@@ -24,13 +24,13 @@ from importlib.util import find_spec
 import logging
 from typing import Callable, Literal, Optional, Type, TypeVar, Any, Union
 
-from edit.utils.decorators import classproperty
+from pyearthtools.utils.decorators import classproperty
 
-import edit.utils
+import pyearthtools.utils
 
 Future = TypeVar("Future", Any, Any)
 
-LOG = logging.getLogger("edit.pipeline")
+LOG = logging.getLogger("pyearthtools.pipeline")
 
 
 class ParallelToggle:
@@ -42,13 +42,13 @@ class ParallelToggle:
         self._state = state
 
     def __enter__(self):
-        self._enter_state = edit.utils.config.get("pipeline.run_parallel")
+        self._enter_state = pyearthtools.utils.config.get("pipeline.run_parallel")
         LOG.info(f"Toggling `run_parallel` to {self._state == 'enable'}")
-        edit.utils.config.set({"pipeline.run_parallel": self._state == "enable"})
+        pyearthtools.utils.config.set({"pipeline.run_parallel": self._state == "enable"})
 
     def __exit__(self, *args):
         LOG.info(f"Toggling `run_parallel` to {self._enter_state == 'enable'}")
-        edit.utils.config.set({"pipeline.run_parallel": self._enter_state})
+        pyearthtools.utils.config.set({"pipeline.run_parallel": self._enter_state})
 
     def __repr__(self):
         return f"Context Manager to toggle parallelisation {'on' if self._state == 'enable' else 'off'}."
@@ -161,13 +161,13 @@ class DaskParallelInterface(ParallelInterface):
         except ValueError:
             client = None
 
-        if client is None and not edit.utils.config.get("pipeline.parallel.dask.start"):
+        if client is None and not pyearthtools.utils.config.get("pipeline.parallel.dask.start"):
             raise RuntimeError("Cannot start dask cluster when `pipeline.parallel.dask.start` is False.")
 
-        client_config = edit.utils.config.get("pipeline.parallel.dask.client")
+        client_config = pyearthtools.utils.config.get("pipeline.parallel.dask.client")
         LOG.info(f"Statring dask cluster with {client_config=}")
         client = client or Client(**client_config)
-        dask.config.set(edit.utils.config.get("pipeline.parallel.dask.config", {}))  # type: ignore
+        dask.config.set(pyearthtools.utils.config.get("pipeline.parallel.dask.config", {}))  # type: ignore
 
         return client
 
@@ -300,7 +300,7 @@ def get_parallel(interface: Optional[PARALLEL_INTERFACES] = None, **interface_kw
         ImportError:
             If cannot use specified `interface` due to its check failing.
     """
-    if not edit.utils.config.get("pipeline.run_parallel"):
+    if not pyearthtools.utils.config.get("pipeline.run_parallel"):
         return SerialInterface(**interface_kwargs)
 
     if interface:
@@ -323,10 +323,10 @@ def get_parallel(interface: Optional[PARALLEL_INTERFACES] = None, **interface_kw
     except ValueError:
         client = None
 
-    if client is None and not edit.utils.config.get("pipeline.parallel.dask.start"):
+    if client is None and not pyearthtools.utils.config.get("pipeline.parallel.dask.start"):
         return SerialInterface(**interface_kwargs)
 
-    return get_parallel(edit.utils.config.get("pipeline.parallel.default"), **interface_kwargs)
+    return get_parallel(pyearthtools.utils.config.get("pipeline.parallel.default"), **interface_kwargs)
 
 
 class ParallelEnabledMixin:
@@ -401,7 +401,7 @@ class ParallelEnabledMixin:
         interface = [interface] if not isinstance(interface, list) else interface
 
         for inter in interface:
-            if not edit.utils.config.get(f"pipeline.parallel.enabled.{inter}", True):
+            if not pyearthtools.utils.config.get(f"pipeline.parallel.enabled.{inter}", True):
                 continue
             return get_parallel(inter, **class_interface_kwargs)
         return get_parallel("Serial", **class_interface_kwargs)

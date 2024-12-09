@@ -13,10 +13,10 @@ Template for structured data
 from __future__ import annotations
 from pathlib import Path
 
-from edit.data import EDITDatetime
-from edit.data.indexes import ArchiveIndex, decorators
-from edit.data.indexes.utilities.spellcheck import VARIABLE_DEFAULT, VariableDefault
-from edit.data.transforms import Transform, TransformCollection
+from pyearthtools.data import pyearthtoolsDatetime
+from pyearthtools.data.indexes import ArchiveIndex, decorators
+from pyearthtools.data.indexes.utilities.spellcheck import VARIABLE_DEFAULT, VariableDefault
+from pyearthtools.data.transforms import Transform, TransformCollection
 
 
 class Structured(ArchiveIndex):
@@ -33,7 +33,7 @@ class Structured(ArchiveIndex):
                 Use `variable` for specific variable, and strf codes for time.
 
         Root Directory:
-            Either provide `root_directory` or register `ROOT_DIRECTORIES` to `edit.data.archive`
+            Either provide `root_directory` or register `ROOT_DIRECTORIES` to `pyearthtools.data.archive`
 
     """
 
@@ -92,7 +92,7 @@ class Structured(ArchiveIndex):
             **kwargs,
         )
 
-    def _parse_glob(self, time: EDITDatetime, variable: str) -> Path:
+    def _parse_glob(self, time: pyearthtoolsDatetime, variable: str) -> Path:
         """
         Parse glob path with `time` and `variable`.
         """
@@ -117,13 +117,13 @@ class Structured(ArchiveIndex):
 
     def filesystem(
         self,
-        querytime: str | EDITDatetime,
+        querytime: str | pyearthtoolsDatetime,
     ) -> dict[str, Path]:
         """Get filesystem paths"""
         discovered_paths = {}
 
         for variable in self.variables:
-            discovered_paths[variable] = self._parse_glob(EDITDatetime(querytime), variable)
+            discovered_paths[variable] = self._parse_glob(pyearthtoolsDatetime(querytime), variable)
         return discovered_paths
 
 

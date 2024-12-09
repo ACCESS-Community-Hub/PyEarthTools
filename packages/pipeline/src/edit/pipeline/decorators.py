@@ -8,7 +8,7 @@
 
 from typing import Callable
 
-from edit.pipeline.exceptions import PipelineRuntimeError
+from pyearthtools.pipeline.exceptions import PipelineRuntimeError
 
 
 def potentialabstractmethod(func: Callable):

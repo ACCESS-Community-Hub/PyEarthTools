@@ -15,10 +15,10 @@ from __future__ import annotations
 from typing import Literal
 import xarray as xr
 
-from edit.data.time import EDITDatetime, TimeDelta, TimeResolution, TimeRange
-from edit.data.indexes.utilities.dimensions import identify_time_dimension
+from pyearthtools.data.time import pyearthtoolsDatetime, TimeDelta, TimeResolution, TimeRange
+from pyearthtools.data.indexes.utilities.dimensions import identify_time_dimension
 
-from edit.data.modifications import Modification, register_modification
+from pyearthtools.data.modifications import Modification, register_modification
 
 
 class Aggregation(Modification):
@@ -67,7 +67,7 @@ class Aggregation(Modification):
 
         Does not perform the aggreagtion tho
         """
-        time = EDITDatetime(time)
+        time = pyearthtoolsDatetime(time)
         period = self._parse_period()
 
         if self._align == "past":
@@ -89,8 +89,8 @@ class Aggregation(Modification):
 
         Does not perform the aggreagtion tho
         """
-        start = EDITDatetime(start)
-        end = EDITDatetime(end)
+        start = pyearthtoolsDatetime(start)
+        end = pyearthtoolsDatetime(end)
 
         period = self._parse_period()
         start_adjusted = start

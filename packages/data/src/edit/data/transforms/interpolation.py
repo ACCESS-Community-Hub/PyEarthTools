@@ -14,11 +14,11 @@ from xarray.core.types import InterpOptions
 import numpy as np
 
 
-import edit.data
-from edit.data.transforms.transform import Transform
-from edit.data.transforms.utils import parse_dataset
+import pyearthtools.data
+from pyearthtools.data.transforms.transform import Transform
+from pyearthtools.data.transforms.utils import parse_dataset
 
-from edit.utils.decorators import BackwardsCompatibility
+from pyearthtools.utils.decorators import BackwardsCompatibility
 
 xESMF_IMPORTED = True
 try:
@@ -90,7 +90,7 @@ class Interpolate(Transform):
 
     def apply(self, dataset: xr.Dataset) -> xr.Dataset:
         if self._keep_encoding:
-            encod = edit.data.transforms.attributes.set_encoding(reference=dataset)
+            encod = pyearthtools.data.transforms.attributes.set_encoding(reference=dataset)
         else:
             encod = lambda x: x  # noqa: E731
         _kwargs = dict(self._kwargs)
@@ -98,7 +98,7 @@ class Interpolate(Transform):
             _kwargs = {key: _kwargs[key] for key in set(_kwargs.keys()).intersection(dataset.coords)}
 
         if self._pad:
-            dataset = edit.data.transforms.coordinates.Pad({k: int(self._pad) for k in _kwargs})(dataset)
+            dataset = pyearthtools.data.transforms.coordinates.Pad({k: int(self._pad) for k in _kwargs})(dataset)
         return encod(dataset.interp(**self._kwargs, method=self._method))  # type: ignore
 
 
@@ -251,14 +251,14 @@ class InterpolateNan(Transform):
 
     def apply(self, dataset: xr.Dataset) -> xr.Dataset:
         if self._keep_encoding:
-            encod = edit.data.transforms.attributes.set_encoding(reference=dataset)
+            encod = pyearthtools.data.transforms.attributes.set_encoding(reference=dataset)
         else:
 
             def encod(x):
                 return x
 
-        revert_reindex = edit.data.transforms.coordinates.reindex(dataset.coords)  # type: ignore
-        reindex = edit.data.transforms.coordinates.reindex(
+        revert_reindex = pyearthtools.data.transforms.coordinates.reindex(dataset.coords)  # type: ignore
+        reindex = pyearthtools.data.transforms.coordinates.reindex(
             {key: "sorted" for key in dataset.coords if len(np.atleast_1d(dataset.coords[key].values)) > 1}
         )  # type: ignore
 

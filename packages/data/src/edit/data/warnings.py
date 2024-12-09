@@ -7,28 +7,28 @@
 # from the use of the software.
 
 """
-`edit.data` Warnings
+`pyearthtools.data` Warnings
 
 """
 
 import warnings
 
 
-class EDITDataWarning(Warning):
-    """General warning for `edit.data` processes."""
+class pyearthtoolsDataWarning(Warning):
+    """General warning for `pyearthtools.data` processes."""
 
 
-class IndexWarning(EDITDataWarning):
+class IndexWarning(pyearthtoolsDataWarning):
     """Data Index Warning."""
 
     pass
 
 
-class AccessorRegistrationWarning(EDITDataWarning):
+class AccessorRegistrationWarning(pyearthtoolsDataWarning):
     """Warning for conflicts in object registration."""
 
     pass
 
 
-warnings.filterwarnings(action="default", category=EDITDataWarning)
+warnings.filterwarnings(action="default", category=pyearthtoolsDataWarning)
 warnings.filterwarnings(action="module", category=IndexWarning)

@@ -14,18 +14,18 @@ from typing import Any, Callable, Union, TypeVar
 
 import warnings
 import yaml
-from edit.data.collection import Collection
+from pyearthtools.data.collection import Collection
 
 import xarray as xr
 
-import edit.data.transforms
-from edit.data.transforms.default import get_default_transforms
+import pyearthtools.data.transforms
+from pyearthtools.data.transforms.default import get_default_transforms
 
-import edit.utils
-from edit.utils import initialisation
+import pyearthtools.utils
+from pyearthtools.utils import initialisation
 
 XR_TYPES = TypeVar("XR_TYPES", xr.DataArray, xr.Dataset, Union[xr.DataArray, xr.Dataset])
-YAML_KEY = "!edit_transforms@"
+YAML_KEY = "!pyearthtools_transforms@"
 
 
 # TODO Add in init args capturing
@@ -60,7 +60,7 @@ class Transform(initialisation.InitialisationRecordingMixin, metaclass=ABCMeta):
             self.__doc__ = docstring
 
     # def to_dict(self):
-    #     return edit.data.transforms.utils.parse_transforms(self)
+    #     return pyearthtools.data.transforms.utils.parse_transforms(self)
 
     @abstractmethod
     def apply(self, dataset: XR_TYPES) -> XR_TYPES:
@@ -143,7 +143,7 @@ class Transform(initialisation.InitialisationRecordingMixin, metaclass=ABCMeta):
         return desc
 
     # def _repr_html_(self) -> str:
-    #     return edit.utils.repr_utils.provide_html(
+    #     return pyearthtools.utils.repr_utils.provide_html(
     #         self,
     #         name="Transform",
     #         documentation_attr="_doc_",
@@ -186,7 +186,7 @@ class TransformCollection(initialisation.InitialisationRecordingMixin):
     Can be added to or appended to & called to apply all transforms in order.
     """
 
-    _edit_repr = {"ignore": ["args"], "expand_attr": ["Transforms@_transforms"]}
+    _pyearthtools_repr = {"ignore": ["args"], "expand_attr": ["Transforms@_transforms"]}
 
     def __init__(
         self,
@@ -271,7 +271,7 @@ class TransformCollection(initialisation.InitialisationRecordingMixin):
 
         # elif isinstance(transform, dict):
         #     transform = dict(transform)
-        #     for transf in TransformCollection(edit.data.transforms.utils.get_transforms(transform)):
+        #     for transf in TransformCollection(pyearthtools.data.transforms.utils.get_transforms(transform)):
         #         self.append(transf)
         else:
             raise TypeError(f"'transform' cannot be type {type(transform)!r}")
@@ -319,7 +319,7 @@ class TransformCollection(initialisation.InitialisationRecordingMixin):
         raise ValueError(f"{key} not in TransformCollection")
 
     # def to_dict(self):
-    #     return edit.data.transforms.utils.parse_transforms(self)
+    #     return pyearthtools.data.transforms.utils.parse_transforms(self)
 
     def to_repr_dict(self):
         transform_dict: dict[str, dict] = {}
@@ -362,7 +362,7 @@ class TransformCollection(initialisation.InitialisationRecordingMixin):
 
     def __contains__(self, key) -> bool:
         """
-        Return if key in [TransformCollection][edit.data.transforms.transform.TransformCollection]
+        Return if key in [TransformCollection][pyearthtools.data.transforms.transform.TransformCollection]
         """
         if isinstance(key, str):
             return key in [transf.__class__.__name__ for transf in self._transforms]
@@ -392,7 +392,7 @@ class TransformCollection(initialisation.InitialisationRecordingMixin):
     #     return return_string
 
     # def _repr_html_(self) -> str:
-    #     return edit.utils.repr_utils.provide_html(
+    #     return pyearthtools.utils.repr_utils.provide_html(
     #         *self._transforms,
     #         name="Transform Collection",
     #         documentation_attr="_doc_",
@@ -407,7 +407,7 @@ class TransformCollection(initialisation.InitialisationRecordingMixin):
 
 #     return dumper.represent_mapping(
 #         module_path,
-#         edit.data.transforms.utils.parse_transforms(transform),  # type: ignore
+#         pyearthtools.data.transforms.utils.parse_transforms(transform),  # type: ignore
 #     )
 
 

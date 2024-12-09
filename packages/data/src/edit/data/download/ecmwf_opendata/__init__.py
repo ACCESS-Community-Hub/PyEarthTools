@@ -10,5 +10,5 @@
 ECMWF OpenData
 """
 
-from edit.data.download.ecmwf_opendata.opendata import OpenData
-from edit.data.download.ecmwf_opendata.convenience import AIFS, IFS
+from pyearthtools.data.download.ecmwf_opendata.opendata import OpenData
+from pyearthtools.data.download.ecmwf_opendata.convenience import AIFS, IFS

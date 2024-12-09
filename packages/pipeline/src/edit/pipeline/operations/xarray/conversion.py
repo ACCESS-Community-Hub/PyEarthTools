@@ -15,9 +15,9 @@ from pathlib import Path
 import numpy as np
 import xarray as xr
 
-from edit.utils.data import converter
+from pyearthtools.utils.data import converter
 
-from edit.pipeline.operation import Operation
+from pyearthtools.pipeline.operation import Operation
 
 XARRAY_OBJECTS = TypeVar("XARRAY_OBJECTS", xr.Dataset, xr.DataArray)
 FILE_TYPES = Union[str, Path]
@@ -44,7 +44,7 @@ class ToNumpy(Operation):
 
         If speed is needed without an `undo`, set `run_parallel` to True, and split the data into separate
         datasets as much as possible.
-            `edit.pipeline.operations.xarray.split.OnVariables()` can be useful here
+            `pyearthtools.pipeline.operations.xarray.split.OnVariables()` can be useful here
 
         Args:
             reference_dataset (Optional[FILE_TYPES], optional):

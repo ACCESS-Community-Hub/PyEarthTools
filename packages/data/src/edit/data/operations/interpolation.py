@@ -18,8 +18,8 @@ import numpy as np
 import xarray as xr
 
 
-import edit.data
-from edit.data.transforms import interpolation as interp
+import pyearthtools.data
+from pyearthtools.data.transforms import interpolation as interp
 
 
 def SpatialInterpolation(
@@ -31,7 +31,7 @@ def SpatialInterpolation(
     **kwargs,
 ) -> list[xr.Dataset] | xr.Dataset:
     """Spatially Interpolate Datasets together
-    Uses [edit.data.transforms.interpolation][edit.data.transforms.interpolation.InterpolateTransform], thus all kwargs passed there
+    Uses [pyearthtools.data.transforms.interpolation][pyearthtools.data.transforms.interpolation.InterpolateTransform], thus all kwargs passed there
 
 
     Args:
@@ -46,7 +46,7 @@ def SpatialInterpolation(
             Defaults to "linear".
         include_reference (bool, optional):
             Whether to include reference datasets. Defaults to True.
-        **kwargs (optional): Extra kwargs passed to [edit.data.transforms.interpolation][edit.data.transforms.interpolation.InterpolateTransform.like]
+        **kwargs (optional): Extra kwargs passed to [pyearthtools.data.transforms.interpolation][pyearthtools.data.transforms.interpolation.InterpolateTransform.like]
             drop_coords, optional
                 Coords to drop from reference dataset, by default None
 
@@ -81,7 +81,7 @@ def TemporalInterpolation(
     **kwargs,
 ) -> list[xr.Dataset] | xr.Dataset:
     """Temporally Interpolate Datasets together
-    Uses [edit.data.transforms.Aggregation][edit.data.transforms.aggregation.AggregateTransform.over], thus all kwargs passed there
+    Uses [pyearthtools.data.transforms.Aggregation][pyearthtools.data.transforms.aggregation.AggregateTransform.over], thus all kwargs passed there
 
     !!! Behaviour
         All timesteps will be aggregated to match time dim of reference dataset,
@@ -94,7 +94,7 @@ def TemporalInterpolation(
         reference_dataset (xr.Dataset, optional):
             Reference Dataset to use as base, if not given use first dataset. Defaults to None.
         aggregation_function (Callable | str, optional):
-            Aggregation function to use. Uses [edit.data.transforms.Aggregation][edit.data.transforms.aggregation.AggregateTransform.over].
+            Aggregation function to use. Uses [pyearthtools.data.transforms.Aggregation][pyearthtools.data.transforms.aggregation.AggregateTransform.over].
             Defaults to "mean".
         merge (bool, optional):
             Whether to merge datasets together. Defaults to True.
@@ -121,7 +121,7 @@ def TemporalInterpolation(
         raise ValueError(f"reference dataset contains no dimension 'time'. Cannot interpolate")
 
     last_index = None
-    aggregation = edit.data.transforms.aggregation.over(aggregation_function, dimension="time", **kwargs)
+    aggregation = pyearthtools.data.transforms.aggregation.over(aggregation_function, dimension="time", **kwargs)
 
     for ds in listed_datasets:
         temporal_ds = []
@@ -162,7 +162,7 @@ def FullInterpolation(
         spatial_method (str, optional):
             Spatially interpolation method. Defaults to "linear".
         aggregation_function (Callable | str, optional):
-            Aggregation function to use. Uses [edit.data.transforms.Aggregation][edit.data.transforms.aggregation.AggregateTransform.over].
+            Aggregation function to use. Uses [pyearthtools.data.transforms.Aggregation][pyearthtools.data.transforms.aggregation.AggregateTransform.over].
             Defaults to "mean".
         merge (bool, optional):
             Whether to merge datasets together. Defaults to True.

@@ -9,23 +9,23 @@
 # ruff: noqa: F401
 
 """
-EDIT Utilities
+pyearthtools Utilities
 """
 
 __version__ = "1.2.dev1"
 
 import importlib
 
-from edit.utils import parameter, repr_utils, context, decorators, initialisation, config, logger
-from edit.utils.initialisation import load, save, dynamic_import
+from pyearthtools.utils import parameter, repr_utils, context, decorators, initialisation, config, logger
+from pyearthtools.utils.initialisation import load, save, dynamic_import
 
 
-import edit
+import pyearthtools
 import importlib.util
 
 xarray_imported = importlib.util.find_spec("xarray") is not None
 if xarray_imported:
-    from edit.utils import data
+    from pyearthtools.utils import data
 
-setattr(edit, "config", config)
+setattr(pyearthtools, "config", config)
 

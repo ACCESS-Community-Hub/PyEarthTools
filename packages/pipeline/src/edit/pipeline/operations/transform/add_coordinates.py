@@ -12,17 +12,17 @@ from typing import Any, Union
 import numpy as np
 import xarray as xr
 
-import edit.data
-from edit.data import Transform
+import pyearthtools.data
+from pyearthtools.data import Transform
 
-LOG = logging.getLogger("edit.pipeline")
+LOG = logging.getLogger("pyearthtools.pipeline")
 
 
 class AddCoordinates(Transform):
     """
     Add coordinates as variable to a dataset
 
-    Use [DropDataset][edit.pipeline.operations.select.DropDataset] to remove it
+    Use [DropDataset][pyearthtools.pipeline.operations.select.DropDataset] to remove it
     if an earlier step in the pipeline is sensitive to variable names.
 
     """
@@ -46,9 +46,9 @@ class AddCoordinates(Transform):
 
     def apply(self, data: xr.Dataset):
         dims = list(data.dims)
-        rebuild_encoding = edit.data.transforms.attributes.set_encoding(
+        rebuild_encoding = pyearthtools.data.transforms.attributes.set_encoding(
             reference=data
-        ) + edit.data.transforms.attributes.set_attributes(reference=data)
+        ) + pyearthtools.data.transforms.attributes.set_attributes(reference=data)
 
         for coord in self.coordinates:
             if coord in data:

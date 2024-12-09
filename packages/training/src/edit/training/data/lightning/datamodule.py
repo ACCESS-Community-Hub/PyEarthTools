@@ -13,11 +13,11 @@ import lightning as L
 from lightning.pytorch.utilities import CombinedLoader
 from torch.utils.data import DataLoader
 
-from edit.pipeline.controller import Pipeline
-from edit.pipeline.iterators import Iterator
+from pyearthtools.pipeline.controller import Pipeline
+from pyearthtools.pipeline.iterators import Iterator
 
-from edit.training.data.datamodule import PipelineDataModule
-from edit.training.data.lightning.datasets import PytorchDataset, PytorchIterable, BasePytorchPipeline
+from pyearthtools.training.data.datamodule import PipelineDataModule
+from pyearthtools.training.data.lightning.datasets import PytorchDataset, PytorchIterable, BasePytorchPipeline
 
 
 class PipelineLightningDataModule(PipelineDataModule, L.LightningDataModule):
@@ -30,7 +30,7 @@ class PipelineLightningDataModule(PipelineDataModule, L.LightningDataModule):
         ```python
         datamodule = PipelineLightningDataModule(
             pipleines = Pipeline(...),
-            train_split = edit.pipeline.iterators.DateRange('1980', '2020', '6 hours')
+            train_split = pyearthtools.pipeline.iterators.DateRange('1980', '2020', '6 hours')
         )
         ```
     """

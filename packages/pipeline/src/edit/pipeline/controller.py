@@ -21,19 +21,19 @@ import logging
 import builtins
 import graphviz
 
-import edit.utils
+import pyearthtools.utils
 
-from edit.data.indexes import Index
-from edit.data.transforms import Transform, TransformCollection
+from pyearthtools.data.indexes import Index
+from pyearthtools.data.transforms import Transform, TransformCollection
 
-import edit.pipeline
-from edit.pipeline.recording import PipelineRecordingMixin
-from edit.pipeline import samplers, iterators, filters
-from edit.pipeline.step import PipelineStep
-from edit.pipeline.operation import Operation
-from edit.pipeline.exceptions import PipelineFilterException, ExceptionIgnoreContext
-from edit.pipeline.validation import filter_steps
-from edit.pipeline.graph import Graphed, format_graph_node
+import pyearthtools.pipeline
+from pyearthtools.pipeline.recording import PipelineRecordingMixin
+from pyearthtools.pipeline import samplers, iterators, filters
+from pyearthtools.pipeline.step import PipelineStep
+from pyearthtools.pipeline.operation import Operation
+from pyearthtools.pipeline.exceptions import PipelineFilterException, ExceptionIgnoreContext
+from pyearthtools.pipeline.validation import filter_steps
+from pyearthtools.pipeline.graph import Graphed, format_graph_node
 
 
 PIPELINE_TYPES = Union[Index, PipelineStep, Transform, TransformCollection]
@@ -41,7 +41,7 @@ VALID_PIPELINE_TYPES = Union[PIPELINE_TYPES, tuple[PIPELINE_TYPES, ...], tuple[t
 
 __all___ = ["Pipeline", "PipelineIndex"]
 
-LOG = logging.getLogger("edit.pipeline")
+LOG = logging.getLogger("pyearthtools.pipeline")
 
 
 class PipelineIndex(PipelineRecordingMixin, metaclass=ABCMeta):
@@ -52,7 +52,7 @@ class PipelineIndex(PipelineRecordingMixin, metaclass=ABCMeta):
     and if changes are needed on `undo`, override `undo_func`.
     """
 
-    _edit_repr = {"ignore": ["args"]}
+    _pyearthtools_repr = {"ignore": ["args"]}
     _steps: tuple[
         Union[Index, PipelineStep, _Pipeline, PipelineIndex, VALID_PIPELINE_TYPES, tuple[VALID_PIPELINE_TYPES, ...]],
         ...,
@@ -160,15 +160,15 @@ class _Pipeline(PipelineRecordingMixin, Graphed, metaclass=ABCMeta):
 
 class Pipeline(_Pipeline, Index):
     """
-    Core of `edit.pipeline`,
+    Core of `pyearthtools.pipeline`,
 
-    Provides a way to set a sequence of operations to be applied to samples / data retrieved from `edit.data`.
+    Provides a way to set a sequence of operations to be applied to samples / data retrieved from `pyearthtools.data`.
 
     ## Example:
     ```python
-    pipeline = edit.pipeline.Pipeline(
-        edit.data.download.cds.ERA5('tcwv'),
-        edit.pipeline.operations.xarray.conversion.ToNumpy()
+    pipeline = pyearthtools.pipeline.Pipeline(
+        pyearthtools.data.download.cds.ERA5('tcwv'),
+        pyearthtools.pipeline.operations.xarray.conversion.ToNumpy()
     )
     pipeline['2000-01-01T00]
     ```
@@ -189,11 +189,11 @@ class Pipeline(_Pipeline, Index):
     _steps: tuple[Union[Index, PipelineStep, _Pipeline, tuple[VALID_PIPELINE_TYPES, ...]], ...]
     _exceptions_to_ignore: Optional[tuple[Type[Exception], ...]]
 
-    _edit_repr = {"ignore": ["args"], "expand_attr": ["Steps@flattened_steps"]}
+    _pyearthtools_repr = {"ignore": ["args"], "expand_attr": ["Steps@flattened_steps"]}
 
     @property
     def _desc_(self) -> dict[str, Any]:
-        return {"singleline": "`edit.pipeline` Data Pipeline"}
+        return {"singleline": "`pyearthtools.pipeline` Data Pipeline"}
 
     def __init__(
         self,
@@ -265,8 +265,8 @@ class Pipeline(_Pipeline, Index):
         )
 
         ## Transforms
-        Transforms from `edit.data` can be added directly inline in a pipeline, and will be applied on the forward pass.
-        If they need to be applied on `undo`, or on both see, `edit.pipeline.operations.Transforms`
+        Transforms from `pyearthtools.data` can be added directly inline in a pipeline, and will be applied on the forward pass.
+        If they need to be applied on `undo`, or on both see, `pyearthtools.pipeline.operations.Transforms`
 
 
         Args:
@@ -348,7 +348,7 @@ class Pipeline(_Pipeline, Index):
                 PipelineStep,
                 Transform,
                 TransformCollection,
-                edit.pipeline.branching.PipelineBranchPoint,
+                pyearthtools.pipeline.branching.PipelineBranchPoint,
             ),
             # invalid_types=(Filter,),
             responsible="Pipeline",
@@ -356,7 +356,7 @@ class Pipeline(_Pipeline, Index):
 
         for v in val:
             if isinstance(v, (list, tuple)):
-                steps_list.append(edit.pipeline.branching.PipelineBranchPoint(*(i for i in v)))  # type: ignore
+                steps_list.append(pyearthtools.pipeline.branching.PipelineBranchPoint(*(i for i in v)))  # type: ignore
                 continue
             elif isinstance(v, PipelineIndex):
                 v.set_parent_record(tuple(i for i in steps_list), iterator=self.iterator, sampler=self.sampler)
@@ -387,7 +387,7 @@ class Pipeline(_Pipeline, Index):
         if isinstance(val, tuple):
             val = iterators.SuperIterator(*val)
         if not isinstance(val, iterators.Iterator) and val is not None:
-            raise TypeError(f"Iterator must be a `edit.pipeline.Iterator`, not {type(val)}.")
+            raise TypeError(f"Iterator must be a `pyearthtools.pipeline.Iterator`, not {type(val)}.")
         self._iterator = val
 
     @property
@@ -410,7 +410,7 @@ class Pipeline(_Pipeline, Index):
         elif isinstance(val, tuple):
             val = samplers.SuperSampler(*val)
         if not isinstance(val, samplers.Sampler):
-            raise TypeError(f"Sampler must be a `edit.pipeline.Sampler`, not {type(val)}.")
+            raise TypeError(f"Sampler must be a `pyearthtools.pipeline.Sampler`, not {type(val)}.")
         self._sampler = val
 
     @property
@@ -447,7 +447,7 @@ class Pipeline(_Pipeline, Index):
         """Determine if this `Pipeline` contains a source of data, or is just a sequence of operations."""
         if isinstance(self._steps[0], (PipelineIndex, Index)):
             return True
-        if isinstance(self._steps[0], edit.pipeline.branching.PipelineBranchPoint):
+        if isinstance(self._steps[0], pyearthtools.pipeline.branching.PipelineBranchPoint):
             return all(map(lambda x: x.has_source(), self._steps[0].sub_pipelines))
         return False
 
@@ -491,8 +491,8 @@ class Pipeline(_Pipeline, Index):
 
             if isinstance(step, Pipeline):
                 sample = step.apply(sample)
-            elif isinstance(step, edit.pipeline.branching.PipelineBranchPoint):
-                with edit.utils.context.ChangeValue(step, "_current_idx", idx):
+            elif isinstance(step, pyearthtools.pipeline.branching.PipelineBranchPoint):
+                with pyearthtools.utils.context.ChangeValue(step, "_current_idx", idx):
                     sample = step.apply(sample)
             else:
                 sample = step(sample)  # type: ignore
@@ -515,7 +515,7 @@ class Pipeline(_Pipeline, Index):
         """
         for step in self.steps:
             if not isinstance(
-                step, (PipelineStep, Operation, Pipeline, Transform, TransformCollection, edit.pipeline.branching.PipelineBranchPoint)
+                step, (PipelineStep, Operation, Pipeline, Transform, TransformCollection, pyearthtools.pipeline.branching.PipelineBranchPoint)
             ):
                 raise TypeError(f"When iterating through pipeline steps, found a {type(step)} which cannot be parsed.")
             if isinstance(step, Pipeline):
@@ -574,7 +574,7 @@ class Pipeline(_Pipeline, Index):
                 # sample = step.parent_pipeline().undo(sample)
             elif isinstance(step, Pipeline):
                 sample = step.undo(sample)
-            elif isinstance(step, edit.pipeline.branching.StopUndo):
+            elif isinstance(step, pyearthtools.pipeline.branching.StopUndo):
                 break
             elif isinstance(step, (Transform, TransformCollection)):
                 pass
@@ -754,8 +754,8 @@ class Pipeline(_Pipeline, Index):
                 If `path` is None, `pipeline` in save form else None.
         """
         if only_steps:
-            return edit.pipeline.save(Pipeline(*self.complete_steps), path)  # type: ignore
-        return edit.pipeline.save(Pipeline(*self.complete_steps, iterator=self.iterator, sampler=self.sampler, exceptions_to_ignore=self._exceptions_to_ignore), path)  # type: ignore
+            return pyearthtools.pipeline.save(Pipeline(*self.complete_steps), path)  # type: ignore
+        return pyearthtools.pipeline.save(Pipeline(*self.complete_steps, iterator=self.iterator, sampler=self.sampler, exceptions_to_ignore=self._exceptions_to_ignore), path)  # type: ignore
 
     def _ipython_display_(self):
         """Override for repr of `Pipeline`, shows initialisation arguments and graph"""
@@ -763,7 +763,7 @@ class Pipeline(_Pipeline, Index):
 
         display(HTML(self._repr_html_()))
 
-        if len(self.flattened_steps) > 1 and edit.utils.config.get("pipeline.repr.show_graph"):
+        if len(self.flattened_steps) > 1 and pyearthtools.utils.config.get("pipeline.repr.show_graph"):
             display(HTML("<h2>Graph</h2>"))
             display(self.graph())
 
@@ -777,12 +777,12 @@ class Pipeline(_Pipeline, Index):
         """
         Simple sample Pipeline for testing.
         """
-        import edit.data
-        import edit.pipeline
+        import pyearthtools.data
+        import pyearthtools.pipeline
 
-        return edit.pipeline.Pipeline(
-            edit.data.archive.ERA5.sample() if variables is None else edit.data.archive.ERA5(variables),  # type: ignore
-            edit.pipeline.operations.xarray.conversion.ToNumpy(),
+        return pyearthtools.pipeline.Pipeline(
+            pyearthtools.data.archive.ERA5.sample() if variables is None else pyearthtools.data.archive.ERA5(variables),  # type: ignore
+            pyearthtools.pipeline.operations.xarray.conversion.ToNumpy(),
             iterator=iterator,
             sampler=sampler,
         )

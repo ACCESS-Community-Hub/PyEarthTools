@@ -12,7 +12,7 @@ from typing import Optional
 
 import dask.array as da
 
-from edit.pipeline.operations.dask.dask import DaskOperation
+from pyearthtools.pipeline.operations.dask.dask import DaskOperation
 
 
 class Select(DaskOperation):

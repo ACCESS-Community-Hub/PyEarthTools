@@ -17,9 +17,9 @@ from typing import Iterable, Union
 
 import numpy as np
 
-from edit.utils.exceptions import TesselatorException
-from edit.utils.data.tesselator._patching import DEFAULT_FORMAT_SUBSET
-from edit.utils.data.tesselator._patching.reorder import move_to_end, reorder
+from pyearthtools.utils.exceptions import TesselatorException
+from pyearthtools.utils.data.tesselator._patching import DEFAULT_FORMAT_SUBSET
+from pyearthtools.utils.data.tesselator._patching.reorder import move_to_end, reorder
 
 
 def cut_center(data: np.ndarray, size: Union[int, tuple[int, int]]) -> np.ndarray:

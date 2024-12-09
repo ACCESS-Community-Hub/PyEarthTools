@@ -15,12 +15,12 @@ from pathlib import Path
 from hashlib import sha512
 import shutil
 
-import edit.data
-from edit.data.patterns import PatternIndex
+import pyearthtools.data
+from pyearthtools.data.patterns import PatternIndex
 
-from edit.pipeline.controller import PipelineIndex
-from edit.pipeline.warnings import PipelineWarning
-from edit.pipeline.exceptions import PipelineRuntimeError
+from pyearthtools.pipeline.controller import PipelineIndex
+from pyearthtools.pipeline.warnings import PipelineWarning
+from pyearthtools.pipeline.exceptions import PipelineRuntimeError
 
 CACHE_HASH_NAME = ".cache_hash"
 PIPELINE_SAVE_NAME = "pipeline.yaml"
@@ -28,22 +28,22 @@ PIPELINE_SAVE_NAME = "pipeline.yaml"
 
 class Cache(PipelineIndex):
     """
-    An `edit.pipeline` implementation of the `CachingIndex` from `edit.data`.
+    An `pyearthtools.pipeline` implementation of the `CachingIndex` from `pyearthtools.data`.
 
     Allows for samples to be cached to disk when using the pipeline.
 
     Will save according to the `pattern` and `idx` used to retrieve data.
 
     Examples:
-        >>> era_index = edit.data.archive.ERA5.sample()
-        >>> pipeline = edit.pipeline.Pipeline(
+        >>> era_index = pyearthtools.data.archive.ERA5.sample()
+        >>> pipeline = pyearthtools.pipeline.Pipeline(
                 era_index,
-                edit.pipeline.pipelines.Cache('temp')
+                pyearthtools.pipeline.pipelines.Cache('temp')
             )
         >>> pipeline['2000-01-01T00'] # Data will be cached
     """
 
-    _cache: edit.data.indexes.FunctionalCacheIndex
+    _cache: pyearthtools.data.indexes.FunctionalCacheIndex
 
     def __init__(
         self,
@@ -78,13 +78,13 @@ class Cache(PipelineIndex):
             save_kwargs (dict[str, Any], optional):
                 Keywords arguments to pass to saving function. Defaults to None.
             kwargs (Any, optional):
-                All other kwargs passed to `edit.data.indexes.FunctionalCacheIndex`.
+                All other kwargs passed to `pyearthtools.data.indexes.FunctionalCacheIndex`.
         """
         super().__init__()
         self.record_initialisation()
 
         self.cache_behaviour = cache_validity
-        self._cache = edit.data.indexes.FunctionalCacheIndex(
+        self._cache = pyearthtools.data.indexes.FunctionalCacheIndex(
             cache,
             pattern,
             function=self._generate,
@@ -107,11 +107,11 @@ class Cache(PipelineIndex):
         return self.cache[idx]
 
     @property
-    def cache(self) -> edit.data.indexes.FunctionalCacheIndex:
+    def cache(self) -> pyearthtools.data.indexes.FunctionalCacheIndex:
         return self._cache
 
     @property
-    def pattern(self) -> edit.data.patterns.PatternIndex:
+    def pattern(self) -> pyearthtools.data.patterns.PatternIndex:
         return self.cache.pattern
 
     @property
@@ -319,20 +319,20 @@ class StaticCache(Cache):
 
 class MemCache(PipelineIndex):
     """
-    An `edit.pipeline` implementation of the `MemCache` from `edit.data`.
+    An `pyearthtools.pipeline` implementation of the `MemCache` from `pyearthtools.data`.
 
     Allows for samples to be cached to memory when using the pipeline.
 
     Examples:
-        >>> era_index = edit.data.archive.ERA5.sample()
-        >>> pipeline = edit.pipeline.Pipeline(
+        >>> era_index = pyearthtools.data.archive.ERA5.sample()
+        >>> pipeline = pyearthtools.pipeline.Pipeline(
                 era_index,
-                edit.pipeline.pipelines.MemCache()
+                pyearthtools.pipeline.pipelines.MemCache()
             )
         >>> pipeline['2000-01-01T00'] # Data will be cached to memory
     """
 
-    _cache: edit.data.indexes.FunctionalMemCacheIndex
+    _cache: pyearthtools.data.indexes.FunctionalMemCacheIndex
 
     def __init__(
         self,
@@ -351,12 +351,12 @@ class MemCache(PipelineIndex):
             pattern_kwargs (dict[str, Any], optional):
                 Kwargs to initalise the pattern with. Defaults to {}.
             kwargs (Any, optional):
-                All other kwargs passed to `edit.data.indexes.FunctionalMemCacheIndex`.
+                All other kwargs passed to `pyearthtools.data.indexes.FunctionalMemCacheIndex`.
         """
         super().__init__()
         self.record_initialisation()
 
-        self._cache = edit.data.indexes.FunctionalMemCacheIndex(
+        self._cache = pyearthtools.data.indexes.FunctionalMemCacheIndex(
             pattern=pattern,
             function=self._generate,  # type: ignore
             max_size = max_size,
@@ -374,7 +374,7 @@ class MemCache(PipelineIndex):
         return self.cache[idx]
 
     @property
-    def cache(self) -> edit.data.indexes.FunctionalMemCacheIndex:
+    def cache(self) -> pyearthtools.data.indexes.FunctionalMemCacheIndex:
         return self._cache
 
     @property

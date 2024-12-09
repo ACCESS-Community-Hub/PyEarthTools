@@ -11,7 +11,7 @@ from abc import abstractmethod
 from typing import Any, Literal, Type, TypeVar, Optional, Union
 
 
-from edit.pipeline.operation import Operation
+from pyearthtools.pipeline.operation import Operation
 
 T = TypeVar("T", Any, Any)
 

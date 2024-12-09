@@ -15,7 +15,7 @@ from __future__ import annotations
 import xarray as xr
 from typing import Literal
 
-from edit.data import TimeDelta
+from pyearthtools.data import TimeDelta
 
 
 BINNING_SETUP = {  # Base Binning setup

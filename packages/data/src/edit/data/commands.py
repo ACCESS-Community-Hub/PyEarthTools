@@ -7,7 +7,7 @@
 # from the use of the software.
 
 """
-Command Line Interface for `edit.data`
+Command Line Interface for `pyearthtools.data`
 """
 
 from __future__ import annotations
@@ -16,14 +16,14 @@ from pathlib import Path
 import click
 
 
-@click.group(name="EDIT Data")
+@click.group(name="pyearthtools Data")
 def entry_point():
     pass
 
 
 @entry_point.group(name="geographic")
 def geographic():
-    """Commands related to `edit.data.static.geographic`"""
+    """Commands related to `pyearthtools.data.static.geographic`"""
     pass
 
 
@@ -31,9 +31,9 @@ def geographic():
 @click.option("--verbose/--quiet", type=bool, default=False)
 def setup(verbose):
     """Download all geographic static files"""
-    import edit.data
+    import pyearthtools.data
 
-    if edit.data.static.geographic._download_all(verbose=verbose):
+    if pyearthtools.data.static.geographic._download_all(verbose=verbose):
         print(f"Successfully downloaded all files")
     else:
         print(f"Failed to download all files")
@@ -91,7 +91,7 @@ def create_structure(top, blacklisted, save, verbose):
         top: Path
             Location to generate structure for
     """
-    from edit.data.indexes.utilities.structure import structure
+    from pyearthtools.data.indexes.utilities.structure import structure
     import yaml
 
     structure_dict: dict[str, dict | list] = {}
@@ -107,7 +107,7 @@ def create_structure(top, blacklisted, save, verbose):
         if Path(save).exists():
             order = yaml.safe_load(open(save, "r"))["order"]
         else:
-            print("In order to use this within `edit`, you will need to specify order in the structure.")
+            print("In order to use this within `pyearthtools`, you will need to specify order in the structure.")
             order = ["USER_INPUT_HERE"]
 
     structure_dict["order"] = order

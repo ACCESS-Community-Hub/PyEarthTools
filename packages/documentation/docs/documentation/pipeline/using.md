@@ -10,14 +10,14 @@ A `Pipeline` can be used in three primary ways,
 
 ## Direct Indexing
 A pipeline just needs to consist of a sequence of steps following an `index` for this method to work.
-The index is passed directly to the highest `Index` object, which can either be a `edit.data.Index` or `edit.pipeline.PipelineIndex`. 
+The index is passed directly to the highest `Index` object, which can either be a `pyearthtools.data.Index` or `pyearthtools.pipeline.PipelineIndex`. 
 
 Therefore, if a cache is present, it will be used.
 
 ```python
-import edit.pipeline
+import pyearthtools.pipeline
 
-pipeline = edit.pipeline.Pipeline.sample()
+pipeline = pyearthtools.pipeline.Pipeline.sample()
 pipelines['2000-01-01T00']
 ```
 
@@ -25,12 +25,12 @@ pipelines['2000-01-01T00']
 A pipeline can also be used to apply its modifications to any data sample, with `.apply()`.
 
 ```python
-import edit.pipeline
+import pyearthtools.pipeline
 
 data_sample = DATA
 
-pipeline = edit.pipeline.Pipeline(
-    edit.pipeline.operations.*
+pipeline = pyearthtools.pipeline.Pipeline(
+    pyearthtools.pipeline.operations.*
 )
 pipelinesa.apply(data_sample)
 ```
@@ -38,14 +38,14 @@ pipelinesa.apply(data_sample)
 ## Iteration
 In order to iterate over the pipeline, the iterator needs to be set. This can be done in the `__init__` function or by setting `pipeline.iterator`.
 
-These must be a `edit.pipeline.Iterator` of which basics are provided:
+These must be a `pyearthtools.pipeline.Iterator` of which basics are provided:
 
 | Name | Description |
 | ---- | ----------- |
 | Range | Iterate through a `range` |
 | PreDefined | Yield elements from a predefined iterable |
 | File | Iterate over elements in a file, each line treated separately | 
-| DateRange | Using `edit.data.TimeRange` iterate over dates |
+| DateRange | Using `pyearthtools.data.TimeRange` iterate over dates |
 | DateRangeLimit | Starting at date and with interval, yield a number of samples |
 | Randomise | Randomise another `Iterator` |
 | SuperIterator | Iterate over a sequence of `Iterator`'s |
@@ -55,17 +55,17 @@ If a tuple is provided, it will be auto wrapped in a `SuperIterator`
 ### Example
 
 ```python
-import edit.pipeline
-import edit.data
+import pyearthtools.pipeline
+import pyearthtools.data
 
-pipeline = edit.pipeline.Pipeline(
-    edit.data.archive.ERA5.sample(),
-    iterator = edit.pipeline.iterators.DateRange('2000-01-01T00', '2010-01-01T00', '6 hours'),
+pipeline = pyearthtools.pipeline.Pipeline(
+    pyearthtools.data.archive.ERA5.sample(),
+    iterator = pyearthtools.pipeline.iterators.DateRange('2000-01-01T00', '2010-01-01T00', '6 hours'),
 ) 
 
 or
 
-pipeline.iterator = edit.pipeline.iterators.DateRange('2000-01-01T00', '6 hours', 1000)
+pipeline.iterator = pyearthtools.pipeline.iterators.DateRange('2000-01-01T00', '6 hours', 1000)
 ```
 
 ## Filters
@@ -74,7 +74,7 @@ Adding filters to check the validity of samples into the pipeline will run the c
 
 This is useful to filter out `nan` values or invalid `shapes`.
 
-These filters are available under `edit.pipeline.operations.[DATA_TYPE].filters`, where `DATA_TYPE` can be `xarray`, `numpy`, or `dask` currently.
+These filters are available under `pyearthtools.pipeline.operations.[DATA_TYPE].filters`, where `DATA_TYPE` can be `xarray`, `numpy`, or `dask` currently.
 
 ## Sampling
 
@@ -94,15 +94,15 @@ If a tuple is provided, it will be auto wrapped in a `SuperSampler`
 ### Example
 
 ```python
-import edit.pipeline
-import edit.data
+import pyearthtools.pipeline
+import pyearthtools.data
 
-pipeline = edit.pipeline.Pipeline(
-    edit.data.archive.ERA5.sample(),
-    sampler = edit.pipeline.samplers.Random(buffer_len = 100),
+pipeline = pyearthtools.pipeline.Pipeline(
+    pyearthtools.data.archive.ERA5.sample(),
+    sampler = pyearthtools.pipeline.samplers.Random(buffer_len = 100),
 ) 
 
 or
 
-pipeline.sampler = edit.pipeline.samplers.RandomDropOut(chance = 50.0)
+pipeline.sampler = pyearthtools.pipeline.samplers.RandomDropOut(chance = 50.0)
 ```

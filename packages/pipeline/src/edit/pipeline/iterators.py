@@ -7,7 +7,7 @@
 # from the use of the software.
 
 """
-Iteration control for `edit.pipeline`
+Iteration control for `pyearthtools.pipeline`
 
 Allows a pipeline to be iterated over, and data retrieved from.
 """
@@ -21,9 +21,9 @@ from pathlib import Path
 
 import numpy as np
 
-import edit.data
+import pyearthtools.data
 
-from edit.pipeline.recording import PipelineRecordingMixin
+from pyearthtools.pipeline.recording import PipelineRecordingMixin
 
 
 class Iterator(PipelineRecordingMixin, metaclass=ABCMeta):
@@ -161,7 +161,7 @@ class DateRange(Iterator):
     """
     DateRange Iterator
 
-    Uses `edit.data.TimeRange` to create a range of times.
+    Uses `pyearthtools.data.TimeRange` to create a range of times.
     """
 
     def __init__(self, start: str, end: str, interval):
@@ -171,22 +171,22 @@ class DateRange(Iterator):
         Args:
             start (str):
                 Start time. Must be understandable by
-                `edit.data.EDITDatetime`.
+                `pyearthtools.data.pyearthtoolsDatetime`.
             end (str):
                 End time. Must be understandable by
-                `edit.data.EDITDatetime`.
+                `pyearthtools.data.pyearthtoolsDatetime`.
             interval (Any):
                 Interval between times. Must be understandable by
-                `edit.data.TimeDelta`.
+                `pyearthtools.data.TimeDelta`.
         """
         super().__init__()
         self.record_initialisation()
 
-        import edit.data
+        import pyearthtools.data
 
-        self._timerange = edit.data.TimeRange(start, end, interval)
+        self._timerange = pyearthtools.data.TimeRange(start, end, interval)
 
-    def __iter__(self) -> Generator[edit.data.EDITDatetime, None, None]:
+    def __iter__(self) -> Generator[pyearthtools.data.pyearthtoolsDatetime, None, None]:
         for i in self._timerange:
             yield i
 
@@ -195,7 +195,7 @@ class DateRangeLimit(DateRange):
     """
     DataRange configured with the number of samples from start
 
-    Uses `edit.data.TimeRange` to create a range of times.
+    Uses `pyearthtools.data.TimeRange` to create a range of times.
     """
 
     def __init__(self, start: str, interval: Any, num: int):
@@ -207,12 +207,12 @@ class DateRangeLimit(DateRange):
                 Start time
             interval (Any):
                 Interval between times. Must be understandable by
-                `edit.data.TimeDelta`.
+                `pyearthtools.data.TimeDelta`.
             num (int):
                 Number of total samples to iterate over.
         """
 
-        end = edit.data.EDITDatetime(start) + (edit.data.TimeDelta(interval) * num)
+        end = pyearthtools.data.pyearthtoolsDatetime(start) + (pyearthtools.data.TimeDelta(interval) * num)
         super().__init__(start, str(end), interval)
 
 

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Type, Iterable, Optional, Union, Any
 
-from edit.pipeline.exceptions import PipelineTypeError
+from pyearthtools.pipeline.exceptions import PipelineTypeError
 
 
 def as_tuple(obj) -> tuple[Any, ...]:

@@ -26,12 +26,12 @@ xarray Operations
 | remapping | Reproject data | `HEALPix` | 
 """
 
-from edit.pipeline.operations.xarray.compute import Compute
-from edit.pipeline.operations.xarray.join import Merge, Concatenate
-from edit.pipeline.operations.xarray.sort import Sort
-from edit.pipeline.operations.xarray.chunk import Chunk
+from pyearthtools.pipeline.operations.xarray.compute import Compute
+from pyearthtools.pipeline.operations.xarray.join import Merge, Concatenate
+from pyearthtools.pipeline.operations.xarray.sort import Sort
+from pyearthtools.pipeline.operations.xarray.chunk import Chunk
 
-from edit.pipeline.operations.xarray import (
+from pyearthtools.pipeline.operations.xarray import (
     conversion,
     filters,
     reshape,

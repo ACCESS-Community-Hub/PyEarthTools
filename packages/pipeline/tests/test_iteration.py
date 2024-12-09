@@ -8,7 +8,7 @@
 
 import pytest
 
-from edit.pipeline import Pipeline, iterators, samplers
+from pyearthtools.pipeline import Pipeline, iterators, samplers
 from tests.fake_pipeline_steps import FakeIndex
 
 

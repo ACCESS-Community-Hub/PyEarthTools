@@ -7,7 +7,7 @@
 # from the use of the software.
 
 """
-EDIT Config
+pyearthtools Config
 
 Copied from `dask.config`
 
@@ -37,13 +37,13 @@ def _get_paths():
     """
 
     paths = [
-        os.getenv("EDIT_ROOT_CONFIG", "/etc/edit"),
-        os.path.join(sys.prefix, "etc", "edit"),
-        *[os.path.join(prefix, "etc", "edit") for prefix in site.PREFIXES],
-        os.path.join(os.path.expanduser("~"), ".config", "edit"),
+        os.getenv("pyearthtools_ROOT_CONFIG", "/etc/pyearthtools"),
+        os.path.join(sys.prefix, "etc", "pyearthtools"),
+        *[os.path.join(prefix, "etc", "pyearthtools") for prefix in site.PREFIXES],
+        os.path.join(os.path.expanduser("~"), ".config", "pyearthtools"),
     ]
-    if "EDIT_CONFIG" in os.environ:
-        paths.append(os.environ["EDIT_CONFIG"])
+    if "pyearthtools_CONFIG" in os.environ:
+        paths.append(os.environ["pyearthtools_CONFIG"])
 
     # Remove duplicate paths while preserving ordering
     paths = list(reversed(list(dict.fromkeys(reversed(paths)))))
@@ -53,10 +53,10 @@ def _get_paths():
 
 paths = _get_paths()
 
-if "EDIT_CONFIG" in os.environ:
-    PATH = os.environ["EDIT_CONFIG"]
+if "pyearthtools_CONFIG" in os.environ:
+    PATH = os.environ["pyearthtools_CONFIG"]
 else:
-    PATH = os.path.join(os.path.expanduser("~"), ".config", "edit")
+    PATH = os.path.join(os.path.expanduser("~"), ".config", "pyearthtools")
 
 
 config: dict = {}
@@ -133,7 +133,7 @@ def update(
 
     See Also
     --------
-    edit.utils.config.merge
+    pyearthtools.utils.config.merge
     """
     for k, v in new.items():
         k = canonical_name(k, old)
@@ -172,7 +172,7 @@ def merge(*dicts: Mapping) -> dict:
 
     See Also
     --------
-    edit.utils.config.update
+    pyearthtools.utils.config.update
     """
     result: dict = {}
     for d in dicts:
@@ -190,10 +190,10 @@ def _load_config_file(path: str) -> dict | None:
         # Ignore permission errors
         return None
     except Exception as exc:
-        raise ValueError(f"A edit config file at {path!r} is malformed, original error " f"message:\n\n{exc}") from None
+        raise ValueError(f"A pyearthtools config file at {path!r} is malformed, original error " f"message:\n\n{exc}") from None
     if config is not None and not isinstance(config, dict):
         raise ValueError(
-            f"A edit config file at {path!r} is malformed - config files must have "
+            f"A pyearthtools config file at {path!r} is malformed - config files must have "
             f"a dict as the top level object, got a {type(config).__name__} instead"
         )
     return config
@@ -238,7 +238,7 @@ def collect_yaml(paths: Sequence[str] = paths) -> list[dict]:
 def collect_env(env: Mapping[str, str] | None = None) -> dict:
     """Collect config from environment variables
 
-    This grabs environment variables of the form "EDIT_FOO__BAR_BAZ=123" and
+    This grabs environment variables of the form "pyearthtools_FOO__BAR_BAZ=123" and
     turns these into config variables of the form ``{"foo": {"bar_baz": 123}}``
     It transforms the key and value in the following way:
 
@@ -254,7 +254,7 @@ def collect_env(env: Mapping[str, str] | None = None) -> dict:
     d = {}
 
     for name, value in env.items():
-        if name.startswith("EDIT_"):
+        if name.startswith("pyearthtools_"):
             varname = name[5:].lower().replace("__", ".")
             try:
                 d[varname] = ast.literal_eval(value)
@@ -282,8 +282,8 @@ def ensure_file(source: str, destination: str | None = None, comment: bool = Tru
     source : string, filename
         Source configuration file, typically within a source directory.
     destination : string, directory
-        Destination directory. Configurable by ``EDIT_CONFIG`` environment
-        variable, falling back to ~/.config/edit.
+        Destination directory. Configurable by ``pyearthtools_CONFIG`` environment
+        variable, falling back to ~/.config/pyearthtools.
     comment : bool, True by default
         Whether or not to comment out the config file when copying.
     """
@@ -339,25 +339,25 @@ class set:
 
     Examples
     --------
-    >>> import edit
+    >>> import pyearthtools
 
     Set ``'foo.bar'`` in a context, by providing a mapping.
 
-    >>> with edit.utils.config.set({'foo.bar': 123}):
+    >>> with pyearthtools.utils.config.set({'foo.bar': 123}):
     ...     pass
 
     Set ``'foo.bar'`` in a context, by providing a keyword argument.
 
-    >>> with edit.utils.config.set(foo__bar=123):
+    >>> with pyearthtools.utils.config.set(foo__bar=123):
     ...     pass
 
     Set ``'foo.bar'`` globally.
 
-    >>> edit.utils.config.set(foo__bar=123)  # doctest: +SKIP
+    >>> pyearthtools.utils.config.set(foo__bar=123)  # doctest: +SKIP
 
     See Also
     --------
-    edit.utils.config.get
+    pyearthtools.utils.config.get
     """
 
     config: dict
@@ -466,7 +466,7 @@ def collect(paths: list[str] = paths, env: Mapping[str, str] | None = None) -> d
 
     See Also
     --------
-    edit.utils.config.refresh: collect configuration and update into primary config
+    pyearthtools.utils.config.refresh: collect configuration and update into primary config
     """
     if env is None:
         env = os.environ
@@ -481,7 +481,7 @@ def refresh(config: dict = config, defaults: list[Mapping] = defaults, **kwargs)
     """
     Update configuration by re-reading yaml files and env variables
 
-    This mutates the global edit.utils.config.config, or the config parameter if
+    This mutates the global pyearthtools.utils.config.config, or the config parameter if
     passed in.
 
     This goes through the following stages:
@@ -499,8 +499,8 @@ def refresh(config: dict = config, defaults: list[Mapping] = defaults, **kwargs)
 
     See Also
     --------
-    edit.utils.config.collect: for parameters
-    edit.utils.config.update_defaults
+    pyearthtools.utils.config.collect: for parameters
+    pyearthtools.utils.config.update_defaults
     """
     config.clear()
 
@@ -521,13 +521,13 @@ def get(
     Get elements from global config
 
     If ``override_with`` is not None this value will be passed straight back.
-    Useful for getting kwarg defaults from EDIT config.
+    Useful for getting kwarg defaults from pyearthtools config.
 
     Use '.' for nested access
 
     Examples
     --------
-    >>> from edit import config
+    >>> from pyearthtools import config
     >>> config.get('foo')  # doctest: +SKIP
     {'x': 1, 'y': 2}
 
@@ -545,7 +545,7 @@ def get(
 
     See Also
     --------
-    edit.utils.config.set
+    pyearthtools.utils.config.set
     """
     if override_with is not None:
         return override_with
@@ -568,8 +568,8 @@ def pop(key: str, default: Any = None, config: dict = config) -> Any:
 
     See Also
     --------
-    edit.utils.config.get
-    edit.utils.config.set
+    pyearthtools.utils.config.get
+    pyearthtools.utils.config.set
     """
     keys = key.split(".")
     result = config
@@ -635,10 +635,10 @@ def expand_environment_variables(config: Any) -> Any:
 #: removed keys. All deprecated keys must use '-' instead of '_'.
 #: This is used in three places:
 #: 1. In refresh(), which calls rename() to rename and warn upon loading
-#:    from ~/.config/edit.yaml, EDIT_ env variables, etc.
+#:    from ~/.config/pyearthtools.yaml, pyearthtools_ env variables, etc.
 #: 2. in distributed/config.py and equivalent modules, where we perform additional
 #:    distributed-specific renames for the yaml/env config and enrich this dict
-#: 3. from individual calls to edit.utils.config.set(), which internally invoke
+#: 3. from individual calls to pyearthtools.utils.config.set(), which internally invoke
 #     check_deprecations()
 deprecations: dict[str, str | None] = {}
 
@@ -677,12 +677,12 @@ def check_deprecations(key: str, deprecations: Mapping[str, str | None] = deprec
     --------
     >>> deprecations = {"old_key": "new_key", "invalid": None}
     >>> check_deprecations("old_key", deprecations=deprecations)  # doctest: +SKIP
-    FutureWarning: EDIT configuration key 'old_key' has been deprecated; please use "new_key" instead
+    FutureWarning: pyearthtools configuration key 'old_key' has been deprecated; please use "new_key" instead
 
     >>> check_deprecations("invalid", deprecations=deprecations)
     Traceback (most recent call last):
         ...
-    ValueError: EDIT configuration key 'invalid' has been removed
+    ValueError: pyearthtools configuration key 'invalid' has been removed
 
     >>> check_deprecations("another_key", deprecations=deprecations)
     'another_key'
@@ -702,18 +702,18 @@ def check_deprecations(key: str, deprecations: Mapping[str, str | None] = deprec
         new = deprecations[old]
         if new:
             warnings.warn(
-                f"EDIT configuration key {key!r} has been deprecated; " f"please use {new!r} instead",
+                f"pyearthtools configuration key {key!r} has been deprecated; " f"please use {new!r} instead",
                 FutureWarning,
             )
             return new
         else:
-            raise ValueError(f"EDIT configuration key {key!r} has been removed")
+            raise ValueError(f"pyearthtools configuration key {key!r} has been removed")
     else:
         return key
 
 
 def _initialize() -> None:
-    fn = os.path.join(os.path.dirname(__file__), "edit.yaml")
+    fn = os.path.join(os.path.dirname(__file__), "pyearthtools.yaml")
 
     with open(fn) as f:
         _defaults = yaml.safe_load(f)

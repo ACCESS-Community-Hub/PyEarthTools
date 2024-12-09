@@ -1,6 +1,6 @@
 # Models
 
-Using `edit`'s data, pipeline and model tools, it has been possible to create 'built' models for easy experimentation and testing.
+Using `pyearthtools`'s data, pipeline and model tools, it has been possible to create 'built' models for easy experimentation and testing.
 
 Currently implemented are:
 
@@ -12,7 +12,7 @@ Currently implemented are:
 | Fuxi | Fudan University|
 | FengWu | Shanghai Artificial Intelligence Laboratory |
 
-See [here](/edit/models/commands/) for a detailed breakdown of the commands.
+See [here](/pyearthtools/models/commands/) for a detailed breakdown of the commands.
 
 !!! Warning "Internet Connection"
     If using the 'Live' sources, or running for the first time, an internet connection is normally required.
@@ -23,18 +23,18 @@ See [here](/edit/models/commands/) for a detailed breakdown of the commands.
     Some pipelines require normalisation values which are currently stored on GADI in `dx2`.
 
 !!! Note "Usage"
-    `edit.models` can be used either as a command line tool, or as a python package.
-    See [here](/edit/models/commands/) and below for the commands, and [here](/edit/models/programatic/) for the python package.
+    `pyearthtools.models` can be used either as a command line tool, or as a python package.
+    See [here](/pyearthtools/models/commands/) and below for the commands, and [here](/pyearthtools/models/programatic/) for the python package.
 
 ## Setup
 
-To use these models, they and the rest of `edit` must be installed.
+To use these models, they and the rest of `pyearthtools` must be installed.
 
-A setup guide can be found [here](/edit/started/installation/).
+A setup guide can be found [here](/pyearthtools/started/installation/).
 
 ### Assets
 
-Assets will be automatically downloaded to `~/.edit/models/assets` or if set environment variable `EDIT_MODELS_ASSETS`.
+Assets will be automatically downloaded to `~/.pyearthtools/models/assets` or if set environment variable `pyearthtools_MODELS_ASSETS`.
 
 ## GADI Module
 
@@ -109,7 +109,7 @@ qsub ~/gpu_file.pbs
 
 ???+ info "Live Data"
 
-    `edit.models` uses the `cdsapi` provided by ECMWF to get live ERA5 data, but this will require some set up.
+    `pyearthtools.models` uses the `cdsapi` provided by ECMWF to get live ERA5 data, but this will require some set up.
 
     Following the steps outlined here [cdsapi](https://github.com/ecmwf/cdsapi)
 
@@ -134,7 +134,7 @@ Using the command line within the new interactive job, run the following command
 
 ```shell
 module use /scratch/ra02/modules
-module load EDIT/models
+module load pyearthtools/models
 ```
 
 ??? note "Check Module Setup"
@@ -144,36 +144,36 @@ module load EDIT/models
     ```
     module list
     # Currently Loaded Modulefiles:
-    #  1) EDIT/models/VERSION 
+    #  1) pyearthtools/models/VERSION 
     ```
 
 #### Step 3.1 - Set environment variable
 
 These models require their weights and normalisation factors to be downloaded (which cannot be done on an interactive node).
 
-???+ tip "GADI (USING EDIT/models)"
+???+ tip "GADI (USING pyearthtools/models)"
     As the environment is already setup you don't need to worry.
 
-??? warning "GADI (NOT USING EDIT/models)"
+??? warning "GADI (NOT USING pyearthtools/models)"
     To use the predownloaded assets on GADI, run the following on your cmd,
 
     ```shell
-    export EDIT_MODELS_ASSETS=/g/data/ra02/.edit/models/assets/
+    export pyearthtools_MODELS_ASSETS=/g/data/ra02/.pyearthtools/models/assets/
     ```
 
 ??? warning "Other Systems"
-    If working on another system, either specify `EDIT_MODELS_ASSETS` every time, or just allow the default path to be used.
+    If working on another system, either specify `pyearthtools_MODELS_ASSETS` every time, or just allow the default path to be used.
 
 ### Step 4 - Running a Forecast
 
-With an interactive job now running, running ```edit-models interactive``` will now provide a series of prompts to run a forecast.
+With an interactive job now running, running ```pyearthtools-models interactive``` will now provide a series of prompts to run a forecast.
 
-See [here](/edit/models/commands/) for a more detailed breakdown of the commands.
+See [here](/pyearthtools/models/commands/) for a more detailed breakdown of the commands.
 
 Below is an example of how this can be used,
 
 <terminal-window>
-    <terminal-line data="input">edit-models interactive</terminal-line>
+    <terminal-line data="input">pyearthtools-models interactive</terminal-line>
     <terminal-line lineDelay=200 typingDelay=10 data="prompt">Which model would you like to use? ['Global/graphcast', 'Global/sfno']: sfno</terminal-line>
     <terminal-line data="output">INFO Loading sfno</terminal-line>
     <terminal-line typingDelay=10 data="prompt">Which pipeline / data source do you want to use? ['ACCESS', 'ERA5', 'ERA5(Live)']: ERA5 </terminal-line>
@@ -187,7 +187,7 @@ Below is an example of how this can be used,
 You can also do this as a single line, not using the interactive commands, such as below,
 
 ```shell
-edit-models predict 'sfno' --pipeline 'ERA5' --output '~/DATADIRECTORY/' --time '2023-01-25T12' --lead_time '24 hours'
+pyearthtools-models predict 'sfno' --pipeline 'ERA5' --output '~/DATADIRECTORY/' --time '2023-01-25T12' --lead_time '24 hours'
 ```
 
 The interactive command will also provide the single line command for later use, so you don't have to use the interactive prompts repeatedly.

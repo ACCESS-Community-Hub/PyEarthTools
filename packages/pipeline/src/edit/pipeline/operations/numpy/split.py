@@ -11,7 +11,7 @@ from typing import Optional
 import numpy as np
 
 
-from edit.pipeline.branching.split import Spliter
+from pyearthtools.pipeline.branching.split import Spliter
 
 
 class OnAxis(Spliter):

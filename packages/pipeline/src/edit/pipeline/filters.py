@@ -12,11 +12,11 @@ from typing import Optional, Type, Union
 
 import warnings
 
-import edit.utils
+import pyearthtools.utils
 
-from edit.pipeline.step import PipelineStep
-from edit.pipeline.exceptions import PipelineFilterException
-from edit.pipeline.warnings import PipelineWarning
+from pyearthtools.pipeline.step import PipelineStep
+from pyearthtools.pipeline.exceptions import PipelineFilterException
+from pyearthtools.pipeline.warnings import PipelineWarning
 
 __all__ = ["Filter", "FilterCheck", "FilterWarningContext", "TypeFilter"]
 
@@ -82,7 +82,7 @@ class FilterWarningContext:
 
     def __init__(self, max_exceptions: Optional[int] = None):
 
-        self._max_exceptions = max_exceptions or edit.utils.config.get("pipeline.exceptions.max_filter")
+        self._max_exceptions = max_exceptions or pyearthtools.utils.config.get("pipeline.exceptions.max_filter")
         self._count = 0
         self._messages = []
 

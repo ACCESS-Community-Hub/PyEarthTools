@@ -6,7 +6,7 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
-from edit.utils import initialisation
+from pyearthtools.utils import initialisation
 
 
 class PipelineRecordingMixin(initialisation.InitialisationRecordingMixin):

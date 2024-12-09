@@ -7,14 +7,14 @@
 # from the use of the software.
 
 """
-Provide [Index][edit.data.ArchiveIndex] for known and widely used archived data sources.
+Provide [Index][pyearthtools.data.ArchiveIndex] for known and widely used archived data sources.
 
-These [Indexes][edit.data.ArchiveIndex] allow a user to retrieve data with only a date after being initialised.
+These [Indexes][pyearthtools.data.ArchiveIndex] allow a user to retrieve data with only a date after being initialised.
 
-More archives can be added by wrapping a class with [register_archive][edit.data.archive.register_archive]
+More archives can be added by wrapping a class with [register_archive][pyearthtools.data.archive.register_archive]
 
 !!! Warning
-    `edit.data` contains no archives itself, and require additional modules to define them.
+    `pyearthtools.data` contains no archives itself, and require additional modules to define them.
 
     Currently the following exist,
     ```
@@ -28,14 +28,14 @@ More archives can be added by wrapping a class with [register_archive][edit.data
 
 """
 
-from edit.data.archive.extensions import register_archive
+from pyearthtools.data.archive.extensions import register_archive
 
-from edit.data.archive.root import set_root, reset_root, config_root
+from pyearthtools.data.archive.root import set_root, reset_root, config_root
 
 
 ZARR_IMPORTED = True
 try:
-    from edit.data.archive.zarr import ZarrIndex, ZarrTimeIndex  # noqa: F401
+    from pyearthtools.data.archive.zarr import ZarrIndex, ZarrTimeIndex  # noqa: F401
 except (ImportError, ModuleNotFoundError):
     ZARR_IMPORTED = False
 

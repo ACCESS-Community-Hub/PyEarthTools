@@ -8,7 +8,7 @@
 
 from __future__ import annotations
 
-from edit.pipeline import Pipeline
+from pyearthtools.pipeline import Pipeline
 
 
 class BaseDefault:

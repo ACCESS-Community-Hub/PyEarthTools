@@ -14,7 +14,7 @@ Using `register_archive` allows a new data index to be added to the archive.
 Examples:
     In your library code:
 
-    >>> @edit.data.archive.register_archive("NewData")
+    >>> @pyearthtools.data.archive.register_archive("NewData")
     ... class NewData:
     ...     def __init__(self, initialisation_args):
     ...         pass
@@ -23,7 +23,7 @@ Examples:
 
     Back in an interactive IPython session:
 
-    >>> newdata_index = edit.data.archive.NewData(
+    >>> newdata_index = pyearthtools.data.archive.NewData(
     ...     *initialisation_args
     ... )
     >>> newdata_index(*access_args)  # Get data
@@ -37,13 +37,13 @@ from typing import Callable, Any
 
 import warnings
 
-import edit.data
-from edit.data import archive
+import pyearthtools.data
+from pyearthtools.data import archive
 
 
 def register_archive(name: str, *, sample_kwargs: dict[str, Any] | None = None) -> Callable:
     """
-    Register a custom archive underneath `edit.data.archive`.
+    Register a custom archive underneath `pyearthtools.data.archive`.
 
     Args:
         name (str):
@@ -61,20 +61,20 @@ def register_archive(name: str, *, sample_kwargs: dict[str, Any] | None = None) 
             warnings.warn(
                 f"Registration of archive {archive_index!r} under name {name!r} is "
                 "overriding a preexisting archive with the same name.",
-                edit.data.AccessorRegistrationWarning,
+                pyearthtools.data.AccessorRegistrationWarning,
                 stacklevel=2,
             )
 
         setattr(module_location, name, archive_index)
 
         if isinstance(archive_index, (ModuleType, Callable)):
-            if not hasattr(archive_index, "_edit_initialisation"):
-                setattr(archive_index, "_edit_initialisation", {})
-            getattr(archive_index, "_edit_initialisation")["class"] = f"edit.data.archive.{name}"
+            if not hasattr(archive_index, "_pyearthtools_initialisation"):
+                setattr(archive_index, "_pyearthtools_initialisation", {})
+            getattr(archive_index, "_pyearthtools_initialisation")["class"] = f"pyearthtools.data.archive.{name}"
 
         if isinstance(archive_index, Callable):
 
-            def sample() -> edit.data.Index:
+            def sample() -> pyearthtools.data.Index:
                 if sample_kwargs is not None:
                     return archive_index(**sample_kwargs)
                 raise RuntimeError(f"Keyword arguments were not given to create a `sample` index.")

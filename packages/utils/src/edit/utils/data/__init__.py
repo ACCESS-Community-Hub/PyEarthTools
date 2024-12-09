@@ -10,5 +10,5 @@
 Common Data tools
 """
 
-from edit.utils.data.tesselator import Tesselator
-from edit.utils.data import converter
+from pyearthtools.utils.data.tesselator import Tesselator
+from pyearthtools.utils.data import converter

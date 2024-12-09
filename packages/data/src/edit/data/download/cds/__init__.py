@@ -19,5 +19,5 @@
 
 """
 
-from edit.data.download.cds.cds import cds, root_cds
-from edit.data.download.cds.ERA5 import ERA5
+from pyearthtools.data.download.cds.cds import cds, root_cds
+from pyearthtools.data.download.cds.ERA5 import ERA5

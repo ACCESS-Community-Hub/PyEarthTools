@@ -6,6 +6,6 @@
 # be held liable for any claim, damages or other liability arising
 # from the use of the software.
 
-from edit.data.download.arco.ERA5 import ARCOERA5 as ERA5
+from pyearthtools.data.download.arco.ERA5 import ARCOERA5 as ERA5
 
 __all__ = ["ERA5"]

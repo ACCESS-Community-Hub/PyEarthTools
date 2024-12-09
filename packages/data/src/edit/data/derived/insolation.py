@@ -16,7 +16,7 @@ import numpy as np
 import xarray as xr
 import pandas as pd
 
-from edit.data.derived.derived import AdvancedTimeDerivedValue
+from pyearthtools.data.derived.derived import AdvancedTimeDerivedValue
 
 DASK_IMPORTED = True
 try:

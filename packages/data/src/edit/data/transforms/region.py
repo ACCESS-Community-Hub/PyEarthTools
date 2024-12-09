@@ -23,10 +23,10 @@ try:
 except ImportError:
     GEOPANDAS_IMPORTED = False
 
-from edit.data.transforms import Transform
-from edit.data.transforms.utils import parse_dataset
+from pyearthtools.data.transforms import Transform
+from pyearthtools.data.transforms.utils import parse_dataset
 
-from edit.utils.decorators import BackwardsCompatibility
+from pyearthtools.utils.decorators import BackwardsCompatibility
 
 
 RegionLookupFILE = Path(__file__).parent / "RegionLookup.yaml"
@@ -289,14 +289,14 @@ def Geosearch(
     **kwargs,
 ):
     """
-    Using [static.geographic][edit.data.static.geographic] retrieve a Shapefile.
+    Using [static.geographic][pyearthtools.data.static.geographic] retrieve a Shapefile.
     Allows selection of geopandas file, column and value to filter by
 
     If no column nor value provided, use all geometry in geopandas file
 
     Args:
         key (str):
-            A [Geographic][edit.data.static.geographic] search key
+            A [Geographic][pyearthtools.data.static.geographic] search key
         column (str | None, optional):
             Column in geopandas to search in. Defaults to None.
         value (list[str] | str, optional):
@@ -309,7 +309,7 @@ def Geosearch(
             Can be any code accepted by `geopandas`. See
             (here)[https://geopandas.org/en/stable/docs/user_guide/projections.html#coordinate-reference-systems]
     """
-    from edit.data.static import geographic
+    from pyearthtools.data.static import geographic
 
     geo = geographic(**kwargs)(key)
     geo = geo[~geo.geometry.isna()]

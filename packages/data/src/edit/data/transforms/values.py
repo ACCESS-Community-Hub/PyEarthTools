@@ -15,9 +15,9 @@ from typing import Literal
 
 import xarray as xr
 
-import edit.data
-from edit.data.transforms.transform import Transform
-from edit.utils.decorators import BackwardsCompatibility
+import pyearthtools.data
+from pyearthtools.data.transforms.transform import Transform
+from pyearthtools.utils.decorators import BackwardsCompatibility
 
 
 class Fill(Transform):
@@ -50,7 +50,7 @@ class Fill(Transform):
         self._limit = limit
 
     def apply(self, dataset: xr.Dataset) -> xr.Dataset:
-        encod = edit.data.transforms.attributes.set_encoding(reference=dataset)
+        encod = pyearthtools.data.transforms.attributes.set_encoding(reference=dataset)
         for coord in self._coordinates:
             if self._direction not in ["both", "forward", "backward"]:
                 raise ValueError(f"Cannot parse {self._direction!r}, must be either 'forward', 'backward' or 'both'.")

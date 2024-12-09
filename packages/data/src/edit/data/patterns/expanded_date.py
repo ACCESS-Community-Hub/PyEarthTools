@@ -18,22 +18,22 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from edit.data import EDITDatetime, TimeResolution
-from edit.data.patterns.default import (
+from pyearthtools.data import pyearthtoolsDatetime, TimeResolution
+from pyearthtools.data.patterns.default import (
     PatternIndex,
     PatternTimeIndex,
     PatternForecastIndex,
     PatternVariableAware,
 )
-from edit.data.indexes import decorators
+from pyearthtools.data.indexes import decorators
 
-import edit.utils
-from edit.utils.decorators import classproperty
+import pyearthtools.utils
+from pyearthtools.utils.decorators import classproperty
 
 
 DIRECTORY_PATTERN = "{ROOT_DIR}/{FILE_DATE}/{FILE}"
 FILE_PATTERN = "{prefix}{time}{extension}"
-DEFAULT_EXTENSION = edit.utils.config.get("data.patterns.default_extension")
+DEFAULT_EXTENSION = pyearthtools.utils.config.get("data.patterns.default_extension")
 
 
 def parse_time_str(time, directory: bool = False, delimiter: str | tuple | list = "") -> str:
@@ -108,10 +108,10 @@ class _ExpandedDate(PatternIndex):
 
     def filesystem(
         self,
-        basetime: str | EDITDatetime,
+        basetime: str | pyearthtoolsDatetime,
     ) -> Path:
-        basetime = EDITDatetime(basetime).at_resolution(self.file_resolution)
-        folder_datetime = EDITDatetime(basetime).at_resolution(self.directory_resolution)
+        basetime = pyearthtoolsDatetime(basetime).at_resolution(self.file_resolution)
+        folder_datetime = pyearthtoolsDatetime(basetime).at_resolution(self.directory_resolution)
 
         basepath = Path(self.root_dir).resolve() / parse_time_str(
             folder_datetime, directory=True, delimiter=self.delimiter
@@ -130,10 +130,10 @@ class ExpandedDate(_ExpandedDate):
     """Generate FilePath Structure based upon expanded date pattern
 
     Examples:
-        >>> pattern = edit.data.patterns.ExpandedDate('/dir/', extension = '.nc')
+        >>> pattern = pyearthtools.data.patterns.ExpandedDate('/dir/', extension = '.nc')
         >>> str(pattern.search('2020-01-02T0030'))
         '/dir/2020/01/02/20200102T0030.nc'
-        >>> pattern = edit.data.patterns.ExpandedDate('/dir/', extension = '.nc', deliminator = ('#', None))
+        >>> pattern = pyearthtools.data.patterns.ExpandedDate('/dir/', extension = '.nc', deliminator = ('#', None))
         >>> str(pattern.search('2020-01-02T0030'))
         '/dir/2020/01/02/2020#01#02T00:30.nc'
     """
@@ -155,7 +155,7 @@ class TemporalExpandedDate(_ExpandedDate, PatternTimeIndex):
     If using this with data saved using `ExpandedDate`, set `data_interval` to (1, 'min'), the paths will match.
 
     Examples:
-        >>> pattern = edit.data.patterns.TemporalExpandedDate('/dir/', extension = '.nc', data_interval = (1, 'month'))
+        >>> pattern = pyearthtools.data.patterns.TemporalExpandedDate('/dir/', extension = '.nc', data_interval = (1, 'month'))
         >>> str(pattern.search('2020-01-02'))
         '/dir/2020/01/202001.nc'
         >>> str(pattern.search('2020-01'))
@@ -170,12 +170,12 @@ class TemporalExpandedDate(_ExpandedDate, PatternTimeIndex):
 
     def filesystem(
         self,
-        basetime: str | EDITDatetime,
+        basetime: str | pyearthtoolsDatetime,
     ) -> Path:
-        basetime = EDITDatetime(basetime)
+        basetime = pyearthtoolsDatetime(basetime)
 
         basetime = basetime.at_resolution(self.file_resolution)
-        folder_datetime = EDITDatetime(basetime).at_resolution(self.directory_resolution)
+        folder_datetime = pyearthtoolsDatetime(basetime).at_resolution(self.directory_resolution)
 
         basepath = Path(self.root_dir).resolve() / parse_time_str(folder_datetime, directory=True)
         basepath /= FILE_PATTERN.format(

@@ -7,7 +7,7 @@
 # from the use of the software.
 
 """
-Decorators for use by `edit.data.indexes`
+Decorators for use by `pyearthtools.data.indexes`
 """
 
 from __future__ import annotations
@@ -19,10 +19,10 @@ import inspect
 from pathlib import Path
 from typing import Any
 
-from edit.data.indexes.utilities import spellcheck, open_static
-from edit.utils.decorators import alias_arguments
+from pyearthtools.data.indexes.utilities import spellcheck, open_static
+from pyearthtools.utils.decorators import alias_arguments
 
-from edit.data.modifications import variable_modifications
+from pyearthtools.data.modifications import variable_modifications
 
 __all__ = [
     "alias_arguments",

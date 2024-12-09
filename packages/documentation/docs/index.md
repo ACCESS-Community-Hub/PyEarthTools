@@ -1,11 +1,11 @@
 
-# `edit` - Environmental Data Intelligence Toolkit
+# `pyearthtools` - Environmental Data Intelligence Toolkit
 
-[Installation](started/installation/index.md){ .md-button .md-button--primary } [Reference](reference/edit/data/index.md){ .md-button .md-button--primary } [Documentation](documentation/index.md){ .md-button .md-button--primary }
+[Installation](started/installation/index.md){ .md-button .md-button--primary } [Reference](reference/pyearthtools/data/index.md){ .md-button .md-button--primary } [Documentation](documentation/index.md){ .md-button .md-button--primary }
 
-<!-- ![EDIT Promo Video](assets/PromoVid.gif) -->
+<!-- ![pyearthtools Promo Video](assets/PromoVid.gif) -->
 
-Welcome to the Documentation for `EDIT` the Environmental Data Intelligence Toolkit
+Welcome to the Documentation for `pyearthtools` the Environmental Data Intelligence Toolkit
 
 **This is still a work in progress and a lot shall be changed.**
 
@@ -13,22 +13,22 @@ A research project from the Data Science and Emerging Technologies team and Proj
 
 ## Purpose
 
-`edit` seeks to provide a unified interface into any Earth System data source, and allow for easy transformation and modification into Machine Learning training / inference ready forms.
+`pyearthtools` seeks to provide a unified interface into any Earth System data source, and allow for easy transformation and modification into Machine Learning training / inference ready forms.
 
-Additionally, utilising the advanced data preperation tools, `edit` contains implementations of various analysis and verification methods.
+Additionally, utilising the advanced data preperation tools, `pyearthtools` contains implementations of various analysis and verification methods.
 
 To enhance scientific exploration and reduce the barrier of entry to testing Machine Learning (ML) models, various state of the art open source models are implemented and available for use.
 
 ## Modules
 
-`edit` consists of a collection of Python packages all underneath the core name space of `edit`.
+`pyearthtools` consists of a collection of Python packages all underneath the core name space of `pyearthtools`.
 
 Some build upon the others to either provide easier usage or encompass more use cases.
 
 ```mermaid
 %%{init: { 'theme':'dark' }}%%
 mindmap
-  root((edit))
+  root((pyearthtools))
     data{{data}}
         Indexes
             Archives
@@ -87,14 +87,14 @@ stateDiagram-v2
 
 Powerful but generic indexing tools into Earth System data.
 
-`edit.data` allows for easy indexing into 'any' Earth System dataset once configured, these can be on disk, generated on the fly, cached from a download source, or pulled directly from external servers.
+`pyearthtools.data` allows for easy indexing into 'any' Earth System dataset once configured, these can be on disk, generated on the fly, cached from a download source, or pulled directly from external servers.
 Once available, they can be indexed directly with time resolution aware querying that is agnostic of the particular source being used.
 
-In addition, `edit.data` provides generic patterns and caching classes for users to easily implement their own sources.
+In addition, `pyearthtools.data` provides generic patterns and caching classes for users to easily implement their own sources.
 
 ```python
-import edit.data
-ERA5_index = edit.data.download.cds.ERA5('2t')
+import pyearthtools.data
+ERA5_index = pyearthtools.data.download.cds.ERA5('2t')
 ERA5_index['2024-01-01T06']
 >>> # Data would be retrieved from cds for the given time
 
@@ -106,17 +106,17 @@ ERA5_index.series('2024-01-01T06', '2024-01-03T12', (4, 'hours'))
 
 Reliably, repeatably and effectively transform Earth System data in a configurable pipeline, whether for Machine Learning (ML) models, analysis, or anything else.
 
-Building upon `edit.data`, `edit.pipeline` provides a means to transform data in a sequential fashion with full transparency of the steps involved. Any transformation can be undone, and the data restored.
+Building upon `pyearthtools.data`, `pyearthtools.pipeline` provides a means to transform data in a sequential fashion with full transparency of the steps involved. Any transformation can be undone, and the data restored.
 With readable config files, pipelines can be versioned controlled and trusted to provide data in the exact same way.
 
 ```python
-import edit.data 
-import edit.pipeline
+import pyearthtools.data 
+import pyearthtools.pipeline
 
-pipeline = edit.pipeline.Pipeline(
-    edit.data.download.cds.ERA5('2t'),
-    edit.pipeline.operations.xarray.select.SliceDataset(latitude = (None, None, 2)),
-    edit.pipeline.operations.xarray.values.FillNan(),
+pipeline = pyearthtools.pipeline.Pipeline(
+    pyearthtools.data.download.cds.ERA5('2t'),
+    pyearthtools.pipeline.operations.xarray.select.SliceDataset(latitude = (None, None, 2)),
+    pyearthtools.pipeline.operations.xarray.values.FillNan(),
 )
 
 pipeline['2024-01-01T06']
@@ -125,9 +125,9 @@ pipeline['2024-01-01T06']
 
 ### `training`
 
-Leverage `edit.pipeline` to provide data sources for common Machine Learning (ML) frameworks to pull data from. 
+Leverage `pyearthtools.pipeline` to provide data sources for common Machine Learning (ML) frameworks to pull data from. 
 
-By configuring an ML model with an `edit.pipeline` it is easy to allow others to test the model and trust the incoming data.
+By configuring an ML model with an `pyearthtools.pipeline` it is easy to allow others to test the model and trust the incoming data.
 
 #### Benefits
 
@@ -149,16 +149,16 @@ By configuring an ML model with an `edit.pipeline` it is easy to allow others to
 
 ### `models`
 
-Building upon all of the other `edit` components `edit.models` provides a way to share finalised models and for users to run them without having to worry about setup, data preperation or configuration.
+Building upon all of the other `pyearthtools` components `pyearthtools.models` provides a way to share finalised models and for users to run them without having to worry about setup, data preperation or configuration.
 
-When registering a model with `edit.models`, the `pipeline` is attached to, ensuring that data is prepared exactly right for the model.
+When registering a model with `pyearthtools.models`, the `pipeline` is attached to, ensuring that data is prepared exactly right for the model.
 
 For a user, any registered model can be run at the command line with no fuss, straight to the science. But can also be configured to use additional sources, or under other experimental conditions.
 
 ```bash
 # To run PanguWeather upon the local copy of ERA5
 
-[sudo@potato ~]$ edit-models predict pangu --pipeline ERA5 --output /forecasts/pangu/ --lead_time '14-days' --time 2024-01-06T03
+[sudo@potato ~]$ pyearthtools-models predict pangu --pipeline ERA5 --output /forecasts/pangu/ --lead_time '14-days' --time 2024-01-06T03
 ```
 
 As of 02-2024, the following models are available.

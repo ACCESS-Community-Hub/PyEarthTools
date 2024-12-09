@@ -14,10 +14,10 @@ from typing import Callable, Union, Optional, Literal, Type
 import warnings
 
 
-from edit.pipeline.recording import PipelineRecordingMixin
-from edit.pipeline.exceptions import PipelineTypeError, PipelineFilterException
-from edit.pipeline.warnings import PipelineWarning
-from edit.pipeline.parallel import ParallelEnabledMixin
+from pyearthtools.pipeline.recording import PipelineRecordingMixin
+from pyearthtools.pipeline.exceptions import PipelineTypeError, PipelineFilterException
+from pyearthtools.pipeline.warnings import PipelineWarning
+from pyearthtools.pipeline.parallel import ParallelEnabledMixin
 
 
 class PipelineStep(PipelineRecordingMixin, ParallelEnabledMixin, metaclass=ABCMeta):

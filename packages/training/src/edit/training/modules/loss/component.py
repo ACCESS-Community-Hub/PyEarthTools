@@ -8,7 +8,7 @@
 
 from torch import nn
 import torch
-import edit.training
+import pyearthtools.training
 
 
 class ComponentLoss(nn.Module):
@@ -57,7 +57,7 @@ class ComponentLoss(nn.Module):
             )
 
         self.weights = nn.Parameter(torch.Tensor(weights), False)
-        self.losses = nn.ModuleList(edit.training.modules.get_loss(key, **value) for key, value in loss.items())
+        self.losses = nn.ModuleList(pyearthtools.training.modules.get_loss(key, **value) for key, value in loss.items())
 
     def forward(self, output, target):
         loss = None

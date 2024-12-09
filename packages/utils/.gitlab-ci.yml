@@ -1,5 +1,5 @@
 include:
-  - project: 'bom/dset/edit-package/ci-cd-scripts'
+  - project: 'bom/dset/pyearthtools-package/ci-cd-scripts'
     ref: main
     file: 
       - 'black.yml'

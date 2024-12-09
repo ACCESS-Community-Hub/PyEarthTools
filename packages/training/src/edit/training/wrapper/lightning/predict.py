@@ -17,11 +17,11 @@ from typing import Any
 import numpy as np
 import pytorch_lightning as L
 
-from edit.data.patterns.utils import parse_root_dir
+from pyearthtools.data.patterns.utils import parse_root_dir
 
-from edit.pipeline.controller import Pipeline
-from edit.training.data.lightning import PipelineLightningDataModule
-from edit.training.wrapper.lightning.wrapper import LightningWrapper
+from pyearthtools.pipeline.controller import Pipeline
+from pyearthtools.training.data.lightning import PipelineLightningDataModule
+from pyearthtools.training.wrapper.lightning.wrapper import LightningWrapper
 
 PREDICT_KWARGS = {"enable_progress_bar": False, "logger": None}
 
@@ -66,7 +66,7 @@ class LightingPrediction(LightningWrapper):
         """
         Lightning Prediction Wrapper
 
-        Allows for prediction with a pytorch lightning model upon `edit` data.
+        Allows for prediction with a pytorch lightning model upon `pyearthtools` data.
 
         Args:
             model (L.LightningModule):

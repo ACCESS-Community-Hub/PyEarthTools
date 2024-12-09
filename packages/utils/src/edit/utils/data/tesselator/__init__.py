@@ -19,9 +19,9 @@ import warnings
 import numpy as np
 import xarray as xr
 
-from edit.utils.data.tesselator import _patching
-from edit.utils.warnings import TesselatorWarning
-from edit.utils.exceptions import TesselatorException
+from pyearthtools.utils.data.tesselator import _patching
+from pyearthtools.utils.warnings import TesselatorWarning
+from pyearthtools.utils.exceptions import TesselatorException
 
 
 class Tesselator:
@@ -188,7 +188,7 @@ class Tesselator:
         Args:
             input_data (xr.DataArray | xr.Dataset | np.ndarray): Data to Patch
             data_format (str, optional): Format of Data if not normal. Defaults to None.
-            **kwargs (Any, optional): Extra keyword args to be passed to [make_patches][edit.utils.data.tesselator._patching.patches.make_patches]
+            **kwargs (Any, optional): Extra keyword args to be passed to [make_patches][pyearthtools.utils.data.tesselator._patching.patches.make_patches]
 
         Returns:
             (np.ndarray): Patches of data, with the first dimension being the squashed patch dim

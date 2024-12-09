@@ -1,4 +1,4 @@
 def test_exists():
-    import edit
+    import pyearthtools
 
     assert True

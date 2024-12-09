@@ -16,15 +16,15 @@ import numpy as np
 
 from matplotlib.figure import Figure
 
-from edit.data.indexes import FileSystemIndex
-from edit.data.save import dataset, json, array, plot
+from pyearthtools.data.indexes import FileSystemIndex
+from pyearthtools.data.save import dataset, json, array, plot
 
 DASK_IMPORTED = True
 try:
     import dask
     from dask.delayed import Delayed
     import dask.array as da
-    from edit.data.save import dask as dask_save
+    from pyearthtools.data.save import dask as dask_save
 except (ImportError, ModuleNotFoundError) as e:
     DASK_IMPORTED = False
 

@@ -9,13 +9,13 @@ from __future__ import annotations
 
 import pytest
 
-import edit.utils
+import pyearthtools.utils
 
-from edit.pipeline import Pipeline, exceptions, branching
+from pyearthtools.pipeline import Pipeline, exceptions, branching
 
 from tests.fake_pipeline_steps import FakeIndex, MultiplicationOperation, MultiplicationOperationUnunifiedable
 
-edit.utils.config.set({"pipeline.run_parallel": False})
+pyearthtools.utils.config.set({"pipeline.run_parallel": False})
 
 
 def test_branchingpoint_basic():

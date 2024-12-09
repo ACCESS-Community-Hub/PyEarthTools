@@ -21,11 +21,11 @@ import yaml
 import copy
 
 
-import edit.utils
+import pyearthtools.utils
 
-EDIT_CATALOG_EXTENSIONS = [".cat", ".catalog"]
+pyearthtools_CATALOG_EXTENSIONS = [".cat", ".catalog"]
 BLACKLISTED_EXTENSIONS = []
-BLACKLISTED_EXTENSIONS.extend(EDIT_CATALOG_EXTENSIONS)
+BLACKLISTED_EXTENSIONS.extend(pyearthtools_CATALOG_EXTENSIONS)
 
 
 def filter_files(
@@ -65,9 +65,9 @@ def open_dataset(
     """
 
     def get_config(mf: bool = False):
-        open_kwargs = copy.copy(edit.utils.config.get("data.open.xarray"))
+        open_kwargs = copy.copy(pyearthtools.utils.config.get("data.open.xarray"))
         if mf:
-            open_kwargs.update(copy.copy(edit.utils.config.get("data.open.xarray_mf")))
+            open_kwargs.update(copy.copy(pyearthtools.utils.config.get("data.open.xarray_mf")))
         open_kwargs.update(kwargs)
         return open_kwargs
 
@@ -123,7 +123,7 @@ _REVERSED_LOADING_FUNCTIONS = {
     np.load: NUMPY_EXTENSIONS,
     pd.read_csv: CSV_EXTENSIONS,
     lambda x: json.load(open(x, "r")): JSON_EXTENSIONS,
-    # edit.data.load: EDIT_CATALOG_EXTENSIONS,
+    # pyearthtools.data.load: pyearthtools_CATALOG_EXTENSIONS,
 }
 
 
@@ -189,11 +189,11 @@ def open_files(
         (Any | tuple[Any]):
             Opened Data, if only one found, return that one exactly
     """
-    import edit.data
+    import pyearthtools.data
 
     global LOADING_FUNCTIONS
-    if EDIT_CATALOG_EXTENSIONS[0] not in LOADING_FUNCTIONS:
-        LOADING_FUNCTIONS.update(invert_dictionary_list({edit.data.load: EDIT_CATALOG_EXTENSIONS}))
+    if pyearthtools_CATALOG_EXTENSIONS[0] not in LOADING_FUNCTIONS:
+        LOADING_FUNCTIONS.update(invert_dictionary_list({pyearthtools.data.load: pyearthtools_CATALOG_EXTENSIONS}))
 
     if isinstance(files, (str, Path)):
         if Path(files).is_dir() and not Path(files).suffix == ".zarr":

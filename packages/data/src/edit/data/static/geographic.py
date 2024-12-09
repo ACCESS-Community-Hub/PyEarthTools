@@ -20,8 +20,8 @@ try:
 except ImportError:
     GEOPANDAS_IMPORTED = False
 
-from edit.data.indexes import FileSystemIndex
-from edit.data.static import _geographic
+from pyearthtools.data.indexes import FileSystemIndex
+from pyearthtools.data.static import _geographic
 
 LOADING_FUNCTIONS = {".csv": pd.read_csv, ".xml": pd.read_xml}
 if GEOPANDAS_IMPORTED:
@@ -37,7 +37,7 @@ class GeographicIndex(FileSystemIndex):
         loading_function: Callable | None = None,
     ):
         """
-        Load Geographical Static Data from `edit.data.static._geographic`
+        Load Geographical Static Data from `pyearthtools.data.static._geographic`
 
         Automatically identify the correct loading function if no extension is specified
 
@@ -72,7 +72,7 @@ class GeographicIndex(FileSystemIndex):
         files: str | Path,
     ) -> Any:
         """
-        Load Geographical Static Data from [_geographic][edit.data.static._geographic]
+        Load Geographical Static Data from [_geographic][pyearthtools.data.static._geographic]
 
         Args:
             files (str | Path):

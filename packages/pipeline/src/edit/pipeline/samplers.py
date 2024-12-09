@@ -7,7 +7,7 @@
 # from the use of the software.
 
 """
-Sampling Setups for `edit.pipeline`
+Sampling Setups for `pyearthtools.pipeline`
 
 Allows data to be on the fly iterated through, and sampled from the stream.
 """
@@ -17,7 +17,7 @@ from abc import ABCMeta, abstractmethod
 
 from typing import Any, Generator, Union
 
-from edit.pipeline.recording import PipelineRecordingMixin
+from pyearthtools.pipeline.recording import PipelineRecordingMixin
 
 
 class EmptyObject:

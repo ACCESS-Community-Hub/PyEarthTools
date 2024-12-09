@@ -14,7 +14,7 @@ from typing import Literal, Union
 import dask.array as da
 import numpy as np
 
-from edit.pipeline.filters import Filter, PipelineFilterException
+from pyearthtools.pipeline.filters import Filter, PipelineFilterException
 
 
 class daskFilter(Filter):

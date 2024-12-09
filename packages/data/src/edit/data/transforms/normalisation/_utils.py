@@ -8,7 +8,7 @@
 
 from __future__ import annotations
 
-CLASS_NAME_TO_TRIM = "edit.data"
+CLASS_NAME_TO_TRIM = "pyearthtools.data"
 
 
 def format_class_name(class_to_find: object) -> list[str]:

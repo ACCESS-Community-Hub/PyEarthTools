@@ -15,9 +15,9 @@ import os
 from pathlib import Path
 import yaml
 
-import edit.pipeline
-from edit.utils.initialisation import Dumper, Loader, update_contents
-from edit.training.data.datamodule import PipelineDataModule
+import pyearthtools.pipeline
+from pyearthtools.utils.initialisation import Dumper, Loader, update_contents
+from pyearthtools.training.data.datamodule import PipelineDataModule
 
 CONFIG_KEY = "--CONFIG--"
 SUFFIX = ".edm"
@@ -28,7 +28,7 @@ def save(datamodule: PipelineDataModule, path: Optional[str | Path] = None) -> N
     Save `Pipeline`
 
     Args:
-        pipeline (edit.pipeline.Pipeline):
+        pipeline (pyearthtools.pipeline.Pipeline):
             Pipeline to save
         path (Optional[FILE], optional):
             File to save to. If not given return save str. Defaults to None.
@@ -39,7 +39,7 @@ def save(datamodule: PipelineDataModule, path: Optional[str | Path] = None) -> N
     """
     datamodule_yaml = yaml.dump(datamodule, Dumper=Dumper, sort_keys=False)
 
-    extra_info: dict[str, Any] = {"VERSION": edit.pipeline.__version__}
+    extra_info: dict[str, Any] = {"VERSION": pyearthtools.pipeline.__version__}
 
     full_yaml = datamodule_yaml + f"\n{CONFIG_KEY}\n" + yaml.dump(extra_info)
 
@@ -66,7 +66,7 @@ def load(stream: str | Path, **kwargs: Any) -> PipelineDataModule:
             Updates to default values include in the config.
 
     Returns:
-        (edit.pipeline.Pipeline):
+        (pyearthtools.pipeline.Pipeline):
             Loaded Pipeline
     """
     contents = None

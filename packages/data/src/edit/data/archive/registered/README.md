@@ -1,10 +1,10 @@
-# `edit.data.archive` Registry
+# `pyearthtools.data.archive` Registry
 
-To ease complexity for an end user, `edit.data` archives can be automatically imported if the conditions in a config file are met.
+To ease complexity for an end user, `pyearthtools.data` archives can be automatically imported if the conditions in a config file are met.
 
-This directory `edit.data.archives.registered` contains those config files which are checked on `edit.data` `__init__` and thus can add in the archives.
+This directory `pyearthtools.data.archives.registered` contains those config files which are checked on `pyearthtools.data` `__init__` and thus can add in the archives.
 
-It is assumed that any `archive` for `edit.data` is using the `register_archive`, so that when the module is imported, the archives are added.
+It is assumed that any `archive` for `pyearthtools.data` is using the `register_archive`, so that when the module is imported, the archives are added.
 
 ## Structure
 
@@ -55,12 +55,12 @@ any:
 
 ## Root Directories
 
-To add more flexibility for the user, the root directories are usually stored as a property of the `FileSystemIndex` and can be overwritten with use  of the `edit.data.archive.set_root` function.
+To add more flexibility for the user, the root directories are usually stored as a property of the `FileSystemIndex` and can be overwritten with use  of the `pyearthtools.data.archive.set_root` function.
 
-This root directory dictionary, is sourced from `edit.data.archive.ROOT_DIRECTORIES`, and thus may need to be provided by any archive module. This can be done by
+This root directory dictionary, is sourced from `pyearthtools.data.archive.ROOT_DIRECTORIES`, and thus may need to be provided by any archive module. This can be done by
 
 ```python
-from edit.data.archive import register_archive
+from pyearthtools.data.archive import register_archive
 
 register_archive('ROOT_DIRECTORIES')(ROOT_DIRECTORIES)
 

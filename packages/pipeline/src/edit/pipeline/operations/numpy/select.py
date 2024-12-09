@@ -10,7 +10,7 @@ from typing import Any, Optional
 
 import numpy as np
 
-from edit.pipeline.operation import Operation
+from pyearthtools.pipeline.operation import Operation
 
 
 class Select(Operation):

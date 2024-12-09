@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from edit.data.indexes import FileSystemIndex
+from pyearthtools.data.indexes import FileSystemIndex
 
 
 def save(

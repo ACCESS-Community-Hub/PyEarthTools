@@ -365,7 +365,7 @@ class NumpyConverter(xarrayConverter):
         Reminder, this class operates on a FIFO approach, records will be popped from the saved records, unless turned off.
 
         !!! Warning
-            If a tuple of datasets was passed to [convert_xarray_to_numpy][edit.pipeline.operations.to_numpy.NumpyConverter.convert_xarray_to_numpy]
+            If a tuple of datasets was passed to [convert_xarray_to_numpy][pyearthtools.pipeline.operations.to_numpy.NumpyConverter.convert_xarray_to_numpy]
             and they are different, it is best to pass a tuple to this function replicating the order
 
         Args:

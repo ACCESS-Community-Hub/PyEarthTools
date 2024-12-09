@@ -7,13 +7,13 @@
 # from the use of the software.
 
 """
-Decorators for `edit`
+Decorators for `pyearthtools`
 """
 import warnings
 
 warnings.warn(
-    "All decorators once here have been moved from `edit.data.decorators` to `edit.utils.decorators`, and will be removed here in the future",
+    "All decorators once here have been moved from `pyearthtools.data.decorators` to `pyearthtools.utils.decorators`, and will be removed here in the future",
     FutureWarning,
 )
 
-from edit.utils.decorators import alias_arguments
+from pyearthtools.utils.decorators import alias_arguments

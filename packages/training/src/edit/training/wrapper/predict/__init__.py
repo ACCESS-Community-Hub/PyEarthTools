@@ -12,10 +12,10 @@
 Prediction Wrappers
 """
 
-from edit.utils.decorators import BackwardsCompatibility
+from pyearthtools.utils.decorators import BackwardsCompatibility
 
-from edit.training.wrapper.predict.predict import Predictor
-from edit.training.wrapper.predict.timeseries import (
+from pyearthtools.training.wrapper.predict.predict import Predictor
+from pyearthtools.training.wrapper.predict.timeseries import (
     TimeSeriesPredictor,
     TimeSeriesAutoRecurrentPredictor,
     TimeSeriesManagedPredictor,

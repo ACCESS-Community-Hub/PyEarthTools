@@ -16,15 +16,15 @@ from pathlib import Path
 import warnings
 
 
-import edit.data
-from edit.data import EDITDatetime
-from edit.data.warnings import EDITDataWarning
+import pyearthtools.data
+from pyearthtools.data import pyearthtoolsDatetime
+from pyearthtools.data.warnings import pyearthtoolsDataWarning
 
-from edit.data.indexes import decorators
-from edit.data.transforms import Transform, TransformCollection
+from pyearthtools.data.indexes import decorators
+from pyearthtools.data.transforms import Transform, TransformCollection
 
-from edit.data.download.cds.cds import root_cds, as_list
-from edit.data.download.cds._ERA5 import (
+from pyearthtools.data.download.cds.cds import root_cds, as_list
+from pyearthtools.data.download.cds._ERA5 import (
     ERA5_LEVELS,
     ERA_PRESSURE_NAME_CHANGE,
     ERA_SINGLE_NAME_CHANGE,
@@ -96,7 +96,7 @@ class ERA5(root_cds):
     @decorators.variable_modifications("variables")
     @decorators.check_arguments(
         product=cds_type,
-        variables="edit.data.download.cds.variables.ERA5.valid",
+        variables="pyearthtools.data.download.cds.variables.ERA5.valid",
         level=ERA5_LEVELS,
     )
     def __init__(
@@ -140,17 +140,17 @@ class ERA5(root_cds):
             level = ERA5_LEVELS[1:]
             warnings.warn(
                 "As `level` was None, this will now request all levels, which may take a long time.",
-                EDITDataWarning,
+                pyearthtoolsDataWarning,
             )
 
         self._level = level
         base_transform = TransformCollection()
-        base_transform += edit.data.transforms.attributes.Rename({var: ERA_ALL_NAMES[var] for var in variables})
+        base_transform += pyearthtools.data.transforms.attributes.Rename({var: ERA_ALL_NAMES[var] for var in variables})
         _download_transforms = download_transforms or TransformCollection()
 
         # Select on level if needed
         if level is not None and len(as_list(level)) > 1:
-            base_transform += edit.data.transforms.coordinates.Select(
+            base_transform += pyearthtools.data.transforms.coordinates.Select(
                 {coord: level for coord in ["level"]},
                 ignore_missing=False,
             )
@@ -159,9 +159,9 @@ class ERA5(root_cds):
         if level is not None and len(as_list(level)) == 1:
             # warnings.warn(
             #     f"Only getting one level will create a dataset with no level value, which will break things.",
-            #     EDITDataWarning
+            #     pyearthtoolsDataWarning
             #     )
-            _download_transforms += edit.data.transforms.coordinates.Assign(level=as_list(level))
+            _download_transforms += pyearthtools.data.transforms.coordinates.Assign(level=as_list(level))
 
         kwargs.pop("pattern_kwargs", None)
 
@@ -185,19 +185,19 @@ class ERA5(root_cds):
         self._variables = variables
         self._product = product
 
-    def _get_from_cds(self, querytime: EDITDatetime | str) -> tuple[str, dict] | list[tuple[str, dict]]:
+    def _get_from_cds(self, querytime: pyearthtoolsDatetime | str) -> tuple[str, dict] | list[tuple[str, dict]]:
         """
         Format cds query for data as needed
 
         Args:
-            querytime (EDITDatetime | str):
+            querytime (pyearthtoolsDatetime | str):
                 Datetime to get data for
 
         Returns:
             (tuple[str, dict] | list[tuple[str, dict]]):
                 Tuple for request or list of tupled requests
         """
-        querytime = EDITDatetime(querytime).at_resolution("hour")
+        querytime = pyearthtoolsDatetime(querytime).at_resolution("hour")
 
         base_dict = {
             "product_type": as_list(self._product),

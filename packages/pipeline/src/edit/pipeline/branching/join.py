@@ -11,7 +11,7 @@ from abc import abstractmethod
 from typing import Any, Literal, Type, Optional, Union
 
 
-from edit.pipeline.operation import Operation
+from pyearthtools.pipeline.operation import Operation
 
 
 class Joiner(Operation):

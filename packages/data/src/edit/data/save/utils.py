@@ -21,7 +21,7 @@ from typing import Union
 
 VALID_PATH_TYPES = Union[str, Path, list[str], list[Path], list[Union[str, Path]]]
 
-LOG = logging.getLogger("edit.data")
+LOG = logging.getLogger("pyearthtools.data")
 
 
 def check_if_exists(path: VALID_PATH_TYPES) -> bool:

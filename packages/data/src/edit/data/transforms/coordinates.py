@@ -16,13 +16,13 @@ import xarray as xr
 import numpy as np
 
 
-import edit.data
+import pyearthtools.data
 
-from edit.data.transforms.transform import Transform, TransformCollection
-from edit.data.warnings import EDITDataWarning
-from edit.data.exceptions import DataNotFoundError
+from pyearthtools.data.transforms.transform import Transform, TransformCollection
+from pyearthtools.data.warnings import pyearthtoolsDataWarning
+from pyearthtools.data.exceptions import DataNotFoundError
 
-from edit.utils.decorators import BackwardsCompatibility
+from pyearthtools.utils.decorators import BackwardsCompatibility
 
 DASK_IMPORTED = False
 try:
@@ -33,7 +33,7 @@ except ImportError:
     DASK_IMPORTED = False
 
 
-LOG = logging.getLogger("edit.data")
+LOG = logging.getLogger("pyearthtools.data")
 
 VALID_COORDINATE_DEFINITIONS = Literal["-180-180", "0-360"]
 
@@ -128,7 +128,7 @@ class StandardLongitude(Transform):
         if self._longitude_name not in dataset.coords:
             warnings.warn(
                 f"Could not move longitude to {self._type}, '{self._longitude_name}' is not in coords.",
-                EDITDataWarning,
+                pyearthtoolsDataWarning,
             )
 
         if DASK_IMPORTED:
@@ -479,7 +479,7 @@ class Expand(Transform):
 
     def __init__(self, coordinate: Hashable | list[Hashable] | tuple[Hashable], *extra_coordinates):
         """
-        Inverse operation to [flatten][edit.data.transforms.coordinate.flatten]
+        Inverse operation to [flatten][pyearthtools.data.transforms.coordinate.flatten]
 
         Will find flattened variables and regroup them upon the extra coordinate
 
@@ -520,7 +520,7 @@ class Expand(Transform):
                 components.append(var_data)
 
             dataset = xr.combine_by_coords(components)  # type: ignore
-            dataset = edit.data.transforms.attributes.SetType(**{str(coord): dtype})(dataset)
+            dataset = pyearthtools.data.transforms.attributes.SetType(**{str(coord): dtype})(dataset)
 
             ## Add stored encoding if there
             if f"{coord}-dtype" in dataset.attrs:

@@ -11,9 +11,9 @@ from typing import TypeVar, Union, Optional, Any, Literal
 import xarray as xr
 import numpy as np
 
-import edit.data
+import pyearthtools.data
 
-from edit.pipeline.operation import Operation
+from pyearthtools.pipeline.operation import Operation
 
 T = TypeVar("T", xr.Dataset, xr.DataArray)
 
@@ -107,7 +107,7 @@ class MaskValue(Operation):
         self.value = value
         self.replacement_value = replacement_value
 
-        self._mask_transform = edit.data.transforms.mask.Replace(value, operation, replacement_value)
+        self._mask_transform = pyearthtools.data.transforms.mask.Replace(value, operation, replacement_value)
 
     def apply_func(self, sample: T) -> T:
         """
@@ -172,7 +172,7 @@ class Derive(Operation):
     """
     Derive variables within the dataset
 
-    Uses `edit.data.transforms.derive`.
+    Uses `pyearthtools.data.transforms.derive`.
     """
 
     _override_interface = "Serial"
@@ -203,8 +203,8 @@ class Derive(Operation):
         derivation = derivation or {}
         derivation.update(derivations)
 
-        self._derive = edit.data.transforms.derive(derivation)
-        self._drop = edit.data.transform.variables.drop(list(derivation.keys())) if drop else None
+        self._derive = pyearthtools.data.transforms.derive(derivation)
+        self._drop = pyearthtools.data.transform.variables.drop(list(derivation.keys())) if drop else None
 
     def apply_func(self, sample):
         return self._derive(sample)

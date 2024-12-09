@@ -11,10 +11,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-import edit.data
+import pyearthtools.data
 
-from edit.data.patterns import PatternIndex
-from edit.data.transforms import Transform, TransformCollection
+from pyearthtools.data.patterns import PatternIndex
+from pyearthtools.data.transforms import Transform, TransformCollection
 
 """
 Retrieve Static File
@@ -53,7 +53,7 @@ class Static(PatternIndex):
             FileNotFoundError: If File not found
 
         Examples:
-            >>> pattern = edit.data.patterns.Static('/dir/file.nc', enforce_existence = False)
+            >>> pattern = pyearthtools.data.patterns.Static('/dir/file.nc', enforce_existence = False)
             >>> str(pattern.search())
             '/dir/file.nc'
         """
@@ -61,7 +61,7 @@ class Static(PatternIndex):
         super().__init__(
             root_dir="",
             transforms=(
-                edit.data.transforms.variables.variable_trim(variables)
+                pyearthtools.data.transforms.variables.variable_trim(variables)
                 if variables
                 else TransformCollection() + transforms
             ),

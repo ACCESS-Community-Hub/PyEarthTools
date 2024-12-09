@@ -11,11 +11,11 @@ from __future__ import annotations
 import warnings
 import logging
 
-import edit.data
-from edit.data import archive
-from edit.data.warnings import EDITDataWarning
+import pyearthtools.data
+from pyearthtools.data import archive
+from pyearthtools.data.warnings import pyearthtoolsDataWarning
 
-LOG = logging.getLogger("edit.data")
+LOG = logging.getLogger("pyearthtools.data")
 
 
 def config_root():
@@ -25,7 +25,7 @@ def config_root():
         setattr(archive, "_BACKUP_ROOT_DIRECTORIES", dict(ROOT_DIRECTORIES))
     else:
         LOG.info(
-            "`ROOT_DIRECTORIES` not found underneath `edit.data.archive`, either archives are not installed or misconfigured. Root Directories cannot be changed. ",
+            "`ROOT_DIRECTORIES` not found underneath `pyearthtools.data.archive`, either archives are not installed or misconfigured. Root Directories cannot be changed. ",
             UserWarning,
         )
 
@@ -50,8 +50,8 @@ def set_root(root_dir: dict[str, str | None] | None = None, **kwargs: str | None
     if not hasattr(archive, "ROOT_DIRECTORIES"):
         raise UserWarning("ROOT_DIRECTORIES is not set, so cannot be updated by the user.")
 
-    ROOT_DIRECTORIES = edit.data.archive.ROOT_DIRECTORIES  # type: ignore
-    _BACKUP_ROOT_DIRECTORIES = edit.data.archive._BACKUP_ROOT_DIRECTORIES  # type: ignore
+    ROOT_DIRECTORIES = pyearthtools.data.archive.ROOT_DIRECTORIES  # type: ignore
+    _BACKUP_ROOT_DIRECTORIES = pyearthtools.data.archive._BACKUP_ROOT_DIRECTORIES  # type: ignore
 
     for key, value in root_dir.items():
         if key not in ROOT_DIRECTORIES:
@@ -62,7 +62,7 @@ def set_root(root_dir: dict[str, str | None] | None = None, **kwargs: str | None
         else:
             warnings.warn(
                 f"Changing Root Directory for {key} from {ROOT_DIRECTORIES[key]} to {value} for this session",
-                EDITDataWarning,
+                pyearthtoolsDataWarning,
             )
         ROOT_DIRECTORIES[key] = value
 
@@ -72,5 +72,5 @@ def reset_root():
     if not hasattr(archive, "ROOT_DIRECTORIES"):
         raise UserWarning("ROOT_DIRECTORIES is not set, so cannot be updated by the user.")
 
-    ROOT_DIRECTORIES = edit.data.archive.ROOT_DIRECTORIES  # type: ignore
+    ROOT_DIRECTORIES = pyearthtools.data.archive.ROOT_DIRECTORIES  # type: ignore
     set_root(**{key: None for key in ROOT_DIRECTORIES})  # type: ignore

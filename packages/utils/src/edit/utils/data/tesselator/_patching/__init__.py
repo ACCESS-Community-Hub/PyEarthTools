@@ -7,7 +7,7 @@
 # from the use of the software.
 
 """
-Data processing tools for use by the [Tesselator][edit.utils.data.Tesselator]
+Data processing tools for use by the [Tesselator][pyearthtools.utils.data.Tesselator]
 """
 DEFAULT_FORMAT_SUBSET: str = "...HW"
 

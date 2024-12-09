@@ -20,9 +20,9 @@ Numpy Operations
 | split  | Split numpy arrays into tuples | `OnAxis`, `OnSlice`, `VSplit`, `HSplit` |
 | values | Modify values of arrays | `FillNan`, `MaskValue`, `ForceNormalised` |
 """
-from edit.pipeline.operations.numpy.join import Stack, Concatenate, VStack, HStack
+from pyearthtools.pipeline.operations.numpy.join import Stack, Concatenate, VStack, HStack
 
-from edit.pipeline.operations.numpy import (
+from pyearthtools.pipeline.operations.numpy import (
     augment,
     filters,
     normalisation,

@@ -10,7 +10,7 @@ import numpy as np
 
 import pytest
 
-from edit.utils.data import Tesselator
+from pyearthtools.utils.data import Tesselator
 
 tesselator_tests = [
     # Standard Easy

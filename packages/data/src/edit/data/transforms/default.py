@@ -8,7 +8,7 @@
 
 from __future__ import annotations
 
-import edit.data
+import pyearthtools.data
 
 REPLACEMENT_NAMES = {
     "latitude": ["lat", "Latitude", "yt_ocean", "yt"],
@@ -20,7 +20,7 @@ REPLACEMENT_NAMES = {
 
 def get_default_transforms(
     intelligence_level: int = 2,
-) -> "edit.data.transforms.TransformCollection":
+) -> "pyearthtools.data.transforms.TransformCollection":
     """
     Get Default Transforms to be applied to all datasets
 
@@ -28,15 +28,15 @@ def get_default_transforms(
         intelligence_level (int, optional): Level of Intelligence in operation. Defaults to 2.
 
     Returns:
-        edit.data.transforms.TransformCollection: Collection of default transforms
+        pyearthtools.data.transforms.TransformCollection: Collection of default transforms
     """
 
-    transforms = edit.data.TransformCollection(None, apply_default=False)
+    transforms = pyearthtools.data.TransformCollection(None, apply_default=False)
 
     if intelligence_level > 0:
-        transforms.append(edit.data.transforms.coordinates.StandardCoordinateNames(**REPLACEMENT_NAMES))  # type: ignore
-        # transforms.append(edit.data.transforms.coordinates.standard_longitude())
+        transforms.append(pyearthtools.data.transforms.coordinates.StandardCoordinateNames(**REPLACEMENT_NAMES))  # type: ignore
+        # transforms.append(pyearthtools.data.transforms.coordinates.standard_longitude())
     # if intelligence_level > 1:
-    #     transforms.append(edit.data.transforms.coordinates.set_type("float"))
+    #     transforms.append(pyearthtools.data.transforms.coordinates.set_type("float"))
 
     return transforms

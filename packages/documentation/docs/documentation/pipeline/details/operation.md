@@ -1,6 +1,6 @@
 # Operations
 
-An `edit.pipeline.Operation` is the core class which makes up the steps of a pipeline. All `operations.*` subclass from it. 
+An `pyearthtools.pipeline.Operation` is the core class which makes up the steps of a pipeline. All `operations.*` subclass from it. 
 
 Additonally, with `PipelineStep` it provides a number of configuration options to help data flow, splitting of tuples, and raise/warn an exception on invalid types.
 
@@ -66,7 +66,7 @@ Here is the implementation of `numpy.reshape.Squish`, to flatten a one element a
 from typing import Union, Optional, Any
 import numpy as np
 
-from edit.pipeline.operation import Operation
+from pyearthtools.pipeline.operation import Operation
 
 class Squish(Operation):
     """

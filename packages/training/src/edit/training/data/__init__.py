@@ -8,16 +8,16 @@
 
 # ruff: noqa: F401
 
-from edit.training.data.datamodule import PipelineDataModule
+from pyearthtools.training.data.datamodule import PipelineDataModule
 
-from edit.training.data import default
+from pyearthtools.training.data import default
 
-from edit.training.data.fileio import save, load
+from pyearthtools.training.data.fileio import save, load
 
 import logging
 
 LOG = logging.getLogger(__name__)
 try:
-    from edit.training.data import lightning
+    from pyearthtools.training.data import lightning
 except (ImportError, ModuleNotFoundError) as e:
     LOG.warn(f"Lightning Datamodules could not be imported due to: {e}.")

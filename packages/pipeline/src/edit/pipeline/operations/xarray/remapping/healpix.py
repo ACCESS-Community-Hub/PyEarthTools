@@ -45,8 +45,8 @@ import astropy as ap
 
 import logging
 
-import edit.data
-from edit.pipeline.warnings import PipelineWarning
+import pyearthtools.data
+from pyearthtools.pipeline.warnings import PipelineWarning
 
 from .base import BaseRemap
 
@@ -55,7 +55,7 @@ XR_TYPE = TypeVar("XR_TYPE", xr.Dataset, xr.DataArray)
 
 HEALPIX_COORDS = ["face", "height", "width"]
 
-LOG = logging.getLogger("edit.pipeline")
+LOG = logging.getLogger("pyearthtools.pipeline")
 
 
 class HEALPix(BaseRemap):
@@ -104,15 +104,15 @@ class HEALPix(BaseRemap):
         Examples:
             Remap ERA5 resolution data to faces of size 128.
             ```python
-            import edit.pipeline
-            import edit.data
+            import pyearthtools.pipeline
+            import pyearthtools.data
 
-            remapper = edit.pipeline.operations.xarray.remapping.HEALPix({'latitude':721, 'longitude':1440}, nside = 128)
-            remapper.remap(edit.data.archive.ERA5.sample()['2000-01-01T00'])
+            remapper = pyearthtools.pipeline.operations.xarray.remapping.HEALPix({'latitude':721, 'longitude':1440}, nside = 128)
+            remapper.remap(pyearthtools.data.archive.ERA5.sample()['2000-01-01T00'])
             # Remapped data
 
-            edit.pipeline.Pipeline(
-                edit.data.archive.ERA5.sample(),
+            pyearthtools.pipeline.Pipeline(
+                pyearthtools.data.archive.ERA5.sample(),
                 remapper
             )
             ```
@@ -134,7 +134,7 @@ class HEALPix(BaseRemap):
         self.manual_rechunking = manual_rechunking
         self.check_for_nans = check_for_nans
 
-        self._template_cache = edit.data.patterns.ArgumentExpansion("temp")
+        self._template_cache = pyearthtools.data.patterns.ArgumentExpansion("temp")
         if template_dataset is not None:
             self._template_cache.save(xr.open_dataset(template_dataset), "template")
 

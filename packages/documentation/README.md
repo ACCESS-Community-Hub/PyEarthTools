@@ -12,14 +12,14 @@ npx serve site/
 
 ## Websites
 
-https://bureau-sig.nci.org.au/edit/
+https://bureau-sig.nci.org.au/pyearthtools/
 
 ## Updates
 
 Documentation can be built using 
 ```shell
 module use /scratch/ra02/modules
-module load EDIT/documentation
+module load pyearthtools/documentation
 
 mkdocs build ./
 ```

@@ -15,24 +15,24 @@ import os
 
 import yaml
 
-from edit.utils import initialisation
+from pyearthtools.utils import initialisation
 
-import edit.data
-from edit.data.utils import parse_path
+import pyearthtools.data
+from pyearthtools.data.utils import parse_path
 
 CONFIG_KEY = "--CONFIG--"
 
 
-def load(stream: Union[str, Path], **kwargs) -> "edit.data.Index":
+def load(stream: Union[str, Path], **kwargs) -> "pyearthtools.data.Index":
     """
-    Load a `saved` `edit.data.Index`
+    Load a `saved` `pyearthtools.data.Index`
 
     Args:
         stream (Union[str, Path]):
             Stream to load, can be either path to config or yaml str
 
     Returns:
-        (edit.data.Index):
+        (pyearthtools.data.Index):
             Loaded Index
     """
     contents = None

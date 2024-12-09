@@ -7,9 +7,9 @@
 # from the use of the software.
 
 """
-Various utilites for `edit.data.indexes`
+Various utilites for `pyearthtools.data.indexes`
 """
 
-from edit.data.indexes.utilities import mixins, delete_files
-from edit.data.indexes.utilities.fileload import open_files, open_static
-from edit.data.indexes.utilities.spellcheck import check_prompt
+from pyearthtools.data.indexes.utilities import mixins, delete_files
+from pyearthtools.data.indexes.utilities.fileload import open_files, open_static
+from pyearthtools.data.indexes.utilities.spellcheck import check_prompt

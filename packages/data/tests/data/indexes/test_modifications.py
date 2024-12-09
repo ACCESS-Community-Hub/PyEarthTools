@@ -8,7 +8,7 @@
 
 import pytest
 
-from edit.data.indexes import FakeIndex
+from pyearthtools.data.indexes import FakeIndex
 
 
 @pytest.mark.parametrize(

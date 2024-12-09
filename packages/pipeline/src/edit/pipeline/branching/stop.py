@@ -7,7 +7,7 @@
 # from the use of the software.
 
 
-from edit.pipeline.operation import Operation
+from pyearthtools.pipeline.operation import Operation
 
 
 class StopUndo(Operation):

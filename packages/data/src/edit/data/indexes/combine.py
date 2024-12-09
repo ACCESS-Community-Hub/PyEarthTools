@@ -11,10 +11,10 @@ from __future__ import annotations
 import xarray as xr
 
 
-from edit.data.indexes import Index, AdvancedTimeDataIndex
-from edit.data import EDITDatetime
-from edit.data.operations import SpatialInterpolation, TemporalInterpolation
-from edit.data.transforms.transform import Transform, TransformCollection
+from pyearthtools.data.indexes import Index, AdvancedTimeDataIndex
+from pyearthtools.data import pyearthtoolsDatetime
+from pyearthtools.data.operations import SpatialInterpolation, TemporalInterpolation
+from pyearthtools.data.transforms.transform import Transform, TransformCollection
 
 
 class InterpolationIndex(AdvancedTimeDataIndex):
@@ -33,7 +33,7 @@ class InterpolationIndex(AdvancedTimeDataIndex):
 
     def retrieve(
         self,
-        querytime: str | EDITDatetime,
+        querytime: str | pyearthtoolsDatetime,
         *,
         aggregation: str = None,
         select: bool = True,

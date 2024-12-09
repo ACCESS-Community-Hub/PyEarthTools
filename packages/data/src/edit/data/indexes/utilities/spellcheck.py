@@ -13,8 +13,8 @@ Index spell checking
 from __future__ import annotations
 from typing import Any, Type
 
-from edit.data.exceptions import InvalidIndexError
-from edit.data.indexes.utilities.fileload import open_static
+from pyearthtools.data.exceptions import InvalidIndexError
+from pyearthtools.data.indexes.utilities.fileload import open_static
 
 
 class VariableDefault:
@@ -142,7 +142,7 @@ def format(words):
 def candidates(word, true_words):
     "Generate possible spelling corrections for word."
     return format(
-        known([word], true_words) or known(edits1(word), true_words) or known(edits2(word), true_words) or None
+        known([word], true_words) or known(pyearthtoolss1(word), true_words) or known(pyearthtoolss2(word), true_words) or None
     )
 
 
@@ -151,8 +151,8 @@ def known(words, true_words):
     return set(w for w in words if w in true_words)
 
 
-def edits1(word):
-    "All edits that are one edit away from `word`."
+def pyearthtoolss1(word):
+    "All pyearthtoolss that are one pyearthtools away from `word`."
     letters = "abcdefghijklmnopqrstuvwxyz"
     splits = [(word[:i], word[i:]) for i in range(len(word) + 1)]
     deletes = [L + R[1:] for L, R in splits if R]
@@ -162,6 +162,6 @@ def edits1(word):
     return set(deletes + transposes + replaces + inserts)
 
 
-def edits2(word):
-    "All edits that are two edits away from `word`."
-    return (e2 for e1 in edits1(word) for e2 in edits1(e1))
+def pyearthtoolss2(word):
+    "All pyearthtoolss that are two pyearthtoolss away from `word`."
+    return (e2 for e1 in pyearthtoolss1(word) for e2 in pyearthtoolss1(e1))

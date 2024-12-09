@@ -10,7 +10,7 @@ from typing import TypeVar, Union, Optional, Any
 
 import xarray as xr
 
-from edit.pipeline.branching.join import Joiner
+from pyearthtools.pipeline.branching.join import Joiner
 
 T = TypeVar("T", xr.Dataset, xr.DataArray)
 

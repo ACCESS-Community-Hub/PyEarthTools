@@ -12,8 +12,8 @@ from typing import Any, Optional
 
 import graphviz
 
-from edit.data import Index
-import edit.pipeline
+from pyearthtools.data import Index
+import pyearthtools.pipeline
 
 
 def format_graph_node(obj, parent: Optional[list[str]]) -> dict[str, Any]:
@@ -29,7 +29,7 @@ def format_graph_node(obj, parent: Optional[list[str]]) -> dict[str, Any]:
     last_module = str(obj.__module__).replace(f"{type(obj).__name__}", "").split(".")[-1]
     obj_name = f"{last_module}.{type(obj).__name__}".removeprefix(".")
 
-    if isinstance(obj, edit.pipeline.Marker):
+    if isinstance(obj, pyearthtools.pipeline.Marker):
         obj_name = obj.text
         shape = obj.shape or "note"
 

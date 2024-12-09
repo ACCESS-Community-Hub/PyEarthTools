@@ -11,8 +11,8 @@ from typing import Any, Optional, Literal, TypeVar
 
 import xarray as xr
 
-from edit.data.transforms.transform import Transform
-from edit.utils.decorators import BackwardsCompatibility
+from pyearthtools.data.transforms.transform import Transform
+from pyearthtools.utils.decorators import BackwardsCompatibility
 
 XR = TypeVar("XR", xr.Dataset, xr.DataArray)
 

@@ -7,24 +7,24 @@
 # from the use of the software.
 
 """
-EDIT Training 
+pyearthtools Training 
 
-Using `edit` prepare data for training, 
+Using `pyearthtools` prepare data for training, 
 and allow rapid distributed training of Machine Learning Models.
 """
 # ruff: noqa: F401
 
-from edit.training import logger as _
+from pyearthtools.training import logger as _
 
-from edit.training import data, wrapper, manage
+from pyearthtools.training import data, wrapper, manage
 
-from edit.training.wrapper import *  # type: ignore # noqa: F403
-from edit.training.dataindex import MLDataIndex
+from pyearthtools.training.wrapper import *  # type: ignore # noqa: F403
+from pyearthtools.training.dataindex import MLDataIndex
 
 __version__ = "1.2.dev1"
 
 # try:
-#     from edit.training import modules
+#     from pyearthtools.training import modules
 # except ImportError:
 #     pass
 

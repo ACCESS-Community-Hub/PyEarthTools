@@ -7,10 +7,10 @@
 # from the use of the software.
 
 """
-Provide a [DataIndex][edit.data.DataIndex] for indexing into Static NonTraditional Files.
+Provide a [DataIndex][pyearthtools.data.DataIndex] for indexing into Static NonTraditional Files.
 
-Currently just [geographic][edit.data.static.geographic]
+Currently just [geographic][pyearthtools.data.static.geographic]
 """
 
 ## Indexing for Static Data
-from edit.data.static.geographic import GeographicIndex as geographic
+from pyearthtools.data.static.geographic import GeographicIndex as geographic

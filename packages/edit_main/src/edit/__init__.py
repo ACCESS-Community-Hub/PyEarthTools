@@ -11,7 +11,7 @@ The Environmental Data Intelligence Toolkit
 
 Imports `utils`, `data`, and `pipeline` by default.
 
-More can be imported with `import edit.SUBMODULENAME`
+More can be imported with `import pyearthtools.SUBMODULENAME`
 """
 
 try:
@@ -22,15 +22,15 @@ except ImportError:  # pragma: no cover
     # Local copy or not installed with setuptools
     __version__ = "999"
 
-import edit.utils as utils
-import edit.data as data
-import edit.pipeline as pipeline
+import pyearthtools.utils as utils
+import pyearthtools.data as data
+import pyearthtools.pipeline as pipeline
 
 __all__ = ["utils", "data", "pipeline"]
 
 def show_versions():
-    """Show versions of installed edit modules"""
-    import edit
+    """Show versions of installed pyearthtools modules"""
+    import pyearthtools
     import inspect
     list_of_versions = []
     
@@ -41,11 +41,11 @@ def show_versions():
         return item + ''.join([' ' for _ in range(total_size - length)])
         
     
-    for module_name, module in inspect.getmembers(edit, inspect.ismodule):
+    for module_name, module in inspect.getmembers(pyearthtools, inspect.ismodule):
         if module_name == '_version':
-            module_name = 'edit'
+            module_name = 'pyearthtools'
         list_of_versions.append(f"{add_padding(module_name + ':')} \t {getattr(module, '__version__', None)}")
         
-    print('EDIT - Versions:')
+    print('pyearthtools - Versions:')
     for vers in list_of_versions:
         print(f"\t{vers}")

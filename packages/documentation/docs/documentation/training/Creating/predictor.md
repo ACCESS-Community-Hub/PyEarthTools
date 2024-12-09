@@ -2,7 +2,7 @@
 
 By themselves `ModelWrapper` provide only the most basic functionality, loading models, saving and running a single forward pass with the model.
 
-Using `edit.training.Predictor` allows for a managed prediction to be run with the model, taking an index in which to get data from the `Pipeline` setup with the model. 
+Using `pyearthtools.training.Predictor` allows for a managed prediction to be run with the model, taking an index in which to get data from the `Pipeline` setup with the model. 
 
 This however, simply uses the `ModelWrapper.predict` function so runs a single forward pass.
 

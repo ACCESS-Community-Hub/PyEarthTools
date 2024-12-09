@@ -10,5 +10,5 @@
 Utilities for parsing
 """
 
-from edit.utils.parsing.init_parsing import get_initialise_args
-from edit.utils.parsing.names import function_name
+from pyearthtools.utils.parsing.init_parsing import get_initialise_args
+from pyearthtools.utils.parsing.names import function_name

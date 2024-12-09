@@ -1,6 +1,6 @@
 
 ---
 # Download Config For Australia Data
-url: https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs-edition-3/jul2021-jun2026/access-and-downloads/digital-boundary-files/AUS_2021_AUST_SHP_GDA2020.zip
+url: https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs-pyearthtoolsion-3/jul2021-jun2026/access-and-downloads/digital-boundary-files/AUS_2021_AUST_SHP_GDA2020.zip
 save_name: Australia.zip
 zip: true

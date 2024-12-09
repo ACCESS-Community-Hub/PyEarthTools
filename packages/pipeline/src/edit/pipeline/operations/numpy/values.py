@@ -10,9 +10,9 @@ from typing import Literal, Union, Optional
 
 import numpy as np
 
-import edit.data
+import pyearthtools.data
 
-from edit.pipeline.operation import Operation
+from pyearthtools.pipeline.operation import Operation
 
 
 class FillNan(Operation):
@@ -105,7 +105,7 @@ class MaskValue(Operation):
         self.value = value
         self.replacement_value = replacement_value
 
-        self._mask_transform = edit.data.transforms.mask.replace_value(value, operation, replacement_value)
+        self._mask_transform = pyearthtools.data.transforms.mask.replace_value(value, operation, replacement_value)
 
     def apply_func(self, sample: np.ndarray) -> np.ndarray:
         """

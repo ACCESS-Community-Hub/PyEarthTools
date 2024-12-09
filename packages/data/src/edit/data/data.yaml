@@ -23,7 +23,7 @@ data:                             # Data configuration
   series:
     warning_threshold: 5         # .series warning threshold
 
-  future_warning: True           # Show FutureWarning of edit's development
+  future_warning: True           # Show FutureWarning of pyearthtools's development
 
   patterns:                      # Pattern defaults
     default_extension: .nc

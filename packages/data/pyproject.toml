@@ -4,10 +4,10 @@ build-backend = "hatchling.build"
 
 
 [project]
-name = "edit-data"
+name = "pyearthtools-data"
 description = "Data Obfuscation and manipulation tools"
 requires-python = ">=3.9"
-keywords = ["edit"]
+keywords = ["pyearthtools"]
 authors = [
   {email = "harrison.cook@bom.gov.au"},
   {name = "Harrison Cook"}
@@ -26,7 +26,7 @@ dependencies = [
   "shapely",
   "tqdm",
   "pyyaml",
-  "edit-utils>=1.1.0",
+  "pyearthtools-utils>=1.1.0",
   "click",
   "filelock",
   "urllib3",
@@ -48,16 +48,16 @@ intake = [
   "intake",
 ]
 all = [
-  "edit-data[download, intake]",
+  "pyearthtools-data[download, intake]",
 ]
 
 [project.urls]
 homepage = "http://bom.gov.au"
-documentation = "https://git.nci.org.au/bom/dset/edit-package/documentation"
-repository = "https://git.nci.org.au/bom/dset/edit-package/data"
+documentation = "https://git.nci.org.au/bom/dset/pyearthtools-package/documentation"
+repository = "https://git.nci.org.au/bom/dset/pyearthtools-package/data"
 
 [project.scripts]
-edit-data = "edit.data.commands:entry_point"
+pyearthtools-data = "pyearthtools.data.commands:entry_point"
 
 [tool.isort]
 profile = "black"
@@ -73,7 +73,7 @@ warn_return_any = true
 warn_unused_configs = true
 
 [tool.hatch.version]
-path = "src/edit/data/__init__.py"
+path = "src/pyearthtools/data/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/edit/"]
+packages = ["src/pyearthtools/"]

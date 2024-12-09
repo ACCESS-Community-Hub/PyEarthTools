@@ -10,7 +10,7 @@ from typing import TypeVar, Optional
 
 import xarray as xr
 
-from edit.pipeline.operation import Operation
+from pyearthtools.pipeline.operation import Operation
 
 T = TypeVar("T", xr.Dataset, xr.DataArray)
 

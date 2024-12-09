@@ -19,14 +19,14 @@ import xarray as xr
 import logging
 import functools
 
-from edit.data.indexes.indexes import DataIndex
-from edit.data.indexes.cacheIndex import FileSystemCacheIndex
-from edit.data.transforms import Transform, TransformCollection
-from edit.data.patterns.argument import flattened_combinations
+from pyearthtools.data.indexes.indexes import DataIndex
+from pyearthtools.data.indexes.cacheIndex import FileSystemCacheIndex
+from pyearthtools.data.transforms import Transform, TransformCollection
+from pyearthtools.data.patterns.argument import flattened_combinations
 
-from edit.data.indexes.utilities.delete_files import delete_path
+from pyearthtools.data.indexes.utilities.delete_files import delete_path
 
-LOG = logging.getLogger("edit.data")
+LOG = logging.getLogger("pyearthtools.data")
 
 
 class IntakeIndex(DataIndex):
@@ -37,12 +37,12 @@ class IntakeIndex(DataIndex):
 
     ## Example:
     ```python
-    import edit.data
+    import pyearthtools.data
     import intake_esm
 
     cat_url = intake_esm.tutorial.get_url("google_cmip6")
 
-    intakeIndex = edit.data.IntakeIndex(cat_url)
+    intakeIndex = pyearthtools.data.IntakeIndex(cat_url)
     intakeIndex(experiment_id=["historical", "ssp585"],table_id="Oyr",variable_id="o2",grid_label="gn")
     ```
     """
@@ -280,7 +280,7 @@ class IntakeIndexCache(FileSystemCacheIndex, IntakeIndex):
             **kwargs (Any, optional):
                 Additional filters.
 
-        See `edit.data.indexes.BaseCacheIndex` for remaining arguments docs.
+        See `pyearthtools.data.indexes.BaseCacheIndex` for remaining arguments docs.
         """
         pattern_kwargs = pattern_kwargs or {}
 

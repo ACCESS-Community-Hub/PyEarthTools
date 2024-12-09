@@ -17,7 +17,7 @@ import numpy as np
 import dask.array as da
 from dask.delayed import delayed
 
-from edit.pipeline.operations.dask.dask import DaskOperation
+from pyearthtools.pipeline.operations.dask.dask import DaskOperation
 
 
 class Rearrange(DaskOperation):
@@ -41,7 +41,7 @@ class Rearrange(DaskOperation):
 
         !!! Warning
             This will occur on each iteration, and on `__getitem__`,
-            so it is best to leave patches code out if using [PatchingDataIndex][edit.pipeline.operations.PatchingDataIndex].
+            so it is best to leave patches code out if using [PatchingDataIndex][pyearthtools.pipeline.operations.PatchingDataIndex].
 
             ```
             'p t c h w' == 't c h w'

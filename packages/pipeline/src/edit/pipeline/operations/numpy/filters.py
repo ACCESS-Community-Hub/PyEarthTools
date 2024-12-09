@@ -11,7 +11,7 @@ import math
 from typing import Literal, Union
 
 import numpy as np
-from edit.pipeline.filters import Filter, PipelineFilterException
+from pyearthtools.pipeline.filters import Filter, PipelineFilterException
 
 
 class NumpyFilter(Filter):

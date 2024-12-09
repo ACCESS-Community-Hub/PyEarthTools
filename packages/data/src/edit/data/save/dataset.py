@@ -14,9 +14,9 @@ import warnings
 
 import xarray as xr
 
-import edit.utils
-from edit.data.indexes import FileSystemIndex
-from edit.data.save.utils import ManageFiles
+import pyearthtools.utils
+from pyearthtools.data.indexes import FileSystemIndex
+from pyearthtools.data.save.utils import ManageFiles
 
 VALID_EXTENSIONS = [".nc", ".netcdf"]
 DATASET_TIMEOUT = 60
@@ -57,7 +57,7 @@ def to_netcdf(
 
     callback_paths = callback.search(*args, **kwargs)
 
-    save_kwargs_default: dict = dict(edit.utils.config.get("data.save.xarray"))
+    save_kwargs_default: dict = dict(pyearthtools.utils.config.get("data.save.xarray"))
     save_kwargs_default.update(save_kwargs or {})
     save_kwargs = save_kwargs_default
 
@@ -174,7 +174,7 @@ def to_zarr(
     if isinstance(dataset, tuple):
         raise TypeError()
 
-    save_kwargs_default: dict = dict(edit.utils.config.get("data.save.zarr"))
+    save_kwargs_default: dict = dict(pyearthtools.utils.config.get("data.save.zarr"))
     save_kwargs_default.update(save_kwargs or {})
     save_kwargs = save_kwargs_default
 

@@ -12,19 +12,19 @@ from __future__ import annotations
 import xarray as xr
 
 
-from edit.data.exceptions import DataNotFoundError, InvalidIndexError, InvalidDataError
-from edit.data.time import EDITDatetime, TimeDelta, TimeRange
-from edit.data.transforms.transform import Transform, TransformCollection
-from edit.data.warnings import IndexWarning
+from pyearthtools.data.exceptions import DataNotFoundError, InvalidIndexError, InvalidDataError
+from pyearthtools.data.time import pyearthtoolsDatetime, TimeDelta, TimeRange
+from pyearthtools.data.transforms.transform import Transform, TransformCollection
+from pyearthtools.data.warnings import IndexWarning
 
-from edit.data.operations import index_routines
-from edit.data.operations.utils import identify_time_dimension
+from pyearthtools.data.operations import index_routines
+from pyearthtools.data.operations.utils import identify_time_dimension
 
 
 def forecast_series(
     DataFunction: "Index",
-    start: str | EDITDatetime,
-    end: str | EDITDatetime,
+    start: str | pyearthtoolsDatetime,
+    end: str | pyearthtoolsDatetime,
     interval: tuple[float, str] | TimeDelta,
     *,
     lead_time: tuple[float, str] | TimeDelta = None,
@@ -60,8 +60,8 @@ def forecast_series(
 
 def forecast_as_basetime(
     DataFunction: "Index",
-    start: str | EDITDatetime,
-    end: str | EDITDatetime,
+    start: str | pyearthtoolsDatetime,
+    end: str | pyearthtoolsDatetime,
     interval: tuple[float, str] | TimeDelta,
     *,
     inclusive: bool = False,
@@ -98,8 +98,8 @@ def forecast_as_basetime(
 
 def forecast_select_time(
     DataFunction: "Index",
-    start: str | EDITDatetime,
-    end: str | EDITDatetime,
+    start: str | pyearthtoolsDatetime,
+    end: str | pyearthtoolsDatetime,
     interval: tuple[float, str] | TimeDelta,
     lead_time: tuple[float, str] | TimeDelta,
     *,
@@ -111,8 +111,8 @@ def forecast_select_time(
     """
     Forecast Series operation selecting a particular lead time
     """
-    start = EDITDatetime(start)
-    end = EDITDatetime(end)
+    start = pyearthtoolsDatetime(start)
+    end = pyearthtoolsDatetime(end)
     interval = TimeDelta(interval)
 
     lead_time = TimeDelta(lead_time)

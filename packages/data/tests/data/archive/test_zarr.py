@@ -9,12 +9,12 @@
 
 import xarray as xr
 
-import edit.data
+import pyearthtools.data
 
 
 def test_create(tmp_path):
-    zarr_archive = edit.data.archive.ZarrIndex(tmp_path / "Test.zarr")
-    fake_index = edit.data.indexes.FakeIndex()
+    zarr_archive = pyearthtools.data.archive.ZarrIndex(tmp_path / "Test.zarr")
+    fake_index = pyearthtools.data.indexes.FakeIndex()
 
     zarr_archive.save(fake_index["2000-01-01T00"])
 
@@ -22,8 +22,8 @@ def test_create(tmp_path):
 
 
 def test_combine_two_steps(tmp_path):
-    zarr_archive = edit.data.archive.ZarrIndex(tmp_path / "Test.zarr")
-    fake_index = edit.data.indexes.FakeIndex()
+    zarr_archive = pyearthtools.data.archive.ZarrIndex(tmp_path / "Test.zarr")
+    fake_index = pyearthtools.data.indexes.FakeIndex()
 
     zarr_archive.save(fake_index["2000-01-01T00"])
     zarr_archive.save(fake_index["2000-01-01T06"], mode="sa", append_dim="time")
@@ -32,8 +32,8 @@ def test_combine_two_steps(tmp_path):
 
 
 def test_create_template(tmp_path):
-    zarr_archive = edit.data.archive.ZarrIndex(tmp_path / "Test.zarr")
-    fake_index = edit.data.indexes.FakeIndex()
+    zarr_archive = pyearthtools.data.archive.ZarrIndex(tmp_path / "Test.zarr")
+    fake_index = pyearthtools.data.indexes.FakeIndex()
 
     zarr_archive.make_template(fake_index["2000-01-01T00"], time=[0, 1, 2, 3, 4])
 
@@ -41,12 +41,12 @@ def test_create_template(tmp_path):
 
 
 def test_add_to_template(tmp_path):
-    zarr_archive = edit.data.archive.ZarrTimeIndex(tmp_path / "Test.zarr", template=True)
-    fake_index = edit.data.indexes.FakeIndex()
+    zarr_archive = pyearthtools.data.archive.ZarrTimeIndex(tmp_path / "Test.zarr", template=True)
+    fake_index = pyearthtools.data.indexes.FakeIndex()
 
     zarr_archive.make_template(
         fake_index["2000-01-01T00"],
-        time=map(lambda x: x.datetime64(), edit.data.TimeRange("2000-01-01T00", "2000-01-02T00", "6 hours")),
+        time=map(lambda x: x.datetime64(), pyearthtools.data.TimeRange("2000-01-01T00", "2000-01-02T00", "6 hours")),
     )
     zarr_archive.save(fake_index["2000-01-01T00"])
 
@@ -55,8 +55,8 @@ def test_add_to_template(tmp_path):
 
 
 def test_combine_two_steps_exists(tmp_path):
-    zarr_archive = edit.data.archive.ZarrTimeIndex(tmp_path / "Test.zarr")
-    fake_index = edit.data.indexes.FakeIndex()
+    zarr_archive = pyearthtools.data.archive.ZarrTimeIndex(tmp_path / "Test.zarr")
+    fake_index = pyearthtools.data.indexes.FakeIndex()
 
     zarr_archive.save(fake_index["2000-01-01T00"])
     assert zarr_archive.exists()
@@ -68,8 +68,8 @@ def test_combine_two_steps_exists(tmp_path):
 
 
 def test_combine_two_steps_time_aware(tmp_path):
-    zarr_archive = edit.data.archive.ZarrTimeIndex(tmp_path / "Test.zarr")
-    fake_index = edit.data.indexes.FakeIndex()
+    zarr_archive = pyearthtools.data.archive.ZarrTimeIndex(tmp_path / "Test.zarr")
+    fake_index = pyearthtools.data.indexes.FakeIndex()
 
     zarr_archive.save(fake_index["2000-01-01T00"])
     zarr_archive.save(fake_index["2000-01-01T06"], mode="sa", append_dim="time")

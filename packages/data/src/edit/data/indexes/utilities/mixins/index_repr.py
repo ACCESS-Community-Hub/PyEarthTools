@@ -8,13 +8,13 @@
 
 UTILS_REPR = False
 try:
-    import edit.utils
+    import pyearthtools.utils
 
     UTILS_REPR = True
 except ImportError:
     UTILS_REPR = False
 
-import edit.data
+import pyearthtools.data
 
 
 class reprMixin:
@@ -27,11 +27,11 @@ class reprMixin:
 
         info = []
         if hasattr(self, "catalog"):
-            if isinstance(self.catalog, (edit.data.Catalog, edit.data.CatalogEntry)):
+            if isinstance(self.catalog, (pyearthtools.data.Catalog, pyearthtools.data.CatalogEntry)):
                 cat_dict = self.catalog.to_dict()
                 # info.append(Information('args', {'args': cat_dict['args']}))
                 info.append(Information("Initialisation", cat_dict["kwargs"]))
-            # elif isinstance(self.catalog, edit.data.Collection):
+            # elif isinstance(self.catalog, pyearthtools.data.Collection):
             #     info.append(Information('Catalog', {cat.name: cat.to_dict()['kwargs'] for cat in self.catalog}))
             else:
                 raise NotImplementedError()
@@ -52,7 +52,7 @@ class reprMixin:
         if hasattr(self, "preprocess_transforms"):
             preprocess = self.preprocess_transforms
             if not preprocess is None:
-                preprocess = edit.data.transforms.TransformCollection(preprocess)
+                preprocess = pyearthtools.data.transforms.TransformCollection(preprocess)
 
                 transforms = {}
                 for trans in preprocess:
@@ -77,7 +77,7 @@ class reprMixin:
         except NotImplementedError:
             return super().__repr__()
 
-        return edit.utils.repr_utils.standard(
+        return pyearthtools.utils.repr_utils.standard(
             *steps,
             name=f"{self.__class__.__name__}",
             description=getattr(self, "_desc_", None),
@@ -98,7 +98,7 @@ class reprMixin:
 
         backup_repr = self.__repr__() or "HTML Repr Failed"
 
-        return edit.utils.repr_utils.html(
+        return pyearthtools.utils.repr_utils.html(
             *steps,
             name=f"{self.__class__.__name__}",
             description=getattr(self, "_desc_", None),
@@ -115,7 +115,7 @@ class reprMixin:
             return self._recorded_info
 
         if hasattr(self, "catalog"):
-            if isinstance(self.catalog, (edit.data.Catalog, edit.data.CatalogEntry)):
+            if isinstance(self.catalog, (pyearthtools.data.Catalog, pyearthtools.data.CatalogEntry)):
                 cat_dict = self.catalog.to_dict()
                 return cat_dict["kwargs"]
         return {}

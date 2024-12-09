@@ -21,10 +21,10 @@ import re
 import logging
 
 
-from edit.data.transforms import Transform
-from edit.utils.decorators import BackwardsCompatibility
+from pyearthtools.data.transforms import Transform
+from pyearthtools.utils.decorators import BackwardsCompatibility
 
-LOG = logging.getLogger("edit.data")
+LOG = logging.getLogger("pyearthtools.data")
 
 
 class EquationException(Exception):

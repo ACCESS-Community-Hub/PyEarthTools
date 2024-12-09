@@ -11,18 +11,18 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Iterable
 
-from edit.data.patterns import PatternIndex, PatternVariableAware
-from edit.data.indexes import decorators
-from edit.data.indexes.utilities import spellcheck
+from pyearthtools.data.patterns import PatternIndex, PatternVariableAware
+from pyearthtools.data.indexes import decorators
+from pyearthtools.data.indexes.utilities import spellcheck
 
-import edit.utils
-from edit.utils.decorators import classproperty
+import pyearthtools.utils
+from pyearthtools.utils.decorators import classproperty
 
 """
 Generate FilePath Structure based upon expansion of arguments
 """
 
-DEFAULT_EXTENSION = edit.utils.config.get("data.patterns.default_extension")
+DEFAULT_EXTENSION = pyearthtools.utils.config.get("data.patterns.default_extension")
 
 
 def flattened_combinations(iterable: Iterable[Any | Iterable[Any]], r: int = 1) -> list[Any | list[Any]]:
@@ -71,15 +71,15 @@ class _Argument(PatternIndex):
         Filename is made from all args, and directory is all args too.
 
     Examples:
-        >>> pattern = edit.data.patterns.ArgumentExpansion('/dir/')
+        >>> pattern = pyearthtools.data.patterns.ArgumentExpansion('/dir/')
         >>> str(pattern.search('test','arg'))
         '/dir/arg/test.nc'
         >>> str(pattern.search('test','arg', 'another_arg'))
         '/dir/arg/another_arg/test.nc'
-        >>> pattern = edit.data.patterns.ArgumentExpansion('/dir/', filename_as_arguments = True)
+        >>> pattern = pyearthtools.data.patterns.ArgumentExpansion('/dir/', filename_as_arguments = True)
         >>> str(pattern.search('test','arg'))
         '/dir/test/arg/test_arg.nc'
-        >>> pattern = edit.data.patterns.ArgumentExpansion('/dir/', expand_tuples = True)
+        >>> pattern = pyearthtools.data.patterns.ArgumentExpansion('/dir/', expand_tuples = True)
         >>> [str(x) for x in pattern.search('test',('arg1', 'arg2'))]
         ['/dir/arg1/test.nc', '/dir/arg2/test.nc']
     """
@@ -195,15 +195,15 @@ class ArgumentExpansion(_Argument):
         Filename is made from all args, and directory is all args too.
 
     Examples:
-        >>> pattern = edit.data.patterns.ArgumentExpansion('/dir/')
+        >>> pattern = pyearthtools.data.patterns.ArgumentExpansion('/dir/')
         >>> str(pattern.search('test','arg'))
         '/dir/arg/test.nc'
         >>> str(pattern.search('test','arg', 'another_arg'))
         '/dir/arg/another_arg/test.nc'
-        >>> pattern = edit.data.patterns.ArgumentExpansion('/dir/', filename_as_arguments = True)
+        >>> pattern = pyearthtools.data.patterns.ArgumentExpansion('/dir/', filename_as_arguments = True)
         >>> str(pattern.search('test','arg'))
         '/dir/test/arg/test_arg.nc'
-        >>> pattern = edit.data.patterns.ArgumentExpansion('/dir/', expand_tuples = True)
+        >>> pattern = pyearthtools.data.patterns.ArgumentExpansion('/dir/', expand_tuples = True)
         >>> [str(x) for x in pattern.search('test',('arg1', 'arg2'))]
         ['/dir/arg1/test.nc', '/dir/arg2/test.nc']
     """
@@ -220,7 +220,7 @@ class Argument(_Argument):
     The argument specifies the filename, and the path is built out from `__init__` params
 
     Examples:
-        >>> pattern = edit.data.patterns.Argument('/dir/', extension = '.nc')
+        >>> pattern = pyearthtools.data.patterns.Argument('/dir/', extension = '.nc')
         >>> str(pattern.search('test'))
         '/dir/test.nc'
     """

@@ -14,10 +14,10 @@ from typing import Optional
 
 import onnxruntime as ort
 
-from edit.pipeline.controller import Pipeline
+from pyearthtools.pipeline.controller import Pipeline
 
-from edit.training.wrapper.wrapper import ModelWrapper
-from edit.training.data.datamodule import PipelineDataModule
+from pyearthtools.training.wrapper.wrapper import ModelWrapper
+from pyearthtools.training.data.datamodule import PipelineDataModule
 
 
 LOG = logging.getLogger(__name__)
@@ -35,7 +35,7 @@ class ONNXWrapper(ModelWrapper):
 
     def __init__(self, data: Pipeline | PipelineDataModule, model: Optional[ort.InferenceSession] = None):
         """
-        Wrap `Onnx` model to allow usage within `edit`.
+        Wrap `Onnx` model to allow usage within `pyearthtools`.
 
         Can only run predictions, not training.
 

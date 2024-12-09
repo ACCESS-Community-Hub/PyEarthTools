@@ -12,8 +12,8 @@ from typing import Optional, Any
 
 import dask.array as da
 
-from edit.pipeline.branching.join import Joiner
-from edit.pipeline.operations.dask.dask import DaskOperation
+from pyearthtools.pipeline.branching.join import Joiner
+from pyearthtools.pipeline.operations.dask.dask import DaskOperation
 
 
 class Stack(Joiner, DaskOperation):

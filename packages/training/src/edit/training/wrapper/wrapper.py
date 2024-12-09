@@ -9,10 +9,10 @@ from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
 
-from edit.utils.initialisation import InitialisationRecordingMixin
-from edit.pipeline import Pipeline
+from pyearthtools.utils.initialisation import InitialisationRecordingMixin
+from pyearthtools.pipeline import Pipeline
 
-from edit.training.data import PipelineDataModule
+from pyearthtools.training.data import PipelineDataModule
 
 
 class ModelWrapper(InitialisationRecordingMixin, metaclass=ABCMeta):

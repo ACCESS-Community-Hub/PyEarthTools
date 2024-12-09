@@ -10,7 +10,7 @@ from typing import Optional, Any
 
 import numpy as np
 
-from edit.pipeline.branching.join import Joiner
+from pyearthtools.pipeline.branching.join import Joiner
 
 
 class Stack(Joiner):

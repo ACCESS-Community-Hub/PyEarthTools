@@ -18,9 +18,9 @@ from typing import Optional, Callable, Any, TypeVar
 import numpy as np
 from pathlib import Path
 
-import edit.pipeline
-from edit.pipeline import Pipeline, Iterator
-from edit.utils.initialisation import InitialisationRecordingMixin
+import pyearthtools.pipeline
+from pyearthtools.pipeline import Pipeline, Iterator
+from pyearthtools.utils.initialisation import InitialisationRecordingMixin
 
 
 CONFIG_KEY = "--CONFIG--"
@@ -33,7 +33,7 @@ R = TypeVar("R", Any, Any)
 def load_pipelines(pipeline: Pipeline | str) -> Pipeline:
     """Load pipelines if str"""
     if isinstance(pipeline, str):
-        return edit.pipeline.load(pipeline)
+        return pyearthtools.pipeline.load(pipeline)
     return pipeline
 
 
@@ -204,7 +204,7 @@ class PipelineDataModule(InitialisationRecordingMixin):
             (Union[None, str]):
                 If `path` is None, `PipelineDataModule` in save form else None.
         """
-        from edit.training.data.fileio import save
+        from pyearthtools.training.data.fileio import save
 
         return save(self, path)
 
@@ -223,6 +223,6 @@ class PipelineDataModule(InitialisationRecordingMixin):
             (PipelineDataModule):
                 Loaded PipelineDataModule
         """
-        from edit.training.data.fileio import load
+        from pyearthtools.training.data.fileio import load
 
         return load(stream, **kwargs)

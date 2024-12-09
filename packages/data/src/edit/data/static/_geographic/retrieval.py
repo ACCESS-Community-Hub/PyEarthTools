@@ -21,8 +21,8 @@ from typing import Literal
 
 import yaml
 
-from edit.data.exceptions import DataNotFoundError, InvalidIndexError
-from edit.data.static._geographic import DATA_BASEDIRECTORY, DOWNLOAD_DATA
+from pyearthtools.data.exceptions import DataNotFoundError, InvalidIndexError
+from pyearthtools.data.static._geographic import DATA_BASEDIRECTORY, DOWNLOAD_DATA
 
 DOWNLOAD_EXTENSIONS = [".yaml"]
 SUPPORTED_EXTENSIONS = [".shp", ".dbf", ".csv", ".xml", ".shx"]

@@ -10,22 +10,22 @@
 # ruff: noqa: F401
 
 """
-# `edit.pipeline`
+# `pyearthtools.pipeline`
 
 Create repeatable pipelines, transforming data and preparing for downstream applications.
 
-Utilises `edit.data` to provide the data indexes, transforms to apply on data, and introduces 
+Utilises `pyearthtools.data` to provide the data indexes, transforms to apply on data, and introduces 
 operations, filters, samplers and iterators.
 
 ```python
-import edit.data
-import edit.pipeline
+import pyearthtools.data
+import pyearthtools.pipeline
 
-pipeline = edit.pipeline.Pipeline(
-    edit.data.archive.ERA5.sample(), # Get ERA5
+pipeline = pyearthtools.pipeline.Pipeline(
+    pyearthtools.data.archive.ERA5.sample(), # Get ERA5
 
-    edit.pipeline.operations.xarray.values.FillNan(), # FillNans
-    edit.pipeline.operations.xarray.conversion.ToNumpy(), # Convert to Numpy
+    pyearthtools.pipeline.operations.xarray.values.FillNan(), # FillNans
+    pyearthtools.pipeline.operations.xarray.conversion.ToNumpy(), # Convert to Numpy
 )
 
 pipeline['2000-01-01T00']
@@ -36,14 +36,14 @@ pipeline['2000-01-01T00']
 
 __version__ = "1.2.dev1"
 
-import edit.pipeline.logger
+import pyearthtools.pipeline.logger
 
-from edit.pipeline.save import save, load
-from edit.pipeline.controller import Pipeline, PipelineIndex
+from pyearthtools.pipeline.save import save, load
+from pyearthtools.pipeline.controller import Pipeline, PipelineIndex
 
-from edit.pipeline.operation import Operation
+from pyearthtools.pipeline.operation import Operation
 
-from edit.pipeline import (
+from pyearthtools.pipeline import (
     branching,
     exceptions,
     filters,
@@ -53,25 +53,25 @@ from edit.pipeline import (
     modifications,
 )
 
-from edit.pipeline.marker import Marker, Empty
+from pyearthtools.pipeline.marker import Marker, Empty
 
-from edit.pipeline.modifications import Cache, SequenceRetrieval, TemporalRetrieval
+from pyearthtools.pipeline.modifications import Cache, SequenceRetrieval, TemporalRetrieval
 
-from edit.pipeline.samplers import Sampler
+from pyearthtools.pipeline.samplers import Sampler
 
-from edit.pipeline.iterators import Iterator
+from pyearthtools.pipeline.iterators import Iterator
 
-from edit.pipeline.parallel import get_parallel
+from pyearthtools.pipeline.parallel import get_parallel
 
-from edit.pipeline.exceptions import (
+from pyearthtools.pipeline.exceptions import (
     PipelineException,
     PipelineFilterException,
     PipelineRuntimeError,
     PipelineTypeError,
 )
-from edit.pipeline.warnings import PipelineWarning
+from pyearthtools.pipeline.warnings import PipelineWarning
 
-from edit.pipeline import config
+from pyearthtools.pipeline import config
 
 __all__ = [
     "Sampler",

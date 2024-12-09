@@ -15,7 +15,7 @@ from typing import Any
 
 import numpy as np
 import xarray as xr
-from edit.data import Transform
+from pyearthtools.data import Transform
 
 
 class TimeOfYear(Transform):
@@ -28,7 +28,7 @@ class TimeOfYear(Transform):
         """
         Add time of year as variable to a dataset
 
-        Use [DropDataset][edit.pipeline.operations.select.DropDataset] to remove it
+        Use [DropDataset][pyearthtools.pipeline.operations.select.DropDataset] to remove it
         if an earlier step in the pipeline is sensitive to variable names.
 
         Args:

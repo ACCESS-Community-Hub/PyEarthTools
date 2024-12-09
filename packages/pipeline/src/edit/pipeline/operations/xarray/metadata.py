@@ -10,9 +10,9 @@ from typing import TypeVar, Optional, Any, Literal
 
 import xarray as xr
 
-import edit.data
+import pyearthtools.data
 
-from edit.pipeline.operation import Operation
+from pyearthtools.pipeline.operation import Operation
 
 T = TypeVar("T", xr.Dataset, xr.DataArray)
 
@@ -45,10 +45,10 @@ class Rename(Operation):
         self._rename = rename
 
     def apply_func(self, sample: xr.Dataset) -> xr.Dataset:
-        return edit.data.transforms.attributes.rename(self._rename)(sample)
+        return pyearthtools.data.transforms.attributes.rename(self._rename)(sample)
 
     def undo_func(self, sample: xr.Dataset) -> xr.Dataset:
-        return edit.data.transforms.attributes.rename({val: key for key, val in self._rename.items()})(sample)
+        return pyearthtools.data.transforms.attributes.rename({val: key for key, val in self._rename.items()})(sample)
 
 
 class Encoding(Operation):
@@ -81,7 +81,7 @@ class Encoding(Operation):
             recognised_types=(xr.Dataset, xr.DataArray),
         )
         self.record_initialisation()
-        self._encoding = edit.data.transforms.attributes.set_encoding(encoding)
+        self._encoding = pyearthtools.data.transforms.attributes.set_encoding(encoding)
 
     def apply_func(self, sample: T) -> T:
         return self._encoding(sample)
@@ -91,7 +91,7 @@ class Encoding(Operation):
 
 
 class MaintainEncoding(Operation):
-    _encoding: Optional[edit.data.Transform] = None
+    _encoding: Optional[pyearthtools.data.Transform] = None
     _override_interface = "Serial"
 
     def __init__(self, reference: Optional[str] = None, limit: Optional[list[str]] = None):
@@ -117,13 +117,13 @@ class MaintainEncoding(Operation):
         self._encoding = (
             None
             if reference is None
-            else edit.data.transforms.attributes.set_encoding(reference=xr.open_dataset(reference), limit=limit)
+            else pyearthtools.data.transforms.attributes.set_encoding(reference=xr.open_dataset(reference), limit=limit)
         )
         self._limit = limit
 
     def apply_func(self, sample: T) -> T:
         if not self._encoding:
-            self._encoding = edit.data.transforms.attributes.set_encoding(reference=sample, limit=self._limit)
+            self._encoding = pyearthtools.data.transforms.attributes.set_encoding(reference=sample, limit=self._limit)
         return sample
 
     def undo_func(self, sample: T) -> T:
@@ -171,7 +171,7 @@ class Attributes(Operation):
             recognised_types=(xr.Dataset, xr.DataArray),
         )
         self.record_initialisation()
-        self._attributes = edit.data.transforms.attributes.set_attributes(attrs=attributes, apply_on=apply_on)
+        self._attributes = pyearthtools.data.transforms.attributes.set_attributes(attrs=attributes, apply_on=apply_on)
 
     def apply_func(self, sample: T) -> T:
         return self._attributes(sample)
@@ -185,7 +185,7 @@ class MaintainAttributes(Operation):
     Maintain attributes
     """
 
-    _attributes: Optional[edit.data.Transform] = None
+    _attributes: Optional[pyearthtools.data.Transform] = None
     _override_interface = "Serial"
 
     def __init__(self, reference: Optional[str] = None):
@@ -207,12 +207,12 @@ class MaintainAttributes(Operation):
         self._attributes = (
             None
             if reference is None
-            else edit.data.transforms.attributes.set_attributes(reference=xr.open_dataset(reference))
+            else pyearthtools.data.transforms.attributes.set_attributes(reference=xr.open_dataset(reference))
         )
 
     def apply_func(self, sample: T) -> T:
         if not self._attributes:
-            self._attributes = edit.data.transforms.attributes.set_attributes(reference=sample)
+            self._attributes = pyearthtools.data.transforms.attributes.set_attributes(reference=sample)
         return sample
 
     def undo_func(self, sample: T) -> T:

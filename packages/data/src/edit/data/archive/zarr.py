@@ -22,17 +22,17 @@ import xarray as xr
 import dask
 import logging
 
-import edit.data
-from edit.data.time import EDITDatetime
-from edit.data.transforms import Transform, TransformCollection
-from edit.data.indexes.indexes import DataFileSystemIndex, TimeIndex
+import pyearthtools.data
+from pyearthtools.data.time import pyearthtoolsDatetime
+from pyearthtools.data.transforms import Transform, TransformCollection
+from pyearthtools.data.indexes.indexes import DataFileSystemIndex, TimeIndex
 
-from edit.data.indexes.utilities.dimensions import identify_time_dimension
-from edit.data.utils import parse_path
+from pyearthtools.data.indexes.utilities.dimensions import identify_time_dimension
+from pyearthtools.data.utils import parse_path
 
-from edit.data.save import save
+from pyearthtools.data.save import save
 
-LOG = logging.getLogger("edit.data")
+LOG = logging.getLogger("pyearthtools.data")
 
 
 class ZarrIndex(DataFileSystemIndex):
@@ -133,7 +133,7 @@ class ZarrIndex(DataFileSystemIndex):
         """
         base_zarr = self._get_zarr()
         if self._variables is not None:
-            var_transform = edit.data.transform.variables.Trim(self._variables)
+            var_transform = pyearthtools.data.transform.variables.Trim(self._variables)
             base_zarr = var_transform(base_zarr)
         return base_zarr
 
@@ -221,9 +221,9 @@ class ZarrIndex(DataFileSystemIndex):
 
         Examples:
         ```python
-        era5 = edit.data.archive.ERA5.sample()
+        era5 = pyearthtools.data.archive.ERA5.sample()
 
-        full_time_values = list(map(lambda x: x.datetime64(), edit.data.TimeRange('1980', '2020', '6 hour')))
+        full_time_values = list(map(lambda x: x.datetime64(), pyearthtools.data.TimeRange('1980', '2020', '6 hour')))
 
         zarr_archive = Zarr(PATH_TO_ZARR, template = True)
         zarr_archive.make_template(era5['2000-01-01T00'], time = full_time_values)
@@ -244,7 +244,7 @@ class ZarrIndex(DataFileSystemIndex):
                 dataset = dataset.chunk(chunk)
 
             if encoding is not None:
-                dataset = edit.data.transforms.attributes.SetEncoding(encoding)(dataset)
+                dataset = pyearthtools.data.transforms.attributes.SetEncoding(encoding)(dataset)
 
             save_kwargs = {}
 
@@ -316,7 +316,7 @@ class ZarrTimeIndex(ZarrIndex, TimeIndex):
 
     def retrieve(
         self,
-        querytime: str | EDITDatetime | None = None,
+        querytime: str | pyearthtoolsDatetime | None = None,
         *args,
         transforms: Transform | TransformCollection | None = None,
         **kwargs,
@@ -328,7 +328,7 @@ class ZarrTimeIndex(ZarrIndex, TimeIndex):
         if querytime is not None:
 
             def to_np(x):
-                return EDITDatetime(x).datetime64()
+                return pyearthtoolsDatetime(x).datetime64()
 
             base_data = base_data.sel(
                 {
@@ -356,5 +356,5 @@ class ZarrTimeIndex(ZarrIndex, TimeIndex):
         if querytime is not None:
             time_dim = identify_time_dimension(zarr)
 
-            exists_bool = exists_bool and EDITDatetime(querytime).datetime64() in zarr[time_dim]
+            exists_bool = exists_bool and pyearthtoolsDatetime(querytime).datetime64() in zarr[time_dim]
         return exists_bool

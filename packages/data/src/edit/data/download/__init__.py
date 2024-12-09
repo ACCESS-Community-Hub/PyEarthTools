@@ -7,7 +7,7 @@
 # from the use of the software.
 
 """
-Download Based Data Indexes for `edit.data`
+Download Based Data Indexes for `pyearthtools.data`
 
 Implemented:
 
@@ -20,6 +20,6 @@ Implemented:
 
 """
 
-from edit.data.download.templates import DownloadIndex
-from edit.data.download import cds, arco
-from edit.data.download import ecmwf_opendata as opendata
+from pyearthtools.data.download.templates import DownloadIndex
+from pyearthtools.data.download import cds, arco
+from pyearthtools.data.download import ecmwf_opendata as opendata

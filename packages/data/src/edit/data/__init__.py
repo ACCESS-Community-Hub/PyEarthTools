@@ -8,7 +8,7 @@
 
 # ruff: noqa: F401
 """
-`edit.data`
+`pyearthtools.data`
 
 Provide a unified way to index into and retrieve data.
 
@@ -17,13 +17,13 @@ At the moment, data is confined to geospatial netcdf sources.
 ## Examples
 === "ERA5"
     ```python
-    import edit.data
+    import pyearthtools.data
 
     ## Date of interest
     doi = '2022-04-01T03:00'
 
     ## Initialise the Data Loader
-    dataloader = edit.data.archive.ERA5(variables = 'tmax')
+    dataloader = pyearthtools.data.archive.ERA5(variables = 'tmax')
 
     ## Get Data
     dataloader(doi)
@@ -41,13 +41,13 @@ At the moment, data is confined to geospatial netcdf sources.
 
 === "Expanded Date Pattern"
     ```python
-    import edit.data
+    import pyearthtools.data
 
     ## Date of interest
     doi = '2022-04-01T03:00'
 
     ## Initialise the Data Loader
-    dataloader = edit.data.patterns.ExpandedDate(root_dir = '/data/is/here/', extension = 'nc')
+    dataloader = pyearthtools.data.patterns.ExpandedDate(root_dir = '/data/is/here/', extension = 'nc')
 
     ## Find Data
     dataloader.search(doi)
@@ -57,10 +57,10 @@ At the moment, data is confined to geospatial netcdf sources.
 
 === "Geographic Files"
     ```python
-    import edit.data
+    import pyearthtools.data
 
     ## Initialise the Data Loader
-    dataloader = edit.data.static.geographic()
+    dataloader = pyearthtools.data.static.geographic()
 
     ## Find Data
     dataloader('world')
@@ -71,25 +71,25 @@ At the moment, data is confined to geospatial netcdf sources.
 
 __version__ = "1.2.dev1"
 
-from edit.data import logger
-from edit.data import config
+from pyearthtools.data import logger
+from pyearthtools.data import config
 
-from edit.data.time import EDITDatetime, TimeResolution, TimeDelta, TimeRange
-from edit.data.time import EDITDatetime as datetime
+from pyearthtools.data.time import pyearthtoolsDatetime, TimeResolution, TimeDelta, TimeRange
+from pyearthtools.data.time import pyearthtoolsDatetime as datetime
 
-from edit.data.exceptions import DataNotFoundError, InvalidIndexError
-from edit.data.warnings import (
+from pyearthtools.data.exceptions import DataNotFoundError, InvalidIndexError
+from pyearthtools.data.warnings import (
     IndexWarning,
-    EDITDataWarning,
+    pyearthtoolsDataWarning,
     AccessorRegistrationWarning,
 )
 
 
-from edit.data.collection import Collection, LabelledCollection
+from pyearthtools.data.collection import Collection, LabelledCollection
 
-# from edit.data.catalog import Catalog, CatalogEntry
+# from pyearthtools.data.catalog import Catalog, CatalogEntry
 
-from edit.data.indexes import (
+from pyearthtools.data.indexes import (
     Index,
     DataIndex,
     FileSystemIndex,
@@ -106,30 +106,30 @@ from edit.data.indexes import (
     IntakeIndex,
     IntakeIndexCache,
 )
-from edit.data import indexes
-from edit.data.indexes import register_accessor
+from pyearthtools.data import indexes
+from pyearthtools.data.indexes import register_accessor
 
-from edit.data import operations as op
+from pyearthtools.data import operations as op
 
-from edit.data import archive, operations, static, transforms, patterns, download, modifications, derived, utils
-from edit.data import transforms as transform
-from edit.data.patterns import PatternIndex
+from pyearthtools.data import archive, operations, static, transforms, patterns, download, modifications, derived, utils
+from pyearthtools.data import transforms as transform
+from pyearthtools.data.patterns import PatternIndex
 
-from edit.data.transforms.transform import (
+from pyearthtools.data.transforms.transform import (
     Transform,
     TransformCollection,
     FunctionTransform,
 )
-from edit.data.transforms.derive import evaluate
-from edit.data import save
-from edit.data.save import ManageFiles, ManageTemp
+from pyearthtools.data.transforms.derive import evaluate
+from pyearthtools.data import save
+from pyearthtools.data.save import ManageFiles, ManageTemp
 
-from edit.data.load import load
+from pyearthtools.data.load import load
 
-import edit.utils
+import pyearthtools.utils
 import warnings as __python_warnings
 
-from edit.data.archive.utils import auto_import
+from pyearthtools.data.archive.utils import auto_import
 
 """Auto import archives if available"""
 
@@ -138,8 +138,8 @@ auto_import()
 """Config Root Directories"""
 archive.config_root()
 
-if edit.utils.config.get("data.future_warning"):
+if pyearthtools.utils.config.get("data.future_warning"):
     __python_warnings.warn(
-        "`edit` is under heavy development and may not continue to be supported.",
+        "`pyearthtools` is under heavy development and may not continue to be supported.",
         FutureWarning,
     )

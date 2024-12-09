@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import Callable
 import xarray as xr
 
-from edit.data.transforms import aggregation as aggr_trans
+from pyearthtools.data.transforms import aggregation as aggr_trans
 
 
 def aggregation(

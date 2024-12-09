@@ -19,16 +19,16 @@ import tqdm.auto as tqdm
 import logging
 
 
-from edit.data import TimeDelta, EDITDatetime, TimeRange
+from pyearthtools.data import TimeDelta, pyearthtoolsDatetime, TimeRange
 
-from edit.pipeline.controller import Pipeline
-from edit.training.wrapper.wrapper import ModelWrapper
-from edit.training.wrapper.predict.predict import Predictor
+from pyearthtools.pipeline.controller import Pipeline
+from pyearthtools.training.wrapper.wrapper import ModelWrapper
+from pyearthtools.training.wrapper.predict.predict import Predictor
 
-from edit.training.manage import Variables
+from pyearthtools.training.manage import Variables
 
 XR_TYPE = TypeVar("XR_TYPE", xr.Dataset, xr.DataArray)
-LOG = logging.getLogger("edit.training")
+LOG = logging.getLogger("pyearthtools.training")
 
 
 class TimeSeriesPredictor(Predictor):
@@ -76,7 +76,7 @@ class TimeSeriesPredictor(Predictor):
             fix_time_dim (bool, optional):
                 Fix time dimension after prediction. Defaults to True.
             interval (int | str | TimeDelta, optional):
-                Interval of temporal predictions, must be passable by `edit.data.TimeDelta`. Defaults to 1.
+                Interval of temporal predictions, must be passable by `pyearthtools.data.TimeDelta`. Defaults to 1.
             time_dim (str, optional):
                 Name of time dimension in undone data. Defaults to "time".
         """
@@ -110,7 +110,7 @@ class TimeSeriesPredictor(Predictor):
 
         interval = TimeDelta(self._interval)
 
-        idx = EDITDatetime(idx) + (interval * offset)
+        idx = pyearthtoolsDatetime(idx) + (interval * offset)
         len_time = len(data[self._time_dim])
 
         time_coord = list(map(lambda x: x.datetime64(), TimeRange(idx, idx + (interval * len_time), interval)))
@@ -206,7 +206,7 @@ class TimeSeriesAutoRecurrentPredictor(TimeSeriesPredictor):
             fix_time_dim (bool, optional):
                 Fix time dimension after prediction. Defaults to True.
             interval (int | str | TimeDelta, optional):
-                Interval of temporal predictions, must be passable by `edit.data.TimeDelta`. Defaults to 1.
+                Interval of temporal predictions, must be passable by `pyearthtools.data.TimeDelta`. Defaults to 1.
             time_dim (str, optional):
                 Name of time dimension in undone data. Defaults to "time".
             combine (Optional[Literal['stack', 'combine']], optional):
@@ -467,7 +467,7 @@ class TimeSeriesManagedPredictor(TimeSeriesAutoRecurrentPredictor):
                     for key, val in self.variable_manager.split(model_output_shaped, self._output_order).items()
                 }
 
-            current_time_step = EDITDatetime(idx) + (self._interval * step * model_output.shape[self._combine_axis])
+            current_time_step = pyearthtoolsDatetime(idx) + (self._interval * step * model_output.shape[self._combine_axis])
             outputs.append(model_output)
 
             output_components = self.prepare_output(output_components)

@@ -18,25 +18,25 @@ import yaml
 
 import logging
 
-from edit.data.utils import parse_path
+from pyearthtools.data.utils import parse_path
 
-from edit.utils.initialisation.imports import dynamic_import
-from edit.utils import initialisation
+from pyearthtools.utils.initialisation.imports import dynamic_import
+from pyearthtools.utils import initialisation
 
-import edit.pipeline
+import pyearthtools.pipeline
 
 CONFIG_KEY = "--CONFIG--"
 SUFFIX = ".epi"
 
-LOG = logging.getLogger("edit.pipeline")
+LOG = logging.getLogger("pyearthtools.pipeline")
 
 
-def save(pipeline: "edit.pipeline.Pipeline", path: Optional[Union[str, Path]] = None) -> Union[None, str]:
+def save(pipeline: "pyearthtools.pipeline.Pipeline", path: Optional[Union[str, Path]] = None) -> Union[None, str]:
     """
     Save `Pipeline`
 
     Args:
-        pipeline (edit.pipeline.Pipeline):
+        pipeline (pyearthtools.pipeline.Pipeline):
             Pipeline to save
         path (Optional[FILE], optional):
             File to save to. If not given return save str. Defaults to None.
@@ -47,7 +47,7 @@ def save(pipeline: "edit.pipeline.Pipeline", path: Optional[Union[str, Path]] = 
     """
     pipeline_yaml = yaml.dump(pipeline, Dumper=initialisation.Dumper, sort_keys=False)
 
-    extra_info: dict[str, Any] = {"VERSION": edit.pipeline.__version__}
+    extra_info: dict[str, Any] = {"VERSION": pyearthtools.pipeline.__version__}
     import_locations = [
         step._import for step in pipeline.flattened_steps if hasattr(step, "_import") and getattr(step, "_import")
     ]
@@ -68,7 +68,7 @@ def save(pipeline: "edit.pipeline.Pipeline", path: Optional[Union[str, Path]] = 
         file.write(full_yaml)
 
 
-def load(stream: Union[str, Path], **kwargs: Any) -> "edit.pipeline.Pipeline":
+def load(stream: Union[str, Path], **kwargs: Any) -> "pyearthtools.pipeline.Pipeline":
     """
     Load `Pipeline` config
 
@@ -79,7 +79,7 @@ def load(stream: Union[str, Path], **kwargs: Any) -> "edit.pipeline.Pipeline":
             Updates to default values include in the config.
 
     Returns:
-        (edit.pipeline.Pipeline):
+        (pyearthtools.pipeline.Pipeline):
             Loaded Pipeline
     """
     LOG.debug(f"Loading stream {stream}")
@@ -123,6 +123,6 @@ def load(stream: Union[str, Path], **kwargs: Any) -> "edit.pipeline.Pipeline":
 
     LOG.debug(f"Loaded pipeline object: {loaded_obj = }")
 
-    if not isinstance(loaded_obj, edit.pipeline.Pipeline):
+    if not isinstance(loaded_obj, pyearthtools.pipeline.Pipeline):
         raise FileNotFoundError(f"Cannot load {stream!r}, is it a valid Pipeline?")
     return loaded_obj

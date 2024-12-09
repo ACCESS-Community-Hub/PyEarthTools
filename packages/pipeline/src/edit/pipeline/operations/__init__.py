@@ -19,12 +19,12 @@ Pipeline Operations
 
 import warnings
 
-from edit.pipeline.operations import xarray, numpy
-from edit.pipeline.operations.transforms import Transforms
-from edit.pipeline.operations import transform
+from pyearthtools.pipeline.operations import xarray, numpy
+from pyearthtools.pipeline.operations.transforms import Transforms
+from pyearthtools.pipeline.operations import transform
 
 try:
-    from edit.pipeline.operations import dask
+    from pyearthtools.pipeline.operations import dask
 except (ImportError, ModuleNotFoundError) as e:
     warnings.warn(f"Unable to import `operations.dask` due to {e}", ImportWarning)
 

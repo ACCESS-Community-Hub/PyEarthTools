@@ -11,14 +11,14 @@ from typing import Any
 
 import pytest
 
-import edit.utils
+import pyearthtools.utils
 
-edit.utils.config.set({"pipeline.run_parallel": False})
+pyearthtools.utils.config.set({"pipeline.run_parallel": False})
 
-import edit.data
+import pyearthtools.data
 
-from edit.pipeline import Pipeline, exceptions
-from edit.pipeline.modifications.idx_modification import TemporalRetrieval
+from pyearthtools.pipeline import Pipeline, exceptions
+from pyearthtools.pipeline.modifications.idx_modification import TemporalRetrieval
 
 from tests.fake_pipeline_steps import *
 

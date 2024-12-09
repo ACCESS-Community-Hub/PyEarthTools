@@ -10,7 +10,7 @@ from typing import TypeVar, Union, Optional, Any
 
 import xarray as xr
 
-from edit.pipeline.branching.split import Spliter
+from pyearthtools.pipeline.branching.split import Spliter
 
 T = TypeVar("T", xr.Dataset, xr.DataArray)
 

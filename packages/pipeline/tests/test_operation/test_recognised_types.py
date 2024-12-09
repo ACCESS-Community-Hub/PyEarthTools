@@ -7,9 +7,9 @@
 # from the use of the software.
 
 import pytest
-from edit.pipeline import Operation, Pipeline
+from pyearthtools.pipeline import Operation, Pipeline
 
-from edit.data import Index
+from pyearthtools.data import Index
 
 
 class FakeIndex(Index):

@@ -10,8 +10,8 @@ from typing import Hashable, TypeVar, Union
 
 import xarray as xr
 
-import edit.data
-from edit.pipeline.operation import Operation
+import pyearthtools.data
+from pyearthtools.pipeline.operation import Operation
 
 T = TypeVar("T", xr.Dataset, xr.DataArray)
 
@@ -108,7 +108,7 @@ class CoordinateFlatten(Operation):
         self._skip_missing = skip_missing
 
     def apply_func(self, ds):
-        return edit.data.transforms.coordinates.flatten(self.coords, skip_missing=self._skip_missing)(ds)
+        return pyearthtools.data.transforms.coordinates.flatten(self.coords, skip_missing=self._skip_missing)(ds)
 
     def undo_func(self, ds):
-        return edit.data.transforms.coordinates.expand(self.coords)(ds)
+        return pyearthtools.data.transforms.coordinates.expand(self.coords)(ds)

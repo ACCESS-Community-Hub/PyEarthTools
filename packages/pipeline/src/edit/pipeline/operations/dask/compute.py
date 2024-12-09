@@ -14,7 +14,7 @@ import dask.array as da
 
 from dask.delayed import Delayed
 
-from edit.pipeline.operations.dask.dask import DaskOperation
+from pyearthtools.pipeline.operations.dask.dask import DaskOperation
 
 T = TypeVar("T", da.Array, Delayed)
 

@@ -9,7 +9,7 @@
 import pytest
 import math
 
-from edit.data.transforms.derive import EquationException, evaluate
+from pyearthtools.data.transforms.derive import EquationException, evaluate
 
 
 @pytest.mark.parametrize(

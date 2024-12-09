@@ -7,10 +7,10 @@
 # from the use of the software.
 
 """
-Additional base data types included for use in `edit`
+Additional base data types included for use in `pyearthtools`
 
 
-# TODO move to edit.utils
+# TODO move to pyearthtools.utils
 
 """
 
@@ -31,7 +31,7 @@ class Collection(tuple):
 
 
     Examples:
-        >>> collec = edit.data.Collection({'item_1':10}, {'item_2':42})
+        >>> collec = pyearthtools.data.Collection({'item_1':10}, {'item_2':42})
         >>> collec
         Collection Containing:
             {'item_1': 10}

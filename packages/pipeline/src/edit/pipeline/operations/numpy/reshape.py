@@ -12,7 +12,7 @@ import math
 import einops
 import numpy as np
 
-from edit.pipeline.operation import Operation
+from pyearthtools.pipeline.operation import Operation
 
 
 class Rearrange(Operation):

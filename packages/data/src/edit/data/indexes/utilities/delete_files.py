@@ -19,10 +19,10 @@ import time
 from typing import Literal, Sequence
 import logging
 
-from edit.data import TimeDelta
-from edit.utils.context import Catch
+from pyearthtools.data import TimeDelta
+from pyearthtools.utils.context import Catch
 
-LOG = logging.getLogger("edit.data")
+LOG = logging.getLogger("pyearthtools.data")
 
 
 def delete_path(

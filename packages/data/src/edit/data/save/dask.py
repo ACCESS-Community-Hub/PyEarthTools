@@ -13,7 +13,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from edit.data.save.array import save as numpy_save
+from pyearthtools.data.save.array import save as numpy_save
 
 import dask.array as da
 

@@ -7,7 +7,7 @@
 # from the use of the software.
 
 """
-Provide common operations to be applied to [DataIndexes][edit.data.DataIndex]
+Provide common operations to be applied to [DataIndexes][pyearthtools.data.DataIndex]
 """
 
 from __future__ import annotations
@@ -22,15 +22,15 @@ import numpy as np
 from tqdm.auto import tqdm, trange
 import xarray as xr
 
-import edit.data
+import pyearthtools.data
 
-from edit.data.time import EDITDatetime, TimeDelta
-from edit.data.exceptions import (
+from pyearthtools.data.time import pyearthtoolsDatetime, TimeDelta
+from pyearthtools.data.exceptions import (
     DataNotFoundError,
     InvalidIndexError,
     run_and_catch_exception,
 )
-from edit.data.transforms import Transform, TransformCollection
+from pyearthtools.data.transforms import Transform, TransformCollection
 
 
 def split_ds(dataset: xr.Dataset, divisions: int = 1, dim: str = "time") -> list[xr.Dataset]:
@@ -72,8 +72,8 @@ def split_ds_gen(dataset: xr.Dataset, divisions: int = 1, dim: str = "time") -> 
 
 def aggregation(
     DataFunction: "TimeIndex",
-    start: str | datetime.datetime | EDITDatetime,
-    end: str | datetime.datetime | EDITDatetime,
+    start: str | datetime.datetime | pyearthtoolsDatetime,
+    end: str | datetime.datetime | pyearthtoolsDatetime,
     interval: tuple[float, str],
     *,
     aggregation: str = "mean",
@@ -86,7 +86,7 @@ def aggregation(
     **kwargs,
 ) -> xr.Dataset:
     """
-    Get aggregation of [TimeIndex][edit.data.TimeIndex] over given dimension
+    Get aggregation of [TimeIndex][pyearthtools.data.TimeIndex] over given dimension
 
     !!! Warning:
         Any `num_divisions` not a factor of the number of data steps
@@ -95,9 +95,9 @@ def aggregation(
     Args:
         DataFunction (TimeIndex):
             TimeIndex to retrieve Data
-        start (str | datetime.datetime | EDITDatetime):
+        start (str | datetime.datetime | pyearthtoolsDatetime):
             Start Date
-        end (str | datetime.datetime | EDITDatetime):
+        end (str | datetime.datetime | pyearthtoolsDatetime):
             End Date
         interval (tuple[float, str]):
             Interval between samples. Use pandas.to_timedelta notation, (10, 'minute')
@@ -122,10 +122,10 @@ def aggregation(
     print = lambda *args, **kwargs: builtins.print(*args, **kwargs) if verbose else None
 
     # print("Finding Series ...")
-    aggregation_func = edit.data.transforms.aggregation.over(aggregation, dimension=aggregation_dim)
+    aggregation_func = pyearthtools.data.transforms.aggregation.over(aggregation, dimension=aggregation_dim)
 
-    start = EDITDatetime(start)
-    end = EDITDatetime(end)
+    start = pyearthtoolsDatetime(start)
+    end = pyearthtoolsDatetime(end)
     interval = TimeDelta(interval)
     steps = (end - start) // interval
 
@@ -218,8 +218,8 @@ MAX_VALUE = 1e-10
 
 def find_range(
     DataFunction: "TimeIndex",
-    start: str | EDITDatetime,
-    end: str | EDITDatetime,
+    start: str | pyearthtoolsDatetime,
+    end: str | pyearthtoolsDatetime,
     interval: tuple[float, str] | TimeDelta,
     *,
     skip_invalid: bool = True,
@@ -228,14 +228,14 @@ def find_range(
     **kwargs,
 ) -> dict:
     """
-    Find Minimum and Maximum of a [TimeIndex][edit.data.TimeIndex] in the given time range
+    Find Minimum and Maximum of a [TimeIndex][pyearthtools.data.TimeIndex] in the given time range
 
     Args:
         DataFunction (TimeIndex):
             TimeIndex to retrieve Data
-        start (str | EDITDatetime):
+        start (str | pyearthtoolsDatetime):
             Start Date
-        end (str | EDITDatetime):
+        end (str | pyearthtoolsDatetime):
             End Date
         interval (tuple[float, str]):
             Interval between samples. Use pandas.to_timedelta notation, (10, 'minute')

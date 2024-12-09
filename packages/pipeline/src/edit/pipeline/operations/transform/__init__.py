@@ -9,5 +9,5 @@
 
 """Pipeline specific transforms"""
 
-from edit.pipeline.operations.transform.add_variables import TimeOfYear
-from edit.pipeline.operations.transform.add_coordinates import AddCoordinates
+from pyearthtools.pipeline.operations.transform.add_variables import TimeOfYear
+from pyearthtools.pipeline.operations.transform.add_coordinates import AddCoordinates

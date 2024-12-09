@@ -1,3 +1,3 @@
-# edit
+# pyearthtools
 
-Core parent package of `edit`.
+Core parent package of `pyearthtools`.

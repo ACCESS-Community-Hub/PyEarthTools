@@ -1,12 +1,12 @@
-# EDIT
+# pyearthtools
 
 *This is a placeholder README.*
 
 First clone the repository using the `monorepo` branch:
 
 ```
-git clone git@github.com:informatics-lab/EDIT.git
-cd EDIT
+git clone git@github.com:informatics-lab/pyearthtools.git
+cd pyearthtools
 ```
 
 Then create a Python virtual environment:
@@ -40,5 +40,5 @@ To run example [notebooks from the ERA5 low-res package](packages/era5lowres/nbo
 ```
 # from the activate virtual or conda environment
 pip install ipykernel
-python -m ipykernel install --user --name EDIT
+python -m ipykernel install --user --name pyearthtools
 ```

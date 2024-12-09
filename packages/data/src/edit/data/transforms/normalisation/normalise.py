@@ -16,8 +16,8 @@ import xarray as xr
 
 xr.set_options(keep_attrs=True)
 
-from edit.data.transforms.normalisation.default import normaliser, open_file
-from edit.data.transforms.transform import FunctionTransform, Transform
+from pyearthtools.data.transforms.normalisation.default import normaliser, open_file
+from pyearthtools.data.transforms.transform import FunctionTransform, Transform
 
 
 class Normalise(normaliser):

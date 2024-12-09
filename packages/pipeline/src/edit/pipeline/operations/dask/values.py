@@ -13,9 +13,9 @@ from typing import Literal, Union, Optional
 import dask.array as da
 import numpy as np
 
-import edit.data
+import pyearthtools.data
 
-from edit.pipeline.operations.dask.dask import DaskOperation
+from pyearthtools.pipeline.operations.dask.dask import DaskOperation
 
 
 class FillNan(DaskOperation):
@@ -111,7 +111,7 @@ class MaskValue(DaskOperation):
         self.value = value
         self.replacement_value = replacement_value
 
-        self._mask_transform = edit.data.transforms.mask.replace_value(value, operation, replacement_value)
+        self._mask_transform = pyearthtools.data.transforms.mask.replace_value(value, operation, replacement_value)
 
     def apply_func(self, sample: da.Array) -> da.Array:
         """

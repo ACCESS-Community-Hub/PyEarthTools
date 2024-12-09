@@ -50,11 +50,11 @@ def setup_formats(format_1: str, format_2: str) -> tuple[str, str]:
             raise ValueError(f"At least one format must be fully defined, '{format_1}, {format_2}' is invalid")
         return tuple(np.flip(setup_formats(format_2, format_1)))
 
-    format_edit_1 = format_1
-    for char in format_edit_1:
+    format_pyearthtools_1 = format_1
+    for char in format_pyearthtools_1:
         if char in format_2:
-            format_edit_1 = format_edit_1.replace(char, "")
-    format_2 = format_2.replace("...", format_edit_1)
+            format_pyearthtools_1 = format_pyearthtools_1.replace(char, "")
+    format_2 = format_2.replace("...", format_pyearthtools_1)
 
     return format_1, format_2
 

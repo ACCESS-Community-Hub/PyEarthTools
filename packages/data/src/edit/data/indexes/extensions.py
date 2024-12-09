@@ -8,18 +8,18 @@
 
 """
 
-Extend functionality of `edit.data.indexes`.
+Extend functionality of `pyearthtools.data.indexes`.
 
 Largely sourced from [xarray.extensions](https://docs.xarray.dev/en/stable/internals/extending-xarray.html)
 
 [GitHub Code](https://github.com/pydata/xarray/blob/main/xarray/core/extensions.py)
 
-Here is how `edit.plotting.geo` in effect extends the `indexers`
+Here is how `pyearthtools.plotting.geo` in effect extends the `indexers`
 ```python
-@edit.data.register_accessor("geo", 'DataIndex')
+@pyearthtools.data.register_accessor("geo", 'DataIndex')
 class GeoAccessor:
-    def __init__(self, edit_obj):
-        self._obj = edit_obj
+    def __init__(self, pyearthtools_obj):
+        self._obj = pyearthtools_obj
 
     def plot(self):
         # plot this index's data on a map, e.g., using Cartopy
@@ -46,8 +46,8 @@ import warnings
 from types import ModuleType
 from typing import Callable
 
-import edit.data
-from edit.data.indexes.indexes import Index
+import pyearthtools.data
+from pyearthtools.data.indexes.indexes import Index
 
 
 class _CachedAccessor:
@@ -90,7 +90,7 @@ def _register_accessor(name: str, cls: ModuleType | type) -> Callable:
             warnings.warn(
                 f"Registration of accessor {accessor!r} under name {name!r} for type {cls!r} is "
                 "overriding a preexisting attribute with the same name.",
-                edit.data.AccessorRegistrationWarning,
+                pyearthtools.data.AccessorRegistrationWarning,
                 stacklevel=2,
             )
         setattr(cls, name, _CachedAccessor(name, accessor))
@@ -101,28 +101,28 @@ def _register_accessor(name: str, cls: ModuleType | type) -> Callable:
 
 def register_accessor(name: str, object: str | type | ModuleType = Index) -> Callable:
     """
-    Register a custom accessor on `edit.data` indexes.
+    Register a custom accessor on `pyearthtools.data` indexes.
 
-    Any decorated class will receive the `edit.data.Index` as it's first and only argument.
+    Any decorated class will receive the `pyearthtools.data.Index` as it's first and only argument.
 
     Args:
         name (str):
             Name under which the accessor should be registered. A warning is issued
             if this name conflicts with a preexisting attribute.
         object (str | type | ModuleType, optional):
-            `edit.data.indexes` object to register accessor to.
+            `pyearthtools.data.indexes` object to register accessor to.
             By default this will add to the base level index, so is available from all.
             Defaults to Index.
 
     Examples:
         In your library code:
 
-        >>> @edit.data.register_accessor("geo", 'DataIndex')
+        >>> @pyearthtools.data.register_accessor("geo", 'DataIndex')
         ... class GeoAccessor:
-        ...     def __init__(self, edit_obj):
-        ...         self._obj = edit_obj
+        ...     def __init__(self, pyearthtools_obj):
+        ...         self._obj = pyearthtools_obj
 
-        ...     # Using the `edit.data.Index`, retrieve data and do something.
+        ...     # Using the `pyearthtools.data.Index`, retrieve data and do something.
         ...     def plot(self):
         ...         # Run plotting
         ...         pass
@@ -130,15 +130,15 @@ def register_accessor(name: str, object: str | type | ModuleType = Index) -> Cal
 
         Back in an interactive IPython session:
 
-        >>> era5 = edit.data.archive.ERA5(
+        >>> era5 = pyearthtools.data.archive.ERA5(
         ...     variables = '2t', level = 'single'
         ... )
         >>> era5.geo.plot()  # plots index on a map
     """
 
     if isinstance(object, str):
-        if not hasattr(edit.data, object):
-            raise ValueError(f"Cannot find {object!r} underneath `edit.data`.")
-        object = getattr(edit.data, object)
+        if not hasattr(pyearthtools.data, object):
+            raise ValueError(f"Cannot find {object!r} underneath `pyearthtools.data`.")
+        object = getattr(pyearthtools.data, object)
     assert not isinstance(object, str)
     return _register_accessor(name, object)

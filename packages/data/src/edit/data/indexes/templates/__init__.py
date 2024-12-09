@@ -8,4 +8,4 @@
 
 """Templates for easy data setup"""
 
-from edit.data.indexes.templates.structured import Structured
+from pyearthtools.data.indexes.templates.structured import Structured

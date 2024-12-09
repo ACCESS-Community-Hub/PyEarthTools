@@ -8,8 +8,8 @@
 
 import xarray as xr
 
-from edit.pipeline.graph import Graphed
-from edit.pipeline.operation import PipelineStep
+from pyearthtools.pipeline.graph import Graphed
+from pyearthtools.pipeline.operation import PipelineStep
 
 
 def find_shape(obj):

@@ -16,10 +16,10 @@ from pathlib import Path
 import numpy as np
 import xarray as xr
 
-from edit.data.transforms.transform import Transform
-from edit.data.transforms.utils import parse_dataset
+from pyearthtools.data.transforms.transform import Transform
+from pyearthtools.data.transforms.utils import parse_dataset
 
-from edit.utils.decorators import BackwardsCompatibility
+from pyearthtools.utils.decorators import BackwardsCompatibility
 
 OPERATIONS = ["==", "!=", ">", "<", ">=", "<="]
 OPERATIONS_TYPE = Literal["==", "!=", ">", "<", ">=", "<="]
@@ -175,7 +175,7 @@ class UnderlyingMaskTransform(Transform):
             if isinstance(ds, xr.DataArray):
                 ds = ds.to_dataset(name="data")
 
-            from edit.data.transforms.derive import evaluate
+            from pyearthtools.data.transforms.derive import evaluate
 
             return evaluate(obj, dataset=ds)
 

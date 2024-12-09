@@ -12,8 +12,8 @@ from typing import Optional
 
 import dask.array as da
 
-from edit.pipeline.branching.split import Spliter
-from edit.pipeline.operations.dask.dask import DaskOperation
+from pyearthtools.pipeline.branching.split import Spliter
+from pyearthtools.pipeline.operations.dask.dask import DaskOperation
 
 
 class OnAxis(Spliter, DaskOperation):

@@ -15,14 +15,14 @@ from __future__ import annotations
 from typing import Callable, Any, Type
 import warnings
 
-import edit.data
+import pyearthtools.data
 
-MODIFICATION_DICT: dict[str, Type["edit.data.modifications.Modification"]] = {}
+MODIFICATION_DICT: dict[str, Type["pyearthtools.data.modifications.Modification"]] = {}
 
 
 def register_modification(name: str) -> Callable:
     """
-    Register a modification for use with `@edit.data.indexes.decorators.variable_modifications`.
+    Register a modification for use with `@pyearthtools.data.indexes.decorators.variable_modifications`.
 
     Args:
         name (str):
@@ -36,7 +36,7 @@ def register_modification(name: str) -> Callable:
             warnings.warn(
                 f"Registration of modification {modification_class!r} under name {name!r} is "
                 "overriding a preexisting modification with the same name.",
-                edit.data.AccessorRegistrationWarning,
+                pyearthtools.data.AccessorRegistrationWarning,
                 stacklevel=2,
             )
         MODIFICATION_DICT[name] = modification_class

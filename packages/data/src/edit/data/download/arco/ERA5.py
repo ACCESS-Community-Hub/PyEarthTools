@@ -12,15 +12,15 @@ import functools
 import xarray as xr
 from os import PathLike
 
-import edit.data
-from edit.data.time import EDITDatetime
+import pyearthtools.data
+from pyearthtools.data.time import pyearthtoolsDatetime
 
-from edit.data.indexes import AdvancedTimeDataIndex, decorators, CachingIndex
-from edit.data.transforms.transform import Transform, TransformCollection
+from pyearthtools.data.indexes import AdvancedTimeDataIndex, decorators, CachingIndex
+from pyearthtools.data.transforms.transform import Transform, TransformCollection
 
-from edit.data.patterns.expanded_date import ExpandedDateVariable
+from pyearthtools.data.patterns.expanded_date import ExpandedDateVariable
 
-from edit.data.download.arco.variables.ERA5 import (
+from pyearthtools.data.download.arco.variables.ERA5 import (
     ERA5_LEVELS,
     ERA_NAME_CHANGE,
 )
@@ -74,7 +74,7 @@ class ARCOERA5(AdvancedTimeDataIndex):
         level=["levels", "level_value"],
     )
     @decorators.check_arguments(
-        variables="edit.data.download.arco.variables.ERA5.valid",
+        variables="pyearthtools.data.download.arco.variables.ERA5.valid",
         level=ERA5_LEVELS,
     )
     @decorators.variable_modifications("variables")
@@ -86,7 +86,7 @@ class ARCOERA5(AdvancedTimeDataIndex):
         **kwargs,
     ):
         """
-        Analysis-Ready, Cloud Optimized ERA5 integrated within `EDIT`.
+        Analysis-Ready, Cloud Optimized ERA5 integrated within `pyearthtools`.
 
         Allows for access to a cloud ERA5 archive.
 
@@ -125,7 +125,7 @@ class ARCOERA5(AdvancedTimeDataIndex):
         self._ds = ds[self.variables]
 
         if self.level is not None:
-            self._ds = edit.data.transform.coordinates.Select(level=self.level, ignore_missing=True)(self._ds)
+            self._ds = pyearthtools.data.transform.coordinates.Select(level=self.level, ignore_missing=True)(self._ds)
 
     @property
     def full_ds(self) -> xr.Dataset:
@@ -140,7 +140,7 @@ class ARCOERA5(AdvancedTimeDataIndex):
 
     def get(self, time: str):
         """Get timestep from dataset"""
-        return self._ds.sel(time=EDITDatetime(time).datetime64())
+        return self._ds.sel(time=pyearthtoolsDatetime(time).datetime64())
 
     @classmethod
     def sample(cls):

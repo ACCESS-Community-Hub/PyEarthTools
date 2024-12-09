@@ -17,10 +17,10 @@ import pytorch_lightning as L
 from pytorch_lightning import callbacks
 from pytorch_lightning import loggers
 
-from edit.pipeline.controller import Pipeline
-from edit.training.data.lightning import PipelineLightningDataModule
-from edit.training.wrapper.lightning.wrapper import LightningWrapper
-from edit.training.wrapper.train import TrainingWrapper
+from pyearthtools.pipeline.controller import Pipeline
+from pyearthtools.training.data.lightning import PipelineLightningDataModule
+from pyearthtools.training.wrapper.lightning.wrapper import LightningWrapper
+from pyearthtools.training.wrapper.train import TrainingWrapper
 
 DEFAULT_CALLBACKS = {
     "Checkpoint": dict(

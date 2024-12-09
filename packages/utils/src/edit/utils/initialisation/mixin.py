@@ -10,13 +10,13 @@ import copy
 from typing import Literal, Sequence, Any, Optional, TypeVar
 
 
-import edit.utils
-from edit.utils.initialisation import init_parsing
+import pyearthtools.utils
+from pyearthtools.utils.initialisation import init_parsing
 
 Self = TypeVar("Self", Any, Any)
 
-EDIT_INIT_KEYS = Literal["class"]
-EDIT_REPR_KEYS = Literal["ignore", "expand", "expand_attr"]
+pyearthtools_INIT_KEYS = Literal["class"]
+pyearthtools_REPR_KEYS = Literal["ignore", "expand", "expand_attr"]
 
 
 class ReprInformation:
@@ -74,9 +74,9 @@ class InitialisationRecordingMixin:
     ```
 
     Properties:
-        _edit_initialisation (dict[EDIT_INIT_KEYS, Any]):
+        _pyearthtools_initialisation (dict[pyearthtools_INIT_KEYS, Any]):
             'class' (str): Override for class location.
-        _edit_repr (dict[EDIT_REPR_KEYS, Any]):
+        _pyearthtools_repr (dict[pyearthtools_REPR_KEYS, Any]):
             ignore (Sequence[str]): Arguments to ignore from `_initialisation`.
             expand (Sequence[str]): Arguments to expand from `_initialisation`.
             expand_attr (Sequence[str]): Arguments to get from class and expand.
@@ -92,8 +92,8 @@ class InitialisationRecordingMixin:
     """
 
     _initialisation: Optional[dict[str, Any]] = None
-    _edit_initialisation: dict[EDIT_INIT_KEYS, Any]
-    _edit_repr: dict[EDIT_REPR_KEYS, Any]
+    _pyearthtools_initialisation: dict[pyearthtools_INIT_KEYS, Any]
+    _pyearthtools_repr: dict[pyearthtools_REPR_KEYS, Any]
 
     _desc_: Optional[dict[str, Any]]
     _property: Optional[str] = None
@@ -147,7 +147,7 @@ class InitialisationRecordingMixin:
         """
         Convert to dictionary ready for repr
         """
-        config = getattr(self, "_edit_repr", {})
+        config = getattr(self, "_pyearthtools_repr", {})
 
         init_kwargs = dict(self.initialisation)
         if "ignore" in config:
@@ -161,7 +161,7 @@ class InitialisationRecordingMixin:
         if "__args" in init_kwargs:
             init_kwargs["args"] = init_kwargs.pop("__args")
 
-        config = getattr(self, "_edit_repr", {})
+        config = getattr(self, "_pyearthtools_repr", {})
 
         expanded_information = []
 
@@ -191,7 +191,7 @@ class InitialisationRecordingMixin:
         return parse_repr_object(init_kwargs, "Initialisation", doc=doc), *expanded_information
 
     def __repr__(self):
-        return edit.utils.repr_utils.standard(
+        return pyearthtools.utils.repr_utils.standard(
             *self.__get_items_for_repr(),
             name=self.__class__.__qualname__,
             description=dict(getattr(self, "_desc_", {})),
@@ -208,7 +208,7 @@ class InitialisationRecordingMixin:
 
         backup_repr = self.__repr__() or "HTML Repr Failed"
 
-        return edit.utils.repr_utils.html(
+        return pyearthtools.utils.repr_utils.html(
             *steps,
             name=self.__class__.__qualname__,
             description=dict(getattr(self, "_desc_", {})),

@@ -19,21 +19,21 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from edit.data.time import EDITDatetime, TimeResolution
-from edit.data.patterns import (
+from pyearthtools.data.time import pyearthtoolsDatetime, TimeResolution
+from pyearthtools.data.patterns import (
     PatternIndex,
     PatternTimeIndex,
     PatternVariableAware,
     PatternForecastIndex,
 )
-from edit.data.indexes import TimeIndex, decorators
+from pyearthtools.data.indexes import TimeIndex, decorators
 
-import edit.utils
-from edit.utils.decorators import classproperty
+import pyearthtools.utils
+from pyearthtools.utils.decorators import classproperty
 
 DIRECTORY_PATTERN = "{ROOT_DIR}/{FILE}"
 FILE_PATTERN = "{prefix}{time}{extension}"
-DEFAULT_EXTENSION = edit.utils.config.get("data.patterns.default_extension")
+DEFAULT_EXTENSION = pyearthtools.utils.config.get("data.patterns.default_extension")
 
 
 def nonNone(*args):
@@ -93,9 +93,9 @@ class _Direct(TimeIndex, PatternIndex):
 
     def filesystem(
         self,
-        basetime: str | EDITDatetime,
+        basetime: str | pyearthtoolsDatetime,
     ) -> Path:
-        basetime = EDITDatetime(basetime).at_resolution(self.file_resolution)
+        basetime = pyearthtoolsDatetime(basetime).at_resolution(self.file_resolution)
 
         basepath = Path(self.root_dir).resolve() / FILE_PATTERN.format(
             prefix=self.prefix + "_" if self.prefix else "",
@@ -110,10 +110,10 @@ class Direct(_Direct):
     """Generate Filepath structure based on time at given root directory
 
     Examples:
-        >>> pattern = edit.data.patterns.Direct('/dir/', extension = '.nc')
+        >>> pattern = pyearthtools.data.patterns.Direct('/dir/', extension = '.nc')
         >>> str(pattern.search('2020-01-02T0030'))
         '/dir/20200102T0030.nc'
-        >>> pattern = edit.data.patterns.Direct('/dir/', extension = '.nc', deliminator = ('@', '%'))
+        >>> pattern = pyearthtools.data.patterns.Direct('/dir/', extension = '.nc', deliminator = ('@', '%'))
         >>> str(pattern.search('2020-01-02T0030'))
         '/dir/2020@01@02T00%30.nc'
     """
@@ -131,7 +131,7 @@ class TemporalDirect(_Direct, PatternTimeIndex):
     """Direct PatternIndex which is also a AdvancedTimeIndex
 
     Examples:
-        >>> pattern = edit.data.patterns.TemporalDirect('/dir/', extension = '.nc', data_interval = (1, 'month'))
+        >>> pattern = pyearthtools.data.patterns.TemporalDirect('/dir/', extension = '.nc', data_interval = (1, 'month'))
         >>> str(pattern.search('2020-01-02'))
         '/dir/202001.nc'
 
@@ -139,9 +139,9 @@ class TemporalDirect(_Direct, PatternTimeIndex):
 
     def filesystem(
         self,
-        basetime: str | EDITDatetime,
+        basetime: str | pyearthtoolsDatetime,
     ) -> Path:
-        basetime = EDITDatetime(basetime)
+        basetime = pyearthtoolsDatetime(basetime)
 
         if self.data_resolution:
             basetime = basetime.at_resolution(self.data_resolution)

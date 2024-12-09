@@ -10,13 +10,13 @@ from typing import Any
 
 import pytest
 
-import edit.utils
+import pyearthtools.utils
 
-from edit.pipeline import Pipeline, branching
+from pyearthtools.pipeline import Pipeline, branching
 
 from tests.fake_pipeline_steps import FakeIndex, MultiplicationOperation
 
-edit.utils.config.set({"pipeline.run_parallel": False})
+pyearthtools.utils.config.set({"pipeline.run_parallel": False})
 
 
 class AdditionJoin(branching.Joiner):

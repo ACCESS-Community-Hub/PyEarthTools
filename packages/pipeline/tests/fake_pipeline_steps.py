@@ -7,13 +7,13 @@
 # from the use of the software.
 from __future__ import annotations
 
-import edit.utils
+import pyearthtools.utils
 
-from edit.pipeline import Operation
-from edit.data import Index
+from pyearthtools.pipeline import Operation
+from pyearthtools.data import Index
 
 
-edit.utils.config.set({"pipeline.run_parallel": False})
+pyearthtools.utils.config.set({"pipeline.run_parallel": False})
 
 
 class FakeIndex(Index):

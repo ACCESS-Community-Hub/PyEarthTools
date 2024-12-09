@@ -12,10 +12,10 @@ from typing import Literal, Optional, Type, Union
 
 import numpy as np
 
-from edit.pipeline.step import PipelineStep
+from pyearthtools.pipeline.step import PipelineStep
 
-from edit.pipeline.decorators import potentialabstractmethod, PotentialABC
-from edit.pipeline import parallel
+from pyearthtools.pipeline.decorators import potentialabstractmethod, PotentialABC
+from pyearthtools.pipeline import parallel
 
 __all__ = ["Operation"]
 

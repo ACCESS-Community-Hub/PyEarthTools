@@ -13,7 +13,7 @@ import xarray as xr
 
 import math
 
-from edit.pipeline.filters import Filter, PipelineFilterException
+from pyearthtools.pipeline.filters import Filter, PipelineFilterException
 
 T = TypeVar("T", xr.Dataset, xr.DataArray)
 

@@ -18,25 +18,25 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-import edit
+import pyearthtools
 
-import edit.data
-import edit.utils
+import pyearthtools.data
+import pyearthtools.utils
 
-from edit.data.exceptions import DataNotFoundError, InvalidIndexError, InvalidDataError
-from edit.data.time import EDITDatetime, TimeDelta, time_delta_resolution, TimeRange
-from edit.data.transforms.transform import Transform, TransformCollection
-from edit.data.warnings import IndexWarning
-from edit.data.operations.utils import identify_time_dimension
+from pyearthtools.data.exceptions import DataNotFoundError, InvalidIndexError, InvalidDataError
+from pyearthtools.data.time import pyearthtoolsDatetime, TimeDelta, time_delta_resolution, TimeRange
+from pyearthtools.data.transforms.transform import Transform, TransformCollection
+from pyearthtools.data.warnings import IndexWarning
+from pyearthtools.data.operations.utils import identify_time_dimension
 
 
-LOG = logging.getLogger("edit.data")
+LOG = logging.getLogger("pyearthtools.data")
 
 
 def series(
     DataFunction: "AdvancedTimeIndex",
-    start: str | EDITDatetime,
-    end: str | EDITDatetime,
+    start: str | pyearthtoolsDatetime,
+    end: str | pyearthtoolsDatetime,
     interval: tuple[float, str] | TimeDelta,
     *,
     inclusive: bool = False,
@@ -55,9 +55,9 @@ def series(
     Args:
         DataFunction (AdvancedTimeIndex):
             Data function, must be AdvancedTimeIndex or child
-        start (str | datetime.datetime | EDITDatetime):
+        start (str | datetime.datetime | pyearthtoolsDatetime):
             Timestep to begin series at
-        end (str | datetime.datetime | EDITDatetime):
+        end (str | datetime.datetime | pyearthtoolsDatetime):
             Timestep to end series at
         interval (tuple[float, str]):
             Time interval between samples. Use pandas.to_timedelta notation, (10, 'minute')
@@ -66,7 +66,7 @@ def series(
         skip_invalid (bool, optional):
             Whether to skip invalid data. Defaults to False.
         transforms (Transform | TransformCollection, optional):
-            Extra [Transform's][edit.data.transforms.Transform] to be applied to data. Defaults to TransformCollection().
+            Extra [Transform's][pyearthtools.data.transforms.Transform] to be applied to data. Defaults to TransformCollection().
         verbose (bool, optional):
             Print logging messages. Defaults to False.
         force_get (bool, optional):
@@ -87,12 +87,12 @@ def series(
     if not hasattr(DataFunction, "search"):
         use_single = True
 
-    # if isinstance(DataFunction, edit.data.CachingIndex):
+    # if isinstance(DataFunction, pyearthtools.data.CachingIndex):
     #     use_single = True
 
     interval = TimeDelta(interval)
-    start = EDITDatetime(start)
-    end = EDITDatetime(end)
+    start = pyearthtoolsDatetime(start)
+    end = pyearthtoolsDatetime(end)
 
     start = start.at_resolution(max(interval.resolution, start.resolution))
     end = end.at_resolution(max(end.resolution, start.resolution))
@@ -154,12 +154,12 @@ def series(
         # ['year-01-01T00', 'year-01-01T01', 'year-01-01T02',..., 'year-02-01T22', 'year-02-01T23']
         timesteps = list(TimeRange(start, end, interval))
         if (
-            edit.utils.config.get("data.experimental")
+            pyearthtools.utils.config.get("data.experimental")
             and DataFunction.data_resolution
             and DataFunction.data_resolution > start.resolution
         ):
             timesteps = [
-                t for time in timesteps for t in edit.data.TimeRange(time, time + 1, DataFunction.data_interval)
+                t for time in timesteps for t in pyearthtools.data.TimeRange(time, time + 1, DataFunction.data_interval)
             ]
 
         time = list(set(map(lambda x: x.datetime64("ns"), timesteps)) & set(data[time_dim].values))
@@ -225,8 +225,8 @@ def series(
 @functools.wraps(series)
 def _mf_series(
     DataFunction: "AdvancedTimeIndex",
-    start: EDITDatetime,
-    end: EDITDatetime,
+    start: pyearthtoolsDatetime,
+    end: pyearthtoolsDatetime,
     interval: TimeDelta,
     *,
     skip_invalid: bool = False,
@@ -242,7 +242,7 @@ def _mf_series(
 
     warning_count = 0
     warnings_list = []
-    warning_threshold = edit.utils.config.get("data.series.warning_threshold")
+    warning_threshold = pyearthtools.utils.config.get("data.series.warning_threshold")
 
     for query_time in TimeRange(start, end, interval, use_tqdm=verbose, desc="Getting data (mf)"):
         timesteps.append(query_time)
@@ -303,8 +303,8 @@ def _mf_series(
 
     LOG.debug(f"Opening Datasets. {dataset_paths}")
 
-    open_kwargs = edit.utils.config.get("data.open.xarray")
-    open_kwargs.update(edit.utils.config.get("data.open.xarray_mf"))
+    open_kwargs = pyearthtools.utils.config.get("data.open.xarray")
+    open_kwargs.update(pyearthtools.utils.config.get("data.open.xarray_mf"))
     open_kwargs.update(kwargs)
 
     full_ds = xr.open_mfdataset(
@@ -331,8 +331,8 @@ def _mf_series(
 @functools.wraps(series)
 def _get_series(
     DataFunction: "AdvancedTimeIndex",
-    start: EDITDatetime,
-    end: EDITDatetime,
+    start: pyearthtoolsDatetime,
+    end: pyearthtoolsDatetime,
     interval: TimeDelta,
     *,
     skip_invalid: bool = False,
@@ -348,7 +348,7 @@ def _get_series(
     last_ds = None
 
     warning_count = 0
-    warning_threshold = edit.utils.config.get("data.series.warning_threshold")
+    warning_threshold = pyearthtools.utils.config.get("data.series.warning_threshold")
 
     dim = kwargs.pop("dim", "time")
 
@@ -408,14 +408,14 @@ def _get_series(
 
 def safe_series(
     DataFunction: "AdvancedTimeIndex",
-    start: str | EDITDatetime,
-    end: str | EDITDatetime,
+    start: str | pyearthtoolsDatetime,
+    end: str | pyearthtoolsDatetime,
     interval: TimeDelta,
     **kwargs,
 ) -> xr.Dataset:
     """Safely index into the provided Data function to create a continuous series of Data.
 
-    Uses [series][edit.data.operations.index_routines.series], but provides an automatic interpolation.
+    Uses [series][pyearthtools.data.operations.index_routines.series], but provides an automatic interpolation.
 
     !!! Warning
         If data is missing or if a resolution higher than the actual data resolution is provided,
@@ -425,14 +425,14 @@ def safe_series(
     Args:
         DataFunction (AdvancedTimeIndex):
             Data function, must be AdvancedTimeIndex or child
-        start (str | EDITDatetime):
+        start (str | pyearthtoolsDatetime):
             Timestep to begin series at
-        end (str | EDITDatetime):
+        end (str | pyearthtoolsDatetime):
             Timestep to end series at
         interval (TimeDelta):
             Time interval between samples. Use pandas.to_timedelta notation, (10, 'minute')
         **kwargs (dict, optional):
-            Any extra keyword arguments to pass to [series][edit.data.operations.index_routines.series]
+            Any extra keyword arguments to pass to [series][pyearthtools.data.operations.index_routines.series]
 
     Returns:
         (xr.Dataset):
@@ -442,8 +442,8 @@ def safe_series(
     kwargs["skip_invalid"] = True
 
     interval = TimeDelta(interval)
-    start = EDITDatetime(start)
-    end = EDITDatetime(end)
+    start = pyearthtoolsDatetime(start)
+    end = pyearthtoolsDatetime(end)
 
     if DataFunction.data_resolution and time_delta_resolution(interval) > DataFunction.data_resolution:
         data: xr.Dataset = series(

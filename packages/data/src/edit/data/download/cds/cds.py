@@ -20,13 +20,13 @@ import warnings
 
 import urllib3
 
-from edit.data import DataNotFoundError, EDITDatetime
-from edit.data.download import DownloadIndex
-from edit.data.indexes import utilities
-from edit.data.patterns import TemporalExpandedDateVariable, PatternIndex
-from edit.data.transforms import Transform, TransformCollection
+from pyearthtools.data import DataNotFoundError, pyearthtoolsDatetime
+from pyearthtools.data.download import DownloadIndex
+from pyearthtools.data.indexes import utilities
+from pyearthtools.data.patterns import TemporalExpandedDateVariable, PatternIndex
+from pyearthtools.data.transforms import Transform, TransformCollection
 
-LOG = logging.getLogger("edit.data")
+LOG = logging.getLogger("pyearthtools.data")
 
 
 def as_list(item: Any) -> list:
@@ -63,18 +63,18 @@ class root_cds(DownloadIndex, metaclass=ABCMeta):
         **kwargs,
     ):
         """
-        `edit.data` Index to download any data from Copernicus Data Store,
+        `pyearthtools.data` Index to download any data from Copernicus Data Store,
 
         The child class must implement `_get_from_cds` to define the retrieval query.
 
-        Can set `cleanup` to limit `cache` directory size. See `edit.data.CachingIndex` for more.
+        Can set `cleanup` to limit `cache` directory size. See `pyearthtools.data.CachingIndex` for more.
 
 
         Args:
             cache (str | Path | None, optional):
                 Location to cache data to, if not given will not cache. Defaults to 'temp''.
             pattern (PatternIndex | type | str, optional):
-                Override for which pattern to use to save data. If str, relative to `edit.data.patterns.`.
+                Override for which pattern to use to save data. If str, relative to `pyearthtools.data.patterns.`.
                 Defaults to `TemporalExpandedDateVariable`.
             pattern_kwargs (dict[str, Any], optional):
                 Kwargs to pass to pattern init. Defaults to {}.
@@ -244,8 +244,8 @@ class cds(root_cds):
 
         super().__init__(**kwargs)  # type: ignore
 
-    def _get_from_cds(self, querytime: EDITDatetime | str):
-        querytime = EDITDatetime(querytime)
+    def _get_from_cds(self, querytime: pyearthtoolsDatetime | str):
+        querytime = pyearthtoolsDatetime(querytime)
 
         base_dict = {
             "format": "netcdf",

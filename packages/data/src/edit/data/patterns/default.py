@@ -16,17 +16,17 @@ import warnings
 
 import xarray as xr
 
-from edit.data import patterns
-from edit.data.exceptions import DataNotFoundError
-from edit.data.warnings import EDITDataWarning
-from edit.data.indexes import (
+from pyearthtools.data import patterns
+from pyearthtools.data.exceptions import DataNotFoundError
+from pyearthtools.data.warnings import pyearthtoolsDataWarning
+from pyearthtools.data.indexes import (
     DataIndex,
     FileSystemIndex,
     AdvancedTimeIndex,
     ForecastIndex,
     decorators,
 )
-from edit.data.save import save
+from pyearthtools.data.save import save
 
 
 class PatternIndex(DataIndex, FileSystemIndex):
@@ -45,7 +45,7 @@ class PatternIndex(DataIndex, FileSystemIndex):
 
         Args:
             *args (Any): Passed to discovered pattern
-            pattern_function (Callable | str): Either the function to use, or the pattern name within edit.data.patterns
+            pattern_function (Callable | str): Either the function to use, or the pattern name within pyearthtools.data.patterns
             *kwargs (Any): Passed to discovered pattern
 
         Raises:
@@ -57,13 +57,13 @@ class PatternIndex(DataIndex, FileSystemIndex):
         """
         if isinstance(pattern_function, str):
             if not hasattr(patterns, pattern_function):
-                raise KeyError(f"Pattern: '{pattern_function} not found. Must be in edit.data.patterns")
+                raise KeyError(f"Pattern: '{pattern_function} not found. Must be in pyearthtools.data.patterns")
             pattern_class = getattr(patterns, pattern_function)
         elif isinstance(pattern_function, Callable):
             pattern_class = pattern_function
         else:
             raise TypeError(
-                f"'pattern_function' must be either callable or name of function found within edit.data.patterns, not {type(patterns)}"
+                f"'pattern_function' must be either callable or name of function found within pyearthtools.data.patterns, not {type(patterns)}"
             )
         return pattern_class(*args, **kwargs)
 
@@ -114,7 +114,7 @@ class PatternIndex(DataIndex, FileSystemIndex):
 class PatternTimeIndex(AdvancedTimeIndex, PatternIndex):
     """Temporal Pattern Index
 
-    Used for when a pattern can advanced time indexing, like [series][edit.data.AdvancedTimeIndex.series]
+    Used for when a pattern can advanced time indexing, like [series][pyearthtools.data.AdvancedTimeIndex.series]
     """
 
     def __init__(self, *args, **kwargs):
@@ -202,7 +202,7 @@ class PatternVariableAware(PatternIndex):
         if len(variables) == 0 and verbose:
             warnings.warn(
                 f"Given variables are empty, will be unable to retrieve data from {self.root_dir!r}.",
-                EDITDataWarning,
+                pyearthtoolsDataWarning,
             )
 
         variable_parse = [variable_parse] if isinstance(variable_parse, str) else variable_parse
@@ -333,7 +333,7 @@ class PatternVariableAware(PatternIndex):
                     if self.verbose:
                         warnings.warn(
                             f"{variable!r} was not included in `init` variables, but was in the dataset. Appending it to variables.",
-                            EDITDataWarning,
+                            pyearthtoolsDataWarning,
                         )
                     self._update_variables(str(variable))
 

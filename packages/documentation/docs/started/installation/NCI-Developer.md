@@ -1,8 +1,8 @@
 # NCI Developer
 
-This page details how to install the `EDIT` package in a user defined location on GADI for development purposes.
+This page details how to install the `pyearthtools` package in a user defined location on GADI for development purposes.
 
-If this doesn't seem like how you want to use EDIT, return [here](./../)
+If this doesn't seem like how you want to use pyearthtools, return [here](./../)
 
 
 ## Order
@@ -33,36 +33,36 @@ flowchart TD
 
 ```
 
-## Standalone EDIT
+## Standalone pyearthtools
 
 Python virtual environments take up a bunch of inodes are tricky to setup correctly.
 
-It may be best to use the EDIT modules with a standalone EDIT install on top.
+It may be best to use the pyearthtools modules with a standalone pyearthtools install on top.
 
 ### 1. Add to .bashrc
 ```bash
-edit () {
-    export PYTHONPATH=~/envs/edit_standalone/:$PYTHONPATH
+pyearthtools () {
+    export PYTHONPATH=~/envs/pyearthtools_standalone/:$PYTHONPATH
     module use /scratch/ra02/modules
-    module load EDIT
-    alias pipinstall="pip install -t ~/envs/edit_standalone/ --no-deps"
+    module load pyearthtools
+    alias pipinstall="pip install -t ~/envs/pyearthtools_standalone/ --no-deps"
 }
 ```
 
-This will use the default EDIT module as its base, this can be fixed if you need to freeze the environment.
+This will use the default pyearthtools module as its base, this can be fixed if you need to freeze the environment.
 
-Additionally, using `pipinstall` allows us to override where it installs and how it does. To prevent double installing, modules must be installed without their dependencies. But if you need to install something new outside of edit, use `pip install` directly.
+Additionally, using `pipinstall` allows us to override where it installs and how it does. To prevent double installing, modules must be installed without their dependencies. But if you need to install something new outside of pyearthtools, use `pip install` directly.
 
-### 2. Get EDIT modules and install
+### 2. Get pyearthtools modules and install
 
 ```bash
 
 # Clone the Repositories
-git clone git@git.nci.org.au:bom/dset/edit-package/data.git 
-git clone git@git.nci.org.au:bom/dset/edit-package/training.git 
-git clone git@git.nci.org.au:bom/dset/edit-package/utils.git 
-git clone git@git.nci.org.au:bom/dset/edit-package/pipeline_v2.git 
-git clone git@git.nci.org.au:bom/dset/edit-package/archives/nci.git nci
+git clone git@git.nci.org.au:bom/dset/pyearthtools-package/data.git 
+git clone git@git.nci.org.au:bom/dset/pyearthtools-package/training.git 
+git clone git@git.nci.org.au:bom/dset/pyearthtools-package/utils.git 
+git clone git@git.nci.org.au:bom/dset/pyearthtools-package/pipeline_v2.git 
+git clone git@git.nci.org.au:bom/dset/pyearthtools-package/archives/nci.git nci
 
 pipinstall -e utils/
 pipinstall -e data/
@@ -74,7 +74,7 @@ pipinstall -e nci/
 
 ### 3. Usage.
 Run
-`edit` in the command line to setup the environment.
+`pyearthtools` in the command line to setup the environment.
 
 Then `python`
 
@@ -84,10 +84,10 @@ Then `python`
 `/scratch/ra02/modules`
 
 #### Modules
-`EDIT`
+`pyearthtools`
 
 #### Environment variables
-`PYTHONPATH="~/envs/edit_standalone/"`
+`PYTHONPATH="~/envs/pyearthtools_standalone/"`
 
 ## Virtual Environment (NOT RECOMMENDED)
 ### 1. Creating the Virtual Environment
@@ -106,37 +106,37 @@ ln –s /g/data/{PROJECT}/{USER}/venv venv
 module load python3
 
 # Make the venv, which will follow the symlink to gdata
-python3 -m venv venv/EDIT
+python3 -m venv venv/pyearthtools
 
 # Activate the venv
-source ~/venv/EDIT/bin/activate
+source ~/venv/pyearthtools/bin/activate
 
 # Check pip version is correct (i.e., is coming from inside the venv):
-~/venv/EDIT/bin/pip
+~/venv/pyearthtools/bin/pip
 
 # Install netcdf4 specific to GADI
 module load netcdf/4.9.0 hdf5/1.10.7
-~/venv/EDIT/bin/pip install --no-binary :all: netCDF4
+~/venv/pyearthtools/bin/pip install --no-binary :all: netCDF4
 ```
 
-### 2. Get EDIT modules and install
+### 2. Get pyearthtools modules and install
 
 ```bash
-mkdir /g/data/{PROJECT}/{USER}}/EDIT
-cd /g/data/{PROJECT}/{USER}/EDIT
+mkdir /g/data/{PROJECT}/{USER}}/pyearthtools
+cd /g/data/{PROJECT}/{USER}/pyearthtools
 
 # Clone the Repositories
-git clone git@git.nci.org.au:bom/dset/edit-package/data.git 
-git clone git@git.nci.org.au:bom/dset/edit-package/training.git 
-git clone git@git.nci.org.au:bom/dset/edit-package/utils.git 
-git clone git@git.nci.org.au:bom/dset/edit-package/pipeline_v2.git 
-git clone git@git.nci.org.au:bom/dset/edit-package/archives/nci.git nci
+git clone git@git.nci.org.au:bom/dset/pyearthtools-package/data.git 
+git clone git@git.nci.org.au:bom/dset/pyearthtools-package/training.git 
+git clone git@git.nci.org.au:bom/dset/pyearthtools-package/utils.git 
+git clone git@git.nci.org.au:bom/dset/pyearthtools-package/pipeline_v2.git 
+git clone git@git.nci.org.au:bom/dset/pyearthtools-package/archives/nci.git nci
 
-~/venv/EDIT/bin/pip install -e utils/
-~/venv/EDIT/bin/pip install -e data/
-~/venv/EDIT/bin/pip install -e pipeline_v2/
-~/venv/EDIT/bin/pip install -e training/
-~/venv/EDIT/bin/pip install -e nci/
+~/venv/pyearthtools/bin/pip install -e utils/
+~/venv/pyearthtools/bin/pip install -e data/
+~/venv/pyearthtools/bin/pip install -e pipeline_v2/
+~/venv/pyearthtools/bin/pip install -e training/
+~/venv/pyearthtools/bin/pip install -e nci/
 
 ```
 
@@ -148,10 +148,10 @@ python
 
 ```python
 Python 3.11.0 (main, Nov 18 2022, 08:38:34) [GCC 8.5.0 20210514 (Red Hat 8.5.0-10)] on linux
-Type "help", "copyright", "credits" or "license" for more information.
+Type "help", "copyright", "crpyearthtoolss" or "license" for more information.
 
-import edit.data
-import edit.training
+import pyearthtools.data
+import pyearthtools.training
 
 #All Imported
 
@@ -173,5 +173,5 @@ python3 eccodes esmf netcdf hdf5
 
 Python or Conda virtual environment base:
     ```
-    /g/data/{PROJECT}/{USER}/venv/EDIT
+    /g/data/{PROJECT}/{USER}/venv/pyearthtools
     ```

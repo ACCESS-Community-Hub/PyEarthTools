@@ -21,10 +21,10 @@ from pathlib import Path
 import urllib3
 import functools
 
-from edit.data.indexes import CachingIndex
-from edit.data import IndexWarning, DataNotFoundError
+from pyearthtools.data.indexes import CachingIndex
+from pyearthtools.data import IndexWarning, DataNotFoundError
 
-from edit.data.patterns import PatternIndex
+from pyearthtools.data.patterns import PatternIndex
 
 
 @functools.lru_cache(None)

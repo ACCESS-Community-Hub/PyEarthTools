@@ -10,10 +10,10 @@
 # Datetime Overrides
 
 As the default datetime objects contain no reference to the user provided string, the resolution of time
-that a user provides is simply lost. [EDITDatetime][edit.data.time.EDITDatetime] introduces this concept as a wrapper around
+that a user provides is simply lost. [pyearthtoolsDatetime][pyearthtools.data.time.pyearthtoolsDatetime] introduces this concept as a wrapper around
 [pandas.DatetimeIndex][pandas.to_datetime].
 
-Subsequently, a [TimeDelta][edit.data.time.TimeDelta], and an override for range [TimeRange][edit.data.time.TimeRange] are also provided.
+Subsequently, a [TimeDelta][pyearthtools.data.time.TimeDelta], and an override for range [TimeRange][pyearthtools.data.time.TimeRange] are also provided.
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from edit.utils import initialisation
+from pyearthtools.utils import initialisation
 
 VALID_RESOLUTIONS = Literal["year", "month", "day", "hour", "minute", "min", "second", "nanosecond"]
 RESOLUTION_COMPONENTS: list[VALID_RESOLUTIONS] = [
@@ -68,7 +68,7 @@ def find_components(time: str) -> dict[VALID_RESOLUTIONS, bool]:
         dict[str, bool]: Dictionary detailing which components were specified
 
     Examples:
-        >>> edit.data.time.find_components('2020-01')
+        >>> pyearthtools.data.time.find_components('2020-01')
         {'year': True, 'month': True, 'day': False, 'minute': False, 'second': False}
     """
 
@@ -128,13 +128,13 @@ class TimeResolution:
 
     def __init__(
         self,
-        value: dict[VALID_RESOLUTIONS, bool] | VALID_RESOLUTIONS | str | "EDITDatetime" | TimeResolution,
+        value: dict[VALID_RESOLUTIONS, bool] | VALID_RESOLUTIONS | str | "pyearthtoolsDatetime" | TimeResolution,
     ):
         """
-        Find resolution of EDITDatetime or time string
+        Find resolution of pyearthtoolsDatetime or time string
 
         Args:
-            value (dict[VALID_RESOLUTIONS, bool] | VALID_RESOLUTIONS | str | EDITDatetime | TimeResolution):
+            value (dict[VALID_RESOLUTIONS, bool] | VALID_RESOLUTIONS | str | pyearthtoolsDatetime | TimeResolution):
                 Value to find components from,
                 If dict, must be True or False for each component
                 If str, must be either date str.
@@ -156,10 +156,10 @@ class TimeResolution:
             if strip_to_common_resolution(value) in RESOLUTION_COMPONENTS:
                 resolution = strip_to_common_resolution(value)  # type: ignore
 
-            elif EDITDatetime.is_time(value):
-                value = EDITDatetime(value)
+            elif pyearthtoolsDatetime.is_time(value):
+                value = pyearthtoolsDatetime(value)
 
-        if isinstance(value, EDITDatetime):
+        if isinstance(value, pyearthtoolsDatetime):
             resolution = value.resolution.resolution
 
         if resolution is None:
@@ -228,25 +228,25 @@ class TimeResolution:
         return TimeResolution(RESOLUTION_COMPONENTS[new_index])
 
 
-class EDITMonthtime:
-    def __init__(self, input_month: str | EDITMonthtime | EDITDatetime) -> None:
+class pyearthtoolsMonthtime:
+    def __init__(self, input_month: str | pyearthtoolsMonthtime | pyearthtoolsDatetime) -> None:
         raise NotImplementedError()
 
 
 @functools.total_ordering
-class EDITDatetime:
+class pyearthtoolsDatetime:
     """Datetime object with awareness of which values were set.
 
-    time must be a str or EDITDatetime for resolution awareness to take effect,
+    time must be a str or pyearthtoolsDatetime for resolution awareness to take effect,
     If str, it must be in isoformat
 
     Uses pandas.Datetime64 as underlying object.
     But will return str of datetime using only what was set.
 
     Examples:
-        >>> str(edit_datetime('2021-01'))
+        >>> str(pyearthtools_datetime('2021-01'))
         "2021-01"
-        >>> str(edit_datetime('2021-01-12'))
+        >>> str(pyearthtools_datetime('2021-01-12'))
         "2021-01-12"
     """
 
@@ -264,7 +264,7 @@ class EDITDatetime:
         if isinstance(time, str) and time == "today":
             time = str(datetime.datetime.today().strftime("%Y-%m-%d"))
 
-        elif isinstance(time, EDITDatetime) or isinstance(time, type(self)):
+        elif isinstance(time, pyearthtoolsDatetime) or isinstance(time, type(self)):
             self._pandas_timestep = time._pandas_timestep
             self.resolution = time.resolution
             return
@@ -289,7 +289,7 @@ class EDITDatetime:
 
     def datetime64(self, time_unit: str = "ns") -> np.datetime64:
         """
-        Get EDITDatetime as a `np.datetime64` in given unit
+        Get pyearthtoolsDatetime as a `np.datetime64` in given unit
 
         Args:
             time_unit (str, optional): Time unit to get datetime64 in. Defaults to "ns".
@@ -303,7 +303,7 @@ class EDITDatetime:
     @property
     def qualified(self) -> pd.Timestamp:
         """
-        Get fully qualified datetime of EDITDatetime.
+        Get fully qualified datetime of pyearthtoolsDatetime.
 
         Uses underlying pandas.datetime object
 
@@ -320,51 +320,51 @@ class EDITDatetime:
     @staticmethod
     def is_time(time_to_parse: Any) -> bool:
         """
-        Check if object can be parsed to a `EDITDatetime`
+        Check if object can be parsed to a `pyearthtoolsDatetime`
 
-        Attempts to make `EDITDatetime` but catches all exceptions.
+        Attempts to make `pyearthtoolsDatetime` but catches all exceptions.
 
         Args:
             time_to_parse (Any):
-                Object to check if can be `EDITDatetime`
+                Object to check if can be `pyearthtoolsDatetime`
 
         Returns:
             (bool):
-                Boolean value of if can be `EDITDatetime`
+                Boolean value of if can be `pyearthtoolsDatetime`
         """
         try:
-            EDITDatetime(time_to_parse)
+            pyearthtoolsDatetime(time_to_parse)
             return True
         except Exception as e:
             return False
 
     def at_resolution(
         self,
-        resolution: VALID_RESOLUTIONS | EDITDatetime | TimeResolution | TimeDelta | str,
-    ) -> EDITDatetime:
+        resolution: VALID_RESOLUTIONS | pyearthtoolsDatetime | TimeResolution | TimeDelta | str,
+    ) -> pyearthtoolsDatetime:
         """
-        Get EDITDatetime at specified resolution
+        Get pyearthtoolsDatetime at specified resolution
 
         Args:
-            resolution (VALID_RESOLUTIONS | EDITDatetime | TimeResolution | TimeDelta, optional):
-                Temporal Resolution of resulting edit_datetime.
+            resolution (VALID_RESOLUTIONS | pyearthtoolsDatetime | TimeResolution | TimeDelta, optional):
+                Temporal Resolution of resulting pyearthtools_datetime.
 
         Raises:
             (KeyError):
                 If `resolution` is not recognised
 
         Returns:
-            (EDITDatetime):
-                EDITDatetime at given resolution
+            (pyearthtoolsDatetime):
+                pyearthtoolsDatetime at given resolution
         """
 
-        if isinstance(resolution, (TimeDelta, EDITDatetime)):
+        if isinstance(resolution, (TimeDelta, pyearthtoolsDatetime)):
             resolution = resolution.resolution
 
         elif isinstance(resolution, pd.Timedelta):
             resolution = time_delta_resolution(resolution)
 
-        return EDITDatetime(self.qualified, resolution=resolution)
+        return pyearthtoolsDatetime(self.qualified, resolution=resolution)
 
     def __format__(self, *a):
         if len(a) == 0 or (len(a) == 1 and a[0] == ""):
@@ -401,7 +401,7 @@ class EDITDatetime:
         return date_part + ("T" if time_part else "") + time_part
 
     def __repr__(self):
-        return f"EDITDatetime({str(self)!r})"
+        return f"pyearthtoolsDatetime({str(self)!r})"
 
     def __getattr__(self, key):
         if key == "_pandas_timestep":
@@ -426,7 +426,7 @@ class EDITDatetime:
     ###---------------###
     # Math
     ###---------------###
-    def __add__(self, other: EDITDatetime | TimeDelta | int) -> EDITDatetime:
+    def __add__(self, other: pyearthtoolsDatetime | TimeDelta | int) -> pyearthtoolsDatetime:
         """
         Add to underlying '_pandas_timestep'.
 
@@ -468,19 +468,19 @@ class EDITDatetime:
         # if isinstance(new_timestep, pd.Timedelta):
         #     return new_timestep
 
-        new_edit_datetime = EDITDatetime(new_timestep, resolution=max(self.resolution, resolution))
-        return new_edit_datetime
+        new_pyearthtools_datetime = pyearthtoolsDatetime(new_timestep, resolution=max(self.resolution, resolution))
+        return new_pyearthtools_datetime
 
-    def __radd__(self, other: EDITDatetime | TimeDelta | int) -> EDITDatetime:
+    def __radd__(self, other: pyearthtoolsDatetime | TimeDelta | int) -> pyearthtoolsDatetime:
         return self.__add__(other)
 
     @overload
-    def __sub__(self, other: TimeDelta | int | datetime.timedelta) -> EDITDatetime: ...
+    def __sub__(self, other: TimeDelta | int | datetime.timedelta) -> pyearthtoolsDatetime: ...
 
     @overload
-    def __sub__(self, other: EDITDatetime) -> TimeDelta: ...
+    def __sub__(self, other: pyearthtoolsDatetime) -> TimeDelta: ...
 
-    def __sub__(self, other: EDITDatetime | TimeDelta | int | datetime.timedelta) -> EDITDatetime | TimeDelta:
+    def __sub__(self, other: pyearthtoolsDatetime | TimeDelta | int | datetime.timedelta) -> pyearthtoolsDatetime | TimeDelta:
         """
         Subtract from underlying '_pandas_timestep'.
 
@@ -524,7 +524,7 @@ class EDITDatetime:
             new_timestep = self._pandas_timestep - other
             # resolution: TimeResolution = other.resolution
 
-        elif isinstance(other, EDITDatetime):
+        elif isinstance(other, pyearthtoolsDatetime):
             new_timestep = TimeDelta(self._pandas_timestep - other._pandas_timestep)
             return new_timestep
         else:
@@ -534,11 +534,11 @@ class EDITDatetime:
             # if isinstance(new_timestep, pd.Timedelta):
             #     return new_timestep
 
-        new_edit_datetime = EDITDatetime(new_timestep, resolution=max(self.resolution, resolution))
-        return new_edit_datetime
+        new_pyearthtools_datetime = pyearthtoolsDatetime(new_timestep, resolution=max(self.resolution, resolution))
+        return new_pyearthtools_datetime
 
-    def __rsub__(self, other: EDITDatetime) -> EDITDatetime | TimeDelta:
-        if not isinstance(other, EDITDatetime):
+    def __rsub__(self, other: pyearthtoolsDatetime) -> pyearthtoolsDatetime | TimeDelta:
+        if not isinstance(other, pyearthtoolsDatetime):
             return NotImplemented
 
         new_timestep = other._pandas_timestep - self._pandas_timestep
@@ -547,8 +547,8 @@ class EDITDatetime:
 
         resolution = TimeResolution("year")
 
-        new_edit_datetime = EDITDatetime(new_timestep, resolution=max(self.resolution, resolution))
-        return new_edit_datetime
+        new_pyearthtools_datetime = pyearthtoolsDatetime(new_timestep, resolution=max(self.resolution, resolution))
+        return new_pyearthtools_datetime
 
     def __hash__(self):
         return hash(str(self))
@@ -791,17 +791,17 @@ class _MonthTimeDelta(TimeDelta):
     #     return str([self.specified_month, self._input_timedelta[1]])
 
     def __radd__(self, other):
-        if isinstance(other, EDITDatetime):
+        if isinstance(other, pyearthtoolsDatetime):
             new_date = other.at_resolution("month") + self.specified_month
-            if isinstance(new_date, EDITDatetime):
+            if isinstance(new_date, pyearthtoolsDatetime):
                 return new_date.at_resolution(max(other.resolution, self.resolution))
             return new_date
         return super().__radd__(other)
 
     def __rsub__(self, other):
-        if isinstance(other, EDITDatetime):
+        if isinstance(other, pyearthtoolsDatetime):
             new_date = other.at_resolution("month") - self.specified_month
-            if isinstance(new_date, EDITDatetime):
+            if isinstance(new_date, pyearthtoolsDatetime):
                 return new_date.at_resolution(max(other.resolution, self.resolution))
         return super().__rsub__(other)
 
@@ -884,7 +884,7 @@ def time_delta_resolution(timedelta: pd.Timedelta | TimeDelta) -> TimeResolution
 
 
 @functools.lru_cache()
-def range_samples(start: EDITDatetime, end: EDITDatetime, step: TimeDelta, inclusive: bool = False):
+def range_samples(start: pyearthtoolsDatetime, end: pyearthtoolsDatetime, step: TimeDelta, inclusive: bool = False):
     """Cache generation of time samples"""
     samples = []
     current = start
@@ -907,8 +907,8 @@ class TimeRange:
 
     def __init__(
         self,
-        start: EDITDatetime | str,
-        end: EDITDatetime | str,
+        start: pyearthtoolsDatetime | str,
+        end: pyearthtoolsDatetime | str,
         step: TimeDelta | int | tuple | str,
         *,
         inclusive: bool = False,
@@ -919,9 +919,9 @@ class TimeRange:
         """Generate all timesteps between start & end at step interval.
 
         Args:
-            start (EDITDatetime | str):
+            start (pyearthtoolsDatetime | str):
                 Starting time
-            end (EDITDatetime | str):
+            end (pyearthtoolsDatetime | str):
                 Ending Time
             step (TimeDelta | int | tuple):
                 Step Interval
@@ -937,8 +937,8 @@ class TimeRange:
         if isinstance(end, str) and end == "current":
             end = datetime.datetime.today().strftime("%Y-%m-%d")
 
-        self.start = EDITDatetime(start)
-        self.end = EDITDatetime(end)
+        self.start = pyearthtoolsDatetime(start)
+        self.end = pyearthtoolsDatetime(end)
         self.step = TimeDelta(step)
 
         self.inclusive = inclusive
@@ -954,7 +954,7 @@ class TimeRange:
     def __len__(self):
         return len(range_samples(self.start, self.end, self.step, self.inclusive))
 
-    def __iter__(self) -> Generator[EDITDatetime, None, None]:
+    def __iter__(self) -> Generator[pyearthtoolsDatetime, None, None]:
         samples = range_samples(self.start, self.end, self.step, self.inclusive)
 
         if self.use_tqdm:

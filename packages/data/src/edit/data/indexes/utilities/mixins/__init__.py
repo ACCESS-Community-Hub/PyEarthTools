@@ -7,10 +7,10 @@
 # from the use of the software.
 
 """
-Mixins to add functionality to `edit.data.indexes`
+Mixins to add functionality to `pyearthtools.data.indexes`
 
 """
 
-from edit.data.indexes.utilities.mixins.index_repr import reprMixin
-from edit.data.indexes.utilities.mixins.call_redirect import CallRedirectMixin
-from edit.data.indexes.utilities.mixins.catalogs import CatalogMixin
+from pyearthtools.data.indexes.utilities.mixins.index_repr import reprMixin
+from pyearthtools.data.indexes.utilities.mixins.call_redirect import CallRedirectMixin
+from pyearthtools.data.indexes.utilities.mixins.catalogs import CatalogMixin

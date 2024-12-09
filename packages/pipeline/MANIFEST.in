@@ -1,1 +1,1 @@
-recursive-include src/edit/ *.yaml 
+recursive-include src/pyearthtools/ *.yaml 

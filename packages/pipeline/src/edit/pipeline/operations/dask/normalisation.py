@@ -17,10 +17,10 @@ import numpy as np
 import dask.array as da
 
 
-from edit.data.utils import parse_path
+from pyearthtools.data.utils import parse_path
 
-from edit.utils.decorators import BackwardsCompatibility
-from edit.pipeline.operations.dask.dask import DaskOperation
+from pyearthtools.utils.decorators import BackwardsCompatibility
+from pyearthtools.pipeline.operations.dask.dask import DaskOperation
 
 
 FILE = Union[str, Path]

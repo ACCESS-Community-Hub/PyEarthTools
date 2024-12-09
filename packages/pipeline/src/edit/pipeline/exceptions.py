@@ -10,8 +10,8 @@
 from typing import Any, Optional, Type
 import warnings
 
-import edit.utils
-from edit.pipeline.warnings import PipelineWarning
+import pyearthtools.utils
+from pyearthtools.pipeline.warnings import PipelineWarning
 
 __all__ = [
     "PipelineException",
@@ -86,7 +86,7 @@ class ExceptionIgnoreContext:
 
     def __init__(self, exceptions: tuple[Type[Exception], ...], max_exceptions: Optional[int] = None):
 
-        self._max_exceptions = max_exceptions or edit.utils.config.get("pipeline.exceptions.max_filter")
+        self._max_exceptions = max_exceptions or pyearthtools.utils.config.get("pipeline.exceptions.max_filter")
         self._count = 0
         self._messages: list[str] = []
         self._exceptions = exceptions

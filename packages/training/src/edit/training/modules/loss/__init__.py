@@ -8,13 +8,13 @@
 
 import importlib
 
-from edit.training.modules.loss.extremes import ExtremeLoss
-from edit.training.modules.loss.centre_weighted import centre_weighted
-from edit.training.modules.loss.rmse import RMSELoss
-from edit.training.modules.loss.structure import SSIMLoss
-from edit.training.modules.loss.component import ComponentLoss
+from pyearthtools.training.modules.loss.extremes import ExtremeLoss
+from pyearthtools.training.modules.loss.centre_weighted import centre_weighted
+from pyearthtools.training.modules.loss.rmse import RMSELoss
+from pyearthtools.training.modules.loss.structure import SSIMLoss
+from pyearthtools.training.modules.loss.component import ComponentLoss
 
-from edit.training import modules
+from pyearthtools.training import modules
 
 
 def _get_callable(module: str):
@@ -42,10 +42,10 @@ def _get_callable(module: str):
 def get_loss(loss_function: str, **loss_kwargs):
     """
     Get loss functions.
-    Can either be name of one included in `torch.nn`, `piqa` or edit.training.modules.loss, or
+    Can either be name of one included in `torch.nn`, `piqa` or pyearthtools.training.modules.loss, or
     fully qualified import path
 
-    Will attempt to load from in order, torch, piqa, edit.training, and full import path
+    Will attempt to load from in order, torch, piqa, pyearthtools.training, and full import path
 
     Refer to each packages documentation for kwargs and best use cases.
 

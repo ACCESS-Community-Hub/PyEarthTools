@@ -10,13 +10,13 @@ from __future__ import annotations
 
 import pytest
 
-import edit.utils
+import pyearthtools.utils
 
-from edit.pipeline import Pipeline, modifications
+from pyearthtools.pipeline import Pipeline, modifications
 
 from tests.fake_pipeline_steps import FakeIndex, MultiplicationOperation  # noqa: F403
 
-edit.utils.config.set({"pipeline.run_parallel": False})
+pyearthtools.utils.config.set({"pipeline.run_parallel": False})
 
 
 def test_IdxModifier_basic():
@@ -127,23 +127,23 @@ def test_IdxOverride_basic():
 
 
 def test_TimeIdxModifier_basic():
-    import edit.data
+    import pyearthtools.data
 
     pipe = Pipeline(FakeIndex(), modifications.TimeIdxModifier("6 hours"))
-    assert pipe[edit.data.EDITDatetime("2000-01-01T00")] == edit.data.EDITDatetime("2000-01-01T06")
+    assert pipe[pyearthtools.data.pyearthtoolsDatetime("2000-01-01T00")] == pyearthtools.data.pyearthtoolsDatetime("2000-01-01T06")
 
 
 # def test_TimeIdxModifier_basic_tuple():
-#     import edit.data
+#     import pyearthtools.data
 #     pipe = Pipeline(FakeIndex(), pipelines.TimeIdxModifier((6, 'hours')))
-#     assert pipe[edit.data.EDITDatetime('2000-01-01T00')] == edit.data.EDITDatetime('2000-01-01T06')
+#     assert pipe[pyearthtools.data.pyearthtoolsDatetime('2000-01-01T00')] == pyearthtools.data.pyearthtoolsDatetime('2000-01-01T06')
 
 
 def test_TimeIdxModifier_nested():
-    import edit.data
+    import pyearthtools.data
 
     pipe = Pipeline(FakeIndex(), modifications.TimeIdxModifier(("6 hours", "12 hours")))
-    assert pipe[edit.data.EDITDatetime("2000-01-01T00")] == (
-        edit.data.EDITDatetime("2000-01-01T06"),
-        edit.data.EDITDatetime("2000-01-01T12"),
+    assert pipe[pyearthtools.data.pyearthtoolsDatetime("2000-01-01T00")] == (
+        pyearthtools.data.pyearthtoolsDatetime("2000-01-01T06"),
+        pyearthtools.data.pyearthtoolsDatetime("2000-01-01T12"),
     )

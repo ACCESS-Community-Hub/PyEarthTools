@@ -10,16 +10,16 @@ from typing import Any, TypeVar, Union, Optional
 
 import xarray as xr
 
-import edit.data
-from edit.pipeline.operation import Operation
+import pyearthtools.data
+from pyearthtools.pipeline.operation import Operation
 
 T = TypeVar("T", xr.Dataset, xr.DataArray)
-TRANSFORM_TYPE = Union[edit.data.Transform, edit.data.TransformCollection]
+TRANSFORM_TYPE = Union[pyearthtools.data.Transform, pyearthtools.data.TransformCollection]
 
 
 class Transforms(Operation):
     """
-    Run `edit.data.Transforms` within a `Pipeline`.
+    Run `pyearthtools.data.Transforms` within a `Pipeline`.
     """
 
     _override_interface = "Serial"
@@ -46,9 +46,9 @@ class Transforms(Operation):
         super().__init__(split_tuples=True, recursively_split_tuples=True)
         self.record_initialisation()
 
-        self._transforms = edit.data.TransformCollection() + (transforms if transforms is not None else [])
-        self._apply_transforms = edit.data.TransformCollection() + (apply if apply is not None else [])
-        self._undo_transforms = edit.data.TransformCollection() + (undo if undo is not None else [])
+        self._transforms = pyearthtools.data.TransformCollection() + (transforms if transforms is not None else [])
+        self._apply_transforms = pyearthtools.data.TransformCollection() + (apply if apply is not None else [])
+        self._undo_transforms = pyearthtools.data.TransformCollection() + (undo if undo is not None else [])
 
     def apply_func(self, sample: T) -> T:
         sample = self._transforms(sample)

@@ -14,9 +14,9 @@ from typing import Any, Optional, Union, Hashable
 import dask.array as da
 import xarray as xr
 
-import edit.data
+import pyearthtools.data
 
-from edit.pipeline.operations.dask.dask import DaskOperation
+from pyearthtools.pipeline.operations.dask.dask import DaskOperation
 
 ATTRIBUTES_IGNORE = ["license", "summary"]
 ENCODING_INCLUDE = ["dtype"]
@@ -61,21 +61,21 @@ class ToXarray(DaskOperation):
         Examples:
             ## Like
             ```python
-                import edit.data
-                import edit.pipeline
+                import pyearthtools.data
+                import pyearthtools.pipeline
                 import dask.array as da
 
-                sample = edit.data.archive.ERA5.sample()('2000-01-01T00')
-                converter = edit.pipeline.operations.numpy.conversion.ToXarray.like(sample)
+                sample = pyearthtools.data.archive.ERA5.sample()('2000-01-01T00')
+                converter = pyearthtools.pipeline.operations.numpy.conversion.ToXarray.like(sample)
                 converter.apply(da.ones((1, 1, 721, 1440)))
             ```
 
             ## Manually
             ```python
-                import edit.pipeline
+                import pyearthtools.pipeline
                 import numpy as np
 
-                converter = edit.pipeline.operations.numpy.conversion.ToXarray(
+                converter = pyearthtools.pipeline.operations.numpy.conversion.ToXarray(
                     'time latitude longitude',
                     coords = {'latitude': np.arange(-90, 90, 0.25), 'longitude': np.arange(-180, 180, 0.25)}
                 )
@@ -98,7 +98,7 @@ class ToXarray(DaskOperation):
         """
         if "variable" not in self._array_shape:
             xr_obj = xr.DataArray(sample, coords=self._coords, dims=self._array_shape, attrs=self._attributes)
-            xr_obj = edit.data.transform.attributes.SetAttributes(self._attributes, apply_on="dataarray")(xr_obj)  # type: ignore
+            xr_obj = pyearthtools.data.transform.attributes.SetAttributes(self._attributes, apply_on="dataarray")(xr_obj)  # type: ignore
 
         else:
             array_shape = list(self._array_shape)
@@ -121,10 +121,10 @@ class ToXarray(DaskOperation):
                 )
 
             xr_obj = xr.Dataset(data_vars=data_vars, coords=ds_coords)
-            xr_obj = edit.data.transform.attributes.SetAttributes(dataset_attribute, apply_on="dataset")(xr_obj)  # type: ignore
+            xr_obj = pyearthtools.data.transform.attributes.SetAttributes(dataset_attribute, apply_on="dataset")(xr_obj)  # type: ignore
 
-        xr_obj = edit.data.transform.attributes.SetEncoding(self._encoding)(xr_obj)  # type: ignore
-        xr_obj = edit.data.transform.attributes.SetAttributes(
+        xr_obj = pyearthtools.data.transform.attributes.SetEncoding(self._encoding)(xr_obj)  # type: ignore
+        xr_obj = pyearthtools.data.transform.attributes.SetAttributes(
             self._attributes, apply_on="per_variable" if isinstance(xr_obj, xr.Dataset) else "dataarray"
         )(xr_obj)
         return xr_obj

@@ -12,8 +12,8 @@ from typing import Callable, Optional, Union
 
 import xarray as xr
 
-from edit.data.transforms import Transform, aggregation
-from edit.utils.initialisation.imports import dynamic_import
+from pyearthtools.data.transforms import Transform, aggregation
+from pyearthtools.utils.initialisation.imports import dynamic_import
 
 known_methods = ["mean", "max", "min", "sum", "std"]
 

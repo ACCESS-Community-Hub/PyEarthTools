@@ -12,8 +12,8 @@ import warnings
 
 from pathlib import Path
 
-from edit.utils import initialisation
-from edit.data.utils import parse_path
+from pyearthtools.utils import initialisation
+from pyearthtools.data.utils import parse_path
 
 
 SUFFIX = "edi"

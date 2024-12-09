@@ -17,9 +17,9 @@ import re
 import logging
 import yaml
 
-from edit.utils.initialisation.yaml import Dumper, Loader
+from pyearthtools.utils.initialisation.yaml import Dumper, Loader
 
-LOG = logging.getLogger("edit.utils")
+LOG = logging.getLogger("pyearthtools.utils")
 
 
 def try_to_number(value: Any):
@@ -72,7 +72,7 @@ def update_contents(contents: str, **kwargs) -> str:
 
 def load(stream: Union[str, Path], **kwargs):
     """
-    Load edit file replacing defaults
+    Load pyearthtools file replacing defaults
     """
     contents = None
 
@@ -97,7 +97,7 @@ def load(stream: Union[str, Path], **kwargs):
 
 def save(obj, path: Optional[Union[str, Path]] = None):
     """
-    Save edit objects
+    Save pyearthtools objects
     """
     stream = open(str(path), "w") if path else None
     return yaml.dump(obj, stream, Dumper=Dumper, sort_keys=False)  # type: ignore
