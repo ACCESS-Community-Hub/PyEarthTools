@@ -22,17 +22,17 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-  "pyearthtools-utils>=1.0.0",
-  "pyearthtools-data>=1.0.0",
-#  "pyearthtools-pipeline>=1.0.0",
+  "pyearthtools-utils>=0.1.0",
+  "pyearthtools-data>=0.1.0",
+  "pyearthtools-pipeline>=0.1.0",
 ]
 
 [project.optional-dependencies]
 training = [
-  "pyearthtools-training>=1.0.0",
+  "pyearthtools-training>=0.1.0",
 ]
 models = [
-  "pyearthtools-models>=1.0.0",
+  "pyearthtools-models>=0.1.0",
 ]
 test = ["pytest"]
 

@@ -19,8 +19,8 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "pyearthtools-utils>=1.1.0",
-    "pyearthtools-data>=1.0.0",
+    "pyearthtools-utils>=0.1.0",
+    "pyearthtools-data>=0.1.0",
     "xarray",
     "pandas",
     "graphviz",

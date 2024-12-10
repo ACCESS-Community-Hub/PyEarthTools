@@ -26,7 +26,7 @@ dependencies = [
   "shapely",
   "tqdm",
   "pyyaml",
-  "pyearthtools-utils>=1.1.0",
+  "pyearthtools-utils>=0.1.0",
   "click",
   "filelock",
   "urllib3",
