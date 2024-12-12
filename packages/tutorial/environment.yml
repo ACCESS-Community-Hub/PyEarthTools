@@ -1,0 +1,14 @@
+channels:
+  - conda-forge
+dependencies:
+  - graphviz
+  - python=3.11
+  - ipykernel
+  - jupyterlab
+  - pip
+  - pip:
+    - -e ../data
+    - -e ../pipeline
+    - -e ../training[lightning]
+    - -e ../utils
+    - -e .

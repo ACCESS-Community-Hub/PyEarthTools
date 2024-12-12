@@ -7,30 +7,24 @@ git clone git@github.com:informatics-lab/EDIT.git
 cd EDIT/packages/tutorial
 ```
 
-Then create a Python virtual environment:
+Then create a Conda environment to install all dependencies:
 
 ```
-python3 -m venv venv
-venv/bin/activate
+conda env create -f environment.yml -p ./venv
 ```
 
-or a Conda environment to install all dependencies:
+To run the example [notebooks](nbook/), you can either
+
+- start a JupyterLab instance
 
 ```
-conda create -p ./venv -y python=3.11
 conda activate ./venv
+jupyter lab
 ```
 
-And install all dependencies via pip:
+- or install a Jupyter kernel to use in a pre-existing JupyterLab installation
 
 ```
-pip install -r requirements.txt
-```
-
-To run example [notebooks](nbook/), you may need to also install a Jupyter kernel for your environment:
-
-```
-# from the activate virtual or conda environment
-pip install ipykernel
+conda activate ./venv
 python -m ipykernel install --user --name EDIT-tutorial
 ```
