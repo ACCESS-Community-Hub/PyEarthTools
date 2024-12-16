@@ -40,5 +40,6 @@ conda env export --no-builds -p ./venv | sed \
     -e 's|edit-training.*|-e ../training[lightning]|' \
     -e 's|edit-tutorial.*|-e .|' \
     -e 's|edit-utils.*|-e ../utils|' \
+    -e 's/python-graphviz/graphviz/' \
     > environment.lock.yml
 ```

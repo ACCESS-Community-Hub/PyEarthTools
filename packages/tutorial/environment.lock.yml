@@ -214,7 +214,7 @@ dependencies:
       - pyproj==3.7.0
       - pyshp==2.3.1
       - python-dateutil==2.9.0.post0
-      - python-graphviz==0.20.3
+      - graphviz==0.20.3
       - python-json-logger==3.2.1
       - pytorch-lightning==2.4.0
       - pytz==2024.2
