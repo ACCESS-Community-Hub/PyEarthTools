@@ -3,8 +3,6 @@ channels:
 dependencies:
   - graphviz
   - python=3.11
-  - ipykernel
-  - jupyterlab
   - pip
   - pip:
     - -e ../data

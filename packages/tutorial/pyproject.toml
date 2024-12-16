@@ -24,7 +24,10 @@ dependencies = [
   "edit.training",
   "rich",
   "ipywidgets",
-  "scores"
+  "scores",
+  "dask==2024.9.1",
+  "jupyterlab",
+  "ipykernel"
 ]
 dynamic = ["version", "readme"]
 
