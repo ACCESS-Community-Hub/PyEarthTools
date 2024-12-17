@@ -171,3 +171,6 @@ src/mypy.txt
 
 # Vscode
 .vscode/
+
+# Ignore DS_Store
+.DS_Store
