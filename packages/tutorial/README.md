@@ -29,7 +29,7 @@ conda activate ./venv
 python -m ipykernel install --user --name EDIT-tutorial
 ```
 
-**Note for maintainers:** A `environment.lock.yaml` has been generated to keep a record of a working environment. It has been exported using the following command:
+**Note for maintainers:** The file `environment.lock.yaml` has been generated to keep a record of a working environment on a Linux system. It has been exported using the following command to make it more portable:
 
 ```
 conda env export --no-builds -p ./venv | sed \
