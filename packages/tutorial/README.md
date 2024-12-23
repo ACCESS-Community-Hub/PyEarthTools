@@ -10,7 +10,7 @@ cd EDIT/packages/tutorial
 Then create a Conda environment to install all dependencies:
 
 ```
-conda env create -f environment.lock.yml -p ./venv
+conda env create -f environment.yml -p ./venv
 ```
 
 To run the example [notebooks](nbook/), you can either
@@ -29,7 +29,7 @@ conda activate ./venv
 python -m ipykernel install --user --name EDIT-tutorial
 ```
 
-**Note for maintainers:** The file `environment.lock.yaml` is generated from a Conda environment created with the `environment.yml` file, then exported using the following command:
+**Note for maintainers:** A `environment.lock.yaml` has been generated to keep a record of a working environment. It has been exported using the following command:
 
 ```
 conda env export --no-builds -p ./venv | sed \
