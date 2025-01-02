@@ -172,5 +172,9 @@ src/mypy.txt
 # Vscode
 .vscode/
 
+<<<<<<< HEAD
 # Ignore .DS_Store files
+=======
+# Ignore DS_Store
+>>>>>>> 847719c0226708a4efb1c69b575657fec7135213
 .DS_Store
