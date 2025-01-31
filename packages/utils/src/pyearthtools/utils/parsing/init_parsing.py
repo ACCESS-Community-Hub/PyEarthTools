@@ -11,11 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
 #
-# Taken from pytorch_lightning/utilities/parsing.py
+# This file contains code from https://github.com/Lightning-AI/pytorch-lightning, 
+# released under the Apache 2.0 license, with copyright attributed to the 
+# Lightning AI team.
 #
+# This information is also included in the NOTICE.md file
+#
+# See https://github.com/Lightning-AI/pytorch-lightning/blob/master/src/lightning/pytorch/utilities/parsing.py
 
 from collections import OrderedDict
 import types

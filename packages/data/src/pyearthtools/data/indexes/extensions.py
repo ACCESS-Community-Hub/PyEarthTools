@@ -11,7 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+#
+# This file extends and is largely sourced from
+# https://github.com/pydata/xarray/blob/main/xarray/core/extensions.py, 
+# released under the Apache 2.0 license.
+#
+# This information is also included in NOTICE.md
+#
 
 """
 

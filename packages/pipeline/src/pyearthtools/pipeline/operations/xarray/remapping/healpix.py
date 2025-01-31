@@ -12,7 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+# This file contains code from https://github.com/nathanielcresswellclay/zephyr, 
+# released under the MIT license, with copyright attributed to Jonothan Weyn (2018). 
+# This file demarkates which sections have been copied with minimal modificatiions.
+# See around line 272 at the time of writing. 
+# This information is also include in NOTICE.md.
 
 """
 This class contains reprojection methods to convert latlon data to and from HEALPix data. In this implementation, the

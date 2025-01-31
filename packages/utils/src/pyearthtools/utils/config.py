@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# This file contains code taken from https://github.com/dask/dask/tree/main/dask, 
+# released under the BSD 3-Clause license, with copyright attributed to 
+# Anaconda Inc (2014). This information is also include in NOTICE.md.
 
 """
 pyearthtools Config
-
-Copied from `dask.config`
 
 """
 

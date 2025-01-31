@@ -11,12 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+#
+# This file extends and adapts code taken from Stack Overflow, released under 
+# Creative Commons BY-SA 4.0 (International). 
+#
+# This information is also included in NOTICE.md
+#
+# From https://stackoverflow.com/questions/1392413/calculating-a-directorys-size-using-python
+#
 
 from __future__ import annotations
 import os
-
-# From https://stackoverflow.com/questions/1392413/calculating-a-directorys-size-using-python
 
 from typing import Literal, Sequence
 from pathlib import Path
