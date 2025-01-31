@@ -15,7 +15,7 @@ import warnings
 from typing import Any
 
 import numpy as np
-import pytorch_lightning as L
+import lightning as L
 
 from edit.data.patterns.utils import parse_root_dir
 
@@ -34,13 +34,11 @@ class LoggingContext:
 
     def __enter__(self, *args, **kwargs):
         if self.change:
-            logging.getLogger("pytorch_lightning").setLevel(logging.ERROR)
             logging.getLogger("lightning").setLevel(0)
             warnings.simplefilter(action="ignore", category=UserWarning)
 
     def __exit__(self, *args, **kwargs):
         if self.change:
-            logging.getLogger("pytorch_lightning").setLevel(logging.INFO)
             logging.getLogger("lightning").setLevel(logging.INFO)
             warnings.simplefilter(action="default", category=UserWarning)
 

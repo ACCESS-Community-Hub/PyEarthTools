@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any, Optional
 import warnings
 
-import pytorch_lightning as L
+import lightning as L
 import torch
 
 from edit.data.utils import parse_path

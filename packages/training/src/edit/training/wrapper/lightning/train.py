@@ -13,9 +13,9 @@ from typing import Any, Optional
 import warnings
 import importlib.util
 
-import pytorch_lightning as L
-from pytorch_lightning import callbacks
-from pytorch_lightning import loggers
+import lightning as L
+from lightning.pytorch import callbacks
+from lightning.pytorch import loggers
 
 from edit.pipeline.controller import Pipeline
 from edit.training.data.lightning import PipelineLightningDataModule
