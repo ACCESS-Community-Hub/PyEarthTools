@@ -2,10 +2,9 @@
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-
 [project]
-name = "era5lowres"
-description = "pyearthtools archive for NCI"
+name = "pyearthtools-tutorial"
+description = "Tutorial material for PyEarthTools"
 requires-python = ">=3.9"
 keywords = ["pyearthtools"]
 authors = [
@@ -20,7 +19,15 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-  "pyearthtools.data>=0.1.0",
+  "pyearthtools.data",
+  "pyearthtools.pipeline",
+  "pyearthtools.training",
+  "rich",
+  "ipywidgets",
+  "scores",
+  "dask==2024.9.1",
+  "jupyterlab",
+  "ipykernel"
 ]
 dynamic = ["version", "readme"]
 
@@ -29,7 +36,7 @@ readme = {file = ["README.md"], content-type = "text/markdown"}
 
 [project.urls]
 homepage = "http://bom.gov.au"
-documentation = "https://git.nci.org.au/bom/dset/pyearthtools-package/archives/NCI"
+documentation = "https://git.nci.org.au/bom/dset/pyearthtools-package/tutorial"
 
 [tool.isort]
 profile = "black"
@@ -41,12 +48,8 @@ line-length = 120
 warn_return_any = true
 warn_unused_configs = true
 
-[tool.setuptools.packages.find]
-where = ["src"] 
-
 [tool.hatch.version]
-path = "src/era5lowres/__init__.py"
+path = "src/pyearthtools/tutorial/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/era5lowres"]
-
+packages = ["src/pyearthtools/"]

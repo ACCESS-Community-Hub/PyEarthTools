@@ -1,4 +1,4 @@
 -e packages/utils
 -e packages/data
--e packages/era5lowres/
+-e packages/tutorial/
 -e packages/pipeline

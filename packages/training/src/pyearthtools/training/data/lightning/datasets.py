@@ -17,6 +17,7 @@ from __future__ import annotations
 
 from torch.utils.data import IterableDataset, get_worker_info, Dataset
 
+import pyearthtools
 from pyearthtools.pipeline import Pipeline
 
 
@@ -35,6 +36,12 @@ class BasePytorchPipeline:
     @iterator.setter
     def iterator(self, val):
         self._pipeline.iterator = val
+
+    def __getstate__(self):
+        return self._pipeline.save()
+
+    def __setstate__(self, state):
+        self._pipeline = pyearthtools.pipeline.load(state)
 
 
 class PytorchIterable(BasePytorchPipeline, IterableDataset):

@@ -41,7 +41,7 @@ from pyearthtools.data.indexes import ArchiveIndex, decorators
 from pyearthtools.data.transforms import Transform, TransformCollection
 from pyearthtools.data.archive import register_archive
 
-from era5lowres.ancilliary.ERA5lowres import ERA5_SINGLE_VARIABLES, ERA5_PRESSURE_VARIABLES
+from pyearthtools.tutorial.ancilliary.ERA5lowres import ERA5_SINGLE_VARIABLES, ERA5_PRESSURE_VARIABLES
 
 # This tells pyearthtools what the actual resolution or time-step of the data is inside the files
 ERA_RESOLUTION = (1, "hour")
@@ -187,3 +187,8 @@ class ERA5LowResIndex(ArchiveIndex):
                 f"Unable to find data for: basetime: {querytime}, variables: {variable} at {var_path}"
             )
         return paths
+
+    @property
+    def _import(self):
+        """module to import for to load this step in an Pipeline"""
+        return "pyearthtools.tutorial"
