@@ -11,12 +11,25 @@
 > to change in the next few months.
 >
 
+**New User Information**
+
+Guidelines for new users still need to be developed. For those looking to get started, follow the installation instructions below in this README, and then head to the tutorial sub-package to get going.
+
+**Repository Layout**
+
+This is a so-called monorepo. PyEarthTools comprises multiple, modular packages within a shared namespace that inter-operate in order to provide the overall functionality of the framework. It is not necessary to install all of them, and it is envisioned that many users are likely to want only some parts of the framework. As such, each sub-package is a fully independent Python package, with its own requirements and its own installation process.
+
+Each of these sub-packages lies in the 'packages' subdirectory. Developers of `PyEarthTools` will most likely want to check out the entire monorepo and work on changesets which may span sub-packages. Each sub-package is versioned separately, so bugfixes or updates in a single sub-package can be performed independently without requiring a new release of the entire ecosystem. 
+
+For simplicity, the instructions here explain how to check out the whole codebase and install everything for a developer context. 
+
+
 **Installation**
 
-First clone the repository using the `monorepo` branch:
+First clone the repository using the `develop` branch:
 
 ```
-git clone git@github.com:informatics-lab/pyearthtools.git
+git clone git@github.com:ACCESS-Community-Hub/PyEarthTools.git
 cd pyearthtools
 ```
 
