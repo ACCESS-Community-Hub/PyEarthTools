@@ -1,13 +1,17 @@
-# pyearthtools
+# PyEarthTools: Reproducible science pipelines for machine learning
 
-* THIS REPO IS UNDER CONSTRUCTION *
+`PyEarthTools` is a Python framework, containing modules for loading data; pre-processing, normalising and standardising data; defining machine learning (ML) models; training ML models; performing inference with ML models; and evaluating ML models. It contains specialised support for weather and climate data sources and models. It has an emphasis on reproducibility, shareable pipelines, and human-readable low-code pipeline definition.
 
-This repository contains code which is under construction, and should not yet be used by anyone.
-The development team are actively working to make this project ready for new users, but for
-the time being things are not ready. Feel free to take a look around if you like, but much is likely
-to change in the next few months.
+> [!NOTE]
+> * THIS REPOSITORY IS UNDER CONSTRUCTION *
+>
+> This repository contains code which is under construction, and should not yet be used by anyone.
+> The development team are actively working to make this project ready for new users, but for
+> the time being things are not ready. Feel free to take a look around if you like, but much is likely
+> to change in the next few months.
+>
 
-** Installation **
+**Installation**
 
 First clone the repository using the `monorepo` branch:
 
