@@ -3,7 +3,7 @@
 `PyEarthTools` is a Python framework, containing modules for loading data; pre-processing, normalising and standardising data; defining machine learning (ML) models; training ML models; performing inference with ML models; and evaluating ML models. It contains specialised support for weather and climate data sources and models. It has an emphasis on reproducibility, shareable pipelines, and human-readable low-code pipeline definition.
 
 > [!NOTE]
-> * THIS REPOSITORY IS UNDER CONSTRUCTION *
+> **THIS REPOSITORY IS UNDER CONSTRUCTION**
 >
 > This repository contains code which is under construction, and should not yet be used by anyone.
 > The development team are actively working to make this project ready for new users, but for
@@ -11,11 +11,13 @@
 > to change in the next few months.
 >
 
-**New User Information**
+# New User Information
 
 Guidelines for new users still need to be developed. For those looking to get started, follow the installation instructions below in this README, and then head to the tutorial sub-package to get going.
 
-**Repository Layout**
+When this repository is ready for wider use, the intention is to release PyEarthTools on PyPI and conda-forge.
+
+# Repository Layout
 
 This is a so-called monorepo. PyEarthTools comprises multiple, modular packages within a shared namespace that inter-operate in order to provide the overall functionality of the framework. It is not necessary to install all of them, and it is envisioned that many users are likely to want only some parts of the framework. As such, each sub-package is a fully independent Python package, with its own requirements and its own installation process.
 
@@ -24,7 +26,7 @@ Each of these sub-packages lies in the 'packages' subdirectory. Developers of `P
 For simplicity, the instructions here explain how to check out the whole codebase and install everything for a developer context. 
 
 
-**Installation**
+# Installation
 
 First clone the repository using the `develop` branch:
 
