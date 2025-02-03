@@ -19,7 +19,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-  "pyearthtools.data>=1.0.0",
+  "pyearthtools.data",
   "pyearthtools.pipeline",
   "pyearthtools.training",
   "rich",
