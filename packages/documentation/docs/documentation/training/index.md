@@ -1,27 +1,27 @@
 # Training
 
-`edit.training` utilises the other components of `edit` to provide the data and structures in which to train machine learning models.
+`pyearthtools.training` utilises the other components of `pyearthtools` to provide the data and structures in which to train machine learning models.
 
 ## Data
 
-Particularly, `edit.training` provides `PipelineDataModule`'s to use pipelines as a source of data.
+Particularly, `pyearthtools.training` provides `PipelineDataModule`'s to use pipelines as a source of data.
 
 ```python
-import edit.training
-import edit.pipeline
+import pyearthtools.training
+import pyearthtools.pipeline
 
 
-edit.training.data.PipelineDataModule(
-    edit.pipeline.Pipeline.sample()
+pyearthtools.training.data.PipelineDataModule(
+    pyearthtools.pipeline.Pipeline.sample()
 )
 ```
 
-The `PipelineDataModule` can also directly utilise train and validation splits to configure the pipelines to source the correct data for each part of training. This is given as a `edit.pipeline.Iterator`.
+The `PipelineDataModule` can also directly utilise train and validation splits to configure the pipelines to source the correct data for each part of training. This is given as a `pyearthtools.pipeline.Iterator`.
 
 ```python
-edit.training.data.PipelineDataModule(
-    edit.pipeline.Pipeline.sample(),
-    train_split = edit.pipeline.iterators.DateRange('2000', '2020', '6 hours'),
+pyearthtools.training.data.PipelineDataModule(
+    pyearthtools.pipeline.Pipeline.sample(),
+    train_split = pyearthtools.pipeline.iterators.DateRange('2000', '2020', '6 hours'),
 )
 ```
 
@@ -39,8 +39,8 @@ Currently, the following are implemented,
 
 | Framework | Path | Info |
 | --------- | ---- | ---- |
-| Lightning | `edit.training.data.lightning` | Pytorch Lightning data module |
-| Other | `edit.training.data.default` | Default data module to mimic lightning for any other framework |
+| Lightning | `pyearthtools.training.data.lightning` | Pytorch Lightning data module |
+| Other | `pyearthtools.training.data.default` | Default data module to mimic lightning for any other framework |
 
 `pipeline`'s can be given as either `Pipeline`, tuple of `Pipeline`'s or dictionary of `Pipeline`'s.
 
@@ -48,7 +48,7 @@ Currently, the following are implemented,
 
 Loading data is only part of the problem, it actually needs to be connected into the model, and training ran.
 
-In `edit.training` this takes the form of wrappers, particularly, `ModelWrapper` and `TrainWrapper`.
+In `pyearthtools.training` this takes the form of wrappers, particularly, `ModelWrapper` and `TrainWrapper`.
 
 A `ModelWrapper` is the base wrapper class which provides the connection between a model and it's data source. 
 By itself it cannot do much but provides the template in which other frameworks can be connected.
@@ -56,14 +56,14 @@ By itself it cannot do much but provides the template in which other frameworks 
 A `TrainWrapper` simply provides the interface to run `fit`, and is the responsibility of the underlying implementation to provide.
 
 ```python
-import edit.training
-import edit.pipeline
+import pyearthtools.training
+import pyearthtools.pipeline
 
-data = edit.training.data.PipelineDataModule(
-    edit.pipeline.Pipeline.sample()
+data = pyearthtools.training.data.PipelineDataModule(
+    pyearthtools.pipeline.Pipeline.sample()
 )
 
-model = edit.training.ModelWrapper(ML_MODEL, data)
+model = pyearthtools.training.ModelWrapper(ML_MODEL, data)
 ```
 
 ### Frameworks 

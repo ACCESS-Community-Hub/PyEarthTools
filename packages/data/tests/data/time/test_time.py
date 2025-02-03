@@ -1,14 +1,21 @@
 # Copyright Commonwealth of Australia, Bureau of Meteorology 2024.
-# This software is provided under license 'as is', without warranty
-# of any kind including, but not limited to, fitness for a particular
-# purpose. The user assumes the entire risk as to the use and
-# performance of the software. In no event shall the copyright holder
-# be held liable for any claim, damages or other liability arising
-# from the use of the software.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 
 import pytest
 
-from edit.data.time import EDITDatetime, TimeDelta, TimeRange, TimeResolution
+from pyearthtools.data.time import pyearthtoolsDatetime, TimeDelta, TimeRange, TimeResolution
 
 
 @pytest.mark.parametrize(
@@ -17,12 +24,12 @@ from edit.data.time import EDITDatetime, TimeDelta, TimeRange, TimeResolution
         ("2020-01-01", "day", "2020-01-01"),
         ("2020-01-01", "month", "2020-01"),
         ("2020-01-01", TimeResolution("month"), "2020-01"),
-        ("2020-01-01", EDITDatetime("1970-01"), "2020-01"),
+        ("2020-01-01", pyearthtoolsDatetime("1970-01"), "2020-01"),
         ("2020-01-01", "second", "2020-01-01T00:00:00"),
     ],
 )
 def test_time_resolution_change(basetime, resolution, expected):
-    assert str(EDITDatetime(basetime).at_resolution(resolution)) == expected
+    assert str(pyearthtoolsDatetime(basetime).at_resolution(resolution)) == expected
 
 
 @pytest.mark.parametrize(
@@ -39,7 +46,7 @@ def test_time_resolution_change(basetime, resolution, expected):
     ],
 )
 def test_time_addition(basetime, delta, expected):
-    assert str(EDITDatetime(basetime) + TimeDelta(delta)) == expected
+    assert str(pyearthtoolsDatetime(basetime) + TimeDelta(delta)) == expected
 
 
 @pytest.mark.parametrize(
@@ -80,7 +87,7 @@ def test_range(start, end, interval, length):
     ],
 )
 def test_resolution(time, expected_resolution):
-    assert str(EDITDatetime(time).resolution) == expected_resolution
+    assert str(pyearthtoolsDatetime(time).resolution) == expected_resolution
 
 
 @pytest.mark.parametrize(
@@ -107,4 +114,4 @@ def test_added_resolution(init_resolution, addition, expected_resolution):
     ],
 )
 def test_f_str(time, str_format, expected):
-    assert f"{EDITDatetime(time):{str_format}}" == expected
+    assert f"{pyearthtoolsDatetime(time):{str_format}}" == expected

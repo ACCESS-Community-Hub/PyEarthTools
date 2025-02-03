@@ -11,7 +11,7 @@ The distinction between `Transforms` & `Modifications` can be considered as foll
 
 ## Usage
 
-By decorating an archive with `@edit.data.decorators.variable_modifications()` modifications can be applied on a variable level.
+By decorating an archive with `@pyearthtools.data.decorators.variable_modifications()` modifications can be applied on a variable level.
 
 ```python
 class Archive(ArchiveIndex):
@@ -69,7 +69,7 @@ class AggregationGeneral(Aggregation):
 
 `single` takes a single timestep and expects a dataset to be returned with the variable as modified.
 
-`series` takes a start, end and interval, as can be parsed by `edit.data.TimeRange`, and expects 
+`series` takes a start, end and interval, as can be parsed by `pyearthtools.data.TimeRange`, and expects 
 a dataset to be returned with the variable as modified but all timesteps as defined by the range.
 
 `variable` contains the variable being modified.

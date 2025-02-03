@@ -1,8 +1,8 @@
 # Commands
 
 ```shell
-[~]$ edit-models 
-Usage: edit-models [OPTIONS] COMMAND [ARGS]...
+[~]$ pyearthtools-models 
+Usage: pyearthtools-models [OPTIONS] COMMAND [ARGS]...
 
 Options:
   --help  Show this message and exit.
@@ -17,8 +17,8 @@ Commands:
 ## Predict
 
 ```shell
-[~]$ edit-models predict --help
-Usage: edit-models predict [OPTIONS] MODEL
+[~]$ pyearthtools-models predict --help
+Usage: pyearthtools-models predict [OPTIONS] MODEL
 
   Run Prediction of registered model
 
@@ -40,9 +40,9 @@ Options:
 ## Interactive
 
 ```shell
-[~]$ edit-models interactive --help
+[~]$ pyearthtools-models interactive --help
 
-Usage: edit-models interactive [OPTIONS]
+Usage: pyearthtools-models interactive [OPTIONS]
 
   Interactive Prediction
 
@@ -64,7 +64,7 @@ Options:
 ## Models
 
 ```shell
-[~]$ edit-models models
+[~]$ pyearthtools-models models
 Available models:
         graphcast
         sfno
@@ -75,9 +75,9 @@ Available models:
 ## Data
 
 ```shell
-[~]$ edit-models data
+[~]$ pyearthtools-models data
 
-Usage: edit-models data [OPTIONS] MODEL
+Usage: pyearthtools-models data [OPTIONS] MODEL
 
   Data retrieval
 
@@ -97,7 +97,7 @@ Options:
 
 ## Optional Arguments
 
-As the `kwargs` will get passed to the `edit.training.MLDataIndex`, any kwargs that accepts, the commands will too.
+As the `kwargs` will get passed to the `pyearthtools.training.MLDataIndex`, any kwargs that accepts, the commands will too.
 
 The following table lists some useful ones.
 

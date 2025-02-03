@@ -1,3 +1,3 @@
 # Training
 
-These notebooks show how to use `edit.training`
+These notebooks show how to use `pyearthtools.training`

@@ -4,10 +4,10 @@ build-backend = "hatchling.build"
 
 
 [project]
-name = "edit-training"
-description = "Machine Learning Training with EDIT"
+name = "pyearthtools-training"
+description = "Machine Learning Training with pyearthtools"
 requires-python = ">=3.9"
-keywords = ["edit"]
+keywords = ["pyearthtools"]
 authors = [
   {email = "harrison.cook@bom.gov.au"},
   {name = "Harrison Cook"}
@@ -20,8 +20,8 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "edit-pipeline",
-    "edit-utils>=1.1.0",
+    "pyearthtools-pipeline",
+    "pyearthtools-utils>=1.1.0",
     "einops", 
     "scikit-learn", 
     "scipy", 
@@ -40,7 +40,7 @@ lightning = [
   "tensorly",
 ]
 pytorch =[
-  "edit.training[lightning]",
+  "pyearthtools.training[lightning]",
 ]
 xgboost = [
   "xgboost",
@@ -54,19 +54,19 @@ onnx_gpu = [
   "onnxruntime_gpu",
 ]
 all = [
-  "edit-training[lightning]",
-  "edit-training[xgboost]",
-  "edit-training[onnx_gpu]",
+  "pyearthtools-training[lightning]",
+  "pyearthtools-training[xgboost]",
+  "pyearthtools-training[onnx_gpu]",
 ]
 
 
 [project.urls]
 homepage = "https://bom.gov.au"
-documentation = "https://git.nci.org.au/bom/dset/edit-package/documentation"
-repository = "https://git.nci.org.au/bom/dset/edit-package/training"
+documentation = "https://git.nci.org.au/bom/dset/pyearthtools-package/documentation"
+repository = "https://git.nci.org.au/bom/dset/pyearthtools-package/training"
 
 [project.scripts]
-edit-training = "edit.training.commands:entry_point"
+pyearthtools-training = "pyearthtools.training.commands:entry_point"
 
 [tool.isort]
 profile = "black"
@@ -82,7 +82,7 @@ warn_unused_configs = true
 ignore_missing_imports = true
 
 [tool.hatch.version]
-path = "src/edit/training/__init__.py"
+path = "src/pyearthtools/training/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/edit/"]
+packages = ["src/pyearthtools/"]

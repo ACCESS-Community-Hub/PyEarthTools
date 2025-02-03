@@ -3,10 +3,10 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "edit-pipeline"
-description = "Data Pipelines with EDIT"
+name = "pyearthtools-pipeline"
+description = "Data Pipelines with pyearthtools"
 requires-python = ">=3.9"
-keywords = ["edit"]
+keywords = ["pyearthtools"]
 authors = [
   {email = "harrison.cook@bom.gov.au"},
   {name = "Harrison Cook"}
@@ -19,8 +19,8 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "edit-utils>=1.1.0",
-    "edit-data>=1.0.0",
+    "pyearthtools-utils>=0.1.0",
+    "pyearthtools-data>=0.1.0",
     "xarray",
     "pandas",
     "graphviz",
@@ -39,14 +39,14 @@ remapping = [
   "healpy","reproject",
 ]
 all = [
-  "edit-pipeline[distributed, remapping]",
-  "edit-data[all]",
+  "pyearthtools-pipeline[distributed, remapping]",
+  "pyearthtools-data[all]",
 ]
 
 [project.urls]
 homepage = "https://bom.gov.au"
-documentation = "https://git.nci.org.au/bom/dset/edit-package/documentation"
-repository = "https://git.nci.org.au/bom/dset/edit-package/pipeline_v2"
+documentation = "https://git.nci.org.au/bom/dset/pyearthtools-package/documentation"
+repository = "https://git.nci.org.au/bom/dset/pyearthtools-package/pipeline_v2"
 
 [tool.isort]
 profile = "black"
@@ -62,17 +62,17 @@ warn_unused_configs = true
 ignore_missing_imports = true
 
 [tool.setuptools.packages.find]
-include = ["edit.pipeline"]
+include = ["pyearthtools.pipeline"]
 where = ["src/"]
 
 [tool.setuptools_scm]
-version_file = "src/edit/pipeline/_version.py"
+version_file = "src/pyearthtools/pipeline/_version.py"
 
 [tool.ruff.lint]
 ignore-init-module-imports = false
 
 [tool.hatch.version]
-path = "src/edit/pipeline/__init__.py"
+path = "src/pyearthtools/pipeline/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/edit/"]
+packages = ["src/pyearthtools/"]

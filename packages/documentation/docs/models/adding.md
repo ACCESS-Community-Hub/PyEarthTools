@@ -1,12 +1,12 @@
 # Adding a Model
 
-To add a new model accessible within `edit-models`, the user may subclass `edit.models.BaseForecastModel`.
+To add a new model accessible within `pyearthtools-models`, the user may subclass `pyearthtools.models.BaseForecastModel`.
 
-Only `load` must be provided by the child class which is expected to return an `edit.training.EDIT_Inference` object, and a dictionary to pass to the `edit.training.MLIndex`.
+Only `load` must be provided by the child class which is expected to return an `pyearthtools.training.pyearthtools_Inference` object, and a dictionary to pass to the `pyearthtools.training.MLIndex`.
 
-If custom behaviour is needed for the `EDIT_Inference` (Wrapper) it may be subclassed and built out.
+If custom behaviour is needed for the `pyearthtools_Inference` (Wrapper) it may be subclassed and built out.
 
-Additionally, if any other kwargs are needed for the child model, override the `__init__` function, and specify them there. Any of the `edit.models` commands will automatically detect those kwargs and prompt the user for them.
+Additionally, if any other kwargs are needed for the child model, override the `__init__` function, and specify them there. Any of the `pyearthtools.models` commands will automatically detect those kwargs and prompt the user for them.
 
 ## Values
 
@@ -38,8 +38,8 @@ There are a set of properties which can be set in the registered model to alter 
 ## Example
 
 ```python
-@edit.models.register('MODEL/NAME')
-class ModelRegister(edit.models.BaseForecastModel):
+@pyearthtools.models.register('MODEL/NAME')
+class ModelRegister(pyearthtools.models.BaseForecastModel):
     """
     This doc will be printed on model load,
     so keep copyright, license or other info here
@@ -71,7 +71,7 @@ Using this method, allows the model to be auto discovered once it is installed w
 This is done in the `pyproject.toml` file
 
 ```toml
-[project.entry-points."edit.models.model"]
+[project.entry-points."pyearthtools.models.model"]
 MODEL_NAME = "MODULE.registered_model:MODEL_CLASS"
 ```
 
@@ -81,15 +81,15 @@ This method requires the module to be imported before it is visible, but allows 
 
 ```python
 
-@edit.models.register('MODEL/NAME')
-class MODELRegister(edit.models.BaseForecastModel):
+@pyearthtools.models.register('MODEL/NAME')
+class MODELRegister(pyearthtools.models.BaseForecastModel):
     ...
 ```
 
-If using this method and wanting to use the commands, it is possible to set the module to be imported on commands running. This is done by setting `EDIT_MODELS_IMPORTS` in the environment.
+If using this method and wanting to use the commands, it is possible to set the module to be imported on commands running. This is done by setting `pyearthtools_MODELS_IMPORTS` in the environment.
 
 Seperate modules by ':', and within each specification, split the name and path by '@'.
 
 ```shell
-export EDIT_MODELS_IMPORTS=MODULE_NAME@PATH_TO_MODULE_GOES_HERE:
+export pyearthtools_MODELS_IMPORTS=MODULE_NAME@PATH_TO_MODULE_GOES_HERE:
 ```

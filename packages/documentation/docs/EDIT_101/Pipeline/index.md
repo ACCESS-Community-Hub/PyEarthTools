@@ -1,3 +1,3 @@
 # Pipeline
 
-These notebooks show how to use `edit.pipeline`
+These notebooks show how to use `pyearthtools.pipeline`

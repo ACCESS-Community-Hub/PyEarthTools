@@ -1,0 +1,9 @@
+#
+# Check if on NCI
+#
+module: pyearthtools_archive_NCI
+
+folder: /opt/nci
+hostname: 'gadi.nci.org.au'
+env:
+  NCI_PATH_SET

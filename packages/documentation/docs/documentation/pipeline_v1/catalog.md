@@ -1,6 +1,6 @@
 # Pipeline Catalog
 
-`edit.pipeline` contains a number of predeveloped pipeline steps whihc can be used to config data and prepare it for any downstream applications.
+`pyearthtools.pipeline` contains a number of predeveloped pipeline steps whihc can be used to config data and prepare it for any downstream applications.
 
 The pipeline creation can be likened to a puzzle, with the primary challenge being combining steps together to achieve the goal.
 
@@ -9,7 +9,7 @@ is configured to allow partial initialisation, as shown in [loading](/documentat
 
 
 !!! Hint
-    All operations part of `edit.pipeline` which chnage the structure of data implement and `undo` function,
+    All operations part of `pyearthtools.pipeline` which chnage the structure of data implement and `undo` function,
     thus, data can be restored to it's original state, or at least close to it.
 
     ```python
@@ -21,7 +21,7 @@ is configured to allow partial initialisation, as shown in [loading](/documentat
 
 ## Operations
 
-This page seeks to list all steps developed, and when to use them. All paths shown below are relative to `edit.pipeline.operations`.
+This page seeks to list all steps developed, and when to use them. All paths shown below are relative to `pyearthtools.pipeline.operations`.
 
 ### Augmentation
 
@@ -89,7 +89,7 @@ This page seeks to list all steps developed, and when to use them. All paths sho
 | ---- | ---- | ------: |
 | TransformOperation   | `TransformOperation` | Apply transforms to data |
 
-Specific transforms, all paths relative to `edit.pipeline.operations.transforms`
+Specific transforms, all paths relative to `pyearthtools.pipeline.operations.transforms`
 
 | Name | Path | Purpose |
 | ---- | ---- | ------: |
@@ -111,7 +111,7 @@ Specific transforms, all paths relative to `edit.pipeline.operations.transforms`
 
 ## Indexes
 
-All paths shown below are relative to `edit.pipeline`.
+All paths shown below are relative to `pyearthtools.pipeline`.
 
 | Name | Path | Purpose |
 | ---- | ---- | ------: |
@@ -123,7 +123,7 @@ All paths shown below are relative to `edit.pipeline`.
 
 ## Interfaces
 
-All paths shown below are relative to `edit.pipeline`.
+All paths shown below are relative to `pyearthtools.pipeline`.
 
 | Name | Path | Purpose |
 | ---- | ---- | ------: |
@@ -131,7 +131,7 @@ All paths shown below are relative to `edit.pipeline`.
 
 ## Iterators
 
-All paths shown below are relative to `edit.pipeline`.
+All paths shown below are relative to `pyearthtools.pipeline`.
 
 | Name | Path | Purpose |
 | ---- | ---- | ------: |

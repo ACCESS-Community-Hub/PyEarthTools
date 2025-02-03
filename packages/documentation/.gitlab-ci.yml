@@ -35,16 +35,16 @@ build-job:       # This job runs in the build stage, which runs first.
     - echo "Setting up environment and installing package..."
     - conda init bash
     - source ~/.bashrc
-    - conda create -n edit_environment
-    - conda activate edit_environment
+    - conda create -n pyearthtools_environment
+    - conda activate pyearthtools_environment
     - pip install -r requirements.txt
-    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@git.nci.org.au/bom/dset/edit-package/data.git    
-    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@git.nci.org.au/bom/dset/edit-package/utils.git    
-    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@git.nci.org.au/bom/dset/edit-package/pipeline_v2.git    
-    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@git.nci.org.au/bom/dset/edit-package/training.git    
-    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@git.nci.org.au/bom/dset/edit-package/verification.git    
-    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@git.nci.org.au/bom/dset/edit-package/models.git    
-    - git clone https://gitlab-ci-token:${SSH_PUSH_KEY}@git.nci.org.au/bom/dset/edit-package/documentation.git    
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@git.nci.org.au/bom/dset/pyearthtools-package/data.git    
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@git.nci.org.au/bom/dset/pyearthtools-package/utils.git    
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@git.nci.org.au/bom/dset/pyearthtools-package/pipeline_v2.git    
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@git.nci.org.au/bom/dset/pyearthtools-package/training.git    
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@git.nci.org.au/bom/dset/pyearthtools-package/verification.git    
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@git.nci.org.au/bom/dset/pyearthtools-package/models.git    
+    - git clone https://gitlab-ci-token:${SSH_PUSH_KEY}@git.nci.org.au/bom/dset/pyearthtools-package/documentation.git    
     
     - pip install ./data --no-dependencies
     - pip install ./training --no-dependencies
@@ -54,7 +54,7 @@ build-job:       # This job runs in the build stage, which runs first.
     - pip install ./models --no-dependencies
     - cd documentation
 
-    - git remote add gitlab_origin https://docbuilder:$SSH_PUSH_KEY@git.nci.org.au/bom/dset/edit-package/documentation.git
+    - git remote add gitlab_origin https://docbuilder:$SSH_PUSH_KEY@git.nci.org.au/bom/dset/pyearthtools-package/documentation.git
     - git config user.email "ci@bom.com"
     - git config user.name "Documentation Builder"
     - mkdocs build

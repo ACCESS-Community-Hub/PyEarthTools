@@ -1,3 +1,3 @@
 # Models
 
-These notebooks show how to use `edit.models`
+These notebooks show how to use `pyearthtools.models`

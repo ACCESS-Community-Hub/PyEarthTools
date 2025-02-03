@@ -52,7 +52,7 @@ for sub_path in sub_paths:
             ident = ".".join(parts)
             fd.write(f"::: {ident}")
 
-        mkdocs_gen_files.set_edit_path(full_doc_path, path.relative_to(root_path))
+        mkdocs_gen_files.set_pyearthtools_path(full_doc_path, path.relative_to(root_path))
 
 with mkdocs_gen_files.open("reference/SUMMARY.md", "w") as nav_file:
     nav_file.writelines(nav.build_literate_nav())

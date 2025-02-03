@@ -1,3 +1,3 @@
-# EDIT Utilities
+# pyearthtools Utilities
 
 A common source for commonly used utility functions.

@@ -1,6 +1,6 @@
 # Data Flow
 
-`edit.data` uses the following inheritance structure
+`pyearthtools.data` uses the following inheritance structure
 
 ```mermaid
 classDiagram

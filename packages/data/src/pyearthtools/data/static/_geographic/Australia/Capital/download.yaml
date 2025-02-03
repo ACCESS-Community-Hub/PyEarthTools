@@ -1,0 +1,6 @@
+
+---
+# Download Config For Capital Cities Data
+url: https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs-pyearthtoolsion-3/jul2021-jun2026/access-and-downloads/digital-boundary-files/GCCSA_2021_AUST_SHP_GDA2020.zip
+save_name: CapitalCities.zip
+zip: true

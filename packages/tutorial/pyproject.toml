@@ -3,10 +3,10 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "edit-tutorial"
-description = "Tutorials for EDIT"
+name = "pyearthtools-tutorial"
+description = "Tutorial material for PyEarthTools"
 requires-python = ">=3.9"
-keywords = ["edit"]
+keywords = ["pyearthtools"]
 authors = [
   {email = "tennessee.leeuwenburg@bom.gov.au"},
   {name = "Tennessee Leeuwenburg"}
@@ -19,9 +19,9 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-  "edit.data>=1.0.0",
-  "edit.pipeline",
-  "edit.training",
+  "pyearthtools.data>=1.0.0",
+  "pyearthtools.pipeline",
+  "pyearthtools.training",
   "rich",
   "ipywidgets",
   "scores",
@@ -36,7 +36,7 @@ readme = {file = ["README.md"], content-type = "text/markdown"}
 
 [project.urls]
 homepage = "http://bom.gov.au"
-documentation = "https://git.nci.org.au/bom/dset/edit-package/archives/NCI"
+documentation = "https://git.nci.org.au/bom/dset/pyearthtools-package/archives/NCI"
 
 [tool.isort]
 profile = "black"

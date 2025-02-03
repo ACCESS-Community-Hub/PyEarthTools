@@ -1,8 +1,8 @@
 # Available Operations
 
-Within `edit.pipeline.operations` are the steps available to make up a pipeline. 
+Within `pyearthtools.pipeline.operations` are the steps available to make up a pipeline. 
 
-To add your own, see [Making your own Operation](details/operation.md). Essentially subclass `edit.pipeline.Operation`.
+To add your own, see [Making your own Operation](details/operation.md). Essentially subclass `pyearthtools.pipeline.Operation`.
 
 There are four main operation types available
 - xarray
@@ -15,7 +15,7 @@ There are four main operation types available
 As `pipeline` utilises `data` to provide the base indexes in which to actually get data from, a very common data type will be `xarray` objects, either `Dataset` or `DataArrays`.
 Therefore, `xarray` operations are common place. 
 
-Here are the default operations included with `edit.pipeline`, accessible at `edit.pipeline.operations.xarray.{Category}.{Name}`.
+Here are the default operations included with `pyearthtools.pipeline`, accessible at `pyearthtools.pipeline.operations.xarray.{Category}.{Name}`.
 
 | Category | Description | Available |
 | -------- | ----------- | --------- |
@@ -37,7 +37,7 @@ Here are the default operations included with `edit.pipeline`, accessible at `ed
 
 Typically for Machine learning training, data must be converted to arrays and then tensors. So using `xarray.conversion.ToNumpy` data can be turned into arrays. Once in that form, operations can still be applied.
 
-Here are the default operations included with `edit.pipeline`, accessible at `edit.pipeline.operations.numpy.{Category}.{Name}`.
+Here are the default operations included with `pyearthtools.pipeline`, accessible at `pyearthtools.pipeline.operations.numpy.{Category}.{Name}`.
 
 
 | Category | Description | Available |
@@ -56,7 +56,7 @@ Here are the default operations included with `edit.pipeline`, accessible at `ed
 
 For optimisation and rate increases, data can be kept in dask arrays for as long as possible. This section directly mimics the `numpy` one but instead operates on dask arrays.
 
-Here are the default operations included with `edit.pipeline`, accessible at `edit.pipeline.operations.dask.{Category}.{Name}`.
+Here are the default operations included with `pyearthtools.pipeline`, accessible at `pyearthtools.pipeline.operations.dask.{Category}.{Name}`.
 
 
 | Category | Description | Available |
@@ -74,15 +74,15 @@ Here are the default operations included with `edit.pipeline`, accessible at `ed
 
 ## Transforms
 
-In addition to the operations that can be applied, `edit.data.transforms` can also be applied. They can be directly be included within the `Pipeline` and will only be called on the `apply` step.
+In addition to the operations that can be applied, `pyearthtools.data.transforms` can also be applied. They can be directly be included within the `Pipeline` and will only be called on the `apply` step.
 
-If `transforms` need to be applied on the `undo` step or with other specifications `edit.pipeline.operations.Transforms` can be used. 
+If `transforms` need to be applied on the `undo` step or with other specifications `pyearthtools.pipeline.operations.Transforms` can be used. 
 
 ```python
-edit.pipeline.operations.Transforms(
-    transforms = edit.data.transforms.region.Lookup('Oceania'), # Applied on both apply and undo
-    apply = edit.data.transforms.coordinates.Expand(dim = [0]), # Only on apply
-    undo = edit.data.transforms.coordinates.Drop(dim = [0]), # Only on undo
+pyearthtools.pipeline.operations.Transforms(
+    transforms = pyearthtools.data.transforms.region.Lookup('Oceania'), # Applied on both apply and undo
+    apply = pyearthtools.data.transforms.coordinates.Expand(dim = [0]), # Only on apply
+    undo = pyearthtools.data.transforms.coordinates.Drop(dim = [0]), # Only on undo
 
 )
 ```
@@ -92,7 +92,7 @@ edit.pipeline.operations.Transforms(
 
 Additionally to the simple operations, `modifications` are available, these are named so as they modify the flow of data and indexes to a greater level.
 
-Here are the default modifications included with `edit.pipeline`, accessible at `edit.pipeline.modifications.{Name}`.
+Here are the default modifications included with `pyearthtools.pipeline`, accessible at `pyearthtools.pipeline.modifications.{Name}`.
 
 | Category | Description | Available |
 | -------- | ----------- | --------- |

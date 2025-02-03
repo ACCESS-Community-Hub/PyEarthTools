@@ -1,3 +1,3 @@
 # Data
 
-These notebooks show how to use `edit.data`
+These notebooks show how to use `pyearthtools.data`

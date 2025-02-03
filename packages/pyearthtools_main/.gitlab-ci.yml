@@ -1,0 +1,18 @@
+include:
+  - project: 'bom/dset/pyearthtools-package/ci-cd-scripts'
+    ref: main
+    file: 
+      - 'black.yml'
+      - 'pytest.yml'
+      - 'package_release.yml'
+      - 'trigger_latest.yml'
+
+
+stages:
+    - lint
+    - test 
+    - release
+    - trigger
+
+variables:
+  LINE_LENGTH: 120

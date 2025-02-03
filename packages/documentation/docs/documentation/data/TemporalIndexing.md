@@ -1,6 +1,6 @@
 # Temporal Indexing Behaviour
 
-`edit` allows for more complex time based indexing with use of the [series][edit.data.AdvancedTimeIndex.series] function, however, it's fine detailed operations may not be entirely obvious.
+`pyearthtools` allows for more complex time based indexing with use of the [series][pyearthtools.data.AdvancedTimeIndex.series] function, however, it's fine detailed operations may not be entirely obvious.
 
 There are three main time resolutions which need to be considered,
 
@@ -12,13 +12,13 @@ There are three main time resolutions which need to be considered,
 | Start  | Specified start of the series        |
 | Interval  | Resolution of the interval    |
 
-By default `edit.data` sets the resolution of the start time to at least the resolution of the interval, which if not given
+By default `pyearthtools.data` sets the resolution of the start time to at least the resolution of the interval, which if not given
 defaults to the data's interval.
 
 Consider:
 
 ```py
-from edit.data.archive import ERA5
+from pyearthtools.data.archive import ERA5
 era5 = ERA5('2t', level = 'single')
 
 era5.series('2021', '2021-03', interval = (1, 'hour'))
@@ -31,9 +31,9 @@ The three resolutions mentioned above have the following values,
 | Start       | Year |
 | Interval    | Hour |
 
-The expected behaviour of the above call, is all data in Jan and Feb of 2021, which `edit` follows.
+The expected behaviour of the above call, is all data in Jan and Feb of 2021, which `pyearthtools` follows.
 
-Ultimately, `edit` will respect the resolution of the given `start`, and step by the given interval, retrieving all the data 
+Ultimately, `pyearthtools` will respect the resolution of the given `start`, and step by the given interval, retrieving all the data 
 which are within the specified resolution at each step. 
 
 !!! Note start.resolution == interval.resolution but > data.resolution
@@ -47,7 +47,7 @@ If the interval is monthly, the start daily and the data hourly, all hours of da
 Interval: month, start: daily, data: hourly
 
 ```py
-from edit.data.archive import ERA5
+from pyearthtools.data.archive import ERA5
 era5 = ERA5('2t', level = 'single')
 
 era5.series('2021-01-13', '2021-06', interval = (1, 'month')).time
@@ -59,7 +59,7 @@ era5.series('2021-01-13', '2021-06', interval = (1, 'month')).time
 Interval: month, start: hourly, data: hourly
 
 ```py
-from edit.data.archive import ERA5
+from pyearthtools.data.archive import ERA5
 era5 = ERA5('2t', level = 'single')
 
 era5.series('2021-02-03T14', '2021-06', interval = (1, 'month')).time
@@ -71,7 +71,7 @@ era5.series('2021-02-03T14', '2021-06', interval = (1, 'month')).time
 Interval: day, start: hourly, data: hourly
 
 ```py
-from edit.data.archive import ERA5
+from pyearthtools.data.archive import ERA5
 era5 = ERA5('2t', level = 'single')
 
 era5.series('2021-02-03T14', '2021-06', interval = (1, 'day')).time
@@ -83,7 +83,7 @@ Interval: day, start: hourly, data: hourly
 with end: day
 
 ```py
-from edit.data.archive import ERA5
+from pyearthtools.data.archive import ERA5
 era5 = ERA5('2t', level = 'single')
 
 era5.series('2021-02-03T14', '2021-06-06', interval = (1, 'day')).time
@@ -94,7 +94,7 @@ era5.series('2021-02-03T14', '2021-06-06', interval = (1, 'day')).time
 Interval: month, start: month, data: hourly
 
 ```py
-from edit.data.archive import ERA5
+from pyearthtools.data.archive import ERA5
 era5 = ERA5('2t', level = 'single')
 
 era5.series('2021-02', '2021-06', interval = (1, 'month')).time

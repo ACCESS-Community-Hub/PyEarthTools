@@ -3,10 +3,10 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "edit-utils"
-description = "Utilities for EDIT"
+name = "pyearthtools-utils"
+description = "Utilities for pyearthtools"
 requires-python = ">=3.8"
-keywords = ["edit"]
+keywords = ["pyearthtools"]
 authors = [
   {email = "harrison.cook@bom.gov.au", name = "Harrison Cook"},
   {name = "Tennessee Leeuwenburg", email = "tennessee.leeuwenburg@bom.gov.au"},
@@ -32,8 +32,8 @@ dynamic = ["version", "readme"]
 
 [project.urls]
 homepage = "https://bom.gov.au"
-documentation = "https://git.nci.org.au/bom/dset/edit-package/documentation"
-repository = "https://git.nci.org.au/bom/dset/edit-package/utils"
+documentation = "https://git.nci.org.au/bom/dset/pyearthtools-package/documentation"
+repository = "https://git.nci.org.au/bom/dset/pyearthtools-package/utils"
 
 [tool.isort]
 profile = "black"
@@ -49,7 +49,7 @@ warn_unused_configs = true
 ignore_missing_imports = true
 
 [tool.hatch.version]
-path = "src/edit/utils/__init__.py"
+path = "src/pyearthtools/utils/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/edit/"]
+packages = ["src/pyearthtools/"]

@@ -1,18 +1,25 @@
 # Copyright Commonwealth of Australia, Bureau of Meteorology 2024.
-# This software is provided under license 'as is', without warranty
-# of any kind including, but not limited to, fitness for a particular
-# purpose. The user assumes the entire risk as to the use and
-# performance of the software. In no event shall the copyright holder
-# be held liable for any claim, damages or other liability arising
-# from the use of the software.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 
 """
 ECWMF ReAnalysis v5, Low-Resolution / WeatherBench Example
 
 The purpose of this module is to hold the index class which can be
-registered into the EDIT package namespace for easy access.
+registered into the pyearthtools package namespace for easy access.
 
-The code here is the interface between the EDIT API and accessing 
+The code here is the interface between the pyearthtools API and accessing 
 files on the filesystem.
 
 An indexer takes some 
@@ -26,20 +33,20 @@ from pathlib import Path
 from typing import Any, Literal
 
 
-import edit.data
+import pyearthtools.data
 
-from edit.data import EDITDatetime
-from edit.data.exceptions import DataNotFoundError
-from edit.data.indexes import ArchiveIndex, decorators
-from edit.data.transforms import Transform, TransformCollection
-from edit.data.archive import register_archive
+from pyearthtools.data import pyearthtoolsDatetime
+from pyearthtools.data.exceptions import DataNotFoundError
+from pyearthtools.data.indexes import ArchiveIndex, decorators
+from pyearthtools.data.transforms import Transform, TransformCollection
+from pyearthtools.data.archive import register_archive
 
 from edit.tutorial.ancilliary.ERA5lowres import ERA5_SINGLE_VARIABLES, ERA5_PRESSURE_VARIABLES
 
-# This tells EDIT what the actual resolution or time-step of the data is inside the files
+# This tells pyearthtools what the actual resolution or time-step of the data is inside the files
 ERA_RESOLUTION = (1, "hour")
 
-# This dictionary tells EDIT what variable renames to apply during load
+# This dictionary tells pyearthtools what variable renames to apply during load
 ERA5_RENAME = {"t2m": "2t", "u10": "10u", "v10": "10v", "siconc": "ci"}
 
 V_TO_PATH = {
@@ -126,13 +133,13 @@ class ERA5LowResIndex(ArchiveIndex):
         self.variables = variables
         base_transform = TransformCollection()
 
-        base_transform += edit.data.transforms.attributes.Rename(ERA5_RENAME)
-        # base_transform += edit.data.transforms.variables.variable_trim(variables)
+        base_transform += pyearthtools.data.transforms.attributes.Rename(ERA5_RENAME)
+        # base_transform += pyearthtools.data.transforms.variables.variable_trim(variables)
 
         self.level_value = level_value
 
         if level_value:
-            base_transform += edit.data.transforms.coordinates.Select(
+            base_transform += pyearthtools.data.transforms.coordinates.Select(
                 {coord: level_value for coord in ["level"]}, ignore_missing=True
             )
 
@@ -144,17 +151,17 @@ class ERA5LowResIndex(ArchiveIndex):
 
     def filesystem(
         self,
-        querytime: str | EDITDatetime,
+        querytime: str | pyearthtoolsDatetime,
     ) -> Path | dict[str, str | Path]:
         ERA5_HOME = self.ROOT_DIRECTORIES["era5lowres"]
 
         '''
-        This tells EDIT how to go from a request for a date/time to a path containing the files
+        This tells pyearthtools how to go from a request for a date/time to a path containing the files
         which will match that request.
         '''
 
         paths = {}
-        querytime = EDITDatetime(querytime)
+        querytime = pyearthtoolsDatetime(querytime)
 
         for variable in self.variables:
 

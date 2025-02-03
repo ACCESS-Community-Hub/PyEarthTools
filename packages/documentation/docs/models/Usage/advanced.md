@@ -4,14 +4,14 @@
 
 By default, all data output from a model is saved in a variable aware, date expanded form, (`ForecastExpandedDateVariable`). This was chosen as the default as it closely matched many existing data archive structures.
 
-However, as this uses the `edit` patterns to allow this, it is quite easy to adjust this and change the structure the data is saved in.
+However, as this uses the `pyearthtools` patterns to allow this, it is quite easy to adjust this and change the structure the data is saved in.
 
-Any pattern listed [here][edit.data.patterns] can be used, by providing it's class name to the `edit-models` call.
+Any pattern listed [here][pyearthtools.data.patterns] can be used, by providing it's class name to the `pyearthtools-models` call.
 
 !!! tip "Pattern Specification"
     ```shell
 
-    edit-models predict graphcast OTHER_ARGS --pattern ExpandedDate
+    pyearthtools-models predict graphcast OTHER_ARGS --pattern ExpandedDate
 
     ```
     This will now use the `ExpandedDate` pattern, saving data in this case at 
@@ -28,7 +28,7 @@ To specify these kwargs, add `--pattern_kwargs` and provide a dictionary in a js
 !!! tip "Pattern Kwargs"
     ```shell
 
-    edit-models predict graphcast OTHER_ARGS --pattern ExpandedDate --pattern_kwargs '{"directory_resolution":"month", "prefix":"_test_"}
+    pyearthtools-models predict graphcast OTHER_ARGS --pattern ExpandedDate --pattern_kwargs '{"directory_resolution":"month", "prefix":"_test_"}
 
     ```
     This will now use the `ExpandedDate` pattern, saving data in this case at 

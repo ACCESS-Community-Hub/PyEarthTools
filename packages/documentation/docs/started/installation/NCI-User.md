@@ -1,6 +1,6 @@
 # NCI User
 
-The Data Science and Emerging Technologies team has set up modules on NCI for `edit`.
+The Data Science and Emerging Technologies team has set up modules on NCI for `pyearthtools`.
 
 This will require access to project `ra02`,
 
@@ -8,10 +8,10 @@ This will require access to project `ra02`,
 
 ```shell
 module use /scratch/ra02/modules
-module load EDIT
+module load pyearthtools
 ```
 
-This will allow `python` to be used, with `edit` and its dependencies installed. If other packages are needed, another path will need to be added containing those packages
+This will allow `python` to be used, with `pyearthtools` and its dependencies installed. If other packages are needed, another path will need to be added containing those packages
 
 ## ARE
 
@@ -29,8 +29,8 @@ Include `scratch/ra02`
 
 ### Modules
 
-Load the `edit` module
+Load the `pyearthtools` module
 
 ```shell
-EDIT
+pyearthtools
 ```

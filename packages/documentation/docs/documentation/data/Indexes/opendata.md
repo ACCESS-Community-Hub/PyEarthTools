@@ -2,7 +2,7 @@
 
 ECMWF has recently provided access to the AIFS & IFS forecasts accessible at `https://data.ecmwf.int/forecasts/`.
 
-To provide access, `edit` now has a `DownloadIndex` to retrieve and cache data.
+To provide access, `pyearthtools` now has a `DownloadIndex` to retrieve and cache data.
 
 This index uses `ecmwf.opendata` as the core download tool.
 
@@ -11,9 +11,9 @@ This index uses `ecmwf.opendata` as the core download tool.
 ### AIFS
 
 ```python
-import edit.data
+import pyearthtools.data
 
-opendata_index = edit.data.download.opendata.AIFS('msl', step = (0, 120, 6), cache = '~/AIFS_Data/')
+opendata_index = pyearthtools.data.download.opendata.AIFS('msl', step = (0, 120, 6), cache = '~/AIFS_Data/')
 opendata_index.latest()
 ```
 

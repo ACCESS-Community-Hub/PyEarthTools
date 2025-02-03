@@ -1,4 +1,4 @@
 global-include download.yaml
-include edit/data/RegionLookup.yaml
+include pyearthtools/data/RegionLookup.yaml
 
-recursive-include src/edit/data/ *.struc *.valid *.yaml *.txt
+recursive-include src/pyearthtools/data/ *.struc *.valid *.yaml *.txt

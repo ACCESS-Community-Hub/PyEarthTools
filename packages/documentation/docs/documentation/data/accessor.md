@@ -1,6 +1,6 @@
-# Extending `edit`
+# Extending `pyearthtools`
 
-`edit` provides a method to add features to the [indexes][edit.data.Index].
+`pyearthtools` provides a method to add features to the [indexes][pyearthtools.data.Index].
 
 This is modelled after the [xarray accessors](https://docs.xarray.dev/en/stable/internals/extending-xarray.html), and allows a user to add methods and functionality automatically to any `index`.
 
@@ -9,10 +9,10 @@ In addition, the extension can be registered to any specific `index`, and thus u
 In your library code:
 
 ```py
-@edit.data.register_accessor("geo", 'DataIndex')
+@pyearthtools.data.register_accessor("geo", 'DataIndex')
 class GeoAccessor:
-    def __init__(self, edit_obj : edit.data.DataIndex):
-        self._obj = edit_obj
+    def __init__(self, pyearthtools_obj : pyearthtools.data.DataIndex):
+        self._obj = pyearthtools_obj
     def plot(self):
         # plot this index's data on a map, e.g., using Cartopy
         pass
@@ -22,7 +22,7 @@ Back in an interactive IPython session:
 
 ```py
 
-era5 = edit.data.archive.ERA5(
+era5 = pyearthtools.data.archive.ERA5(
     variables = '2t', level = 'single'
 )
 era5.geo.plot()  # plots index on a map

@@ -1,16 +1,16 @@
 # XGBoost User Story
 
-Mathilde Ritman – details of adding XGBoost to `edit`
+Mathilde Ritman – details of adding XGBoost to `pyearthtools`
 
 July 2023
 
 ## Adding New Models
 
-To add an XBoost model capability to `edit`, both the model architecture file and a customised model trainer were required. While unsupported models will always require a model architecture file to be written so that they can be implemented, customised model trainers are only required if existing trainers cannot support the new model class. This was the case for XGBoost, as at the time of implementation model trainers only supported PyTorch models.
+To add an XBoost model capability to `pyearthtools`, both the model architecture file and a customised model trainer were required. While unsupported models will always require a model architecture file to be written so that they can be implemented, customised model trainers are only required if existing trainers cannot support the new model class. This was the case for XGBoost, as at the time of implementation model trainers only supported PyTorch models.
 
 ## Setting up an XGBoost Model
 
-The first step of implementing the XGBoost architecture in `edit` was to create a new class, called `XGBoost`. This class is a wrapper for the python package implementation of XGBoost, `xgboost`. The xgboost python package can implement an XGBoost regression algorithm as well as an XGBoost classifier. As such, the initialisation function was designed so that the user can specify the preferred XGBoost implementation, as well as pass model parameters to the chosen model.
+The first step of implementing the XGBoost architecture in `pyearthtools` was to create a new class, called `XGBoost`. This class is a wrapper for the python package implementation of XGBoost, `xgboost`. The xgboost python package can implement an XGBoost regression algorithm as well as an XGBoost classifier. As such, the initialisation function was designed so that the user can specify the preferred XGBoost implementation, as well as pass model parameters to the chosen model.
 
 Similarly, the XGBoost class offers the user the ability to implement the model using dask, allowing them to specify relevant configurations (including the number of workers and number of chunks for the input data) (see example below).
 
@@ -33,7 +33,7 @@ After constructing the initialisation function, the trainer for the algorithm it
 
 ### Adding custom loss functions
 
-Customised loss (or 'objective') functions are often desired by users of machine learning. Implementing these for a model in `edit` can be achieved with ease. For XGBoost, a customised loss function was written, defined as the equally weighted linear combination of the L1 and L2 loss functions. The underlying python implementation, xgboost, expects objective functions of the form:
+Customised loss (or 'objective') functions are often desired by users of machine learning. Implementing these for a model in `pyearthtools` can be achieved with ease. For XGBoost, a customised loss function was written, defined as the equally weighted linear combination of the L1 and L2 loss functions. The underlying python implementation, xgboost, expects objective functions of the form:
 
 ``` python title="Objective"
 
@@ -44,7 +44,7 @@ def objective(y_pred, y_true):
 
 ```
 
-Following this requirement, the customised loss function was written and saved to the `edit_xgboost` module. To allow the user to specify the customised loss function using the `edit` configuration file, functionality was added to the XGBoost class initialisation function (see below). In this case, the user specifies the path to the chosen loss function and the initialisation function uses the given string to find and pass the associated function to xgboost.
+Following this requirement, the customised loss function was written and saved to the `pyearthtools_xgboost` module. To allow the user to specify the customised loss function using the `pyearthtools` configuration file, functionality was added to the XGBoost class initialisation function (see below). In this case, the user specifies the path to the chosen loss function and the initialisation function uses the given string to find and pass the associated function to xgboost.
 
 ``` python title="Custom Loss"
 
@@ -62,18 +62,18 @@ if 'custom_loss' in model_params['objective'] and isinstance(model_params['objec
 
 ## Writing a custom trainer
 
-First, a new class was defined called `EDITXGBoostTrainer` that inherits from the trainer template class [`EDITTrainer`][edit.training.EDITTrainer]. The trainer class comprises of four key functions required for model training within `edit`, namely, functions to perform model fitting, prediction, loading and saving (see template below). Each of these functions are essentially wrappers for the underlying xgboost implementation, some providing additional functionality for user specified training approaches.
+First, a new class was defined called `pyearthtoolsXGBoostTrainer` that inherits from the trainer template class [`pyearthtoolsTrainer`][pyearthtools.training.pyearthtoolsTrainer]. The trainer class comprises of four key functions required for model training within `pyearthtools`, namely, functions to perform model fitting, prediction, loading and saving (see template below). Each of these functions are essentially wrappers for the underlying xgboost implementation, some providing additional functionality for user specified training approaches.
 
-Specifically, the [`EDITTrainer`][edit.training.EDITTrainer] provides the [`predict`][edit.training.EDITTrainer.predict] function to be called by the user, obfuscating data loading and reconstruction logic, and relys on the underlying class to implement the `_predict_from_data` function which will run the prediction on passed data.
+Specifically, the [`pyearthtoolsTrainer`][pyearthtools.training.pyearthtoolsTrainer] provides the [`predict`][pyearthtools.training.pyearthtoolsTrainer.predict] function to be called by the user, obfuscating data loading and reconstruction logic, and relys on the underlying class to implement the `_predict_from_data` function which will run the prediction on passed data.
 
 ``` python title="Template"
 
 import xgboost
 
-from edit.training.trainer.template import EDITTrainer
-from edit.training.data.templates import DataStep
+from pyearthtools.training.trainer.template import pyearthtoolsTrainer
+from pyearthtools.training.data.templates import DataStep
 
-class EDITXGBoostTrainer(EDITTrainer):
+class pyearthtoolsXGBoostTrainer(pyearthtoolsTrainer):
     def __init__(self, 
                  model, 
                  train_data: DataStep, 
@@ -105,11 +105,11 @@ class EDITXGBoostTrainer(EDITTrainer):
 
 The model fitting function operates in user-specified batches. The fitter iterates through the number of batches specified, and implements the XGBoost model class fitting function once per iteration. The fitter also allows the user to specify whether an existing saved model should be loaded and trained further.
 
-The predictor offers functionality within the `edit` pipeline by wrapping the xgboost predict function to ensure that the returned data is the same shape of the input data where both are tuples of type (features, target).
+The predictor offers functionality within the `pyearthtools` pipeline by wrapping the xgboost predict function to ensure that the returned data is the same shape of the input data where both are tuples of type (features, target).
 
 Both the model load and save functions are simple xgboost wrappers, these will find or save a .json model at the specified path (see example below).
 
-```python title="Example edit xgboost wrapper"
+```python title="Example pyearthtools xgboost wrapper"
 
     def save(self, path: str | Path = None):
         # Save model

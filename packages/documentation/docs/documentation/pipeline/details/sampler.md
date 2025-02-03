@@ -7,12 +7,12 @@ When directly indexing into the `Pipeline` no changes are applied.
 ## Example
 
 ```python
-import edit.pipeline
+import pyearthtools.pipeline
 
-iterator = edit.pipeline.iterators.DateRange('2000', '2005', '6 hours')
-sampler  = edit.pipeline.samplers.Random(buffer_len = 10)
+iterator = pyearthtools.pipeline.iterators.DateRange('2000', '2005', '6 hours')
+sampler  = pyearthtools.pipeline.samplers.Random(buffer_len = 10)
 
-pipeline = edit.pipeline.Pipeline.sample(iterator = iterator, sampler = sampler)
+pipeline = pyearthtools.pipeline.Pipeline.sample(iterator = iterator, sampler = sampler)
 
 iter(pipeline)
 ```
@@ -21,7 +21,7 @@ Using the `DateRange` iterator will cause samples to be pulled from the indexes 
 
 ## Provided
 
-With `edit.pipeline` multiple samplers by default are provided.
+With `pyearthtools.pipeline` multiple samplers by default are provided.
 
 | Name | Description |
 | ---- | ----------- |
@@ -39,7 +39,7 @@ Below is the implementation of the `Default` sampler.
 ```python
 from typing import Any, Generator, Union
 
-from edit.pipeline.recording import PipelineRecordingMixin
+from pyearthtools.pipeline.recording import PipelineRecordingMixin
 
 class Default(Sampler):
     """

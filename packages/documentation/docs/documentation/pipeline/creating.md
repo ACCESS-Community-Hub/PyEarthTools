@@ -14,18 +14,18 @@ Passing operations or Indexes as a tuple created a branching point, with each el
 Afterwards, a merge is required to combine them into one larger dataset. The rest of the pipeline can now be considered 'formatting', here we are splitting the data based on the level, so expanding out `t`. Then cache it on to disk for quicker retrieval.
 
 ```python
-import edit.data
-import edit.pipeline
+import pyearthtools.data
+import pyearthtools.pipeline
 
-edit.pipeline.Pipeline(
+pyearthtools.pipeline.Pipeline(
     (
-        edit.data.archive.ERA5('tcwv')
-        edit.data.archive.ERA5('2t'),
-        edit.data.archive.ERA5('t'),
+        pyearthtools.data.archive.ERA5('tcwv')
+        pyearthtools.data.archive.ERA5('2t'),
+        pyearthtools.data.archive.ERA5('t'),
     ),
-    edit.pipeline.operations.xarray.Merge(),
-    edit.pipeline.operations.xarray.reshape.CoordinateFlatten('level'),
-    edit.pipeline.modifications.Cache('temp'),
+    pyearthtools.pipeline.operations.xarray.Merge(),
+    pyearthtools.pipeline.operations.xarray.reshape.CoordinateFlatten('level'),
+    pyearthtools.pipeline.modifications.Cache('temp'),
 )
 ```
 
@@ -40,53 +40,53 @@ We still have the branches of data, but now they consist of more then one step, 
 Afterwards, each element of data gets flattened, reshaped, and transformed, finally being merged, and converted to a dask array. Then some dask operations take place, finally concluding with a cache.
 
 ```python
-import edit.data
-import edit.pipeline
+import pyearthtools.data
+import pyearthtools.pipeline
 
-edit.pipeline.Pipeline(
+pyearthtools.pipeline.Pipeline(
     (
         (
-            edit.data.archive.ERA5(['tcwv', 'skt', 'sp']), 
-            edit.pipeline.operations.Transforms(
-                apply = edit.pipeline.operations.transform.AddCoordinates(('latitude', 'longitude'))), 
-            edit.pipeline.operations.xarray.Sort(('var_latitude', 'var_longitude', 'tcwv', 'skt', 'sp'))),
+            pyearthtools.data.archive.ERA5(['tcwv', 'skt', 'sp']), 
+            pyearthtools.pipeline.operations.Transforms(
+                apply = pyearthtools.pipeline.operations.transform.AddCoordinates(('latitude', 'longitude'))), 
+            pyearthtools.pipeline.operations.xarray.Sort(('var_latitude', 'var_longitude', 'tcwv', 'skt', 'sp'))),
         (
-             edit.data.archive.ERA5(['t', 'u', 'v'], level_value = [1,50,150,250,400,600,750,900,1000]), 
-            edit.pipeline.operations.xarray.Sort(('t', 'u', 'v'))
+             pyearthtools.data.archive.ERA5(['t', 'u', 'v'], level_value = [1,50,150,250,400,600,750,900,1000]), 
+            pyearthtools.pipeline.operations.xarray.Sort(('t', 'u', 'v'))
         ), 
         (
             (
-             edit.data.archive.ERA5(
+             pyearthtools.data.archive.ERA5(
                 ['mtnlwrf', 'msdwswrf', 'msdwlwrf', 'mtpr', 'mslhf', 'msshf', 'mtnswrf', 'mtdwswrf', 'msnswrf', 'msnlwrf'],
-                transforms = edit.data.transforms.derive(
+                transforms = pyearthtools.data.transforms.derive(
                     mtupswrf = 'mtnswrf - mtdwswrf', 
                     msupswrf = 'msnswrf - msdwswrf', 
                     msuplwrf = 'msnlwrf - msdwlwrf', 
                     drop = True
                     )
                 ), 
-            edit.data.archive.ERA5('!accumulate[period:"6 hours"]:tp>tp_accum')
+            pyearthtools.data.archive.ERA5('!accumulate[period:"6 hours"]:tp>tp_accum')
             ), 
-            edit.pipeline.operations.xarray.Merge(), 
-            edit.pipeline.operations.xarray.Sort(('mslhf', 'msshf', 'msuplwrf', 'msupswrf', 'mtnlwrf', 'mtpr', 'mtupswrf', 'tp_accum'))
+            pyearthtools.pipeline.operations.xarray.Merge(), 
+            pyearthtools.pipeline.operations.xarray.Sort(('mslhf', 'msshf', 'msuplwrf', 'msupswrf', 'mtnlwrf', 'mtpr', 'mtupswrf', 'tp_accum'))
         ), 
         (
-            edit.data.archive.ERA5(['mtdwswrf', 'z_surface', 'lsm', 'ci']), 
-            edit.pipeline.operations.xarray.Sort(('mtdwswrf', 'z', 'lsm', 'ci'))
+            pyearthtools.data.archive.ERA5(['mtdwswrf', 'z_surface', 'lsm', 'ci']), 
+            pyearthtools.pipeline.operations.xarray.Sort(('mtdwswrf', 'z', 'lsm', 'ci'))
         ), 
     ),
-    edit.pipeline.operations.xarray.reshape.CoordinateFlatten('level', skip_missing=True),
-    edit.pipeline.operations.xarray.reshape.Dimensions(('time', 'latitude', 'longitude')),
-    edit.pipeline.operations.Transforms(
-        apply = edit.data.transform.coordinates.pad(coordinates = {'latitude': 1, 'longitude': 1}, mode = 'wrap') + edit.data.transforms.values.fill(coordinates = ['latitude', 'longitude'], direction = 'forward') + edit.data.transforms.interpolation.like(pipe['2020-01-01T00'], drop_coords = 'time')),
+    pyearthtools.pipeline.operations.xarray.reshape.CoordinateFlatten('level', skip_missing=True),
+    pyearthtools.pipeline.operations.xarray.reshape.Dimensions(('time', 'latitude', 'longitude')),
+    pyearthtools.pipeline.operations.Transforms(
+        apply = pyearthtools.data.transform.coordinates.pad(coordinates = {'latitude': 1, 'longitude': 1}, mode = 'wrap') + pyearthtools.data.transforms.values.fill(coordinates = ['latitude', 'longitude'], direction = 'forward') + pyearthtools.data.transforms.interpolation.like(pipe['2020-01-01T00'], drop_coords = 'time')),
 
-    edit.pipeline.operations.xarray.Merge(),
-    edit.pipeline.operations.xarray.Sort(order, safe = True),
+    pyearthtools.pipeline.operations.xarray.Merge(),
+    pyearthtools.pipeline.operations.xarray.Sort(order, safe = True),
     
-    edit.pipeline.operations.xarray.conversion.ToDask(),
-    edit.pipeline.operations.dask.reshape.Squish(axis=1),
-    edit.pipeline.modifications.Cache('temp', pattern_kwargs = dict(extension = 'npy'))
-    edit.pipeline.modifications.TemporalRetrieval(((-6, 1), (6,1))),
+    pyearthtools.pipeline.operations.xarray.conversion.ToDask(),
+    pyearthtools.pipeline.operations.dask.reshape.Squish(axis=1),
+    pyearthtools.pipeline.modifications.Cache('temp', pattern_kwargs = dict(extension = 'npy'))
+    pyearthtools.pipeline.modifications.TemporalRetrieval(((-6, 1), (6,1))),
 )
 ```
 ![Pipeline Graph](./assets/ComplexPipeline.svg)
@@ -154,7 +154,7 @@ Pipeline(
 ```
 
 ### Transforms
-It is possible to use `edit.data.Transforms` directly in the pipeline. They will be executed on both the `apply` and `undo` operations. If other behaviour is needed, see `edit.pipeline.operations.Transform`.
+It is possible to use `pyearthtools.data.Transforms` directly in the pipeline. They will be executed on both the `apply` and `undo` operations. If other behaviour is needed, see `pyearthtools.pipeline.operations.Transform`.
 
 ### Filters
 Additionally to the simple operations, filters can be added to the pipeline. These have no effects on the `getitem` call, but are particularly useful when iterating over the pipeline. Essentially, they will error when encountering an invalid sample, and skip it.

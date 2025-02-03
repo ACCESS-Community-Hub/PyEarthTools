@@ -38,49 +38,49 @@ When getting `ancillary_pipeline`, either `ERA5-Forcings` or `ERA5(Live)-Forcing
 ## Making Your Own
 
 Using the above outlined structure, custom user configs can be made and stored outside of the model itself.
-Passing `--config_path PATH` to any of the commands in `edit-models` will allow those config paths to be discovered and selected.
+Passing `--config_path PATH` to any of the commands in `pyearthtools-models` will allow those config paths to be discovered and selected.
 
 ### Environmental Variable
 
-An environment can define a list of paths at `EDIT_MODELS_CONFIGS`. These will be added to the valid pipelines, with the model class name added to the end.
+An environment can define a list of paths at `pyearthtools_MODELS_CONFIGS`. These will be added to the valid pipelines, with the model class name added to the end.
 For most models this should be the full categorical path of the model, see each model for it's `_name`. If not set will be the class name.
 
 ### Custom Config Example
 
 To demonstrate how this works, we show an example of how to adjust the Spherical Fourier Neural Operator (SFNO) data config to initialise the model with a 2K increase in temperature.
 
-As each model has a predefined configuration, it may be easier to simply piggyback off of the existing setup, and add an `edit` transform to modify the data. For example, a `derive` transform could be added to modify the data.
+As each model has a predefined configuration, it may be easier to simply piggyback off of the existing setup, and add an `pyearthtools` transform to modify the data. For example, a `derive` transform could be added to modify the data.
 
 #### Data Config File
 
-Upon loading `EDIT_MODELS_DEFAULT_CONFIG` is automatically set to the the `_default_model_config` if given, therefore, it can be used to reference the original configs.
+Upon loading `pyearthtools_MODELS_DEFAULT_CONFIG` is automatically set to the the `_default_model_config` if given, therefore, it can be used to reference the original configs.
 
 Using the provided `ERA5` data config included with the model, we can add a transform operation.
 
-A `CachingIndex` is likely needed after due to a limitation in the current implementation of `edit.pipeline`.
+A `CachingIndex` is likely needed after due to a limitation in the current implementation of `pyearthtools.pipeline`.
 
 ```yaml
-file: __EDIT_MODELS_DEFAULT_CONFIG__/Data/ERA5.yaml
+file: __pyearthtools_MODELS_DEFAULT_CONFIG__/Data/ERA5.yaml
 
 # Now using derive, we can add a change.
-edit.pipeline.operations.transforms.operation.TransformOperation:
+pyearthtools.pipeline.operations.transforms.operation.TransformOperation:
   transforms:
-    edit.data.transforms.derive.derive:
+    pyearthtools.data.transforms.derive.derive:
       t:
       - t + 2
       - EXPERIMENT_DETAIL: 'Added 2 degrees'
       2t:
       - 2t + 2
       - EXPERIMENT_DETAIL: 'Added 2 degrees'
-edit.pipeline.indexes.cache.CachingIndex:
+pyearthtools.pipeline.indexes.cache.CachingIndex:
   cache: 'temp'
 ```
 
 This change will add 2 degrees to both temperature fields, allowing a test under these initial conditions
 
-This config must be saved into a directory `Data`, so that it can be identified by `edit-models` as a data config.
+This config must be saved into a directory `Data`, so that it can be identified by `pyearthtools-models` as a data config.
 
-If using `$EDIT_MODELS_CONFIGS` to include this config, the folder path must look like the following, with the full model name a part of the path:
+If using `$pyearthtools_MODELS_CONFIGS` to include this config, the folder path must look like the following, with the full model name a part of the path:
 
 ```txt
 $MODEL_CATEGORICAL_PATH/Data/$CONFIG_NAME.yaml
@@ -94,29 +94,29 @@ Otherwise, the parent directories can be decided by the user.
 Now with this config saved at `Experiments/Global/sfno/Data/ERA5(Climate).yaml`, the following command can be run. Note how the only change is the `--config_path` from a normal prediction
 
 ```shell
-edit-models predict sfno --pipeline 'ERA5(Climate)' --output OUTPATH --time TIME --lead_time LEADTIME --config_path ./Experiments/Global/sfno
+pyearthtools-models predict sfno --pipeline 'ERA5(Climate)' --output OUTPATH --time TIME --lead_time LEADTIME --config_path ./Experiments/Global/sfno
 ```
 
 or
 
 ```shell
-edit-models interactive --config_path ./Experiments/Global/sfno
+pyearthtools-models interactive --config_path ./Experiments/Global/sfno
 ```
 
 or
 
 ```shell
-export EDIT_MODELS_CONFIGS=./Experiments
+export pyearthtools_MODELS_CONFIGS=./Experiments
 
-edit-models predict sfno --pipeline 'ERA5(Climate)' --output OUTPATH --time TIME --lead_time LEADTIME 
+pyearthtools-models predict sfno --pipeline 'ERA5(Climate)' --output OUTPATH --time TIME --lead_time LEADTIME 
 ```
 
 or
 
 ```shell
-export EDIT_MODELS_CONFIGS=./Experiments
+export pyearthtools_MODELS_CONFIGS=./Experiments
 
-edit-models interactive 
+pyearthtools-models interactive 
 ```
 
 ### Further use
@@ -144,9 +144,9 @@ If you are writing a pipeline and want an assignment variable there, surround th
 i.e.
 
 ```yaml
-edit.pipeline.operations.transforms.operation.TransformOperation:
+pyearthtools.pipeline.operations.transforms.operation.TransformOperation:
   transforms:
-    edit.data.transforms.derive.derive:
+    pyearthtools.data.transforms.derive.derive:
       t:
       - t + 2
       - EXPERIMENT_DETAIL: __NAME__
@@ -163,9 +163,9 @@ If ':' follows the KEY part and still within '__*__', anything following will be
 This allows the modification factor to be set dynamically, and if not given, default to `2`.
 
 ```yaml
-edit.pipeline.operations.transforms.operation.TransformOperation:
+pyearthtools.pipeline.operations.transforms.operation.TransformOperation:
   transforms:
-    edit.data.transforms.derive.derive:
+    pyearthtools.data.transforms.derive.derive:
       t:
       - t + __FACTOR:2__
       - EXPERIMENT_DETAIL: __NAME__

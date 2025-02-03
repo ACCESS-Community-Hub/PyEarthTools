@@ -1,12 +1,12 @@
 # Developing DataIndexes
 
-It is possible to extend `edit` to new datasets or to provide a different way to index into existing datasets.
+It is possible to extend `pyearthtools` to new datasets or to provide a different way to index into existing datasets.
 
-The functionality of the [indexes][edit.data.indexes] is split into various classes and mixins. This is done to enable a user
+The functionality of the [indexes][pyearthtools.data.indexes] is split into various classes and mixins. This is done to enable a user
 to easily mix together an appropriate selection of functionality and integration to match the dataset in question.
 
 Data with any unusual structures or sources has to be implemented directly, but those which follow a set pattern, may find the
-[PatternIndex][edit.data.patterns] enough to load the data.
+[PatternIndex][pyearthtools.data.patterns] enough to load the data.
 
 The following table attempts to break down the purpose of and when to use a few of the commonly used classes.
 
@@ -14,10 +14,10 @@ The following table attempts to break down the purpose of and when to use a few 
 
 | Index | Purpose | When to use |
 | ----- | ------------------------ | ---- |
-| [ArchiveIndex][edit.data.indexes.ArchiveIndex] | Default class for Archived data | Any standard dataset, ERA5, ACCESS, BRAN etc |
-| [ForecastIndex][edit.data.indexes.ForecastIndex] | Base class for Forecast data, combines DataIndex and FileSystemIndex | Forecast Data |
-| [StaticDataIndex][edit.data.indexes.StaticDataIndex] | Base class for Static Data, combines DataIndex and FileSystemIndex | Static Files |
-| [PatternIndex][edit.data.patterns] | Pattern Based Indexing | Saving data, or loading data saved in a clear pattern |
+| [ArchiveIndex][pyearthtools.data.indexes.ArchiveIndex] | Default class for Archived data | Any standard dataset, ERA5, ACCESS, BRAN etc |
+| [ForecastIndex][pyearthtools.data.indexes.ForecastIndex] | Base class for Forecast data, combines DataIndex and FileSystemIndex | Forecast Data |
+| [StaticDataIndex][pyearthtools.data.indexes.StaticDataIndex] | Base class for Static Data, combines DataIndex and FileSystemIndex | Static Files |
+| [PatternIndex][pyearthtools.data.patterns] | Pattern Based Indexing | Saving data, or loading data saved in a clear pattern |
 
 ## Choosing Implementation
 
@@ -39,11 +39,11 @@ flowchart LR
 
 ## Example Data Flow
 
-See [Data Flow](/documentation/data/Developing Your Own/dataflow) for information on how data and indexing flows through `edit`.
+See [Data Flow](/documentation/data/Developing Your Own/dataflow) for information on how data and indexing flows through `pyearthtools`.
 
 ## Basic New Index
 
-`edit` attempts to remove most of the repeated code of loading data, and provide simple functions to overload to fill in the gaps. However, for more complex datasets this abstraction may not provide the neccessary functionality, and the user will have to provide more explicit lower level functionality.
+`pyearthtools` attempts to remove most of the repeated code of loading data, and provide simple functions to overload to fill in the gaps. However, for more complex datasets this abstraction may not provide the neccessary functionality, and the user will have to provide more explicit lower level functionality.
 
 | Complexity | Process |
 | --- | ---|
@@ -53,22 +53,22 @@ See [Data Flow](/documentation/data/Developing Your Own/dataflow) for informatio
 
 This following example will show how to add an analysis dataset which exists on disk, and only the `filesystem` function need be implemented.
 
-??? Help "EDITDatetime behaviour"
-    `ArchiveIndex` attempts to cast the first argument passed to it's `search` function to an [EDITDatetime][edit.data.time]. However, this can fail quietly.
+??? Help "pyearthtoolsDatetime behaviour"
+    `ArchiveIndex` attempts to cast the first argument passed to it's `search` function to an [pyearthtoolsDatetime][pyearthtools.data.time]. However, this can fail quietly.
 
 !!! Note
     Include `self.record_initialisation()` in the `__init__` for cataloging features to work.
 
 ```python
-import edit.data
+import pyearthtools.data
 
-class NewDataIndex(edit.data.ArchiveIndex):
+class NewDataIndex(pyearthtools.data.ArchiveIndex):
     def __init__(self, variables: list | tuple):
         super().__init__()
         self.record_initialisation()
         self.variables = variables
 
-    def filesystem(self, time : edit.data.EDITDatetime):
+    def filesystem(self, time : pyearthtools.data.pyearthtoolsDatetime):
         """
         Return the location of files on disk
         """
@@ -81,7 +81,7 @@ class NewDataIndex(edit.data.ArchiveIndex):
 
 ## Adding Transforms
 
-Using the format as detailed above, the defined class never actually touches the data, so any quirks are not yet handled. [DataIndex][edit.data.indexes.DataIndex] provides the transform capability for `edit` and allows a `transforms` argument on initalisation. It is thus recommended that any `transforms` to be applied on every data loading step be provided here.
+Using the format as detailed above, the defined class never actually touches the data, so any quirks are not yet handled. [DataIndex][pyearthtools.data.indexes.DataIndex] provides the transform capability for `pyearthtools` and allows a `transforms` argument on initalisation. It is thus recommended that any `transforms` to be applied on every data loading step be provided here.
 
 It is suggested the following transforms always be added,
 
@@ -92,7 +92,7 @@ The rest are up to the user to provide the functionality to load that dataset.
 
 ## Date Resolution
 
-`edit` provides an advanced temporal indexing feature by use of the [AdvancedTimeIndex][edit.data.indexes.AdvancedTimeIndex] class. Such as automatically finding all data in a specified date resolution, e.i. `2021` containing all data in 2021.
+`pyearthtools` provides an advanced temporal indexing feature by use of the [AdvancedTimeIndex][pyearthtools.data.indexes.AdvancedTimeIndex] class. Such as automatically finding all data in a specified date resolution, e.i. `2021` containing all data in 2021.
 
 This functionality requires the specification of `data_resolution`, and thus should be provided.
 

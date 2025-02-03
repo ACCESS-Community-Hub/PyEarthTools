@@ -1,10 +1,10 @@
-# EDIT.pipeline - DEPRECATED
+# pyearthtools.pipeline - DEPRECATED
 
-`edit.pipeline` Data Pipeline Creation
+`pyearthtools.pipeline` Data Pipeline Creation
 
-With [edit.pipeline][edit.pipeline] it is possible to create easily expandable and configurable data pipeline to prepare data for an ML Model.
+With [pyearthtools.pipeline][pyearthtools.pipeline] it is possible to create easily expandable and configurable data pipeline to prepare data for an ML Model.
 
-Ultimately using [edit.pipeline][edit.pipeline] is about ordering and constructing the pipeline from either the available and predeveloped steps, or those which can be created by the user.
+Ultimately using [pyearthtools.pipeline][pyearthtools.pipeline] is about ordering and constructing the pipeline from either the available and predeveloped steps, or those which can be created by the user.
 
 ## Examples
 
@@ -27,7 +27,7 @@ Load ERA5, grab four samples and patch it into `64` by `64` arrays
             sample_interval : [60, 'minutes']
         ## Iterate
         iterators.Iterator:
-            catch: ['edit.data.DataNotFoundError', 'ValueError', 'OSError']
+            catch: ['pyearthtools.data.DataNotFoundError', 'ValueError', 'OSError']
         ## Drop Data that is all nan's
         operations.filter.DropAllNan: {}
         ## Patch into 64 by 64 arrays
@@ -52,56 +52,56 @@ Load ERA5, grab four samples and patch it into `64` by `64` arrays
 
 === "Python Code"
     ```python
-    import edit.pipeline
-    import edit.data
+    import pyearthtools.pipeline
+    import pyearthtools.data
 
     ## ERA5 Loader
-    ERA5 = edit.data.archive.ERA5(variables = ['2t'], level = 'single')
+    ERA5 = pyearthtools.data.archive.ERA5(variables = ['2t'], level = 'single')
 
     ## Data Pipeline
     ### Retrieve 2 before and 2 after, at 60 min interval
-    datapipe = edit.pipeline.iterators.TemporalInterface(ERA5, samples = [2,2], sample_interval = [60, 'minutes'])
+    datapipe = pyearthtools.pipeline.iterators.TemporalInterface(ERA5, samples = [2,2], sample_interval = [60, 'minutes'])
     ### Iterate 
-    datapipe = edit.pipeline.iterators.Iterator(datapipe, catch = ['edit.data.DataNotFoundError', 'ValueError', 'OSError'])
+    datapipe = pyearthtools.pipeline.iterators.Iterator(datapipe, catch = ['pyearthtools.data.DataNotFoundError', 'ValueError', 'OSError'])
     ### Drop Data that is all nan's
-    datapipe = edit.pipeline.operations.filter.DropAllNan(datapipe)
+    datapipe = pyearthtools.pipeline.operations.filter.DropAllNan(datapipe)
     ### Patch into 64 by 64 arrays
-    datapipe = edit.pipeline.operations.Patch(datapipe, kernel_size = [64,64])
+    datapipe = pyearthtools.pipeline.operations.Patch(datapipe, kernel_size = [64,64])
     ### Fill all nan's with 0
-    datapipe = edit.pipeline.operations.value.FillNa(datapipe)
+    datapipe = pyearthtools.pipeline.operations.value.FillNa(datapipe)
     ### Drop data with more than 50% 0's
-    datapipe = edit.pipeline.operations.filter.DropValue(datapipe, value = 0,  percentage= 50)
+    datapipe = pyearthtools.pipeline.operations.filter.DropValue(datapipe, value = 0,  percentage= 50)
     ### Ensure no nan's
-    datapipe = edit.pipeline.operations.filter.DropNan(datapipe)
+    datapipe = pyearthtools.pipeline.operations.filter.DropNan(datapipe)
     ### Rearrange axis
-    datapipe = edit.pipeline.operations.reshape.Rearrange(datapipe, rearrange = 'c t h w -> t c h w')
+    datapipe = pyearthtools.pipeline.operations.reshape.Rearrange(datapipe, rearrange = 'c t h w -> t c h w')
 
     ```
 
 === "Sequential Python Code"
     ```python
-    import edit.pipeline
-    import edit.data
+    import pyearthtools.pipeline
+    import pyearthtools.data
 
-    edit.pipeline.Sequential(
+    pyearthtools.pipeline.Sequential(
         ## ERA5 Loader
-        edit.data.archive.ERA5(variables = ['2t'], level = 'single'),
+        pyearthtools.data.archive.ERA5(variables = ['2t'], level = 'single'),
         ### Retrieve 2 before and 2 after, at 60 min interval
-        edit.pipeline.iterators.TemporalInterface(samples = [2,2], sample_interval = [60, 'minutes']),
+        pyearthtools.pipeline.iterators.TemporalInterface(samples = [2,2], sample_interval = [60, 'minutes']),
         ### Iterate 
-        edit.pipeline.iterators.Iterator(catch = ['edit.data.DataNotFoundError', 'ValueError', 'OSError']),
+        pyearthtools.pipeline.iterators.Iterator(catch = ['pyearthtools.data.DataNotFoundError', 'ValueError', 'OSError']),
         ### Drop Data that is all nan's
-        edit.pipeline.operations.filter.DropAllNan(),
+        pyearthtools.pipeline.operations.filter.DropAllNan(),
         ### Patch into 64 by 64 arrays
-        edit.pipeline.operations.Patch(kernel_size = [64,64]),
+        pyearthtools.pipeline.operations.Patch(kernel_size = [64,64]),
         ### Fill all nan's with 0
-        edit.pipeline.operations.value.FillNa(),
+        pyearthtools.pipeline.operations.value.FillNa(),
         ### Drop data with more than 50% 0's
-        edit.pipeline.operations.filter.DropValue(value = 0,  percentage= 50),
+        pyearthtools.pipeline.operations.filter.DropValue(value = 0,  percentage= 50),
         ### Ensure no nan's
-        edit.pipeline.operations.filter.DropNan(),
+        pyearthtools.pipeline.operations.filter.DropNan(),
         ### Rearrange axis
-        edit.pipeline.operations.reshape.Rearrange(rearrange = 'c t h w -> t c h w'),
+        pyearthtools.pipeline.operations.reshape.Rearrange(rearrange = 'c t h w -> t c h w'),
     )
     ```
 

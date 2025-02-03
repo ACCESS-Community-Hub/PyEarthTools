@@ -1,6 +1,6 @@
 # Filter
 
-As data can contain superious artefacts, `edit.pipeline` adds the abilty to filter data, checking against a condition and raising an exception if 'bad' data is encountered.
+As data can contain superious artefacts, `pyearthtools.pipeline` adds the abilty to filter data, checking against a condition and raising an exception if 'bad' data is encountered.
 
 When iterating over a pipeline, these filter errors are automatically skipped and the next sample retrieved.
 
@@ -11,7 +11,7 @@ A `Filter` is another `PipelineStep` so can be directly integrated into a `Pipel
 As it subclasses from `PipelineStep` it is capable of auto splitting tuples.
 
 ## Example
-Below is the implementation of the `TypeFilter` bundled with `edit.pipeline`
+Below is the implementation of the `TypeFilter` bundled with `pyearthtools.pipeline`
 
 ```python
 class TypeFilter(Filter):

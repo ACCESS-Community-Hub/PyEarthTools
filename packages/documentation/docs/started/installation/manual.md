@@ -1,6 +1,6 @@
 # Manual
 
-Steps for a manual install of `EDIT`
+Steps for a manual install of `pyearthtools`
 
 ## Required Dependencies
 
@@ -16,8 +16,8 @@ Steps for a manual install of `EDIT`
 
 ### Training
 
-- [edit.data](https://git.nci.org.au/bom/dset/edit-package/data)
-- [edit.utils](https://git.nci.org.au/bom/dset/edit-package/utils)
+- [pyearthtools.data](https://git.nci.org.au/bom/dset/pyearthtools-package/data)
+- [pyearthtools.utils](https://git.nci.org.au/bom/dset/pyearthtools-package/utils)
 - [PyTorch](https://pytorch.org/)
 - [PyTorch Lightning](https://lightning.ai/)
 - [scipy]()
@@ -26,9 +26,9 @@ Steps for a manual install of `EDIT`
 ## Instructions
 
 
-edit is currently published to a package registry on NCI git, so using the below pip install, it can be installed.
+pyearthtools is currently published to a package registry on NCI git, so using the below pip install, it can be installed.
 
 ```bash
-pip install edit-SUBMODULE --index-url https://git.nci.org.au/api/v4/projects/1664/packages/pypi/simple
+pip install pyearthtools-SUBMODULE --index-url https://git.nci.org.au/api/v4/projects/1664/packages/pypi/simple
 
 ```

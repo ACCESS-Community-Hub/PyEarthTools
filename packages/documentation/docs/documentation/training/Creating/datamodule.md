@@ -1,25 +1,25 @@
 # Datamodule's
 
-`edit.training.data` directly exposes a collection of data sources styled after `pytorch lightning's` datamodule which provide a seamless connection to `edit.pipeline` for data retrieval.
+`pyearthtools.training.data` directly exposes a collection of data sources styled after `pytorch lightning's` datamodule which provide a seamless connection to `pyearthtools.pipeline` for data retrieval.
 
 ## Usage
 
 ```python
-import edit.training
-import edit.pipeline
+import pyearthtools.training
+import pyearthtools.pipeline
 
 
-edit.training.data.PipelineDataModule(
-    edit.pipeline.Pipeline.sample()
+pyearthtools.training.data.PipelineDataModule(
+    pyearthtools.pipeline.Pipeline.sample()
 )
 ```
 
-The `PipelineDataModule` can also directly utilise train and validation splits to configure the pipelines to source the correct data for each part of training. This is given as a `edit.pipeline.Iterator`.
+The `PipelineDataModule` can also directly utilise train and validation splits to configure the pipelines to source the correct data for each part of training. This is given as a `pyearthtools.pipeline.Iterator`.
 
 ```python
-datamodule = edit.training.data.PipelineDataModule(
-    edit.pipeline.Pipeline.sample(),
-    train_split = edit.pipeline.iterators.DateRange('2000', '2020', '6 hours'),
+datamodule = pyearthtools.training.data.PipelineDataModule(
+    pyearthtools.pipeline.Pipeline.sample(),
+    train_split = pyearthtools.pipeline.iterators.DateRange('2000', '2020', '6 hours'),
 )
 ```
 
@@ -40,9 +40,9 @@ This can then be used in a training loop just like the base, but now with batche
 In the future, more options will be added, with `workers` being a priority to be added.
 
 ```python
-datamodule = edit.training.data.default.PipelineDefaultDataModule(
-    edit.pipeline.Pipeline.sample(),
-    train_split = edit.pipeline.iterators.DateRange('2000', '2020', '6 hours'),
+datamodule = pyearthtools.training.data.default.PipelineDefaultDataModule(
+    pyearthtools.pipeline.Pipeline.sample(),
+    train_split = pyearthtools.pipeline.iterators.DateRange('2000', '2020', '6 hours'),
     batch_size = 16,
 )
 ```
