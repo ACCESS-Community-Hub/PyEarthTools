@@ -28,18 +28,3 @@ jupyter lab
 conda activate ./venv
 python -m ipykernel install --user --name PET-tutorial
 ```
-
-**Note for maintainers:** The file `environment.lock.yaml` has been generated to keep a record of a working environment on a Linux system. It has been exported using the following command to make it more portable:
-
-```
-conda env export --no-builds -p ./venv | sed \
-    -e '/^name/,+1 d' \
-    -e '/^prefix/,+1 d' \
-    -e 's|pyearthtools-data.*|-e ../data|' \
-    -e 's|pyearthtools-pipeline.*|-e ../pipeline|' \
-    -e 's|pyearthtools-training.*|-e ../training[lightning]|' \
-    -e 's|pyearthtools-tutorial.*|-e .|' \
-    -e 's|pyearthtools-utils.*|-e ../utils|' \
-    -e 's/python-graphviz/graphviz/' \
-    > environment.lock.yml
-```
