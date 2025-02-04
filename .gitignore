@@ -1,11 +1,5 @@
-<<<<<<< HEAD
-src/*/_version.py
-*.nc
-=======
 *.nc
 src/*/*/_version.py
-
->>>>>>> training/main
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
