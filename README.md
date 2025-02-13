@@ -70,9 +70,9 @@ For new users, we recommend running the tutorials first, to see `PyEarthTools` i
 
 The following instructions assume that you have access to [Conda](https://docs.conda.io/projects/conda/en/latest/index.html) on your system.
 
-> [!Note] Windows Users
-> These instructions have been tested on Linux and macOS. We have not tested them on Windows.
-> We welcome any contribution to improve this situation :smile:.
+> [!WARNING]
+> These instructions have been tested on Linux and macOS. We have not tested them on **Windows**.
+> We welcome any contribution to improve this situation 🙂.
 
 First clone this repository and switch to the tutorials folder:
 
