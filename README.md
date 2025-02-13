@@ -11,27 +11,66 @@
 > to change in the next few months.
 >
 
-# New User Information
+# Getting Started
 
-Guidelines for new users still need to be developed. For those looking to get started, follow the installation instructions below in this README, and then head to the tutorial sub-package to get going.
-
-When this repository is ready for wider use, the intention is to release PyEarthTools on PyPI and conda-forge.
-
-# Repository Layout
-
-This is a so-called monorepo. PyEarthTools comprises multiple, modular packages within a shared namespace that inter-operate in order to provide the overall functionality of the framework. It is not necessary to install all of them, and it is envisioned that many users are likely to want only some parts of the framework. As such, each sub-package is a fully independent Python package, with its own requirements and its own installation process.
-
-Each of these sub-packages lies in the 'packages' subdirectory. Developers of `PyEarthTools` will most likely want to check out the entire monorepo and work on changesets which may span sub-packages. Each sub-package is versioned separately, so bugfixes or updates in a single sub-package can be performed independently without requiring a new release of the entire ecosystem. 
-
-For simplicity, the instructions here explain how to check out the whole codebase and install everything for a developer context. 
-
+Guidelines for new users still need to be developed.
+For new users, we recommend following the instructions in the [Tutorials](#tutorials) section of this README.
+Installation instructions are intended for users already familiar with the project.
 
 # Installation
 
-First clone the repository using the `develop` branch:
+## Repository Layout
+
+This is a so-called monorepo. `PyEarthTools` comprises multiple, modular packages within a shared namespace that inter-operate in order to provide the overall functionality of the framework. It is not necessary to install all of them, and it is envisioned that many users are likely to want only some parts of the framework. As such, each sub-package is a fully independent Python package, with its own requirements and its own installation process. Each of these sub-packages lies in the [`packages`](packages/) subdirectory.
+
+## User installation
+
+Each of PyEarthTools package can be installed separately using `pip`, directly from GitHub.
+For example, to install the `pyearthtools-utils` package, use:
 
 ```
-git clone git@github.com:ACCESS-Community-Hub/PyEarthTools.git
+pip install git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/utils
+```
+
+Other available packages are `pyearthtools-data`, `pyearthtools-pipeline` and `pyearthtools-training`, that can be installed as follows:
+
+```
+pip install git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/data
+pip install git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/pipeline
+pip install git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/training
+```
+
+> [!NOTE]
+> When this repository is ready for wider use, the intention is to release `PyEarthTools` on PyPI and conda-forge.
+
+## Developer installation
+
+Developers of `PyEarthTools` will most likely want to check out the entire monorepo and work on changesets which may span sub-packages. Each sub-package is versioned separately, so bugfixes or updates in a single sub-package can be performed independently without requiring a new release of the entire ecosystem. 
+
+First clone this repository:
+
+```
+git clone https://github.com/ACCESS-Community-Hub/PyEarthTools.git
+```
+
+and install all packages in "editable" mode with
+
+```
+cd PyEarthTools
+pip install -r requirements-dev.txt
+```
+
+> [!WARNING]
+> We do recommend using a Python virtual environment or a Conda environment when developing, to isolate this installation from the rest of your system.
+> Examples are provided in the [Tutorials](#tutorials) section.
+
+
+# Tutorials
+
+First clone the repository:
+
+```
+git clone https://github.com/ACCESS-Community-Hub/PyEarthTools.git
 cd pyearthtools
 ```
 
