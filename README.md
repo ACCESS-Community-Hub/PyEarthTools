@@ -62,48 +62,43 @@ pip install -r requirements-dev.txt
 
 > [!WARNING]
 > We do recommend using a Python virtual environment or a Conda environment when developing, to isolate this installation from the rest of your system.
-> Examples are provided in the [Tutorials](#tutorials) section.
 
 
 # Tutorials
 
-First clone the repository:
+For new users, we recommend running the tutorials first, to see `PyEarthTools` in action and get familiar with it.
+
+The following instructions assume that you have access to [Conda](https://docs.conda.io/projects/conda/en/latest/index.html) on your system.
+
+> [!Note] Windows Users
+> These instructions have been tested on Linux and macOS. We have not tested them on Windows.
+> We welcome any contribution to improve this situation :smile:.
+
+First clone this repository and switch to the tutorials folder:
 
 ```
 git clone https://github.com/ACCESS-Community-Hub/PyEarthTools.git
-cd pyearthtools
+cd PyEarthTools/packages/tutorial
 ```
 
-Then create a Python virtual environment:
+Then create a Conda environment to install all dependencies:
 
 ```
-python3 -m venv venv
-venv/bin/activate
+conda env create -f environment.yml -p ./venv
 ```
 
-or a Conda environment to install all dependencies:
+Next, to run the example [notebooks](PyEarthTools/packages/tutorial/nbook/), you can either
+
+- start a JupyterLab instance
 
 ```
-conda create -p ./venv -y python=3.11
 conda activate ./venv
+jupyter lab
 ```
 
-And install all dependencies via pip:
+- or install a Jupyter kernel to use in a pre-existing JupyterLab installation
 
 ```
-pip install -r requirements-dev.txt
-```
-
-You can run some of the tests to check that your installation worked:
-
-```
-pytest packages/data/tests/
-```
-
-To run example [notebooks from the tutorial package](packages/tutorial/nbook), you may need to also install a Jupyter kernel for your environment:
-
-```
-# from the activate virtual or conda environment
-pip install ipykernel
-python -m ipykernel install --user --name pyearthtools
+conda activate ./venv
+python -m ipykernel install --user --name PET-tutorial
 ```
