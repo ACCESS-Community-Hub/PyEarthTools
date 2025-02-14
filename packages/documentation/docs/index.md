@@ -2,8 +2,6 @@
 
 [Installation](started/installation/index.md){ .md-button .md-button--primary } [Reference](reference/pyearthtools/data/index.md){ .md-button .md-button--primary } [Documentation](documentation/index.md){ .md-button .md-button--primary }
 
-<!-- ![pyearthtools Promo Video](assets/PromoVid.gif) -->
-
 Welcome to the Documentation for `PyEarthTools` toolbox.
 
 !!! warning
