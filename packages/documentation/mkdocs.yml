@@ -1,6 +1,9 @@
 site_name: "PyEarthTools: Reproducible science pipelines for machine learning"
 site_url: https://bureau-sig.nci.org.au/pyearthtools
 
+repo_url: https://github.com/ACCESS-Community-Hub/PyEarthTools
+#repo_name: ACCESS-Community-Hub/PyEarthTools
+
 theme:
   name: "material"
   highlightjs: true
@@ -88,15 +91,11 @@ plugins:
 
 nav:
 - Home: index.md
-#- About: about.md
 - Getting Started: started/
-# defer to gen-files + literate-nav
-# - Examples: examples/  
 - Documentation: documentation/  
-# - Examples: examples/  
 - Models: models/  
 - Reference: reference/
-- pyearthtools_101: pyearthtools_101/
+- PyEarthTools 101: pyearthtools_101/
 
 extra_css:
 - css/code_select.css
@@ -120,9 +119,6 @@ markdown_extensions:
       format: !!python/name:pymdownx.superfences.fence_code_format
 - pymdownx.tabbed:
     alternate_style: true
-
-repo_url: https://git.nci.org.au/bom/dset/pyearthtools-package
-repo_name: DSET/pyearthtools
 
 extra_javascript:
 - https://unpkg.com/tablesort@5.3.0/dist/tablesort.min.js

@@ -1,27 +1,28 @@
-
-# `pyearthtools` - Environmental Data Intelligence Toolkit
+# PyEarthTools: Reproducible science pipelines for machine learning 
 
 [Installation](started/installation/index.md){ .md-button .md-button--primary } [Reference](reference/pyearthtools/data/index.md){ .md-button .md-button--primary } [Documentation](documentation/index.md){ .md-button .md-button--primary }
 
 <!-- ![pyearthtools Promo Video](assets/PromoVid.gif) -->
 
-Welcome to the Documentation for `pyearthtools` the Environmental Data Intelligence Toolkit
+Welcome to the Documentation for `PyEarthTools` toolbox.
 
-**This is still a work in progress and a lot shall be changed.**
+!!! warning
+
+    This documentation is outdated and will be replaced.
 
 A research project from the Data Science and Emerging Technologies team and Project 3.1.
 
 ## Purpose
 
-`pyearthtools` seeks to provide a unified interface into any Earth System data source, and allow for easy transformation and modification into Machine Learning training / inference ready forms.
+`PyEarthTools` seeks to provide a unified interface into any Earth System data source, and allow for easy transformation and modification into Machine Learning training / inference ready forms.
 
-Additionally, utilising the advanced data preperation tools, `pyearthtools` contains implementations of various analysis and verification methods.
+Additionally, utilising the advanced data preperation tools, `PyEarthTools` contains implementations of various analysis and verification methods.
 
 To enhance scientific exploration and reduce the barrier of entry to testing Machine Learning (ML) models, various state of the art open source models are implemented and available for use.
 
 ## Modules
 
-`pyearthtools` consists of a collection of Python packages all underneath the core name space of `pyearthtools`.
+`PyEarthTools` consists of a collection of Python packages all underneath the core name space of `pyearthtools`.
 
 Some build upon the others to either provide easier usage or encompass more use cases.
 
