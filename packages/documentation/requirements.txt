@@ -11,3 +11,9 @@ black
 mkdocs-encryptcontent-plugin 
 mknotebooks 
 mkdocs-jupyter
+
+-e ../utils
+-e ../data
+-e ../training
+-e ../pipeline
+-e ../tutorial
