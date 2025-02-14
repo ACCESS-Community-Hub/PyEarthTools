@@ -14,7 +14,7 @@ import mkdocs_gen_files
 
 nav = mkdocs_gen_files.Nav()
 
-root_path = Path(__file__).parent.parent / "packages"
+root_path = Path(__file__).parent.parent.parent / "packages"
 
 sub_paths = [
     "data/src",
