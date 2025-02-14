@@ -2,7 +2,7 @@ name: Documentation generation
 on:
   push:
     branches:
-      - doc_on_pages
+      - develop
 permissions:
   contents: write
 jobs:
