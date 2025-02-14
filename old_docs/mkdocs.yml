@@ -1,8 +1,6 @@
 site_name: "PyEarthTools: Reproducible science pipelines for machine learning"
 site_url: https://bureau-sig.nci.org.au/pyearthtools
-
 repo_url: https://github.com/ACCESS-Community-Hub/PyEarthTools
-#repo_name: ACCESS-Community-Hub/PyEarthTools
 
 theme:
   name: "material"
