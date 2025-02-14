@@ -1,0 +1,24 @@
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+    - mkdocs 
+    - pymdown-extensions
+    - mkdocstrings 
+    - mkdocs-material 
+    - mkdocs-gen-files 
+    - mkdocs-literate-nav 
+    - mkdocs-section-index 
+    - mkdocstrings-python 
+    - mkdocs-encryptcontent-plugin 
+    - mknotebooks 
+    - mkdocs-jupyter
+    - black 
+    - xarray 
+    - -e ../utils
+    - -e ../data
+    - -e ../training
+    - -e ../pipeline
+    - -e ../tutorial

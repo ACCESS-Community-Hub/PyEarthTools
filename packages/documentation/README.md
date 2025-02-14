@@ -2,18 +2,16 @@
 
 This documentation has been prepared with [MkDocs](https://www.mkdocs.org/).
 
-To generate it locally, first create a virtual environment and install dependencies in it:
+To generate it locally, first install all dependencies in a Conda environment:
 
 ```
 git clone https://github.com/ACCESS-Community-Hub/PyEarthTools.git
 cd PyEarthTools/packages/documentation
-python3 -m venv venv
-venv/bin/pip install -r requirements.txt
+conda env create -f environment.yml -p ./venv
 ```
 
 then use the `mkdocs` tool to build the documentation
 
 ```
-. venv/bin/activate
-mkdocs build
+conda run -p ./venv mkdocs build
 ```
