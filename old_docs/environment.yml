@@ -17,8 +17,8 @@ dependencies:
     - mkdocs-jupyter
     - black 
     - xarray 
-    - -e ../utils
-    - -e ../data
-    - -e ../training
-    - -e ../pipeline
-    - -e ../tutorial
+    - -e packages/utils
+    - -e packages/data
+    - -e packages/training
+    - -e packages/pipeline
+    - -e packages/tutorial

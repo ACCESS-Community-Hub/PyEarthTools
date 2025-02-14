@@ -14,16 +14,13 @@ import mkdocs_gen_files
 
 nav = mkdocs_gen_files.Nav()
 
-root_path = Path(__file__).parent.parent.parent
+root_path = Path(__file__).parent.parent / "packages"
 
 sub_paths = [
     "data/src",
     "training/src",
-    "pipeline_v2/src",
+    "pipeline/src",
     "utils/src",
-    "verification/src",
-    "plotting/src",
-    "model/src",
 ]
 
 for sub_path in sub_paths:

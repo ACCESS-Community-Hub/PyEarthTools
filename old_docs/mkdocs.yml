@@ -69,10 +69,10 @@ plugins:
         - https://numpy.org/doc/stable/objects.inv
         - http://pandas.pydata.org/pandas-docs/stable/objects.inv
         paths:
-        - ../utils/src
-        - ../data/src
-        - ../training/src
-        - ../pipeline/src
+        - packages/utils/src
+        - packages/data/src
+        - packages/training/src
+        - packages/pipeline/src
         options:
           docstring_style: "google"
           members_order: source
