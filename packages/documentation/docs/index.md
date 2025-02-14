@@ -7,6 +7,10 @@ Welcome to the Documentation for `PyEarthTools` toolbox.
 !!! warning
 
     This documentation is outdated and will be replaced.
+    It does not represent the current state of the project.
+ 
+    Current target audience are PyEarthTools developers doing the documentation refactoring.
+
 
 A research project from the Data Science and Emerging Technologies team and Project 3.1.
 
