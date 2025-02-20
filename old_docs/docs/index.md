@@ -159,20 +159,15 @@ When registering a model with `pyearthtools.models`, the `pipeline` is attached 
 For a user, any registered model can be run at the command line with no fuss, straight to the science. But can also be configured to use additional sources, or under other experimental conditions.
 
 ```bash
-# To run PanguWeather upon the local copy of ERA5
+# To run <model name> upon the local copy of ERA5
 
-[sudo@potato ~]$ pyearthtools-models predict pangu --pipeline ERA5 --output /forecasts/pangu/ --lead_time '14-days' --time 2024-01-06T03
+[sudo@potato ~]$ pyearthtools-models predict <model name> --pipeline ERA5 --output /forecasts/<model name>/ --lead_time '14-days' --time 2024-01-06T03
 ```
 
 As of 02-2024, the following models are available.
 
 ```mermaid
 graph TD
-    PanguWeather
-    GraphCast
-    FengWu
-    Fuxi
-    SFNO[FourCastNetV2]
     Next[FourCastNeXt]
 ```
 
@@ -182,6 +177,3 @@ Analysis tools not found anywhere else
 
 - Power Spectra
 - Spherical Power Spectra
-
-![Warming Stripes](assets/stripes.png)
-[Show your Stripes](https://showyourstripes.info/s/australasia/australia/all)

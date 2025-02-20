@@ -2,16 +2,6 @@
 
 Using `pyearthtools`'s data, pipeline and model tools, it has been possible to create 'built' models for easy experimentation and testing.
 
-Currently implemented are:
-
-| Model | Source |
-| ----- | ------ |
-| SFNO  | NVIDIA |
-| GraphCast | Google |
-| PanguWeather | Huawei Cloud |
-| Fuxi | Fudan University|
-| FengWu | Shanghai Artificial Intelligence Laboratory |
-
 See [here](/pyearthtools/models/commands/) for a detailed breakdown of the commands.
 
 !!! Warning "Internet Connection"
@@ -174,7 +164,7 @@ Below is an example of how this can be used,
 
 <terminal-window>
     <terminal-line data="input">pyearthtools-models interactive</terminal-line>
-    <terminal-line lineDelay=200 typingDelay=10 data="prompt">Which model would you like to use? ['Global/graphcast', 'Global/sfno']: sfno</terminal-line>
+    <terminal-line lineDelay=200 typingDelay=10 data="prompt">Which model would you like to use? ['Global/FourCastNeXt']: sfno</terminal-line>
     <terminal-line data="output">INFO Loading sfno</terminal-line>
     <terminal-line typingDelay=10 data="prompt">Which pipeline / data source do you want to use? ['ACCESS', 'ERA5', 'ERA5(Live)']: ERA5 </terminal-line>
     <terminal-line typingDelay=10 data="prompt">Where would you like to save the data?: ~/DATADIRECTORY/ </terminal-line>
@@ -187,7 +177,7 @@ Below is an example of how this can be used,
 You can also do this as a single line, not using the interactive commands, such as below,
 
 ```shell
-pyearthtools-models predict 'sfno' --pipeline 'ERA5' --output '~/DATADIRECTORY/' --time '2023-01-25T12' --lead_time '24 hours'
+pyearthtools-models predict <model name> --pipeline 'ERA5' --output '~/DATADIRECTORY/' --time '2023-01-25T12' --lead_time '24 hours'
 ```
 
 The interactive command will also provide the single line command for later use, so you don't have to use the interactive prompts repeatedly.

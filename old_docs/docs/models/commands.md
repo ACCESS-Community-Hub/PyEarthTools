@@ -48,7 +48,7 @@ Usage: pyearthtools-models interactive [OPTIONS]
 
   Run Prediction of registered model, getting arguments interactively
 
-  Registered models : ['graphcast', 'pangu', 'sfno', 'fuxi']
+  Registered models : ['sfno',]
 
   If a keyword argument is not given, this command will prompt the user,
   however, if passed, will skip.
