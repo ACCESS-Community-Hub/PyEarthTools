@@ -107,4 +107,4 @@ The following notebooks are currently available:
 
 1. [Interfacing to your own archive](packages/tutorial/nbook/1b_Interfacing_to_Your_Own_Archive.ipynb).
 2. [Data pipelines](packages/tutorial/nbook/2_Data_Pipelines.ipynb),
-3. [CNN model training](packages/tutorial/nbook/3_CNN_model_training.ipynb) example.
+3. [CNN model training](packages/tutorial/nbook/3_CNN_model_training.ipynb).
