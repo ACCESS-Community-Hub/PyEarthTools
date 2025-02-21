@@ -108,5 +108,5 @@ The following notebooks are currently available:
 1. Data loading examples:
     - [Interfacing to data at NCI](packages/tutorial/nbook/1a_Interfacing_to_Data_at_NCI.ipynb),
     - [Interfacing to your own archive](packages/tutorial/nbook/1b_Interfacing_to_Your_Own_Archive.ipynb).
-2. [Data pipelines with EDIT](packages/tutorial/nbook/2_Data_Pipelines_with_EDIT.ipynb),
+2. [Data pipelines](packages/tutorial/nbook/2_Data_Pipelines.ipynb),
 3. [CNN model training](packages/tutorial/nbook/3_CNN_model_training.ipynb) example.
