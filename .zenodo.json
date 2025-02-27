@@ -1,6 +1,11 @@
 {
     "creators": [
         {
+            "orcid": "https://orcid.org/0009-0009-3207-4876",
+            "affiliation": "European Centre for Medium-Range Weather Forecasts",
+            "name": "Cook, Harrison"
+        },
+        {
             "orcid": "https://orcid.org/0009-0008-2024-1967",
             "affiliation": "Bureau of Meteorology, Australia",
             "name": "Leeuwenburg, Tennessee"
