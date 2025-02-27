@@ -5,8 +5,14 @@
             "affiliation": "Bureau of Meteorology, Australia",
             "name": "Leeuwenburg, Tennessee"
         },
+        {
+            "orcid": "https://orcid.org/0000-0002-6569-1178",
+            "affiliation": "NIWA - The National Institute of Water and Atmospheric Research, New Zealand",
+            "name": "Mason, Gemma"
+        },
 
     ],    
     "license": "Apache-2.0",
 
 }
+
