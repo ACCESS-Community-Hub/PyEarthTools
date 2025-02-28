@@ -52,9 +52,9 @@ all = [
 ]
 
 [project.urls]
-homepage = "http://bom.gov.au"
-documentation = "https://git.nci.org.au/bom/dset/pyearthtools-package/documentation"
-repository = "https://git.nci.org.au/bom/dset/pyearthtools-package/data"
+homepage = "https://pyearthtools.readthedocs.io/"
+documentation = "https://pyearthtools.readthedocs.io/"
+repository = "https://github.com/ACCESS-Community-Hub/PyEarthTools"
 
 [project.scripts]
 pyearthtools-data = "pyearthtools.data.commands:entry_point"

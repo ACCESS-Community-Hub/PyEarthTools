@@ -44,9 +44,9 @@ all = [
 ]
 
 [project.urls]
-homepage = "https://bom.gov.au"
-documentation = "https://git.nci.org.au/bom/dset/pyearthtools-package/documentation"
-repository = "https://git.nci.org.au/bom/dset/pyearthtools-package/pipeline_v2"
+homepage = "https://pyearthtools.readthedocs.io/"
+documentation = "https://pyearthtools.readthedocs.io/"
+repository = "https://github.com/ACCESS-Community-Hub/PyEarthTools"
 
 [tool.isort]
 profile = "black"
