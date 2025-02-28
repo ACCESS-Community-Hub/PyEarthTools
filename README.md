@@ -5,11 +5,22 @@
 > [!NOTE]
 > **THIS REPOSITORY IS UNDER CONSTRUCTION**
 >
-> This repository contains code which is under construction, and should not yet be used by anyone.
-> The development team are actively working to make this project ready for new users, but for
-> the time being things are not ready. Feel free to take a look around if you like, but much is likely
-> to change in the next few months.
+> This repository contains code which is under construction, and should not yet be used outside of a research setting.
+> The development team are working busily to bring everything up to spec. As such, things are likely
+> to change pretty often. Please take a look around!
 >
+
+# Overview of documentation
+
+We have information for:
+
+ - [New user guides and introduction to the concepts in PyEarthTools]
+ - [Detailed Installation instructions] (it's not hard, there are just lots of user environments to cater for)
+ - [A shiny tutorial gallery full of neat examples]
+ - [API reference documentation]
+ - [How to guides], including how to adopt PyEarthTools for a new project
+ - [Dataset Overviews]
+ - [Evaluation guidelines]
 
 # Getting Started
 

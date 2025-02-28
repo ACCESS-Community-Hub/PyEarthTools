@@ -1,0 +1,15 @@
+sphinx
+myst-parser
+sphinx-book-theme
+scores
+xarray
+pandas
+scipy
+bottleneck
+nbsphinx
+sphinx_gallery
+-e ./packages/utils
+-e ./packages/data
+-e ./packages/training
+-e ./packages/pipeline
+-e ./packages/tutorial

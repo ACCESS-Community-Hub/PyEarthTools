@@ -1,3 +1,5 @@
+torch
+lightning
 -e packages/utils
 -e packages/data
 -e packages/training
