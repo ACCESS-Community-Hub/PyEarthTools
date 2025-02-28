@@ -10,6 +10,7 @@ from scores import __version__
 project = "PyEarthTools"
 copyright = "Licensed under Apache 2.0 - https://www.apache.org/licenses/LICENSE-2.0"
 release = "0.1.0"
+author = "Bureau of Meteorology and Contributors"
 
 nbsphinx_allow_errors = True  # TODO - remove this later
 
@@ -55,30 +56,30 @@ suppress_warnings = ["myst.xref_missing"]
 
 # -- nbsphinx ---------------------------------------------------------------
 # This is processed by Jinja2 and inserted after each notebook
-nbsphinx_prolog = r"""
-{% set docname = '' + env.doc2path(env.docname, base=False)|string() %}
+# nbsphinx_prolog = r"""
+# {% set docname = '' + env.doc2path(env.docname, base=False)|string() %}
 
-.. raw:: html
+# .. raw:: html
 
-    <div class="admonition note">
-      Interactive online version:
-      <span style="white-space: nowrap;"><a href="https://mybinder.org/v2/gh/nci/scores/main?labpath={{ docname|e }}"><img alt="Binder badge" src="https://mybinder.org/badge_logo.svg" style="vertical-align:text-bottom"></a>.</span>
-      <a href="{{ env.docname.split('/')|last|e + '.ipynb' }}" class="reference download internal" download>Download notebook</a>.
-    </div>
+#     <div class="admonition note">
+#       Interactive online version:
+#       <span style="white-space: nowrap;"><a href="https://mybinder.org/v2/gh/nci/scores/main?labpath={{ docname|e }}"><img alt="Binder badge" src="https://mybinder.org/badge_logo.svg" style="vertical-align:text-bottom"></a>.</span>
+#       <a href="{{ env.docname.split('/')|last|e + '.ipynb' }}" class="reference download internal" download>Download notebook</a>.
+#     </div>
 
-.. raw:: latex
+# .. raw:: latex
 
-    \nbsphinxstartnotebook{\scriptsize\noindent\strut
-    \textcolor{gray}{The following section was generated from
-    \sphinxcode{\sphinxupquote{\strut {{ docname | escape_latex }}}} \dotfill}}
-"""
+#     \nbsphinxstartnotebook{\scriptsize\noindent\strut
+#     \textcolor{gray}{The following section was generated from
+#     \sphinxcode{\sphinxupquote{\strut {{ docname | escape_latex }}}} \dotfill}}
+# """
 
 # This is processed by Jinja2 and inserted after each notebook
-nbsphinx_epilog = r"""
-{% set docname = 'doc/' + env.doc2path(env.docname, base=None)|string() %}
-.. raw:: latex
+# nbsphinx_epilog = r"""
+# {% set docname = 'doc/' + env.doc2path(env.docname, base=None)|string() %}
+# .. raw:: latex
 
-    \nbsphinxstopnotebook{\scriptsize\noindent\strut
-    \textcolor{gray}{\dotfill\ \sphinxcode{\sphinxupquote{\strut
-    {{ docname | escape_latex }}}} ends here.}}
-"""
+#     \nbsphinxstopnotebook{\scriptsize\noindent\strut
+#     \textcolor{gray}{\dotfill\ \sphinxcode{\sphinxupquote{\strut
+#     {{ docname | escape_latex }}}} ends here.}}
+# """

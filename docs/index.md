@@ -11,10 +11,11 @@
 :maxdepth: 2
 
 self
-installation
-maintainer
-roadmap
 newuser
-devguide
 nbook/Gallery
+installation
+
+roadmap
+devguide
+maintainer
 ```
