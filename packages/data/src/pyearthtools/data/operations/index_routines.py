@@ -266,7 +266,9 @@ def _mf_series(
                     return paths
                 elif isinstance(file, (list, tuple)):
                     for f in file:
-                        if isinstance(f, Iterable):
+                        if isinstance(f, str):
+                            paths.append(f)
+                        elif isinstance(f, Iterable):
                             paths.extend(get_path(f))
                         else:
                             paths.append(f)
