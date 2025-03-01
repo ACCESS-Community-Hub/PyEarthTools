@@ -35,8 +35,9 @@ dynamic = ["version", "readme"]
 readme = {file = ["README.md"], content-type = "text/markdown"}
 
 [project.urls]
-homepage = "http://bom.gov.au"
-documentation = "https://git.nci.org.au/bom/dset/pyearthtools-package/tutorial"
+homepage = "https://pyearthtools.readthedocs.io/"
+documentation = "https://pyearthtools.readthedocs.io/"
+repository = "https://github.com/ACCESS-Community-Hub/PyEarthTools"
 
 [tool.isort]
 profile = "black"

@@ -1,6 +1,11 @@
 {
     "creators": [
         {
+            "orcid": "https://orcid.org/0009-0009-3207-4876",
+            "affiliation": "Work undertaken while at the Bureau of Meteorology, Australia",
+            "name": "Cook, Harrison"
+        },
+        {
             "orcid": "https://orcid.org/0009-0008-2024-1967",
             "affiliation": "Bureau of Meteorology, Australia",
             "name": "Leeuwenburg, Tennessee"
@@ -9,6 +14,11 @@
             "orcid": "https://orcid.org/0000-0002-6569-1178",
             "affiliation": "NIWA - The National Institute of Water and Atmospheric Research, New Zealand",
             "name": "Mason, Gemma"
+        },
+        {
+            "orcid": "https://orcid.org/0000-0002-3148-4496",
+            "affiliation": "The Met Office, United Kingdom",
+            "name": "Miller, Joel"
         },
 
     ],    
