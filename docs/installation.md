@@ -29,8 +29,6 @@ conda activate <my-env>
 
 ## Installation Options
 
-There are multiple installation options. Most users currently want the "all" installation option. 
-
 The supported installation options are:
 
 - user: The default option, containing the functionality. 

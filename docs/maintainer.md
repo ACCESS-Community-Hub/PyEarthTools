@@ -15,11 +15,11 @@ Information relevant for package maintenance
 ```
 Thank you very much for your contribution. 
 
-When we release a new version of PyEarthTools, that version is archived on Zenodo. See: https://doi.org/10.5281/zenodo.12697241
+When we release a new version of PyEarthTools, that version is archived on Zenodo. See: XXXXX
 
-As you have contributed to PyEarthtools, would you like to be listed on Zenodo as an author the next time `scores` is archived? 
+As you have contributed to PyEarthtools, would you like to be listed on Zenodo as an author the next time PyEarthTools is archived? 
 
-If so, please open a new pull request. In that pull request please add your details to .zenodo.json (which can be found in the  `scores` root directory).
+If so, please open a new pull request. In that pull request please add your details to .zenodo.json (which can be found in the PyEarthTools root directory).
 
 In .zenodo.json, please add your details at the bottom of the “creators” section. The fields you will need to complete are:
 
@@ -36,11 +36,11 @@ tldr; about 3 years old is OK, longer if painless
 
 We have not tested compatibility against all possible package versions which are included in this spec. Conversely, in some cases, it has been fairly straightforward to support packages older than this. 
 
-There is no formal "support" agreement for `scores`. In the context of `scores` package management, maintaining compability means being willing to make reasonable efforts to resolve any issues raised on the issue tracker. If a specific issue arises that would make it impractical to support a version within the compatibility window, then a response will be discussed and agreed on at the time on the basis of practicality.
+There is no formal "support" agreement for PyEarthTools. In the context of PyEarthTools package management, maintaining compability means being willing to make reasonable efforts to resolve any issues raised on the issue tracker. If a specific issue arises that would make it impractical to support a version within the compatibility window, then a response will be discussed and agreed on at the time on the basis of practicality.
 
 There is currently no specific testing for older versions of libraries, only older versions of Python (which may or may not intake an older library version). A full matrix test of Python and package versioning would be prohibitively complex, and there would also be no guarantee that pinned older versions wouldn't result in an insecure build (even if only in a test runner). 
 
-The development branch versioning is unpinned, and so any issues arising from newly-released packages should quickly be encountered and then resolved before the next `scores` release. Releases of `scores` use "~=" versioning, which gives flexibility within a range of versions (see [https://packaging.python.org/en/latest/specifications/version-specifiers/#id5](https://packaging.python.org/en/latest/specifications/version-specifiers/#id5)).
+The development branch versioning is unpinned, and so any issues arising from newly-released packages should quickly be encountered and then resolved before the next PyEarthTools release. Releases of PyEarthTools use "~=" versioning, which gives flexibility within a range of versions (see [https://packaging.python.org/en/latest/specifications/version-specifiers/#id5](https://packaging.python.org/en/latest/specifications/version-specifiers/#id5)).
 
 ## This section covers how to build the documentation locally 
 (Readthedocs should update automatically from a GitHub Action)
