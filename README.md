@@ -20,4 +20,3 @@ We have information for:
  - Much more, including how-to guides, project setup guide, information on accessing data, guides to evaluation, orientiation for 
    physical scientists and data scientists at our [documentation homepage](https://pyearthtools.readthedocs.io/en/documentation_refactor/) (you may be reading this now or you may be visiting the README from elsewhere)
 
-```
