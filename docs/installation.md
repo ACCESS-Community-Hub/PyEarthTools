@@ -36,6 +36,10 @@ The supported installation options are:
 - user: The default option, containing the functionality. 
 - dev: Also contains developer tools 
 
+## Repository Layout
+
+This is a so-called monorepo. `PyEarthTools` comprises multiple, modular packages within a shared namespace that inter-operate in order to provide the overall functionality of the framework. It is not necessary to install all of them, and it is envisioned that many users are likely to want only some parts of the framework. As such, each sub-package is a fully independent Python package, with its own requirements and its own installation process. Each of these sub-packages lies in the [`packages`](packages/) subdirectory.
+
 ### User installation
 
 Each of PyEarthTools package can be installed separately using `pip`, directly from GitHub.
@@ -84,4 +88,9 @@ A sample command to register a new kernel is:
 `python -m ipykernel install --user --prefix=<path-to-server-environment> --name=<pick-any-name-here>`
 
 [https://jupyter-tutorial.readthedocs.io/en/24.1.0/kernels/install.html](https://jupyter-tutorial.readthedocs.io/en/24.1.0/kernels/install.html) provides additional technical details regarding the registration of kernels.
+
+
+> [!WARNING]
+> These instructions have been tested on Linux and macOS. We have not tested them on **Windows**.
+> We welcome any contribution to improve this situation 🙂.
 

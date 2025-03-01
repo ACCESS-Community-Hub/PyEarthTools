@@ -700,7 +700,11 @@ class TimeDataIndex(SingleTimeDataIndex):
 
             kwargs.update(self._get_preprocess(kwargs.pop("preprocess", None)))
             kwargs["transforms"] = self.base_transforms + kwargs.pop("transforms", None)
-            return getattr(super(), str(method.__name__))(*args, **kwargs)
+
+            function_pointer = getattr(super(), str(method.__name__))
+            result = function_pointer(*args, **kwargs)
+
+            return result
 
         return wrapped
 

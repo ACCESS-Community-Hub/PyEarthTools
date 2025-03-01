@@ -6,6 +6,7 @@
 ```{include} ../README.md
 ```
 
+
 ```{toctree}
 :caption: 'Index to Documentation:'
 :maxdepth: 2
@@ -14,7 +15,6 @@ self
 newuser
 nbook/Gallery
 installation
-
 roadmap
 devguide
 maintainer
