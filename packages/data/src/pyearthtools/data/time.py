@@ -267,6 +267,7 @@ class pyearthtoolsDatetime:
             resolution (str | TimeResolution | None, optional):
                 Override for resolution specification. Defaults to None.
         """
+
         _pandas_timestep = None
         if isinstance(time, str) and time == "today":
             time = str(datetime.datetime.today().strftime("%Y-%m-%d"))
@@ -324,6 +325,22 @@ class pyearthtoolsDatetime:
         """
         return datetime.datetime.fromisoformat(self.qualified.isoformat())
 
+    def to_cftime(self, calendar='noleap'):
+        '''
+        This method will throw an exception if cftime is not installed.
+        '''
+        import cftime
+        si = self.datetime
+        converted = cftime.datetime(si.year, si.month, si.day, si.hour, si.minute, si.second, si.microsecond, calendar=calendar)
+        return converted
+
+
+
+
+
+
+
+    
     @staticmethod
     def is_time(time_to_parse: Any) -> bool:
         """

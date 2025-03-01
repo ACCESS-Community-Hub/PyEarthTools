@@ -112,6 +112,7 @@ def series(
         end = end + interval
 
     function = _mf_series
+
     if use_single:
         function = _get_series
     # else:
@@ -216,7 +217,17 @@ def series(
             )
 
         # subset_ds = subset_ds.where(subset_ds.time < end.datetime64(), drop=True)
-        subset_ds = subset_ds.sel(**{time_dim: slice(None, end.datetime64())})
+
+        try:
+            subset_ds = subset_ds.sel(**{time_dim: slice(None, end.datetime64())})
+        except TypeError:
+            # We may be entering a non-gregorian calendar zone supported by cftime only
+            # TODO: see if we can recognise and handle this a bit more gracefull, such as in the __lt__ method of petdatetime
+            calendar = subset_ds.time[0].item().calendar
+            end = end.to_cftime(calendar=calendar)
+            subset_ds = subset_ds.sel(**{time_dim: slice(None, end)})
+            
+                                    
 
         if not len(subset_ds[time_dim]) == 0:
             data = subset_ds
@@ -277,6 +288,7 @@ def _mf_series(
 
             paths = get_path(files)
             dataset_paths.extend(paths if isinstance(paths, list) else [paths])
+            dataset_paths = list(set(dataset_paths))
 
         except (DataNotFoundError, InvalidIndexError, InvalidDataError) as e:
             timesteps.remove(query_time)
@@ -316,10 +328,23 @@ def _mf_series(
     open_kwargs.update(pyearthtools.utils.config.get("data.open.xarray_mf"))
     open_kwargs.update(kwargs)
 
-    full_ds = xr.open_mfdataset(
-        list(set(dataset_paths)),
-        **open_kwargs,
-    )
+    try:
+        full_ds = xr.open_mfdataset(
+            list(set(dataset_paths)),
+            **open_kwargs,
+        )
+    except NotImplementedError:
+        # Work around a bug/gap in xarray for loading NetCDF4 files and autochunking
+
+        open_kwargs.pop('chunks')
+
+        full_ds = xr.open_mfdataset(
+            list(set(dataset_paths)),
+            **open_kwargs,
+        )
+                
+
+
     # full_ds = xr.merge(
     #     [
     #         xr.open_mfdataset( # moving out of preprocess due to issues with transforms needing all data
