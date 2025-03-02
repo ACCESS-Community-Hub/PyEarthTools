@@ -47,8 +47,8 @@ ERA5 = pyearthtools.data.archive.ERA5(variable = '2t', level = 'single')
 BRAN = pyearthtools.data.archive.BRAN(variable = 'ocean_temp', type = 'daily')
 
 ## Retrieve Data
-ERA5(doi) # Get ERA5 data at doi
-BRAN(doi) # Get BRAN data at doi
+ERA5[doi] # Get ERA5 data at doi
+BRAN[doi] # Get BRAN data at doi
 
 ```
 
