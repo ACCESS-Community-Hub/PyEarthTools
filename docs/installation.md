@@ -57,7 +57,7 @@ pip install git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdire
 
 ## Developer installation
 
-Developers of `PyEarthTools` will most likely want to check out the entire monorepo and work on changesets which may span sub-packages. Each sub-package is versioned separately, so bugfixes or updates in a single sub-package can be performed independently without requiring a new release of the entire ecosystem. 
+Developers of PyEarthTools will most likely want to check out the entire monorepo and work on changesets which may span sub-packages. Each sub-package is versioned separately, so bugfixes or updates in a single sub-package can be performed independently without requiring a new release of the entire ecosystem. 
 
 First clone this repository:
 
