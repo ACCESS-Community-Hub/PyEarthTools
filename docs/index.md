@@ -15,6 +15,7 @@ self
 newuser
 nbook/Gallery
 installation
+catalogue
 api
 roadmap
 devguide
