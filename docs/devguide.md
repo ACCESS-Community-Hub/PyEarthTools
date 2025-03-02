@@ -11,7 +11,6 @@ This is a summary only, and should be expanded to provide more detail. This is i
 ## Coding Guidelines
 
 - Use 'black' and 'isort' with a line length of 120 characters
-- 
 
 ## Nice-to-haves
 
@@ -19,11 +18,11 @@ This is a summary only, and should be expanded to provide more detail. This is i
 - Pylint checking is a good idea, please turn it on and do your best.
 
 
-## Creating Your Own Fork  of `PyEarthTools` for the First Time
+## Creating Your Own Fork  of PyEarthTools for the First Time
 
 Unless you are an advanced Git user, we would recommend you follow this process:
 
-1. First (i.e. **before** cloning the `PyEarthTools` repository) create your own fork using the GitHub web user interface.
+1. First (i.e. **before** cloning the PyEarthTools repository) create your own fork using the GitHub web user interface.
 2. Clone **your fork**. (Do not directly clone https://github.com/ACCESS-Community-Hub/PyEarthTools).
 3. Immediately create a new local branch, with a command such as `git checkout -b branch_name`.
 
@@ -35,7 +34,7 @@ Prior to developing a pull request, it may be a good idea to create a GitHub iss
 To submit a pull request, please use the following workflow: 
 
 1. Ensure you are working on a new feature branch in **your fork**.
-2. Keep your feature branch rebased and up-to-date with the develop branch of `PyEarthTools`. You can do this by first syncing the develop branch on your fork, and then rebase your feature branch against the develop branch on your fork.
+2. Keep your feature branch rebased and up-to-date with the develop branch of PyEarthTools. You can do this by first syncing the develop branch on your fork, and then rebase your feature branch against the develop branch on your fork.
 3. When ready, submit a pull request to the develop branch of https://github.com/ACCESS-Community-Hub/PyEarthTools.
 
 To help disambiguate branches, some contributors like to prefix their branch names with a short numerical indentifier. This is up to the contributor and any approach to branch naming is welcome. 
