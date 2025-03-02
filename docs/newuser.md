@@ -31,7 +31,7 @@ PyEarthTools also presents a somewhat-human-readable pipeline file (which can be
 
 ## Main Features of PyEarthTools for Data Loading and Processing
 
-The first two features of PyEarthTools that a user is likely to be interest in are basic dataset access, and series-based dataset access. Basic dataset access provides a high-level API to load the data from disk into an in-memory xarray structure. Series-based access re-formulates that data into a batches sampling approach, often based on an iterator through the time dimension, which will process the on-disk data structure and present it in a form useful for a machine learning pipeline. Many users will be used to and expect to have to write their own dataset looping and traversal code, but this is not necessary with PyEarthTools unless a new data source has to be connected. Instead, there is a higher-level declarative API to specifying how to access and process data. The tutorial gallery has a sequence of tutorials which demonstrates all of these concepts, the user guide contains additional information, and there is also API documentation covering the details. Developing new dataset plugins is more complicated and will be covered in its own how-to guide in future.
+The first two features of PyEarthTools that a user is likely to be interested in are basic dataset access, and series-based dataset access. Basic dataset access provides a high-level API to load the data from disk into an in-memory xarray structure. Series-based access re-formulates that data into a batches sampling approach, often based on an iterator through the time dimension, which will process the on-disk data structure and present it in a form useful for a machine learning pipeline. Many users will be used to and expect to have to write their own dataset looping and traversal code, but this is not necessary with PyEarthTools unless a new data source has to be connected. Instead, there is a higher-level declarative API to specifying how to access and process data. The tutorial gallery has a sequence of tutorials which demonstrates all of these concepts, the user guide contains additional information, and there is also API documentation covering the details. Developing new dataset plugins is more complicated and will be covered in its own how-to guide in future.
 
 Here is a short example of accessing the data archives, based on a date of interest, for two datasets (ERA5 and BRAN).
 
@@ -55,12 +55,12 @@ BRAN[doi] # Get BRAN data at doi
 ## Main Features of PyEarthTools for Model Definition and Training
 
 > [!NOTE]
-> Under development
+> This section of the documentation is currently under development
 
 ## Main Features of PyEarthTools for Model Inference	
 
 > [!NOTE]
-> Under development
+> This section of the documentation is currently under development
 
 
 	
