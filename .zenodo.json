@@ -19,10 +19,7 @@
             "orcid": "https://orcid.org/0000-0002-3148-4496",
             "affiliation": "The Met Office, United Kingdom",
             "name": "Miller, Joel"
-        },
-
-    ],    
-    "license": "Apache-2.0",
-
+        }
+    ],
+    "license": "Apache-2.0"
 }
-
