@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "pyearthtools-tutorial"
 description = "Tutorial material for PyEarthTools"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 keywords = ["pyearthtools"]
 authors = [
   {email = "tennessee.leeuwenburg@bom.gov.au"},
