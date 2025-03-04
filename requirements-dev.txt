@@ -1,7 +1,6 @@
-torch
-lightning
 -e packages/utils
--e packages/data
--e packages/training
--e packages/pipeline
+-e packages/data[all]
+-e packages/training[all]
+-e packages/pipeline[all]
 -e packages/tutorial
+-e .[test]
