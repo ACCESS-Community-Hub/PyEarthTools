@@ -22,8 +22,13 @@
         },
         {
             "orcid": "https://orcid.org/0000-0002-3148-4496",
-            "affiliation": "The Met Office, United Kingdom",
+            "affiliation": "Met Office, United Kingdom",
             "name": "Miller, Joel"
+        },
+        {
+            "orcid": "https://orcid.org/0000-0003-3430-2456",
+            "affiliation": "Met Office, United Kingdom",
+            "name": "Haddad, Stephen"
         }
     ],
     "license": "Apache-2.0"
