@@ -19,19 +19,17 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
+# FIXME replace with minimum versions once PyEarthTools is on PyPI
 dependencies = [
-  "pyearthtools-utils>=0.1.0",
-  "pyearthtools-data>=0.1.0",
-  "pyearthtools-pipeline>=0.1.0",
+  "pyearthtools-utils @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/utils",
+  "pyearthtools-data @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/data",
+  "pyearthtools-pipeline @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/pipeline"
 ]
 version = "0.1.0"
 
 [project.optional-dependencies]
 training = [
-  "pyearthtools-training>=0.1.0",
-]
-models = [
-  "pyearthtools-models>=0.1.0",
+  "pyearthtools-training @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/training",
 ]
 test = ["pytest"]
 
@@ -49,6 +47,10 @@ line-length = 120
 [tool.mypy]
 warn_return_any = true
 warn_unused_configs = true
+
+# FIXME remove once PyEarthTools is published on PyPI
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 bypass-selection = true
