@@ -48,6 +48,18 @@ all = [
   "pyearthtools-training[all] @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/training"
 ]
 test = ["pytest"]
+docs = [
+  "sphinx",
+  "myst-parser",
+  "sphinx-book-theme",
+  "scores",
+  "xarray",
+  "pandas",
+  "scipy",
+  "bottleneck",
+  "nbsphinx",
+  "sphinx_gallery"
+]
 
 [project.urls]
 homepage = "https://pyearthtools.readthedocs.io/"
