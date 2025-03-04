@@ -2,11 +2,9 @@
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-
 [project]
 name = "pyearthtools"
-description = "Environmental Data Intelligence Toolkit"
-dynamic = ["version"]
+description = "Reproducible science pipelines for machine learning"
 readme = "README.md"
 requires-python = ">=3.9"
 keywords = ["pyearthtools"]
@@ -26,6 +24,7 @@ dependencies = [
   "pyearthtools-data>=0.1.0",
   "pyearthtools-pipeline>=0.1.0",
 ]
+version = "0.1.0"
 
 [project.optional-dependencies]
 training = [
@@ -51,8 +50,8 @@ line-length = 120
 warn_return_any = true
 warn_unused_configs = true
 
-[tool.hatch.version]
-path = "src/pyearthtools/__init__.py"
-
 [tool.hatch.build.targets.wheel]
-packages = ["src/pyearthtools/"]
+bypass-selection = true
+
+[tool.hatch.build.targets.sdist]
+only-include = ["pyproject.toml", "README.md", "LICENSE"]
