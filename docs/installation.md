@@ -63,13 +63,19 @@ First clone this repository:
 
 ```
 git clone https://github.com/ACCESS-Community-Hub/PyEarthTools.git
+cd PyEarthTools
 ```
 
 and install all packages in "editable" mode with
 
 ```
-cd PyEarthTools/packages/<package-name>
-pip install -e ".[dev]"
+pip install -r requirements-dev.txt
+```
+
+or install a specific package `<package-name>` in editable mode using
+
+```
+pip install -e packages/<package-name>
 ```
 
 ### Jupyter Notebook - Advanced Installation Option
