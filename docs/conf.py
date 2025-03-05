@@ -5,16 +5,20 @@
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-from scores import __version__
+import importlib.metadata
 
 project = "PyEarthTools"
 copyright = "Licensed under Apache 2.0 - https://www.apache.org/licenses/LICENSE-2.0"
-release = "0.1.0"
+
+release = importlib.metadata.version("pyearthtools")
+
+# keep only major and minor version parts following default substitution documentation
+# see https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#substitutions
+version = ".".join(release.split(".")[:2])
+
 author = "Bureau of Meteorology and Contributors"
 
 nbsphinx_allow_errors = True  # TODO - remove this later
-
-version = __version__
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
