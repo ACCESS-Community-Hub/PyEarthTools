@@ -33,6 +33,10 @@ extensions = [
 ]
 source_suffix = [".rst", ".md"]
 
+myst_enable_extensions = [
+    "substitution",
+]
+
 templates_path = ["_templates"]
 exclude_patterns = [
     "**/.ipynb_checkpoints",
