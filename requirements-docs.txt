@@ -1,0 +1,6 @@
+-e packages/utils
+-e packages/data
+-e packages/training
+-e packages/pipeline
+-e packages/tutorial
+-e .[docs]
