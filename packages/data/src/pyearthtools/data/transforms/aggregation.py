@@ -127,7 +127,7 @@ class Aggregate(Transform):
             return dynamic_import(method)(dataset, dimension, **kwargs)  # type: ignore
 
 
-def over(dimension: str | list[str], method: Callable | str | dict) -> Aggregate:
+def over(*,dimension: str | list[str], method: Callable | str | dict) -> Aggregate:
     """
     Get Aggregation Transform to run aggregation method over given dimensions
 

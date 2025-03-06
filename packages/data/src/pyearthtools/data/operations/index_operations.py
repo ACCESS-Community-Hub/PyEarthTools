@@ -129,7 +129,8 @@ def aggregation(
     print = lambda *args, **kwargs: builtins.print(*args, **kwargs) if verbose else None
 
     # print("Finding Series ...")
-    aggregation_func = pyearthtools.data.transforms.aggregation.over(aggregation, dimension=aggregation_dim)
+    # import pudb; pudb.set_trace()
+    aggregation_func = pyearthtools.data.transforms.aggregation.over(method=aggregation, dimension=aggregation_dim)
 
     start = pyearthtoolsDatetime(start)
     end = pyearthtoolsDatetime(end)
