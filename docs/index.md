@@ -13,7 +13,7 @@
 
 self
 newuser
-nbook/Gallery
+notebooks/Gallery
 installation
 catalogue
 api
