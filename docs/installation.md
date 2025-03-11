@@ -8,16 +8,16 @@ This page describes different ways to install PyEathTools depending on intended 
 - install PyEarthTools packages as dependencies in your Python project,
 - install PyEarthTools in developer mode in order to contribute.
 
-## Tutorials installation
-
-This section details how to install PyEarthTools to be able run notebooks from the tutorial gallery.
-
-First, make sure to have [Git](https://git-scm.com/) and [Conda](https://conda-forge.org/download/) installed on your system.
-
-:::{warning}
+```{warning}
 These instructions have been tested on Linux and macOS. We have not tested them on **Windows**.
 We welcome any contribution to improve this situation 🙂.
-:::
+```
+
+## Tutorials installation
+
+This section details how to install PyEarthTools to be able run notebooks from the [](notebooks/Gallery.ipynb).
+
+First, make sure to have [Git](https://git-scm.com/) and [Conda](https://conda-forge.org/download/) installed on your system.
 
 Then, clone the PyEarthTools repository:
 
