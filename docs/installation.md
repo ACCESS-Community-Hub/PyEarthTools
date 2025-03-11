@@ -1,7 +1,5 @@
 # Detailed Installation Guide
 
-## Overview
-
 This page describes different ways to install PyEathTools depending on intended usage:
 
 - run tutorials content (recommended for new users),
@@ -13,7 +11,7 @@ These instructions have been tested on Linux and macOS. We have not tested them 
 We welcome any contribution to improve this situation 🙂.
 ```
 
-## Tutorials installation
+## Tutorials Installation
 
 This section details how to install PyEarthTools to be able run notebooks from the [](notebooks/Gallery.ipynb).
 
@@ -23,6 +21,7 @@ Then, clone the PyEarthTools repository:
 
 ```
 git clone https://github.com/ACCESS-Community-Hub/PyEarthTools.git
+cd PyEarthTools
 ```
 
 and create a Conda environment to install tutorials dependencies:
@@ -31,38 +30,29 @@ and create a Conda environment to install tutorials dependencies:
 conda env create -f tutorials.yml -p ./venv
 ```
 
-Finally, to run the example notebooks, you can either
-
-- start a JupyterLab instance
+You can start a JupyterLab instance to run the example notebooks:
 
 ```
-conda activate ./venv
-jupyter lab
+conda run -p ./venv --live-stream jupyter-lab notebooks/
 ```
 
-- or install a Jupyter kernel to use in a pre-existing JupyterLab installation
+````{Note}
+Alternatively, you can install a Jupyter kernel to run notebooks in a pre-existing JupyterLab installation:
 
 ```
-conda activate ./venv
-python -m ipykernel install --user --name PET-tutorial
+conda run -p ./venv --live-stream \
+    python -m ipykernel install --user --name PET-tutorial
 ```
 
-Tutorial notebooks are accessible under the `tutorials` folder.
+See the [IPython documentation](https://ipython.readthedocs.io/en/stable/install/kernel_install.html) for additional information regarding the IPython kernel installation.
+````
 
-## Installation Options
+## Package Installation
 
-The supported installation options are:
+PyEarthTools comprises multiple, modular packages within a shared namespace that inter-operate in order to provide the overall functionality of the framework.
+It is not necessary to install all of them, and it is envisioned that many users are likely to want only some parts of the framework.
 
-- user: The default option, containing the functionality. 
-- dev: Also contains developer tools 
-
-## Repository Layout
-
-This is a so-called monorepo. PyEarthTools comprises multiple, modular packages within a shared namespace that inter-operate in order to provide the overall functionality of the framework. It is not necessary to install all of them, and it is envisioned that many users are likely to want only some parts of the framework. As such, each sub-package is a fully independent Python package, with its own requirements and its own installation process. Each of these sub-packages lies in the `packages` subdirectory.
-
-### User installation
-
-Each of PyEarthTools package can be installed separately using `pip`, directly from GitHub.
+Each PyEarthTools package can be installed separately using `pip`, directly from GitHub.
 For example, to install the `utils` sub-package, use:
 
 ```
@@ -77,11 +67,17 @@ To install all PyEarthTools packages, including all their optional dependencies,
 pip install "pyearthtools[all] @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git"
 ```
 
-## Developer installation
+## Developer Installation
 
-Developers of PyEarthTools will most likely want to check out the entire monorepo and work on changesets which may span sub-packages. Each sub-package is versioned separately, so bugfixes or updates in a single sub-package can be performed independently without requiring a new release of the entire ecosystem. 
+PyEarthTools code is organised as a monorepo, each sub-package lies in a different sub-directory in the `packages` directory.
+Developers of PyEarthTools will most likely want to check out the entire monorepo and work on changesets which may span sub-packages.
+The following instructions detail how to install PyEarthTools in [editable mode](https://setuptools.pypa.io/en/latest/userguide/development_mode.html), making it easier to implement and test changes iteratively.
 
-First clone this repository:
+```{tip}
+Each sub-package is versioned separately, so bugfixes or updates in a single sub-package can be performed independently without requiring a new release of the entire ecosystem. 
+```
+
+First clone the PyEarthTools repository:
 
 ```
 git clone https://github.com/ACCESS-Community-Hub/PyEarthTools.git
@@ -100,23 +96,6 @@ or install a specific package `<package-name>` in editable mode using
 pip install -e packages/<package-name>
 ```
 
-### Jupyter Notebook - Advanced Installation Option
-
-Some users may wish to separate the Jupyter environment and the PyEarthTools execution environment. One way to achieve this is by creating a new PyEarthTools virtual environment and registering it as a new kernel within another Jupyter environment. You can then run the tutorials and/or execute PyEarthTools code within the kernel. Registering the kernel can be done as follows:
-
-1. Determine the "prefix" of the Jupyter environment. 
-2. Choose a name to use for a new kernel.
-3. Activate the PyEarthTools virtual environment which will be used as the kernel.
-4. Execute the registration command.
-
-A sample command to register a new kernel is:
-
-`python -m ipykernel install --user --prefix=<path-to-server-environment> --name=<pick-any-name-here>`
-
-[https://jupyter-tutorial.readthedocs.io/en/24.1.0/kernels/install.html](https://jupyter-tutorial.readthedocs.io/en/24.1.0/kernels/install.html) provides additional technical details regarding the registration of kernels.
-
-
-> [!WARNING]
-> These instructions have been tested on Linux and macOS. We have not tested them on **Windows**.
-> We welcome any contribution to improve this situation 🙂.
-
+```{note}
+For notebooks development, use the [tutorials installation](#tutorials-installation) instructions instead.
+```
