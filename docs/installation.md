@@ -1,4 +1,4 @@
-# Detailed Installation Guide
+# Installation Guide
 
 This page describes different ways to install PyEathTools depending on intended usage:
 

@@ -15,7 +15,7 @@ PyEarthTools is a Python framework, containing modules for loading data; pre-pro
 We have information for:
 
  - [New user guides and introduction to the concepts in PyEarthTools](https://pyearthtools.readthedocs.io/en/latest/newuser.html)
- - [Detailed Installation instructions](https://pyearthtools.readthedocs.io/en/latest/installation.html) (it's not hard, there are just lots of user environments to cater for)
+ - [Installation instructions](https://pyearthtools.readthedocs.io/en/latest/installation.html) for different usage scenarios
  - [Data catalogue setup](https://pyearthtools.readthedocs.io/en/latest/catalogue.html) for facility managers or individuals to establish their research data catalogue
  - [A shiny tutorial gallery full of neat examples](https://pyearthtools.readthedocs.io/en/latest/nbook/Gallery.html)
  - Much more, including how-to guides, project setup guide, information on accessing data, guides to evaluation, orientiation for 

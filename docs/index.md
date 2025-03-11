@@ -13,8 +13,8 @@
 
 self
 newuser
-notebooks/Gallery
 installation
+notebooks/Gallery
 catalogue
 api
 roadmap
