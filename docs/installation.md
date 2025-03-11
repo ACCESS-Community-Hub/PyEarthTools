@@ -2,30 +2,52 @@
 
 ## Overview
 
-This page describes:
+This page describes different ways to install PyEathTools depending on intended usage:
 
-- Setting up a virtual environment.
-- The most common installation options for PyEarthTools. (Expert users of pip and conda will note that more variations are possible.)
-- An advanced installation option for Jupyter Notebook, for users who wish to separate the Jupyter environment and the PyEarthTools execution environment.
+- run tutorials content (recommended for new users),
+- install PyEarthTools packages as dependencies in your Python project,
+- install PyEarthTools in developer mode in order to contribute.
 
-## Setting up a Virtual Environment
+## Tutorials installation
 
-In almost all cases, it is recommended to use a virtualised Python environment. 
+This section details how to install PyEarthTools to be able run notebooks from the tutorial gallery.
 
-PyEarthTools can be installed using either venv/pip or conda/pip. 
+First, make sure to have [Git](https://git-scm.com/) and [Conda](https://conda-forge.org/download/) installed on your system.
 
-Here is a command to create and activate a new virtual environment with *virtualenv*:
+:::{warning}
+These instructions have been tested on Linux and macOS. We have not tested them on **Windows**.
+We welcome any contribution to improve this situation 🙂.
+:::
 
-```py
-python -m venv <path_to_environment>
-source <path_to_environment>/bin/activate
+Then, clone the PyEarthTools repository:
+
+```
+git clone https://github.com/ACCESS-Community-Hub/PyEarthTools.git
 ```
 
-Here is a command to create and activate a new virtual environment with *conda*:
-```py
-conda create --name <my-env>
-conda activate <my-env>
+and create a Conda environment to install tutorials dependencies:
+
 ```
+conda env create -f tutorials.yml -p ./venv
+```
+
+Finally, to run the example notebooks, you can either
+
+- start a JupyterLab instance
+
+```
+conda activate ./venv
+jupyter lab
+```
+
+- or install a Jupyter kernel to use in a pre-existing JupyterLab installation
+
+```
+conda activate ./venv
+python -m ipykernel install --user --name PET-tutorial
+```
+
+Tutorial notebooks are accessible under the `tutorials` folder.
 
 ## Installation Options
 
