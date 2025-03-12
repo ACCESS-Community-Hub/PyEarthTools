@@ -33,14 +33,14 @@ conda env create -f tutorials.yml -p ./venv
 You can start a JupyterLab instance to run the example notebooks:
 
 ```
-conda run -p ./venv --live-stream jupyter-lab notebooks/
+conda run -p ./venv --no-capture-output jupyter-lab notebooks/
 ```
 
 ````{Note}
 Alternatively, you can install a Jupyter kernel to run notebooks in a pre-existing JupyterLab installation:
 
 ```
-conda run -p ./venv --live-stream \
+conda run -p ./venv --no-capture-output \
     python -m ipykernel install --user --name PET-tutorial
 ```
 
