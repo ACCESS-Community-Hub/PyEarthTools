@@ -13,6 +13,7 @@
 # limitations under the License.
 
 
+from functools import reduce
 from typing import TypeVar, Union, Optional, Any
 
 import xarray as xr
@@ -42,6 +43,32 @@ class Merge(Joiner):
 
     def unjoin(self, sample: Any) -> tuple:
         return super().unjoin(sample)
+
+class InterpLike(Joiner):
+    """
+    Merge a tuple of xarray object's.
+
+    Currently cannot undo this operation
+    """
+
+    _override_interface = "Serial"
+
+    def __init__(self, merge_kwargs: Optional[dict[str, Any]] = None):
+        super().__init__()
+        self.record_initialisation()
+        self._merge_kwargs = merge_kwargs
+
+    def join(self, sample: tuple[Union[xr.Dataset, xr.DataArray], ...]) -> xr.Dataset:
+        """Join sample"""
+        # merged = reduce(lambda a, b: a.interp_like(b), sample)
+        reference = sample[0]
+        rest = [i.interp_like(reference) for i in sample[1:]]
+        interped = [reference, *rest]
+        merged = xr.merge(interped, **(self._merge_kwargs or {}))
+        return merged
+
+    def unjoin(self, sample: Any) -> tuple:
+        raise NotImplementedError("Not Implemented")
 
 
 class Concatenate(Joiner):

@@ -592,6 +592,7 @@ class Pipeline(_Pipeline, Index):
     @property
     def iteration_order(self) -> tuple[Any, ...]:
         """Get ordering from `iterator`"""
+
         if self.iterator is None:
             raise ValueError("Cannot iterate over pipeline if iterator is not set.")
         return tuple(i for i in self.iterator)
