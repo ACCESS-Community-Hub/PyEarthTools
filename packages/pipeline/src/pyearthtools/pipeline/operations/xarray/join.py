@@ -53,18 +53,18 @@ class InterpLike(Joiner):
 
     _override_interface = "Serial"
 
-    def __init__(self, merge_kwargs: Optional[dict[str, Any]] = None):
+    def __init__(self, reference_dataset=None, merge_kwargs: Optional[dict[str, Any]] = None):
         super().__init__()
         self.record_initialisation()
+        self.reference_dataset = reference_dataset
         self._merge_kwargs = merge_kwargs
 
     def join(self, sample: tuple[Union[xr.Dataset, xr.DataArray], ...]) -> xr.Dataset:
         """Join sample"""
         # merged = reduce(lambda a, b: a.interp_like(b), sample)
-        reference = sample[0]
-        rest = [i.interp_like(reference) for i in sample[1:]]
-        interped = [reference, *rest]
-        merged = xr.merge(interped, **(self._merge_kwargs or {}))
+        reference = self.reference_dataset
+        interped = [i.interp_like(reference) for i in sample]
+        merged = xr.merge(interped)
         return merged
 
     def unjoin(self, sample: Any) -> tuple:
