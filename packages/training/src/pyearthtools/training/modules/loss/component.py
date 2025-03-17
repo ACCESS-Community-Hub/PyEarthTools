@@ -13,9 +13,9 @@
 # limitations under the License.
 
 
-from torch import nn
-import torch
 import pyearthtools.training
+import torch
+from torch import nn
 
 
 class ComponentLoss(nn.Module):

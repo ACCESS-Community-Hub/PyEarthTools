@@ -17,24 +17,21 @@
 
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass
 from typing import Any, Callable, Iterable, Optional, Type, Union
-import warnings
 
-import xarray as xr
 import numpy as np
-
 import pyearthtools.data
-
-
+import xarray as xr
 from pyearthtools.pipeline.controller import PipelineIndex
 from pyearthtools.pipeline.parallel import ParallelEnabledMixin
 from pyearthtools.pipeline.warnings import PipelineWarning
 
 DASK_IMPORTED = True
 try:
-    from dask.delayed import Delayed, delayed
     import dask.array as da
+    from dask.delayed import Delayed, delayed
 except (ImportError, ModuleNotFoundError) as _:
     DASK_IMPORTED = False
 

@@ -16,13 +16,11 @@
 # type: ignore[reportPrivateImportUsage]
 
 
-from typing import Any, Optional, Union, Hashable
+from typing import Any, Hashable, Optional, Union
 
 import dask.array as da
-import xarray as xr
-
 import pyearthtools.data
-
+import xarray as xr
 from pyearthtools.pipeline.operations.dask.dask import DaskOperation
 
 ATTRIBUTES_IGNORE = ["license", "summary"]

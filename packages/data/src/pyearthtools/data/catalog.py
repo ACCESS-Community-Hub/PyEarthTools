@@ -40,26 +40,22 @@ with the key being the class, and the value of the following form,
 """
 
 from __future__ import annotations
-from collections import OrderedDict
 
-from typing import Optional
-
-import yaml
+import io
 import json
-from pathlib import Path
-from typing import Any, Callable, Optional
 import types
 import warnings
+from collections import OrderedDict
 from functools import lru_cache
-import io
-
-from pyearthtools.utils.parsing import function_name
-from pyearthtools.utils.initialisation.imports import dynamic_import
+from pathlib import Path
+from typing import Any, Callable, Optional
 
 import pyearthtools.data
+import yaml
 from pyearthtools.data.collection import Collection, LabelledCollection
-
 from pyearthtools.utils.decorators import alias_arguments
+from pyearthtools.utils.initialisation.imports import dynamic_import
+from pyearthtools.utils.parsing import function_name
 
 UTILS_REPR = False
 try:

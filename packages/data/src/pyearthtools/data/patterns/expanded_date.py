@@ -25,18 +25,16 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from pyearthtools.data import pyearthtoolsDatetime, TimeResolution
+import pyearthtools.utils
+from pyearthtools.data import TimeResolution, pyearthtoolsDatetime
+from pyearthtools.data.indexes import decorators
 from pyearthtools.data.patterns.default import (
+    PatternForecastIndex,
     PatternIndex,
     PatternTimeIndex,
-    PatternForecastIndex,
     PatternVariableAware,
 )
-from pyearthtools.data.indexes import decorators
-
-import pyearthtools.utils
 from pyearthtools.utils.decorators import classproperty
-
 
 DIRECTORY_PATTERN = "{ROOT_DIR}/{FILE_DATE}/{FILE}"
 FILE_PATTERN = "{prefix}{time}{extension}"

@@ -15,20 +15,17 @@
 
 from __future__ import annotations
 
+import warnings
 from abc import ABCMeta, abstractmethod
 from types import FunctionType
-from typing import Any, Callable, Union, TypeVar
-
-import warnings
-import yaml
-from pyearthtools.data.collection import Collection
-
-import xarray as xr
+from typing import Any, Callable, TypeVar, Union
 
 import pyearthtools.data.transforms
-from pyearthtools.data.transforms.default import get_default_transforms
-
 import pyearthtools.utils
+import xarray as xr
+import yaml
+from pyearthtools.data.collection import Collection
+from pyearthtools.data.transforms.default import get_default_transforms
 from pyearthtools.utils import initialisation
 
 XR_TYPES = TypeVar("XR_TYPES", xr.DataArray, xr.Dataset, Union[xr.DataArray, xr.Dataset])

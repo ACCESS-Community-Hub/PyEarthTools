@@ -14,13 +14,14 @@
 
 from __future__ import annotations
 
-import pytest
-
 import pyearthtools.utils
-
-from pyearthtools.pipeline import Pipeline, exceptions, branching
-
-from tests.fake_pipeline_steps import FakeIndex, MultiplicationOperation, MultiplicationOperationUnunifiedable
+import pytest
+from pyearthtools.pipeline import Pipeline, branching, exceptions
+from tests.fake_pipeline_steps import (
+    FakeIndex,
+    MultiplicationOperation,
+    MultiplicationOperationUnunifiedable,
+)
 
 pyearthtools.utils.config.set({"pipeline.run_parallel": False})
 

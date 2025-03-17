@@ -13,15 +13,13 @@
 # limitations under the License.
 
 
-from abc import abstractmethod, ABCMeta
+import warnings
+from abc import ABCMeta, abstractmethod
 from typing import Optional, Type, Union
 
-import warnings
-
 import pyearthtools.utils
-
-from pyearthtools.pipeline.step import PipelineStep
 from pyearthtools.pipeline.exceptions import PipelineFilterException
+from pyearthtools.pipeline.step import PipelineStep
 from pyearthtools.pipeline.warnings import PipelineWarning
 
 __all__ = ["Filter", "FilterCheck", "FilterWarningContext", "TypeFilter"]

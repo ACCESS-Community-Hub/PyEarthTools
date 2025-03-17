@@ -28,39 +28,32 @@ See [here][pyearthtools.data.indexes] for details.
 
 from __future__ import annotations
 
-import warnings
 import datetime
 import functools
 import logging
-from abc import abstractmethod, ABCMeta
-
+import warnings
+from abc import ABCMeta, abstractmethod
 from pathlib import Path
 from typing import Any, Callable, Iterable, Literal, Optional
 
-import xarray as xr
-
 import pyearthtools.data
 import pyearthtools.utils
-
-from pyearthtools.data.time import pyearthtoolsDatetime, TimeDelta, TimeRange
-
-from pyearthtools.data.transforms.transform import (
-    Transform,
-    TransformCollection,
-    FunctionTransform,
-)
-
-from pyearthtools.data.warnings import IndexWarning
-from pyearthtools.data.exceptions import DataNotFoundError
-from pyearthtools.data.operations import index_routines, index_operations, forecast_op
+import xarray as xr
 from pyearthtools.data import operations
-
+from pyearthtools.data.exceptions import DataNotFoundError
+from pyearthtools.data.indexes.utilities import dimensions, open_files
 from pyearthtools.data.indexes.utilities.mixins import (
     CallRedirectMixin,
     CatalogMixin,
 )
-from pyearthtools.data.indexes.utilities import open_files, dimensions
-
+from pyearthtools.data.operations import forecast_op, index_operations, index_routines
+from pyearthtools.data.time import TimeDelta, TimeRange, pyearthtoolsDatetime
+from pyearthtools.data.transforms.transform import (
+    FunctionTransform,
+    Transform,
+    TransformCollection,
+)
+from pyearthtools.data.warnings import IndexWarning
 from pyearthtools.utils.context import ChangeValue
 
 LOG = logging.getLogger("pyearthtools.data")

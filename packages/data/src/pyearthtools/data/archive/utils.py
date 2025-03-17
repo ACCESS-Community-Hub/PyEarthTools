@@ -21,14 +21,13 @@ Allow archives to be autoimported if detected to be on the system in question.
 
 from __future__ import annotations
 
-from pathlib import Path
-import os
-import re
-
 import importlib
 import logging
-from typing import Any
+import os
+import re
 import warnings
+from pathlib import Path
+from typing import Any
 
 from pyearthtools.data import archive
 from pyearthtools.data.indexes.utilities.fileload import open_static

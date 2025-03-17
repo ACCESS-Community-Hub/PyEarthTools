@@ -28,20 +28,19 @@ An indexer takes some
 from __future__ import annotations
 
 import functools
-
 from pathlib import Path
 from typing import Any, Literal
 
-
 import pyearthtools.data
-
 from pyearthtools.data import pyearthtoolsDatetime
+from pyearthtools.data.archive import register_archive
 from pyearthtools.data.exceptions import DataNotFoundError
 from pyearthtools.data.indexes import ArchiveIndex, decorators
 from pyearthtools.data.transforms import Transform, TransformCollection
-from pyearthtools.data.archive import register_archive
-
-from pyearthtools.tutorial.ancilliary.ERA5lowres import ERA5_SINGLE_VARIABLES, ERA5_PRESSURE_VARIABLES
+from pyearthtools.tutorial.ancilliary.ERA5lowres import (
+    ERA5_PRESSURE_VARIABLES,
+    ERA5_SINGLE_VARIABLES,
+)
 
 # This tells pyearthtools what the actual resolution or time-step of the data is inside the files
 ERA_RESOLUTION = (1, "hour")

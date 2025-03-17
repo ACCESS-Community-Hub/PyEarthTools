@@ -15,15 +15,13 @@
 
 """Loading utils"""
 
-import os
-from typing import Any, Union, Optional
-
-from pathlib import Path
-import re
-
 import logging
-import yaml
+import os
+import re
+from pathlib import Path
+from typing import Any, Optional, Union
 
+import yaml
 from pyearthtools.utils.initialisation.yaml import Dumper, Loader
 
 LOG = logging.getLogger("pyearthtools.utils")

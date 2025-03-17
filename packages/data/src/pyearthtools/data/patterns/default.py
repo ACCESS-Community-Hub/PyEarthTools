@@ -14,26 +14,25 @@
 
 
 from __future__ import annotations
-from abc import abstractmethod
 
 import os
+import warnings
+from abc import abstractmethod
 from pathlib import Path
 from typing import Any, Callable
-import warnings
 
 import xarray as xr
-
 from pyearthtools.data import patterns
 from pyearthtools.data.exceptions import DataNotFoundError
-from pyearthtools.data.warnings import pyearthtoolsDataWarning
 from pyearthtools.data.indexes import (
+    AdvancedTimeIndex,
     DataIndex,
     FileSystemIndex,
-    AdvancedTimeIndex,
     ForecastIndex,
     decorators,
 )
 from pyearthtools.data.save import save
+from pyearthtools.data.warnings import pyearthtoolsDataWarning
 
 
 class PatternIndex(DataIndex, FileSystemIndex):

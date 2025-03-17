@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyearthtools.data.transforms import mask
 import numpy as np
 import xarray as xr
+from pyearthtools.data.transforms import mask
 
 SIMPLE_DA1 = xr.DataArray(
     [

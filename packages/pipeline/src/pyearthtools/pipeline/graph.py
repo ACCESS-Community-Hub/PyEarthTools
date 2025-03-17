@@ -17,9 +17,8 @@ from abc import abstractmethod
 from typing import Any, Optional
 
 import graphviz
-
-from pyearthtools.data import Index
 import pyearthtools.pipeline
+from pyearthtools.data import Index
 
 
 def format_graph_node(obj, parent: Optional[list[str]]) -> dict[str, Any]:

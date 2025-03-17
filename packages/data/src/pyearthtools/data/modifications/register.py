@@ -19,8 +19,8 @@ Register Modifications
 
 from __future__ import annotations
 
-from typing import Callable, Any, Type
 import warnings
+from typing import Any, Callable, Type
 
 import pyearthtools.data
 

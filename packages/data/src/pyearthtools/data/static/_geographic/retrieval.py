@@ -27,7 +27,6 @@ from pathlib import Path
 from typing import Literal
 
 import yaml
-
 from pyearthtools.data.exceptions import DataNotFoundError, InvalidIndexError
 from pyearthtools.data.static._geographic import DATA_BASEDIRECTORY, DOWNLOAD_DATA
 

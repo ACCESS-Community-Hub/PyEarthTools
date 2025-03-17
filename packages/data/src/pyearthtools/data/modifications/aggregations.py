@@ -20,12 +20,16 @@ Aggregation based `Modification's`
 from __future__ import annotations
 
 from typing import Literal
+
 import xarray as xr
-
-from pyearthtools.data.time import pyearthtoolsDatetime, TimeDelta, TimeResolution, TimeRange
 from pyearthtools.data.indexes.utilities.dimensions import identify_time_dimension
-
 from pyearthtools.data.modifications import Modification, register_modification
+from pyearthtools.data.time import (
+    TimeDelta,
+    TimeRange,
+    TimeResolution,
+    pyearthtoolsDatetime,
+)
 
 
 class Aggregation(Modification):

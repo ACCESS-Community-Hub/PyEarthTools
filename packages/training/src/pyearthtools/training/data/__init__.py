@@ -15,13 +15,11 @@
 
 # ruff: noqa: F401
 
-from pyearthtools.training.data.datamodule import PipelineDataModule
+import logging
 
 from pyearthtools.training.data import default
-
-from pyearthtools.training.data.fileio import save, load
-
-import logging
+from pyearthtools.training.data.datamodule import PipelineDataModule
+from pyearthtools.training.data.fileio import load, save
 
 LOG = logging.getLogger(__name__)
 try:

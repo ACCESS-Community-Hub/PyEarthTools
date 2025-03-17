@@ -13,13 +13,11 @@
 # limitations under the License.
 
 
+import math
 from typing import Literal, Optional, TypeVar, Union
 
 import numpy as np
 import xarray as xr
-
-import math
-
 from pyearthtools.pipeline.filters import Filter, PipelineFilterException
 
 T = TypeVar("T", xr.Dataset, xr.DataArray)

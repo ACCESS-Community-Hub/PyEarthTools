@@ -15,13 +15,10 @@
 
 from __future__ import annotations
 
-import pytest
-
 import pyearthtools.utils
-
-from pyearthtools.pipeline import Pipeline, modifications
-from pyearthtools.pipeline import Operation
+import pytest
 from pyearthtools.data import Index
+from pyearthtools.pipeline import Operation, Pipeline, modifications
 
 
 class FakeIndex(Index):

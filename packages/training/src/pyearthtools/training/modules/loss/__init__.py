@@ -15,13 +15,12 @@
 
 import importlib
 
-from pyearthtools.training.modules.loss.extremes import ExtremeLoss
+from pyearthtools.training import modules
 from pyearthtools.training.modules.loss.centre_weighted import centre_weighted
+from pyearthtools.training.modules.loss.component import ComponentLoss
+from pyearthtools.training.modules.loss.extremes import ExtremeLoss
 from pyearthtools.training.modules.loss.rmse import RMSELoss
 from pyearthtools.training.modules.loss.structure import SSIMLoss
-from pyearthtools.training.modules.loss.component import ComponentLoss
-
-from pyearthtools.training import modules
 
 
 def _get_callable(module: str):

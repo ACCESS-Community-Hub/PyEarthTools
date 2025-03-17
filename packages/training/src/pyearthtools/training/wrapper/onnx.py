@@ -15,17 +15,14 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 import logging
+from pathlib import Path
 from typing import Optional
 
 import onnxruntime as ort
-
 from pyearthtools.pipeline.controller import Pipeline
-
-from pyearthtools.training.wrapper.wrapper import ModelWrapper
 from pyearthtools.training.data.datamodule import PipelineDataModule
-
+from pyearthtools.training.wrapper.wrapper import ModelWrapper
 
 LOG = logging.getLogger(__name__)
 

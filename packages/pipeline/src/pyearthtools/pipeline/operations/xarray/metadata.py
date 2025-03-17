@@ -13,12 +13,10 @@
 # limitations under the License.
 
 
-from typing import TypeVar, Optional, Any, Literal
-
-import xarray as xr
+from typing import Any, Literal, Optional, TypeVar
 
 import pyearthtools.data
-
+import xarray as xr
 from pyearthtools.pipeline.operation import Operation
 
 T = TypeVar("T", xr.Dataset, xr.DataArray)

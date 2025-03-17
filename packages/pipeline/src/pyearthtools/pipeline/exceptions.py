@@ -13,8 +13,8 @@
 # limitations under the License.
 
 
-from typing import Any, Optional, Type
 import warnings
+from typing import Any, Optional, Type
 
 import pyearthtools.utils
 from pyearthtools.pipeline.warnings import PipelineWarning

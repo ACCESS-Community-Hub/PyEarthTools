@@ -20,21 +20,18 @@ PatternIndex that parses and formats from a given str, and retrieves info from t
 
 from __future__ import annotations
 
-from collections import OrderedDict
 import itertools
-from typing import Any, Callable
+from collections import OrderedDict
 from collections.abc import Iterable
-
 from pathlib import Path
+from string import Formatter
+from typing import Any, Callable
 
 import pandas as pd
 import xarray as xr
-
-from string import Formatter
-
+from pyearthtools.data.exceptions import DataNotFoundError
 from pyearthtools.data.patterns import PatternIndex
 from pyearthtools.data.transforms import Transform, TransformCollection
-from pyearthtools.data.exceptions import DataNotFoundError
 
 
 def update_value(old_val: Any | list[Any] | tuple[Any, ...], new_vals: Any) -> list[Any]:

@@ -18,11 +18,10 @@ Initialisation recording, saving and loading
 """
 
 
-from pyearthtools.utils.initialisation.mixin import InitialisationRecordingMixin
-from pyearthtools.utils.initialisation.load import load, save, update_contents
-from pyearthtools.utils.initialisation.yaml import Loader, Dumper
-
 from pyearthtools.utils.initialisation.imports import dynamic_import
+from pyearthtools.utils.initialisation.load import load, save, update_contents
+from pyearthtools.utils.initialisation.mixin import InitialisationRecordingMixin
+from pyearthtools.utils.initialisation.yaml import Dumper, Loader
 
 OVERRIDE_KEY = "_pyearthtools_initialisation"
 

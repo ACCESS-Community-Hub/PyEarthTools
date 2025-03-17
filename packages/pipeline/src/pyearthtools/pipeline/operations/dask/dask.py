@@ -19,13 +19,11 @@
 Dask specific operation
 """
 
-from typing import Type, Union, Optional
-
 import functools
+from typing import Optional, Type, Union
+
 import numpy as np
-
 import pyearthtools.utils
-
 from pyearthtools.pipeline.operation import Operation
 
 

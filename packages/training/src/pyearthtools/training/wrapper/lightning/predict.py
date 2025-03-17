@@ -15,17 +15,14 @@
 
 from __future__ import annotations
 
-from functools import cached_property
 import logging
 import warnings
-
+from functools import cached_property
 from typing import Any
 
-import numpy as np
 import lightning as L
-
+import numpy as np
 from pyearthtools.data.patterns.utils import parse_root_dir
-
 from pyearthtools.pipeline.controller import Pipeline
 from pyearthtools.training.data.lightning import PipelineLightningDataModule
 from pyearthtools.training.wrapper.lightning.wrapper import LightningWrapper

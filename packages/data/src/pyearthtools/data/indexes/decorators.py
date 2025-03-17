@@ -20,16 +20,14 @@ Decorators for use by `pyearthtools.data.indexes`
 from __future__ import annotations
 
 import functools
-import warnings
-
 import inspect
+import warnings
 from pathlib import Path
 from typing import Any
 
-from pyearthtools.data.indexes.utilities import spellcheck, open_static
-from pyearthtools.utils.decorators import alias_arguments
-
+from pyearthtools.data.indexes.utilities import open_static, spellcheck
 from pyearthtools.data.modifications import variable_modifications
+from pyearthtools.utils.decorators import alias_arguments
 
 __all__ = [
     "alias_arguments",

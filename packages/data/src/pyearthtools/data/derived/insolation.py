@@ -18,11 +18,9 @@
 
 from __future__ import annotations
 
-
 import numpy as np
-import xarray as xr
 import pandas as pd
-
+import xarray as xr
 from pyearthtools.data.derived.derived import AdvancedTimeDerivedValue
 
 DASK_IMPORTED = True

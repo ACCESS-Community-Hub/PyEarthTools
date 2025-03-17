@@ -18,19 +18,17 @@ Templates for Downloading data
 """
 
 from __future__ import annotations
-from abc import abstractmethod, ABCMeta
-from typing import Type
-import warnings
 
-from tempfile import TemporaryDirectory
+import functools
+import warnings
+from abc import ABCMeta, abstractmethod
 from pathlib import Path
+from tempfile import TemporaryDirectory
+from typing import Type
 
 import urllib3
-import functools
-
+from pyearthtools.data import DataNotFoundError, IndexWarning
 from pyearthtools.data.indexes import CachingIndex
-from pyearthtools.data import IndexWarning, DataNotFoundError
-
 from pyearthtools.data.patterns import PatternIndex
 
 

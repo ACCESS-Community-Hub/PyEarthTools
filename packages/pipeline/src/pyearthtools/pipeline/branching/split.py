@@ -14,9 +14,9 @@
 
 
 from __future__ import annotations
-from abc import abstractmethod
-from typing import Any, Literal, Type, TypeVar, Optional, Union
 
+from abc import abstractmethod
+from typing import Any, Literal, Optional, Type, TypeVar, Union
 
 from pyearthtools.pipeline.operation import Operation
 

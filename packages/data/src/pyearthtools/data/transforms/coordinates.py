@@ -15,20 +15,16 @@
 
 from __future__ import annotations
 
-import warnings
-from typing import Any, Hashable, Literal, Iterable
 import logging
+import warnings
+from typing import Any, Hashable, Iterable, Literal
 
-import xarray as xr
 import numpy as np
-
-
 import pyearthtools.data
-
+import xarray as xr
+from pyearthtools.data.exceptions import DataNotFoundError
 from pyearthtools.data.transforms.transform import Transform, TransformCollection
 from pyearthtools.data.warnings import pyearthtoolsDataWarning
-from pyearthtools.data.exceptions import DataNotFoundError
-
 from pyearthtools.utils.decorators import BackwardsCompatibility
 
 DASK_IMPORTED = False

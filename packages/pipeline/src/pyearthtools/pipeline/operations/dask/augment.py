@@ -20,7 +20,6 @@
 
 import dask.array as da
 import numpy as np
-
 from pyearthtools.pipeline.operations.dask.dask import DaskOperation
 
 

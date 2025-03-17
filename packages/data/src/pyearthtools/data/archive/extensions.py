@@ -39,10 +39,9 @@ Examples:
 
 from __future__ import annotations
 
-from types import ModuleType
-from typing import Callable, Any
-
 import warnings
+from types import ModuleType
+from typing import Any, Callable
 
 import pyearthtools.data
 from pyearthtools.data import archive

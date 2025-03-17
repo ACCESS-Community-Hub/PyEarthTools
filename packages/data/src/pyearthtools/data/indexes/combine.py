@@ -16,10 +16,8 @@
 from __future__ import annotations
 
 import xarray as xr
-
-
-from pyearthtools.data.indexes import Index, AdvancedTimeDataIndex
 from pyearthtools.data import pyearthtoolsDatetime
+from pyearthtools.data.indexes import AdvancedTimeDataIndex, Index
 from pyearthtools.data.operations import SpatialInterpolation, TemporalInterpolation
 from pyearthtools.data.transforms.transform import Transform, TransformCollection
 

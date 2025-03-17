@@ -14,9 +14,8 @@
 
 
 import pytest
-from pyearthtools.pipeline import Operation, Pipeline
-
 from pyearthtools.data import Index
+from pyearthtools.pipeline import Operation, Pipeline
 
 
 class FakeIndex(Index):

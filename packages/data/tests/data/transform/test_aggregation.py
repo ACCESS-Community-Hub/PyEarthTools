@@ -13,9 +13,7 @@
 # limitations under the License.
 
 import xarray as xr
-
 from pyearthtools.data.transforms import aggregation
-
 
 SIMPLE_DA1 = xr.DataArray(
     [

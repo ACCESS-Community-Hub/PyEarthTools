@@ -15,17 +15,17 @@
 
 from __future__ import annotations
 
-
 import xarray as xr
-
-
-from pyearthtools.data.exceptions import DataNotFoundError, InvalidIndexError, InvalidDataError
-from pyearthtools.data.time import pyearthtoolsDatetime, TimeDelta, TimeRange
-from pyearthtools.data.transforms.transform import Transform, TransformCollection
-from pyearthtools.data.warnings import IndexWarning
-
+from pyearthtools.data.exceptions import (
+    DataNotFoundError,
+    InvalidDataError,
+    InvalidIndexError,
+)
 from pyearthtools.data.operations import index_routines
 from pyearthtools.data.operations.utils import identify_time_dimension
+from pyearthtools.data.time import TimeDelta, TimeRange, pyearthtoolsDatetime
+from pyearthtools.data.transforms.transform import Transform, TransformCollection
+from pyearthtools.data.warnings import IndexWarning
 
 
 def forecast_series(

@@ -14,25 +14,20 @@
 
 
 from __future__ import annotations
+
 import functools
-
-from typing import Literal, TypeVar, Any, Optional
-
+import logging
 from abc import abstractmethod
+from typing import Any, Literal, Optional, TypeVar
 
-import xarray as xr
 import numpy as np
 import tqdm.auto as tqdm
-import logging
-
-
-from pyearthtools.data import TimeDelta, pyearthtoolsDatetime, TimeRange
-
+import xarray as xr
+from pyearthtools.data import TimeDelta, TimeRange, pyearthtoolsDatetime
 from pyearthtools.pipeline.controller import Pipeline
-from pyearthtools.training.wrapper.wrapper import ModelWrapper
-from pyearthtools.training.wrapper.predict.predict import Predictor
-
 from pyearthtools.training.manage import Variables
+from pyearthtools.training.wrapper.predict.predict import Predictor
+from pyearthtools.training.wrapper.wrapper import ModelWrapper
 
 XR_TYPE = TypeVar("XR_TYPE", xr.Dataset, xr.DataArray)
 LOG = logging.getLogger("pyearthtools.training")

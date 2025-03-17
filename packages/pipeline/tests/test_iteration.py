@@ -14,7 +14,6 @@
 
 
 import pytest
-
 from pyearthtools.pipeline import Pipeline, iterators, samplers
 from tests.fake_pipeline_steps import FakeIndex
 

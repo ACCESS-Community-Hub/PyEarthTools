@@ -14,16 +14,14 @@
 
 from __future__ import annotations
 
+import importlib.util
 import os
+import warnings
 from pathlib import Path
 from typing import Any, Optional
-import warnings
-import importlib.util
 
 import lightning as L
-from lightning.pytorch import callbacks
-from lightning.pytorch import loggers
-
+from lightning.pytorch import callbacks, loggers
 from pyearthtools.pipeline.controller import Pipeline
 from pyearthtools.training.data.lightning import PipelineLightningDataModule
 from pyearthtools.training.wrapper.lightning.wrapper import LightningWrapper

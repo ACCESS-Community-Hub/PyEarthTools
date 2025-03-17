@@ -27,17 +27,21 @@ Numpy Operations
 | split  | Split numpy arrays into tuples | `OnAxis`, `OnSlice`, `VSplit`, `HSplit` |
 | values | Modify values of arrays | `FillNan`, `MaskValue`, `ForceNormalised` |
 """
-from pyearthtools.pipeline.operations.numpy.join import Stack, Concatenate, VStack, HStack
-
 from pyearthtools.pipeline.operations.numpy import (
     augment,
+    conversion,
     filters,
     normalisation,
     reshape,
     select,
     split,
     values,
-    conversion,
+)
+from pyearthtools.pipeline.operations.numpy.join import (
+    Concatenate,
+    HStack,
+    Stack,
+    VStack,
 )
 
 __all__ = [

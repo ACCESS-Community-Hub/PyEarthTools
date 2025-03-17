@@ -14,8 +14,12 @@
 
 
 import pytest
-
-from pyearthtools.data.time import pyearthtoolsDatetime, TimeDelta, TimeRange, TimeResolution
+from pyearthtools.data.time import (
+    TimeDelta,
+    TimeRange,
+    TimeResolution,
+    pyearthtoolsDatetime,
+)
 
 
 @pytest.mark.parametrize(

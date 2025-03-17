@@ -14,11 +14,12 @@
 
 
 import functools
+import math
 from typing import Callable, Union
-from torch import nn
+
 import numpy as np
 import torch
-import math
+from torch import nn
 
 
 def sin(m_adjust=1, drop_rate=0.5, dimensions: tuple[int] = [-2, -1]):

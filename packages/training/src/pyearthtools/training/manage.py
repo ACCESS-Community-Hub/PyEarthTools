@@ -4,11 +4,12 @@ Variable management
 """
 
 from __future__ import annotations
-from typing import Any, overload, Union, Optional, Callable, TypeVar
 
-import xarray as xr
-import numpy as np
 import itertools
+from typing import Any, Callable, Optional, TypeVar, Union, overload
+
+import numpy as np
+import xarray as xr
 
 TORCH_INSTALLED = True
 try:

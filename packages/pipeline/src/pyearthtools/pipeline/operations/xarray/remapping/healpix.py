@@ -43,24 +43,20 @@ Details on the HEALPix can be found at https://iopscience.iop.org/article/10.108
 """
 
 
-from typing import TypeVar, Literal, Optional
-
 import functools
-import warnings
-
-import numpy as np
-import healpy as hp
-import xarray as xr
-import reproject as rp
-import astropy as ap
-
 import logging
+import warnings
+from typing import Literal, Optional, TypeVar
 
+import astropy as ap
+import healpy as hp
+import numpy as np
 import pyearthtools.data
+import reproject as rp
+import xarray as xr
 from pyearthtools.pipeline.warnings import PipelineWarning
 
 from .base import BaseRemap
-
 
 XR_TYPE = TypeVar("XR_TYPE", xr.Dataset, xr.DataArray)
 

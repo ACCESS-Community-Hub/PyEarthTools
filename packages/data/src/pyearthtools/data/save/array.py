@@ -19,7 +19,6 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-
 from pyearthtools.data.indexes import FileSystemIndex
 from pyearthtools.data.save.utils import ManageFiles
 

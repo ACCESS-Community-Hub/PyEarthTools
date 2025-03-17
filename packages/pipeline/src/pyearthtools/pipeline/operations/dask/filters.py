@@ -20,7 +20,6 @@ from typing import Literal, Union
 
 import dask.array as da
 import numpy as np
-
 from pyearthtools.pipeline.filters import Filter, PipelineFilterException
 
 

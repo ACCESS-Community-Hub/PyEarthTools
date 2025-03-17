@@ -15,10 +15,9 @@
 
 from __future__ import annotations
 
-import tempfile
-import re
 import os
-
+import re
+import tempfile
 from pathlib import Path
 
 

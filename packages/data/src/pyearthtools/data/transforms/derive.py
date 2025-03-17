@@ -18,16 +18,15 @@ Equation evaluation and dataset transform.
 """
 
 from __future__ import annotations
+
+import logging
+import math
+import operator
+import re
 from typing import Any
 
-import xarray as xr
 import numpy as np
-import operator
-import math
-import re
-import logging
-
-
+import xarray as xr
 from pyearthtools.data.transforms import Transform
 from pyearthtools.utils.decorators import BackwardsCompatibility
 

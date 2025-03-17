@@ -18,7 +18,6 @@
 from typing import Optional
 
 import dask.array as da
-
 from pyearthtools.pipeline.branching.split import Spliter
 from pyearthtools.pipeline.operations.dask.dask import DaskOperation
 

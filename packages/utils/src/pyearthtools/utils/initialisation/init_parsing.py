@@ -21,22 +21,22 @@
 # See https://github.com/Lightning-AI/pytorch-lightning/blob/master/src/lightning/pytorch/utilities/parsing.py
 
 
-from collections import OrderedDict
+import inspect
 import types
+from collections import OrderedDict
 from typing import (
     Any,
     Dict,
     List,
     Literal,
+    Mapping,
     MutableMapping,
     Optional,
     Sequence,
     Tuple,
     Type,
     Union,
-    Mapping,
 )
-import inspect
 
 
 class InitialisationRecord(Mapping):

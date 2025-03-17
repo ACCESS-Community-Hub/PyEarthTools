@@ -16,12 +16,10 @@
 # ruff: noqa: F401
 
 
-from pyearthtools.training.wrapper.wrapper import ModelWrapper
-
 from pyearthtools.training.wrapper import predict, train, utils
-
-from pyearthtools.training.wrapper.train import TrainingWrapper
 from pyearthtools.training.wrapper.predict import Predictor
+from pyearthtools.training.wrapper.train import TrainingWrapper
+from pyearthtools.training.wrapper.wrapper import ModelWrapper
 
 try:
     ONNX_IMPORTED = True

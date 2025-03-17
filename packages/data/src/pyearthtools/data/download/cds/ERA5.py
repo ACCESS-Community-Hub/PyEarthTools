@@ -18,25 +18,22 @@ ERA5 Copernicus Data Storage Index
 """
 
 from __future__ import annotations
-from typing import Literal, Union, Optional
-from pathlib import Path
-import warnings
 
+import warnings
+from pathlib import Path
+from typing import Literal, Optional, Union
 
 import pyearthtools.data
 from pyearthtools.data import pyearthtoolsDatetime
-from pyearthtools.data.warnings import pyearthtoolsDataWarning
-
-from pyearthtools.data.indexes import decorators
-from pyearthtools.data.transforms import Transform, TransformCollection
-
-from pyearthtools.data.download.cds.cds import root_cds, as_list
 from pyearthtools.data.download.cds._ERA5 import (
     ERA5_LEVELS,
     ERA_PRESSURE_NAME_CHANGE,
     ERA_SINGLE_NAME_CHANGE,
 )
-
+from pyearthtools.data.download.cds.cds import as_list, root_cds
+from pyearthtools.data.indexes import decorators
+from pyearthtools.data.transforms import Transform, TransformCollection
+from pyearthtools.data.warnings import pyearthtoolsDataWarning
 
 cds_type = [
     "ensemble_mean",

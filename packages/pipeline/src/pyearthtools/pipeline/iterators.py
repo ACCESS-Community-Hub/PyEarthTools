@@ -20,16 +20,14 @@ Allows a pipeline to be iterated over, and data retrieved from.
 """
 
 from __future__ import annotations
-from functools import cached_property
-from abc import ABCMeta, abstractmethod
 
-from typing import Any, Callable, Generator, Hashable, Iterable, Optional, Union
+from abc import ABCMeta, abstractmethod
+from functools import cached_property
 from pathlib import Path
+from typing import Any, Callable, Generator, Hashable, Iterable, Optional, Union
 
 import numpy as np
-
 import pyearthtools.data
-
 from pyearthtools.pipeline.recording import PipelineRecordingMixin
 
 

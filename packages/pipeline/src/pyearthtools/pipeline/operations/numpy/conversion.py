@@ -13,13 +13,11 @@
 # limitations under the License.
 
 
-from typing import Any, Optional, Union, Hashable
+from typing import Any, Hashable, Optional, Union
 
 import numpy as np
-import xarray as xr
-
 import pyearthtools.data
-
+import xarray as xr
 from pyearthtools.pipeline.operation import Operation
 
 ATTRIBUTES_IGNORE = ["license", "summary"]

@@ -15,17 +15,14 @@
 
 """Saving and Loading of `Indexes`"""
 
+import os
+from pathlib import Path
 from typing import Union
 
-from pathlib import Path
-import os
-
-import yaml
-
-from pyearthtools.utils import initialisation
-
 import pyearthtools.data
+import yaml
 from pyearthtools.data.utils import parse_path
+from pyearthtools.utils import initialisation
 
 CONFIG_KEY = "--CONFIG--"
 

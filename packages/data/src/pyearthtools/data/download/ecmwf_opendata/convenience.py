@@ -16,6 +16,7 @@
 """Convenience classes for OpenData"""
 
 import functools
+
 from pyearthtools.data.download.ecmwf_opendata.opendata import OpenData
 
 

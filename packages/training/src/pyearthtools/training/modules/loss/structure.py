@@ -13,10 +13,9 @@
 # limitations under the License.
 
 
+import einops
 import torch
 from piqa import SSIM
-
-import einops
 
 
 class SSIMLoss(torch.nn.Module):

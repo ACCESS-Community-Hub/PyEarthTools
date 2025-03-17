@@ -23,14 +23,13 @@ from typing import Optional, Union
 
 import numpy as np
 import xarray as xr
-
 from pyearthtools.utils.data.tesselator._patching import (
     DEFAULT_FORMAT_PATCH,
     DEFAULT_FORMAT_PATCH_AFTER,
     DEFAULT_FORMAT_PATCH_ORGANISE,
 )
 from pyearthtools.utils.data.tesselator._patching.reorder import reorder
-from pyearthtools.utils.data.tesselator._patching.subset import cut_center, center
+from pyearthtools.utils.data.tesselator._patching.subset import center, cut_center
 
 
 def factors(value: int) -> list[list[int, int]]:

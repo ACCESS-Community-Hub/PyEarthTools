@@ -13,17 +13,15 @@
 # limitations under the License.
 
 
+from pyearthtools.pipeline.modifications import idx_modification
+from pyearthtools.pipeline.modifications.cache import Cache, MemCache, StaticCache
 from pyearthtools.pipeline.modifications.idx_modification import (
     IdxModifier,
     IdxOverride,
-    TimeIdxModifier,
     SequenceRetrieval,
     TemporalRetrieval,
+    TimeIdxModifier,
 )
-from pyearthtools.pipeline.modifications.cache import Cache, StaticCache, MemCache
-
-
-from pyearthtools.pipeline.modifications import idx_modification
 
 __all__ = [
     "Cache",

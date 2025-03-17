@@ -26,9 +26,8 @@ Pipeline Operations
 
 import warnings
 
-from pyearthtools.pipeline.operations import xarray, numpy
+from pyearthtools.pipeline.operations import numpy, transform, xarray
 from pyearthtools.pipeline.operations.transforms import Transforms
-from pyearthtools.pipeline.operations import transform
 
 try:
     from pyearthtools.pipeline.operations import dask

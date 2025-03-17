@@ -19,19 +19,17 @@ Intake - ESM Index
 
 from __future__ import annotations
 
+import functools
+import logging
 from pathlib import Path
 from typing import Any, Callable
 
 import xarray as xr
-import logging
-import functools
-
-from pyearthtools.data.indexes.indexes import DataIndex
 from pyearthtools.data.indexes.cacheIndex import FileSystemCacheIndex
-from pyearthtools.data.transforms import Transform, TransformCollection
-from pyearthtools.data.patterns.argument import flattened_combinations
-
+from pyearthtools.data.indexes.indexes import DataIndex
 from pyearthtools.data.indexes.utilities.delete_files import delete_path
+from pyearthtools.data.patterns.argument import flattened_combinations
+from pyearthtools.data.transforms import Transform, TransformCollection
 
 LOG = logging.getLogger("pyearthtools.data")
 

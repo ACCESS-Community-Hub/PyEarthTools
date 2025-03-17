@@ -14,7 +14,6 @@
 
 
 import pytest
-
 from pyearthtools.data.indexes import FakeIndex
 
 

@@ -13,10 +13,9 @@
 # limitations under the License.
 
 
-from typing import TypeVar, Union, Optional, Any
+from typing import Any, Optional, TypeVar, Union
 
 import xarray as xr
-
 from pyearthtools.pipeline.branching.split import Spliter
 
 T = TypeVar("T", xr.Dataset, xr.DataArray)

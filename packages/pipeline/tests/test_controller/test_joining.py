@@ -13,14 +13,12 @@
 # limitations under the License.
 
 from __future__ import annotations
+
 from typing import Any
 
-import pytest
-
 import pyearthtools.utils
-
+import pytest
 from pyearthtools.pipeline import Pipeline, branching
-
 from tests.fake_pipeline_steps import FakeIndex, MultiplicationOperation
 
 pyearthtools.utils.config.set({"pipeline.run_parallel": False})

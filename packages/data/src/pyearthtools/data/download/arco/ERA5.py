@@ -14,23 +14,20 @@
 
 
 from __future__ import annotations
-import functools
 
-import xarray as xr
+import functools
 from os import PathLike
 
 import pyearthtools.data
-from pyearthtools.data.time import pyearthtoolsDatetime
-
-from pyearthtools.data.indexes import AdvancedTimeDataIndex, decorators, CachingIndex
-from pyearthtools.data.transforms.transform import Transform, TransformCollection
-
-from pyearthtools.data.patterns.expanded_date import ExpandedDateVariable
-
+import xarray as xr
 from pyearthtools.data.download.arco.variables.ERA5 import (
     ERA5_LEVELS,
     ERA_NAME_CHANGE,
 )
+from pyearthtools.data.indexes import AdvancedTimeDataIndex, CachingIndex, decorators
+from pyearthtools.data.patterns.expanded_date import ExpandedDateVariable
+from pyearthtools.data.time import pyearthtoolsDatetime
+from pyearthtools.data.transforms.transform import Transform, TransformCollection
 
 ROOT_ARCO_DS = None
 

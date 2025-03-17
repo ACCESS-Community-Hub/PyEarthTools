@@ -18,8 +18,9 @@ pyearthtools Trainer Commands
 """
 from __future__ import annotations
 
-import click
 import sys
+
+import click
 
 
 @click.group(name="Trainer From Yaml")

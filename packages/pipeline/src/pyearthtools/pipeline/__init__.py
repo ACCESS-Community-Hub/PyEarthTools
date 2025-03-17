@@ -44,41 +44,35 @@ pipeline['2000-01-01T00']
 __version__ = "0.1.0"
 
 import pyearthtools.pipeline.logger
-
-from pyearthtools.pipeline.save import save, load
-from pyearthtools.pipeline.controller import Pipeline, PipelineIndex
-
-from pyearthtools.pipeline.operation import Operation
-
 from pyearthtools.pipeline import (
     branching,
+    config,
     exceptions,
     filters,
     iterators,
-    samplers,
-    operations,
     modifications,
+    operations,
+    samplers,
 )
-
-from pyearthtools.pipeline.marker import Marker, Empty
-
-from pyearthtools.pipeline.modifications import Cache, SequenceRetrieval, TemporalRetrieval
-
-from pyearthtools.pipeline.samplers import Sampler
-
-from pyearthtools.pipeline.iterators import Iterator
-
-from pyearthtools.pipeline.parallel import get_parallel
-
+from pyearthtools.pipeline.controller import Pipeline, PipelineIndex
 from pyearthtools.pipeline.exceptions import (
     PipelineException,
     PipelineFilterException,
     PipelineRuntimeError,
     PipelineTypeError,
 )
+from pyearthtools.pipeline.iterators import Iterator
+from pyearthtools.pipeline.marker import Empty, Marker
+from pyearthtools.pipeline.modifications import (
+    Cache,
+    SequenceRetrieval,
+    TemporalRetrieval,
+)
+from pyearthtools.pipeline.operation import Operation
+from pyearthtools.pipeline.parallel import get_parallel
+from pyearthtools.pipeline.samplers import Sampler
+from pyearthtools.pipeline.save import load, save
 from pyearthtools.pipeline.warnings import PipelineWarning
-
-from pyearthtools.pipeline import config
 
 __all__ = [
     "Sampler",

@@ -16,7 +16,6 @@
 from typing import TypeVar
 
 import xarray as xr
-
 from pyearthtools.pipeline.operation import Operation
 
 T = TypeVar("T", xr.Dataset, xr.DataArray)

@@ -18,7 +18,6 @@ from __future__ import annotations
 from typing import Callable, Optional, Union
 
 import xarray as xr
-
 from pyearthtools.data.transforms import Transform, aggregation
 from pyearthtools.utils.initialisation.imports import dynamic_import
 

@@ -21,12 +21,11 @@ and allow rapid distributed training of Machine Learning Models.
 """
 # ruff: noqa: F401
 
+from pyearthtools.training import data
 from pyearthtools.training import logger as _
-
-from pyearthtools.training import data, wrapper, manage
-
-from pyearthtools.training.wrapper import *  # type: ignore # noqa: F403
+from pyearthtools.training import manage, wrapper
 from pyearthtools.training.dataindex import MLDataIndex
+from pyearthtools.training.wrapper import *  # type: ignore # noqa: F403
 
 __version__ = "0.1.0"
 

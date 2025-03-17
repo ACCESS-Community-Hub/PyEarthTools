@@ -15,9 +15,8 @@
 
 import os
 
-from pyearthtools.data.archive import zarr
-
 from pyearthtools.data import patterns
+from pyearthtools.data.archive import zarr
 from pyearthtools.data.patterns.default import PatternIndex
 
 

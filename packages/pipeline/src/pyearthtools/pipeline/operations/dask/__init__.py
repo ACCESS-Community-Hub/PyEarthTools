@@ -31,19 +31,22 @@ Dask operations
 """
 
 
-from pyearthtools.pipeline.operations.dask.join import Stack, Concatenate, VStack, HStack
-
-from pyearthtools.pipeline.operations.dask.compute import Compute
-
 from pyearthtools.pipeline.operations.dask import (
     augment,
+    conversion,
     filters,
     normalisation,
     reshape,
     select,
     split,
     values,
-    conversion,
+)
+from pyearthtools.pipeline.operations.dask.compute import Compute
+from pyearthtools.pipeline.operations.dask.join import (
+    Concatenate,
+    HStack,
+    Stack,
+    VStack,
 )
 
 __all__ = [

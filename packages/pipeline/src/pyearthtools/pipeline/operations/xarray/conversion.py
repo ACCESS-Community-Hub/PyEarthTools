@@ -16,15 +16,13 @@
 # type: ignore[reportPrivateImportUsage]
 
 
-from typing import Optional, Union, TypeVar
 from pathlib import Path
+from typing import Optional, TypeVar, Union
 
 import numpy as np
 import xarray as xr
-
-from pyearthtools.utils.data import converter
-
 from pyearthtools.pipeline.operation import Operation
+from pyearthtools.utils.data import converter
 
 XARRAY_OBJECTS = TypeVar("XARRAY_OBJECTS", xr.Dataset, xr.DataArray)
 FILE_TYPES = Union[str, Path]

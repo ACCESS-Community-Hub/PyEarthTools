@@ -15,16 +15,14 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-import uuid
-import os
-
 import logging
+import os
+import uuid
 import warnings
+from pathlib import Path
+from typing import Union
 
 from filelock import FileLock, Timeout
-
-from typing import Union
 
 VALID_PATH_TYPES = Union[str, Path, list[str], list[Path], list[Union[str, Path]]]
 

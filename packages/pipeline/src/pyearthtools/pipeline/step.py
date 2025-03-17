@@ -13,17 +13,15 @@
 # limitations under the License.
 
 
-from abc import ABCMeta, abstractmethod
-
-from functools import partial
-from typing import Callable, Union, Optional, Literal, Type
 import warnings
+from abc import ABCMeta, abstractmethod
+from functools import partial
+from typing import Callable, Literal, Optional, Type, Union
 
-
-from pyearthtools.pipeline.recording import PipelineRecordingMixin
-from pyearthtools.pipeline.exceptions import PipelineTypeError, PipelineFilterException
-from pyearthtools.pipeline.warnings import PipelineWarning
+from pyearthtools.pipeline.exceptions import PipelineFilterException, PipelineTypeError
 from pyearthtools.pipeline.parallel import ParallelEnabledMixin
+from pyearthtools.pipeline.recording import PipelineRecordingMixin
+from pyearthtools.pipeline.warnings import PipelineWarning
 
 
 class PipelineStep(PipelineRecordingMixin, ParallelEnabledMixin, metaclass=ABCMeta):

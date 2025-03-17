@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pyearthtools
-from pyearthtools.data import catalog
-from collections import namedtuple
-import pytest
 import io
+from collections import namedtuple
+
+import pyearthtools
+import pytest
+from pyearthtools.data import catalog
 
 
 def test_get_name():

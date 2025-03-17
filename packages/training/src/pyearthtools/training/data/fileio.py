@@ -15,15 +15,14 @@
 
 from __future__ import annotations
 
-from typing import Optional, Any
 import os
-
 from pathlib import Path
-import yaml
+from typing import Any, Optional
 
 import pyearthtools.pipeline
-from pyearthtools.utils.initialisation import Dumper, Loader, update_contents
+import yaml
 from pyearthtools.training.data.datamodule import PipelineDataModule
+from pyearthtools.utils.initialisation import Dumper, Loader, update_contents
 
 CONFIG_KEY = "--CONFIG--"
 SUFFIX = ".edm"

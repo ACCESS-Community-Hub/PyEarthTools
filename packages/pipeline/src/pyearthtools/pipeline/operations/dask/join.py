@@ -15,10 +15,9 @@
 
 # type: ignore[reportPrivateImportUsage]
 
-from typing import Optional, Any
+from typing import Any, Optional
 
 import dask.array as da
-
 from pyearthtools.pipeline.branching.join import Joiner
 from pyearthtools.pipeline.operations.dask.dask import DaskOperation
 

@@ -114,42 +114,40 @@ classDiagram
 
 """
 
+from pyearthtools.data.indexes import decorators, utilities
+from pyearthtools.data.indexes.cacheIndex import (
+    CachingForecastIndex,
+    CachingIndex,
+    FileSystemCacheIndex,
+    FunctionalCacheIndex,
+    FunctionalMemCacheIndex,
+    MemCache,
+)
+from pyearthtools.data.indexes.decorators import alias_arguments, check_arguments
+from pyearthtools.data.indexes.extensions import register_accessor
+from pyearthtools.data.indexes.fake import FakeIndex
 from pyearthtools.data.indexes.indexes import (
-    Index,
-    DataIndex,
-    FileSystemIndex,
-    TimeIndex,
-    TimeDataIndex,
-    AdvancedTimeIndex,
     AdvancedTimeDataIndex,
+    AdvancedTimeIndex,
+    ArchiveIndex,
     BaseTimeIndex,
     DataFileSystemIndex,
-    ArchiveIndex,
+    DataIndex,
+    FileSystemIndex,
     ForecastIndex,
+    Index,
     StaticDataIndex,
+    TimeDataIndex,
+    TimeIndex,
 )
-from pyearthtools.data.indexes.cacheIndex import (
-    FileSystemCacheIndex,
-    CachingIndex,
-    CachingForecastIndex,
-    FunctionalCacheIndex,
-    MemCache,
-    FunctionalMemCacheIndex,
-)
-from pyearthtools.data.indexes import utilities, decorators
-from pyearthtools.data.indexes.extensions import register_accessor
-
-from pyearthtools.data.indexes.utilities.spellcheck import VariableDefault, VARIABLE_DEFAULT
-from pyearthtools.data.indexes.utilities.structure import structure
-
-from pyearthtools.data.indexes.decorators import alias_arguments, check_arguments
-
 from pyearthtools.data.indexes.intake import IntakeIndex, IntakeIndexCache
 from pyearthtools.data.indexes.templates import Structured
-
-from pyearthtools.data.indexes.fake import FakeIndex
-
 from pyearthtools.data.indexes.utilities.folder_size import ByteSize
+from pyearthtools.data.indexes.utilities.spellcheck import (
+    VARIABLE_DEFAULT,
+    VariableDefault,
+)
+from pyearthtools.data.indexes.utilities.structure import structure
 
 __all__ = [
     "Index",

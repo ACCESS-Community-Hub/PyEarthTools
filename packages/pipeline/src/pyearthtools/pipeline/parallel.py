@@ -23,17 +23,14 @@ Therefore, if dask is available and enabled, it can be automatically used, but i
 no code is needed to be changed to run in serial.
 """
 
-from abc import abstractmethod
 import functools
-
-from importlib.util import find_spec
-
 import logging
-from typing import Callable, Literal, Optional, Type, TypeVar, Any, Union
-
-from pyearthtools.utils.decorators import classproperty
+from abc import abstractmethod
+from importlib.util import find_spec
+from typing import Any, Callable, Literal, Optional, Type, TypeVar, Union
 
 import pyearthtools.utils
+from pyearthtools.utils.decorators import classproperty
 
 Future = TypeVar("Future", Any, Any)
 
@@ -159,9 +156,9 @@ class DaskParallelInterface(ParallelInterface):
     @classproperty
     def client(cls) -> "distributed.Client":  # type: ignore  # noqa: F821
         """Get dask client"""
-        from dask.distributed import Client
-        import distributed
         import dask
+        import distributed
+        from dask.distributed import Client
 
         try:
             client = distributed.get_client()
@@ -252,7 +249,7 @@ class DaskDelayedInterface(ParallelInterface):
         return self._interface_kwargs.get("Delayed", {})
 
     def run_delayed(self, func, *args, **kwargs):
-        from dask.delayed import tokenize, delayed
+        from dask.delayed import delayed, tokenize
 
         name = self.config.get("name", None)
         if name is not None:

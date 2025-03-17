@@ -14,10 +14,10 @@
 
 
 from __future__ import annotations
-import functools
 
-from typing import Callable
+import functools
 import math
+from typing import Callable
 
 from pyearthtools.data import TimeDelta, pyearthtoolsDatetime
 

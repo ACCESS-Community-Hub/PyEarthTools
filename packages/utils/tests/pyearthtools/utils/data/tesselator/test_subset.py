@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from pyearthtools.utils.data.tesselator._patching.subset import cut_center, center
+from pyearthtools.utils.data.tesselator._patching.subset import center, cut_center
 from pyearthtools.utils.exceptions import TesselatorException
 
 

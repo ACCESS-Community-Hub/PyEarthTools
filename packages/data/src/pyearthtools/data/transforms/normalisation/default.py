@@ -15,26 +15,23 @@
 
 from __future__ import annotations
 
+import logging
+import tempfile
+import warnings
 from abc import abstractmethod
 from pathlib import Path
 from typing import Callable, Hashable
-import warnings
-import tempfile
-import logging
-
-import xarray as xr
 
 import pyearthtools.data
-
+import xarray as xr
 from pyearthtools.data import pyearthtoolsDatetime
+from pyearthtools.data.indexes.utilities.fileload import open_files
 from pyearthtools.data.transforms.normalisation._utils import format_class_name
 from pyearthtools.data.transforms.transform import (
     FunctionTransform,
     Transform,
     get_default_transforms,
 )
-from pyearthtools.data.indexes.utilities.fileload import open_files
-
 from pyearthtools.utils.initialisation.imports import dynamic_import
 
 LOG = logging.getLogger("pyearthtools.data")

@@ -14,10 +14,9 @@
 
 
 from functools import reduce
-from typing import TypeVar, Union, Optional, Any
+from typing import Any, Optional, TypeVar, Union
 
 import xarray as xr
-
 from pyearthtools.pipeline.branching.join import Joiner
 
 T = TypeVar("T", xr.Dataset, xr.DataArray)

@@ -15,13 +15,11 @@
 
 from __future__ import annotations
 
-from typing import Any
-
-import re
-import os
-
-from pathlib import Path
 import logging
+import os
+import re
+from pathlib import Path
+from typing import Any
 
 LOG = logging.getLogger("pyearthtools.data")
 

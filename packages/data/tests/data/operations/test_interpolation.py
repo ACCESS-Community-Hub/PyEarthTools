@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyearthtools.data.operations import interpolation
 import xarray as xr
+from pyearthtools.data.operations import interpolation
 
 # Provides a basic forecast data structure in three dimensions
 SIMPLE_DA1 = xr.DataArray(

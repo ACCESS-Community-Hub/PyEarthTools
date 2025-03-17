@@ -21,14 +21,15 @@
 #
 
 from __future__ import annotations
-import os
 
-from typing import Literal, Sequence
-from pathlib import Path
 import functools
-import yaml
+import os
 import re
 import time
+from pathlib import Path
+from typing import Literal, Sequence
+
+import yaml
 
 
 @functools.total_ordering
