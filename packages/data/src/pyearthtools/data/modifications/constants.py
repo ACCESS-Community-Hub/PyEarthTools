@@ -22,7 +22,7 @@ from __future__ import annotations
 from typing import Optional, Union
 import xarray as xr
 
-from pyearthtools.data.time import pyearthtoolsDatetime, TimeRange
+from pyearthtools.data.time import Petdt, TimeRange
 from pyearthtools.data.indexes.utilities.dimensions import identify_time_dimension
 
 from pyearthtools.data.modifications import Modification, register_modification
@@ -68,7 +68,7 @@ class Constant(Modification):
         self._query = self._query or time
 
         if self._data is None:
-            data = self._data_index(pyearthtoolsDatetime(self._query).at_resolution(self._data_index.data_resolution))
+            data = self._data_index(Petdt(self._query).at_resolution(self._data_index.data_resolution))
             if self._memory:
                 data = data.compute()
 

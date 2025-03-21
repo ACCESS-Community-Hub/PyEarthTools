@@ -20,7 +20,7 @@ import xarray as xr
 from os import PathLike
 
 import pyearthtools.data
-from pyearthtools.data.time import pyearthtoolsDatetime
+from pyearthtools.data.time import Petdt
 
 from pyearthtools.data.indexes import AdvancedTimeDataIndex, decorators, CachingIndex
 from pyearthtools.data.transforms.transform import Transform, TransformCollection
@@ -147,7 +147,7 @@ class ARCOERA5(AdvancedTimeDataIndex):
 
     def get(self, time: str):
         """Get timestep from dataset"""
-        return self._ds.sel(time=pyearthtoolsDatetime(time).datetime64())
+        return self._ds.sel(time=Petdt(time).datetime64())
 
     @classmethod
     def sample(cls):

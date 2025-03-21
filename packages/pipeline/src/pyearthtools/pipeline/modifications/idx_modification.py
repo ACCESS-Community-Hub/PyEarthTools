@@ -429,7 +429,7 @@ class SequenceRetrieval(IdxModifier):
 class TemporalRetrieval(SequenceRetrieval):
     """
     Retrieve a sequence of samples from `SequenceRetrieval`,
-    but force all indexes to be an `pyearthtools.data.pyearthtoolsDatetime`.
+    but force all indexes to be an `pyearthtools.data.Petdt`.
 
     Examples:
         >>> TemporalRetrieval(-6)['2000-01-01T12']
@@ -456,9 +456,9 @@ class TemporalRetrieval(SequenceRetrieval):
             self._modification = map_to_tuple(self._modification)
 
     def __getitem__(self, idx: Any):
-        if not isinstance(idx, pyearthtools.data.pyearthtoolsDatetime):
-            if not pyearthtools.data.pyearthtoolsDatetime.is_time(idx):
-                raise TypeError(f"Cannot convert {idx!r} to `pyearthtools.data.pyearthtoolsDatetime`.")
-            idx = pyearthtools.data.pyearthtoolsDatetime(idx)
+        if not isinstance(idx, pyearthtools.data.Petdt):
+            if not pyearthtools.data.Petdt.is_time(idx):
+                raise TypeError(f"Cannot convert {idx!r} to `pyearthtools.data.Petdt`.")
+            idx = pyearthtools.data.Petdt(idx)
 
         return super().__getitem__(idx)

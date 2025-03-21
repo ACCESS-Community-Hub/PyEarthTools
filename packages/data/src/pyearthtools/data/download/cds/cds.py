@@ -27,7 +27,7 @@ import warnings
 
 import urllib3
 
-from pyearthtools.data import DataNotFoundError, pyearthtoolsDatetime
+from pyearthtools.data import DataNotFoundError, Petdt
 from pyearthtools.data.download import DownloadIndex
 from pyearthtools.data.indexes import utilities
 from pyearthtools.data.patterns import TemporalExpandedDateVariable, PatternIndex
@@ -251,8 +251,8 @@ class cds(root_cds):
 
         super().__init__(**kwargs)  # type: ignore
 
-    def _get_from_cds(self, querytime: pyearthtoolsDatetime | str):
-        querytime = pyearthtoolsDatetime(querytime)
+    def _get_from_cds(self, querytime: Petdt | str):
+        querytime = Petdt(querytime)
 
         base_dict = {
             "format": "netcdf",

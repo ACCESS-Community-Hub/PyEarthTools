@@ -24,7 +24,7 @@ import warnings
 
 
 import pyearthtools.data
-from pyearthtools.data import pyearthtoolsDatetime
+from pyearthtools.data import Petdt
 from pyearthtools.data.warnings import pyearthtoolsDataWarning
 
 from pyearthtools.data.indexes import decorators
@@ -192,19 +192,19 @@ class ERA5(root_cds):
         self._variables = variables
         self._product = product
 
-    def _get_from_cds(self, querytime: pyearthtoolsDatetime | str) -> tuple[str, dict] | list[tuple[str, dict]]:
+    def _get_from_cds(self, querytime: Petdt | str) -> tuple[str, dict] | list[tuple[str, dict]]:
         """
         Format cds query for data as needed
 
         Args:
-            querytime (pyearthtoolsDatetime | str):
+            querytime (Petdt | str):
                 Datetime to get data for
 
         Returns:
             (tuple[str, dict] | list[tuple[str, dict]]):
                 Tuple for request or list of tupled requests
         """
-        querytime = pyearthtoolsDatetime(querytime).at_resolution("hour")
+        querytime = Petdt(querytime).at_resolution("hour")
 
         base_dict = {
             "product_type": as_list(self._product),

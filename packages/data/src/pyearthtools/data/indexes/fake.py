@@ -18,7 +18,7 @@ from __future__ import annotations
 import xarray as xr
 import numpy as np
 
-from pyearthtools.data.time import pyearthtoolsDatetime
+from pyearthtools.data.time import Petdt
 from pyearthtools.data.indexes.indexes import AdvancedTimeDataIndex
 
 from pyearthtools.data.indexes.decorators import variable_modifications
@@ -75,8 +75,8 @@ class FakeIndex(AdvancedTimeDataIndex):
 
         self._data_function = self.rng.random if random else np.ones
 
-    def get(self, time: pyearthtoolsDatetime | str) -> xr.Dataset:
-        time = pyearthtoolsDatetime(time)
+    def get(self, time: Petdt | str) -> xr.Dataset:
+        time = Petdt(time)
 
         def make_data(name) -> xr.Dataset:
             data = xr.DataArray(

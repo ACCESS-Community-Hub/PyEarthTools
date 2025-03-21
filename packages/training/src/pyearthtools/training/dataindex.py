@@ -27,7 +27,7 @@ import yaml
 from typing import Any
 
 import pyearthtools.data
-from pyearthtools.data import pyearthtoolsDatetime, Transform, TransformCollection, TimeDelta
+from pyearthtools.data import Petdt, Transform, TransformCollection, TimeDelta
 from pyearthtools.data.indexes import TimeIndex
 from pyearthtools.data.indexes.cacheIndex import BaseCacheIndex
 
@@ -112,7 +112,7 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         self.offsetInterval = offsetInterval
         self._override = override
 
-    def offset_time(self, time: str | pyearthtoolsDatetime) -> pyearthtoolsDatetime:
+    def offset_time(self, time: str | Petdt) -> Petdt:
         """
         Offset the time given
 
@@ -121,26 +121,26 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         Otherwise offset by `offsetInterval`.
 
         Args:
-            time (str | pyearthtoolsDatetime):
+            time (str | Petdt):
                 Time to offset
 
         Returns:
-            (pyearthtoolsDatetime):
+            (Petdt):
                 Offset time
         """
-        time = pyearthtoolsDatetime(time)
+        time = Petdt(time)
         if self.offsetInterval:
             if self.data_interval and isinstance(self.offsetInterval, bool):
-                time = pyearthtoolsDatetime(time) + (
+                time = Petdt(time) + (
                     self.data_interval if not isinstance(self.data_interval, str) else TimeDelta(self.data_interval)
                 )
             else:
-                time = pyearthtoolsDatetime(time) + TimeDelta(self.offsetInterval)
-        return pyearthtoolsDatetime(time)
+                time = Petdt(time) + TimeDelta(self.offsetInterval)
+        return Petdt(time)
 
     def _generate(
         self,
-        querytime: str | pyearthtoolsDatetime,
+        querytime: str | Petdt,
     ) -> Any:
         """
         Get Data from given timestep

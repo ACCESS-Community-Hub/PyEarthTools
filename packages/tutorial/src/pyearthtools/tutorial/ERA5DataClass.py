@@ -35,7 +35,7 @@ from typing import Any, Literal
 
 import pyearthtools.data
 
-from pyearthtools.data import pyearthtoolsDatetime
+from pyearthtools.data import Petdt
 from pyearthtools.data.exceptions import DataNotFoundError
 from pyearthtools.data.indexes import ArchiveIndex, decorators
 from pyearthtools.data.transforms import Transform, TransformCollection
@@ -151,7 +151,7 @@ class ERA5LowResIndex(ArchiveIndex):
 
     def filesystem(
         self,
-        querytime: str | pyearthtoolsDatetime,
+        querytime: str | Petdt,
     ) -> Path | dict[str, str | Path]:
         ERA5_HOME = self.ROOT_DIRECTORIES["era5lowres"]
 
@@ -161,7 +161,7 @@ class ERA5LowResIndex(ArchiveIndex):
         """
 
         paths = {}
-        querytime = pyearthtoolsDatetime(querytime)
+        querytime = Petdt(querytime)
 
         for variable in self.variables:
 

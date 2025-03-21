@@ -25,7 +25,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from pyearthtools.data import pyearthtoolsDatetime, TimeResolution
+from pyearthtools.data import Petdt, TimeResolution
 from pyearthtools.data.patterns.default import (
     PatternIndex,
     PatternTimeIndex,
@@ -115,10 +115,10 @@ class _ExpandedDate(PatternIndex):
 
     def filesystem(
         self,
-        basetime: str | pyearthtoolsDatetime,
+        basetime: str | Petdt,
     ) -> Path:
-        basetime = pyearthtoolsDatetime(basetime).at_resolution(self.file_resolution)
-        folder_datetime = pyearthtoolsDatetime(basetime).at_resolution(self.directory_resolution)
+        basetime = Petdt(basetime).at_resolution(self.file_resolution)
+        folder_datetime = Petdt(basetime).at_resolution(self.directory_resolution)
 
         basepath = Path(self.root_dir).resolve() / parse_time_str(
             folder_datetime, directory=True, delimiter=self.delimiter
@@ -177,12 +177,12 @@ class TemporalExpandedDate(_ExpandedDate, PatternTimeIndex):
 
     def filesystem(
         self,
-        basetime: str | pyearthtoolsDatetime,
+        basetime: str | Petdt,
     ) -> Path:
-        basetime = pyearthtoolsDatetime(basetime)
+        basetime = Petdt(basetime)
 
         basetime = basetime.at_resolution(self.file_resolution)
-        folder_datetime = pyearthtoolsDatetime(basetime).at_resolution(self.directory_resolution)
+        folder_datetime = Petdt(basetime).at_resolution(self.directory_resolution)
 
         basepath = Path(self.root_dir).resolve() / parse_time_str(folder_datetime, directory=True)
         basepath /= FILE_PATTERN.format(

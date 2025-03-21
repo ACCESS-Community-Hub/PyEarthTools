@@ -26,7 +26,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from pyearthtools.data.time import pyearthtoolsDatetime, TimeResolution
+from pyearthtools.data.time import Petdt, TimeResolution
 from pyearthtools.data.patterns import (
     PatternIndex,
     PatternTimeIndex,
@@ -100,9 +100,9 @@ class _Direct(TimeIndex, PatternIndex):
 
     def filesystem(
         self,
-        basetime: str | pyearthtoolsDatetime,
+        basetime: str | Petdt,
     ) -> Path:
-        basetime = pyearthtoolsDatetime(basetime).at_resolution(self.file_resolution)
+        basetime = Petdt(basetime).at_resolution(self.file_resolution)
 
         basepath = Path(self.root_dir).resolve() / FILE_PATTERN.format(
             prefix=self.prefix + "_" if self.prefix else "",
@@ -146,9 +146,9 @@ class TemporalDirect(_Direct, PatternTimeIndex):
 
     def filesystem(
         self,
-        basetime: str | pyearthtoolsDatetime,
+        basetime: str | Petdt,
     ) -> Path:
-        basetime = pyearthtoolsDatetime(basetime)
+        basetime = Petdt(basetime)
 
         if self.data_resolution:
             basetime = basetime.at_resolution(self.data_resolution)

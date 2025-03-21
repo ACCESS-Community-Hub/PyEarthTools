@@ -26,7 +26,7 @@ from abc import abstractmethod, ABCMeta
 import xarray as xr
 
 
-from pyearthtools.data.time import pyearthtoolsDatetime, TimeDelta, TimeRange
+from pyearthtools.data.time import Petdt, TimeDelta, TimeRange
 from pyearthtools.data.indexes import DataIndex, TimeDataIndex, AdvancedTimeDataIndex
 
 
@@ -53,7 +53,7 @@ class DerivedValue(DataIndex, metaclass=ABCMeta):
         """Override for get to use `derive`."""
         args = list(args)
         for i, arg in enumerate(args):
-            if isinstance(arg, pyearthtoolsDatetime):
+            if isinstance(arg, Petdt):
                 args[i] = arg.datetime64()
         return self.derive(*args, **kwargs)
 

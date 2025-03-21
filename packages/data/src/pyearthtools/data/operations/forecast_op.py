@@ -20,7 +20,7 @@ import xarray as xr
 
 
 from pyearthtools.data.exceptions import DataNotFoundError, InvalidIndexError, InvalidDataError
-from pyearthtools.data.time import pyearthtoolsDatetime, TimeDelta, TimeRange
+from pyearthtools.data.time import Petdt, TimeDelta, TimeRange
 from pyearthtools.data.transforms.transform import Transform, TransformCollection
 from pyearthtools.data.warnings import IndexWarning
 
@@ -30,8 +30,8 @@ from pyearthtools.data.operations.utils import identify_time_dimension
 
 def forecast_series(
     DataFunction: "Index",
-    start: str | pyearthtoolsDatetime,
-    end: str | pyearthtoolsDatetime,
+    start: str | Petdt,
+    end: str | Petdt,
     interval: tuple[float, str] | TimeDelta,
     *,
     lead_time: tuple[float, str] | TimeDelta = None,
@@ -67,8 +67,8 @@ def forecast_series(
 
 def forecast_as_basetime(
     DataFunction: "Index",
-    start: str | pyearthtoolsDatetime,
-    end: str | pyearthtoolsDatetime,
+    start: str | Petdt,
+    end: str | Petdt,
     interval: tuple[float, str] | TimeDelta,
     *,
     inclusive: bool = False,
@@ -105,8 +105,8 @@ def forecast_as_basetime(
 
 def forecast_select_time(
     DataFunction: "Index",
-    start: str | pyearthtoolsDatetime,
-    end: str | pyearthtoolsDatetime,
+    start: str | Petdt,
+    end: str | Petdt,
     interval: tuple[float, str] | TimeDelta,
     lead_time: tuple[float, str] | TimeDelta,
     *,
@@ -118,8 +118,8 @@ def forecast_select_time(
     """
     Forecast Series operation selecting a particular lead time
     """
-    start = pyearthtoolsDatetime(start)
-    end = pyearthtoolsDatetime(end)
+    start = Petdt(start)
+    end = Petdt(end)
     interval = TimeDelta(interval)
 
     lead_time = TimeDelta(lead_time)

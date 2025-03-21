@@ -81,8 +81,8 @@ __version__ = "0.1.0"
 from pyearthtools.data import logger
 from pyearthtools.data import config
 
-from pyearthtools.data.time import pyearthtoolsDatetime, TimeResolution, TimeDelta, TimeRange
-from pyearthtools.data.time import pyearthtoolsDatetime as datetime
+from pyearthtools.data.time import Petdt, TimeResolution, TimeDelta, TimeRange
+from pyearthtools.data.time import Petdt as datetime
 
 from pyearthtools.data.exceptions import DataNotFoundError, InvalidIndexError
 from pyearthtools.data.warnings import (

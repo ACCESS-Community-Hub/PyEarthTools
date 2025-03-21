@@ -19,7 +19,7 @@ import functools
 from typing import Callable
 import math
 
-from pyearthtools.data import TimeDelta, pyearthtoolsDatetime
+from pyearthtools.data import TimeDelta, Petdt
 
 
 def parse_recurrent(interval: int | TimeDelta = 1):
@@ -60,7 +60,7 @@ def parse_recurrent(interval: int | TimeDelta = 1):
                 kwargs["steps"] = math.ceil(time / interval)
             elif "to_time" in kwargs:
                 to_time = kwargs.pop("to_time")
-                kwargs["steps"] = math.ceil((pyearthtoolsDatetime("current") - to_time) / interval)
+                kwargs["steps"] = math.ceil((Petdt("current") - to_time) / interval)
             return func(*args, **kwargs)
 
         return parse

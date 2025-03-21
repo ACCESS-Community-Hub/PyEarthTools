@@ -26,7 +26,7 @@ import tqdm.auto as tqdm
 import logging
 
 
-from pyearthtools.data import TimeDelta, pyearthtoolsDatetime, TimeRange
+from pyearthtools.data import TimeDelta, Petdt, TimeRange
 
 from pyearthtools.pipeline.controller import Pipeline
 from pyearthtools.training.wrapper.wrapper import ModelWrapper
@@ -117,7 +117,7 @@ class TimeSeriesPredictor(Predictor):
 
         interval = TimeDelta(self._interval)
 
-        idx = pyearthtoolsDatetime(idx) + (interval * offset)
+        idx = Petdt(idx) + (interval * offset)
         len_time = len(data[self._time_dim])
 
         time_coord = list(map(lambda x: x.datetime64(), TimeRange(idx, idx + (interval * len_time), interval)))
@@ -475,7 +475,7 @@ class TimeSeriesManagedPredictor(TimeSeriesAutoRecurrentPredictor):
                     for key, val in self.variable_manager.split(model_output_shaped, self._output_order).items()
                 }
 
-            current_time_step = pyearthtoolsDatetime(idx) + (
+            current_time_step = Petdt(idx) + (
                 self._interval * step * model_output.shape[self._combine_axis]
             )
             outputs.append(model_output)

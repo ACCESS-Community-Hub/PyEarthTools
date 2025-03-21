@@ -17,7 +17,7 @@
 # Datetime Overrides
 
 As the default datetime objects contain no reference to the user provided string, the resolution of time
-that a user provides is simply lost. [pyearthtoolsDatetime][pyearthtools.data.time.pyearthtoolsDatetime] introduces this concept as a wrapper around
+that a user provides is simply lost. [Petdt][pyearthtools.data.time.Petdt] introduces this concept as a wrapper around
 [pandas.DatetimeIndex][pandas.to_datetime].
 
 Subsequently, a [TimeDelta][pyearthtools.data.time.TimeDelta], and an override for range [TimeRange][pyearthtools.data.time.TimeRange] are also provided.
@@ -135,13 +135,13 @@ class TimeResolution:
 
     def __init__(
         self,
-        value: dict[VALID_RESOLUTIONS, bool] | VALID_RESOLUTIONS | str | "pyearthtoolsDatetime" | TimeResolution,
+        value: dict[VALID_RESOLUTIONS, bool] | VALID_RESOLUTIONS | str | "Petdt" | TimeResolution,
     ):
         """
-        Find resolution of pyearthtoolsDatetime or time string
+        Find resolution of Petdt or time string
 
         Args:
-            value (dict[VALID_RESOLUTIONS, bool] | VALID_RESOLUTIONS | str | pyearthtoolsDatetime | TimeResolution):
+            value (dict[VALID_RESOLUTIONS, bool] | VALID_RESOLUTIONS | str | Petdt | TimeResolution):
                 Value to find components from,
                 If dict, must be True or False for each component
                 If str, must be either date str.
@@ -164,10 +164,10 @@ class TimeResolution:
             if strip_to_common_resolution(value) in RESOLUTION_COMPONENTS:
                 resolution = strip_to_common_resolution(value)  # type: ignore
 
-            elif pyearthtoolsDatetime.is_time(value):
-                value = pyearthtoolsDatetime(value)
+            elif Petdt.is_time(value):
+                value = Petdt(value)
 
-        if isinstance(value, pyearthtoolsDatetime):
+        if isinstance(value, Petdt):
             resolution = value.resolution.resolution
 
         if resolution is None:
@@ -237,15 +237,15 @@ class TimeResolution:
 
 
 class pyearthtoolsMonthtime:
-    def __init__(self, input_month: str | pyearthtoolsMonthtime | pyearthtoolsDatetime) -> None:
+    def __init__(self, input_month: str | pyearthtoolsMonthtime | Petdt) -> None:
         raise NotImplementedError()
 
 
 @functools.total_ordering
-class pyearthtoolsDatetime:
+class Petdt:
     """Datetime object with awareness of which values were set.
 
-    time must be a str or pyearthtoolsDatetime for resolution awareness to take effect,
+    time must be a str or Petdt for resolution awareness to take effect,
     If str, it must be in isoformat
 
     Uses pandas.Datetime64 as underlying object.
@@ -273,7 +273,7 @@ class pyearthtoolsDatetime:
         if isinstance(time, str) and time == "today":
             time = str(datetime.datetime.today().strftime("%Y-%m-%d"))
 
-        elif isinstance(time, pyearthtoolsDatetime) or isinstance(time, type(self)):
+        elif isinstance(time, Petdt) or isinstance(time, type(self)):
             self._pandas_timestep = time._pandas_timestep
             self.resolution = time.resolution
             return
@@ -298,7 +298,7 @@ class pyearthtoolsDatetime:
 
     def datetime64(self, time_unit: str = "ns") -> np.datetime64:
         """
-        Get pyearthtoolsDatetime as a `np.datetime64` in given unit
+        Get Petdt as a `np.datetime64` in given unit
 
         Args:
             time_unit (str, optional): Time unit to get datetime64 in. Defaults to "ns".
@@ -312,7 +312,7 @@ class pyearthtoolsDatetime:
     @property
     def qualified(self) -> pd.Timestamp:
         """
-        Get fully qualified datetime of pyearthtoolsDatetime.
+        Get fully qualified datetime of Petdt.
 
         Uses underlying pandas.datetime object
 
@@ -341,33 +341,33 @@ class pyearthtoolsDatetime:
     @staticmethod
     def is_time(time_to_parse: Any) -> bool:
         """
-        Check if object can be parsed to a `pyearthtoolsDatetime`
+        Check if object can be parsed to a `Petdt`
 
-        Attempts to make `pyearthtoolsDatetime` but catches all exceptions.
+        Attempts to make `Petdt` but catches all exceptions.
 
         Args:
             time_to_parse (Any):
-                Object to check if can be `pyearthtoolsDatetime`
+                Object to check if can be `Petdt`
 
         Returns:
             (bool):
-                Boolean value of if can be `pyearthtoolsDatetime`
+                Boolean value of if can be `Petdt`
         """
         try:
-            pyearthtoolsDatetime(time_to_parse)
+            Petdt(time_to_parse)
             return True
         except Exception as e:
             return False
 
     def at_resolution(
         self,
-        resolution: VALID_RESOLUTIONS | pyearthtoolsDatetime | TimeResolution | TimeDelta | str,
-    ) -> pyearthtoolsDatetime:
+        resolution: VALID_RESOLUTIONS | Petdt | TimeResolution | TimeDelta | str,
+    ) -> Petdt:
         """
-        Get pyearthtoolsDatetime at specified resolution
+        Get Petdt at specified resolution
 
         Args:
-            resolution (VALID_RESOLUTIONS | pyearthtoolsDatetime | TimeResolution | TimeDelta, optional):
+            resolution (VALID_RESOLUTIONS | Petdt | TimeResolution | TimeDelta, optional):
                 Temporal Resolution of resulting pyearthtools_datetime.
 
         Raises:
@@ -375,17 +375,17 @@ class pyearthtoolsDatetime:
                 If `resolution` is not recognised
 
         Returns:
-            (pyearthtoolsDatetime):
-                pyearthtoolsDatetime at given resolution
+            (Petdt):
+                Petdt at given resolution
         """
 
-        if isinstance(resolution, (TimeDelta, pyearthtoolsDatetime)):
+        if isinstance(resolution, (TimeDelta, Petdt)):
             resolution = resolution.resolution
 
         elif isinstance(resolution, pd.Timedelta):
             resolution = time_delta_resolution(resolution)
 
-        return pyearthtoolsDatetime(self.qualified, resolution=resolution)
+        return Petdt(self.qualified, resolution=resolution)
 
     def __format__(self, *a):
         if len(a) == 0 or (len(a) == 1 and a[0] == ""):
@@ -422,7 +422,7 @@ class pyearthtoolsDatetime:
         return date_part + ("T" if time_part else "") + time_part
 
     def __repr__(self):
-        return f"pyearthtoolsDatetime({str(self)!r})"
+        return f"Petdt({str(self)!r})"
 
     def __getattr__(self, key):
         if key == "_pandas_timestep":
@@ -447,7 +447,7 @@ class pyearthtoolsDatetime:
     ###---------------###
     # Math
     ###---------------###
-    def __add__(self, other: pyearthtoolsDatetime | TimeDelta | int) -> pyearthtoolsDatetime:
+    def __add__(self, other: Petdt | TimeDelta | int) -> Petdt:
         """
         Add to underlying '_pandas_timestep'.
 
@@ -489,23 +489,23 @@ class pyearthtoolsDatetime:
         # if isinstance(new_timestep, pd.Timedelta):
         #     return new_timestep
 
-        new_pyearthtools_datetime = pyearthtoolsDatetime(new_timestep, resolution=max(self.resolution, resolution))
+        new_pyearthtools_datetime = Petdt(new_timestep, resolution=max(self.resolution, resolution))
         return new_pyearthtools_datetime
 
-    def __radd__(self, other: pyearthtoolsDatetime | TimeDelta | int) -> pyearthtoolsDatetime:
+    def __radd__(self, other: Petdt | TimeDelta | int) -> Petdt:
         return self.__add__(other)
 
     @overload
-    def __sub__(self, other: TimeDelta | int | datetime.timedelta) -> pyearthtoolsDatetime:
+    def __sub__(self, other: TimeDelta | int | datetime.timedelta) -> Petdt:
         ...
 
     @overload
-    def __sub__(self, other: pyearthtoolsDatetime) -> TimeDelta:
+    def __sub__(self, other: Petdt) -> TimeDelta:
         ...
 
     def __sub__(
-        self, other: pyearthtoolsDatetime | TimeDelta | int | datetime.timedelta
-    ) -> pyearthtoolsDatetime | TimeDelta:
+        self, other: Petdt | TimeDelta | int | datetime.timedelta
+    ) -> Petdt | TimeDelta:
         """
         Subtract from underlying '_pandas_timestep'.
 
@@ -549,7 +549,7 @@ class pyearthtoolsDatetime:
             new_timestep = self._pandas_timestep - other
             # resolution: TimeResolution = other.resolution
 
-        elif isinstance(other, pyearthtoolsDatetime):
+        elif isinstance(other, Petdt):
             new_timestep = TimeDelta(self._pandas_timestep - other._pandas_timestep)
             return new_timestep
         else:
@@ -559,11 +559,11 @@ class pyearthtoolsDatetime:
             # if isinstance(new_timestep, pd.Timedelta):
             #     return new_timestep
 
-        new_pyearthtools_datetime = pyearthtoolsDatetime(new_timestep, resolution=max(self.resolution, resolution))
+        new_pyearthtools_datetime = Petdt(new_timestep, resolution=max(self.resolution, resolution))
         return new_pyearthtools_datetime
 
-    def __rsub__(self, other: pyearthtoolsDatetime) -> pyearthtoolsDatetime | TimeDelta:
-        if not isinstance(other, pyearthtoolsDatetime):
+    def __rsub__(self, other: Petdt) -> Petdt | TimeDelta:
+        if not isinstance(other, Petdt):
             return NotImplemented
 
         new_timestep = other._pandas_timestep - self._pandas_timestep
@@ -572,7 +572,7 @@ class pyearthtoolsDatetime:
 
         resolution = TimeResolution("year")
 
-        new_pyearthtools_datetime = pyearthtoolsDatetime(new_timestep, resolution=max(self.resolution, resolution))
+        new_pyearthtools_datetime = Petdt(new_timestep, resolution=max(self.resolution, resolution))
         return new_pyearthtools_datetime
 
     def __hash__(self):
@@ -816,17 +816,17 @@ class _MonthTimeDelta(TimeDelta):
     #     return str([self.specified_month, self._input_timedelta[1]])
 
     def __radd__(self, other):
-        if isinstance(other, pyearthtoolsDatetime):
+        if isinstance(other, Petdt):
             new_date = other.at_resolution("month") + self.specified_month
-            if isinstance(new_date, pyearthtoolsDatetime):
+            if isinstance(new_date, Petdt):
                 return new_date.at_resolution(max(other.resolution, self.resolution))
             return new_date
         return super().__radd__(other)
 
     def __rsub__(self, other):
-        if isinstance(other, pyearthtoolsDatetime):
+        if isinstance(other, Petdt):
             new_date = other.at_resolution("month") - self.specified_month
-            if isinstance(new_date, pyearthtoolsDatetime):
+            if isinstance(new_date, Petdt):
                 return new_date.at_resolution(max(other.resolution, self.resolution))
         return super().__rsub__(other)
 
@@ -909,7 +909,7 @@ def time_delta_resolution(timedelta: pd.Timedelta | TimeDelta) -> TimeResolution
 
 
 @functools.lru_cache()
-def range_samples(start: pyearthtoolsDatetime, end: pyearthtoolsDatetime, step: TimeDelta, inclusive: bool = False):
+def range_samples(start: Petdt, end: Petdt, step: TimeDelta, inclusive: bool = False):
     """Cache generation of time samples"""
     samples = []
     current = start
@@ -932,8 +932,8 @@ class TimeRange:
 
     def __init__(
         self,
-        start: pyearthtoolsDatetime | str,
-        end: pyearthtoolsDatetime | str,
+        start: Petdt | str,
+        end: Petdt | str,
         step: TimeDelta | int | tuple | str,
         *,
         inclusive: bool = False,
@@ -944,9 +944,9 @@ class TimeRange:
         """Generate all timesteps between start & end at step interval.
 
         Args:
-            start (pyearthtoolsDatetime | str):
+            start (Petdt | str):
                 Starting time
-            end (pyearthtoolsDatetime | str):
+            end (Petdt | str):
                 Ending Time
             step (TimeDelta | int | tuple):
                 Step Interval
@@ -962,8 +962,8 @@ class TimeRange:
         if isinstance(end, str) and end == "current":
             end = datetime.datetime.today().strftime("%Y-%m-%d")
 
-        self.start = pyearthtoolsDatetime(start)
-        self.end = pyearthtoolsDatetime(end)
+        self.start = Petdt(start)
+        self.end = Petdt(end)
         self.step = TimeDelta(step)
 
         self.inclusive = inclusive
@@ -979,7 +979,7 @@ class TimeRange:
     def __len__(self):
         return len(range_samples(self.start, self.end, self.step, self.inclusive))
 
-    def __iter__(self) -> Generator[pyearthtoolsDatetime, None, None]:
+    def __iter__(self) -> Generator[Petdt, None, None]:
         samples = range_samples(self.start, self.end, self.step, self.inclusive)
 
         if self.use_tqdm:

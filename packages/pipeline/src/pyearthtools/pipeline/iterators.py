@@ -178,10 +178,10 @@ class DateRange(Iterator):
         Args:
             start (str):
                 Start time. Must be understandable by
-                `pyearthtools.data.pyearthtoolsDatetime`.
+                `pyearthtools.data.Petdt`.
             end (str):
                 End time. Must be understandable by
-                `pyearthtools.data.pyearthtoolsDatetime`.
+                `pyearthtools.data.Petdt`.
             interval (Any):
                 Interval between times. Must be understandable by
                 `pyearthtools.data.TimeDelta`.
@@ -193,7 +193,7 @@ class DateRange(Iterator):
 
         self._timerange = pyearthtools.data.TimeRange(start, end, interval)
 
-    def __iter__(self) -> Generator[pyearthtools.data.pyearthtoolsDatetime, None, None]:
+    def __iter__(self) -> Generator[pyearthtools.data.Petdt, None, None]:
         for i in self._timerange:
             yield i
 
@@ -219,7 +219,7 @@ class DateRangeLimit(DateRange):
                 Number of total samples to iterate over.
         """
 
-        end = pyearthtools.data.pyearthtoolsDatetime(start) + (pyearthtools.data.TimeDelta(interval) * num)
+        end = pyearthtools.data.Petdt(start) + (pyearthtools.data.TimeDelta(interval) * num)
         super().__init__(start, str(end), interval)
 
 

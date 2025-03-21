@@ -31,7 +31,7 @@ import xarray as xr
 
 import pyearthtools.data
 
-from pyearthtools.data.time import pyearthtoolsDatetime, TimeDelta
+from pyearthtools.data.time import Petdt, TimeDelta
 from pyearthtools.data.exceptions import (
     DataNotFoundError,
     InvalidIndexError,
@@ -79,8 +79,8 @@ def split_ds_gen(dataset: xr.Dataset, divisions: int = 1, dim: str = "time") -> 
 
 def aggregation(
     DataFunction: "TimeIndex",
-    start: str | datetime.datetime | pyearthtoolsDatetime,
-    end: str | datetime.datetime | pyearthtoolsDatetime,
+    start: str | datetime.datetime | Petdt,
+    end: str | datetime.datetime | Petdt,
     interval: tuple[float, str],
     *,
     aggregation: str = "mean",
@@ -102,9 +102,9 @@ def aggregation(
     Args:
         DataFunction (TimeIndex):
             TimeIndex to retrieve Data
-        start (str | datetime.datetime | pyearthtoolsDatetime):
+        start (str | datetime.datetime | Petdt):
             Start Date
-        end (str | datetime.datetime | pyearthtoolsDatetime):
+        end (str | datetime.datetime | Petdt):
             End Date
         interval (tuple[float, str]):
             Interval between samples. Use pandas.to_timedelta notation, (10, 'minute')
@@ -131,8 +131,8 @@ def aggregation(
     # print("Finding Series ...")
     aggregation_func = pyearthtools.data.transforms.aggregation.over(method=aggregation, dimension=aggregation_dim)
 
-    start = pyearthtoolsDatetime(start)
-    end = pyearthtoolsDatetime(end)
+    start = Petdt(start)
+    end = Petdt(end)
     interval = TimeDelta(interval)
     steps = (end - start) // interval
 
@@ -225,8 +225,8 @@ MAX_VALUE = 1e-10
 
 def find_range(
     DataFunction: "TimeIndex",
-    start: str | pyearthtoolsDatetime,
-    end: str | pyearthtoolsDatetime,
+    start: str | Petdt,
+    end: str | Petdt,
     interval: tuple[float, str] | TimeDelta,
     *,
     skip_invalid: bool = True,
@@ -240,9 +240,9 @@ def find_range(
     Args:
         DataFunction (TimeIndex):
             TimeIndex to retrieve Data
-        start (str | pyearthtoolsDatetime):
+        start (str | Petdt):
             Start Date
-        end (str | pyearthtoolsDatetime):
+        end (str | Petdt):
             End Date
         interval (tuple[float, str]):
             Interval between samples. Use pandas.to_timedelta notation, (10, 'minute')

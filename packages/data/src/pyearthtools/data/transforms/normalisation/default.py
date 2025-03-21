@@ -26,7 +26,7 @@ import xarray as xr
 
 import pyearthtools.data
 
-from pyearthtools.data import pyearthtoolsDatetime
+from pyearthtools.data import Petdt
 from pyearthtools.data.transforms.normalisation._utils import format_class_name
 from pyearthtools.data.transforms.transform import (
     FunctionTransform,
@@ -65,8 +65,8 @@ class normaliser:
     def __init__(
         self,
         index: pyearthtools.data.AdvancedTimeIndex,
-        start: pyearthtoolsDatetime | pyearthtoolsDatetime | None = None,
-        end: pyearthtoolsDatetime | pyearthtoolsDatetime | None = None,
+        start: Petdt | Petdt | None = None,
+        end: Petdt | Petdt | None = None,
         interval: int | tuple | None = None,
         *,
         override: str | Path | dict | None = None,
@@ -90,9 +90,9 @@ class normaliser:
         Args:
             index (pyearthtools.data.AdvancedTimeIndex, optional):
                 AdvancedTimeIndex being normalised, used to get aggregation & range
-            start (pyearthtoolsDatetime | pyearthtoolsDatetime, optional):
+            start (Petdt | Petdt, optional):
                 Start Date for retrieval
-            end (pyearthtoolsDatetime | pyearthtoolsDatetime, optional):
+            end (Petdt | Petdt, optional):
                 End Date for retrieval
             interval (int | tuple, optional):
                 Interval between samples. Use pandas.to_timedelta notation, (10, 'minute')

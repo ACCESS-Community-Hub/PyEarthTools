@@ -161,7 +161,7 @@ def test_TimeIdxModifier_basic():
     import pyearthtools.data
 
     pipe = Pipeline(FakeIndex(), modifications.TimeIdxModifier("6 hours"))
-    assert pipe[pyearthtools.data.pyearthtoolsDatetime("2000-01-01T00")] == pyearthtools.data.pyearthtoolsDatetime(
+    assert pipe[pyearthtools.data.Petdt("2000-01-01T00")] == pyearthtools.data.Petdt(
         "2000-01-01T06"
     )
 
@@ -169,14 +169,14 @@ def test_TimeIdxModifier_basic():
 # def test_TimeIdxModifier_basic_tuple():
 #     import pyearthtools.data
 #     pipe = Pipeline(FakeIndex(), pipelines.TimeIdxModifier((6, 'hours')))
-#     assert pipe[pyearthtools.data.pyearthtoolsDatetime('2000-01-01T00')] == pyearthtools.data.pyearthtoolsDatetime('2000-01-01T06')
+#     assert pipe[pyearthtools.data.Petdt('2000-01-01T00')] == pyearthtools.data.Petdt('2000-01-01T06')
 
 
 def test_TimeIdxModifier_nested():
     import pyearthtools.data
 
     pipe = Pipeline(FakeIndex(), modifications.TimeIdxModifier(("6 hours", "12 hours")))
-    assert pipe[pyearthtools.data.pyearthtoolsDatetime("2000-01-01T00")] == (
-        pyearthtools.data.pyearthtoolsDatetime("2000-01-01T06"),
-        pyearthtools.data.pyearthtoolsDatetime("2000-01-01T12"),
+    assert pipe[pyearthtools.data.Petdt("2000-01-01T00")] == (
+        pyearthtools.data.Petdt("2000-01-01T06"),
+        pyearthtools.data.Petdt("2000-01-01T12"),
     )

@@ -31,7 +31,7 @@ import pyearthtools.data
 import pyearthtools.utils
 
 from pyearthtools.data.exceptions import DataNotFoundError, InvalidIndexError, InvalidDataError
-from pyearthtools.data.time import pyearthtoolsDatetime, TimeDelta, time_delta_resolution, TimeRange
+from pyearthtools.data.time import Petdt, TimeDelta, time_delta_resolution, TimeRange
 from pyearthtools.data.transforms.transform import Transform, TransformCollection
 from pyearthtools.data.warnings import IndexWarning
 from pyearthtools.data.operations.utils import identify_time_dimension
@@ -42,8 +42,8 @@ LOG = logging.getLogger("pyearthtools.data")
 
 def series(
     DataFunction: "AdvancedTimeIndex",
-    start: str | pyearthtoolsDatetime,
-    end: str | pyearthtoolsDatetime,
+    start: str | Petdt,
+    end: str | Petdt,
     interval: tuple[float, str] | TimeDelta,
     *,
     inclusive: bool = False,
@@ -62,9 +62,9 @@ def series(
     Args:
         DataFunction (AdvancedTimeIndex):
             Data function, must be AdvancedTimeIndex or child
-        start (str | datetime.datetime | pyearthtoolsDatetime):
+        start (str | datetime.datetime | Petdt):
             Timestep to begin series at
-        end (str | datetime.datetime | pyearthtoolsDatetime):
+        end (str | datetime.datetime | Petdt):
             Timestep to end series at
         interval (tuple[float, str]):
             Time interval between samples. Use pandas.to_timedelta notation, (10, 'minute')
@@ -98,8 +98,8 @@ def series(
     #     use_single = True
 
     interval = TimeDelta(interval)
-    start = pyearthtoolsDatetime(start)
-    end = pyearthtoolsDatetime(end)
+    start = Petdt(start)
+    end = Petdt(end)
 
     start = start.at_resolution(max(interval.resolution, start.resolution))
     end = end.at_resolution(max(end.resolution, start.resolution))
@@ -241,8 +241,8 @@ def series(
 @functools.wraps(series)
 def _mf_series(
     DataFunction: "AdvancedTimeIndex",
-    start: pyearthtoolsDatetime,
-    end: pyearthtoolsDatetime,
+    start: Petdt,
+    end: Petdt,
     interval: TimeDelta,
     *,
     skip_invalid: bool = False,
@@ -361,8 +361,8 @@ def _mf_series(
 @functools.wraps(series)
 def _get_series(
     DataFunction: "AdvancedTimeIndex",
-    start: pyearthtoolsDatetime,
-    end: pyearthtoolsDatetime,
+    start: Petdt,
+    end: Petdt,
     interval: TimeDelta,
     *,
     skip_invalid: bool = False,
@@ -438,8 +438,8 @@ def _get_series(
 
 def safe_series(
     DataFunction: "AdvancedTimeIndex",
-    start: str | pyearthtoolsDatetime,
-    end: str | pyearthtoolsDatetime,
+    start: str | Petdt,
+    end: str | Petdt,
     interval: TimeDelta,
     **kwargs,
 ) -> xr.Dataset:
@@ -455,9 +455,9 @@ def safe_series(
     Args:
         DataFunction (AdvancedTimeIndex):
             Data function, must be AdvancedTimeIndex or child
-        start (str | pyearthtoolsDatetime):
+        start (str | Petdt):
             Timestep to begin series at
-        end (str | pyearthtoolsDatetime):
+        end (str | Petdt):
             Timestep to end series at
         interval (TimeDelta):
             Time interval between samples. Use pandas.to_timedelta notation, (10, 'minute')
@@ -472,8 +472,8 @@ def safe_series(
     kwargs["skip_invalid"] = True
 
     interval = TimeDelta(interval)
-    start = pyearthtoolsDatetime(start)
-    end = pyearthtoolsDatetime(end)
+    start = Petdt(start)
+    end = Petdt(end)
 
     if DataFunction.data_resolution and time_delta_resolution(interval) > DataFunction.data_resolution:
         data: xr.Dataset = series(

@@ -42,7 +42,7 @@ import xarray as xr
 import pyearthtools.data
 import pyearthtools.utils
 
-from pyearthtools.data.time import pyearthtoolsDatetime, TimeDelta, TimeRange
+from pyearthtools.data.time import Petdt, TimeDelta, TimeRange
 
 from pyearthtools.data.transforms.transform import (
     Transform,
@@ -325,13 +325,13 @@ class DataIndex(Index):
 
 class SingleTimeIndex(Index):
     """
-    Introduce single time based Indexing with [pyearthtoolsDatetime][pyearthtools.data.time.pyearthtoolsDatetime].
+    Introduce single time based Indexing with [Petdt][pyearthtools.data.time.Petdt].
 
     While [Index][pyearthtools.data.indexes.indexes.Index] assumes nothing about the selection arguments,
-    this will attempt to convert them to a [pyearthtoolsDatetime][pyearthtools.data.time.pyearthtoolsDatetime], and select that time
+    this will attempt to convert them to a [Petdt][pyearthtools.data.time.Petdt], and select that time
     from the data.
 
-    [pyearthtoolsDatetime][pyearthtools.data.time.pyearthtoolsDatetime] keeps a record of the resolution of the given date string,
+    [Petdt][pyearthtools.data.time.Petdt] keeps a record of the resolution of the given date string,
     which allows for more informative warnings.
 
     """
@@ -429,7 +429,7 @@ class SingleTimeIndex(Index):
 
     def retrieve(
         self,
-        querytime: str | pyearthtoolsDatetime,
+        querytime: str | Petdt,
         *args,
         select: bool = False,
         round: bool | None = None,
@@ -441,7 +441,7 @@ class SingleTimeIndex(Index):
         While [Index][pyearthtools.data.indexes.Index] assumes nothing, this will attempt to select time.
 
         Args:
-            querytime (str | datetime.datetime | pyearthtoolsDatetime):
+            querytime (str | datetime.datetime | Petdt):
                 Timestep to retrieve data at
             select (bool, optional):
                 Select `querytime` in dataset. Defaults to False.
@@ -453,7 +453,7 @@ class SingleTimeIndex(Index):
             (Any):
                 Loaded data, with time selected
         """
-        querytime = pyearthtoolsDatetime(querytime)
+        querytime = Petdt(querytime)
         if self.data_resolution and querytime.resolution < self.data_resolution:
             warnings.warn(
                 f"Data requested at a lower resolution than data exists at. {querytime.resolution} < {self.data_resolution}. \n"
@@ -477,7 +477,7 @@ class SingleTimeIndex(Index):
         if select and time_dim in data:
             try:
                 data = data.sel(
-                    **{time_dim: str(pyearthtoolsDatetime(querytime))},
+                    **{time_dim: str(Petdt(querytime))},
                     method="nearest" if round else None,
                 )
             except KeyError:
@@ -494,7 +494,7 @@ class SingleTimeIndex(Index):
 
 class TimeIndex(SingleTimeIndex):
     """
-    Introduce general time based Indexing with [pyearthtoolsDatetime][pyearthtools.data.time.pyearthtoolsDatetime].
+    Introduce general time based Indexing with [Petdt][pyearthtools.data.time.Petdt].
 
     Allow for multiple time retrievals.
     """
@@ -502,8 +502,8 @@ class TimeIndex(SingleTimeIndex):
     @functools.wraps(index_routines.series)
     def series(
         self,
-        start: str | pyearthtoolsDatetime,
-        end: str | pyearthtoolsDatetime,
+        start: str | Petdt,
+        end: str | Petdt,
         interval: TimeDelta | tuple[int | float, str] | int | None = None,
         *,
         transforms: TransformCollection | Transform = TransformCollection(),
@@ -513,9 +513,9 @@ class TimeIndex(SingleTimeIndex):
         API Function of [series][pyearthtools.data.index_operations.index_routines.series] for each AdvancedTimeIndex
 
         Args:
-            start (str | pyearthtoolsDatetime):
+            start (str | Petdt):
                 Start time for series
-            end (str | pyearthtoolsDatetime):
+            end (str | Petdt):
                 End time for series
             interval (TimeDelta, optional):
                 Interval to retrieve data at. Defaults to initialise resolution.
@@ -543,8 +543,8 @@ class TimeIndex(SingleTimeIndex):
     @functools.wraps(index_routines.safe_series)
     def safe_series(
         self,
-        start: str | pyearthtoolsDatetime,
-        end: str | pyearthtoolsDatetime,
+        start: str | Petdt,
+        end: str | Petdt,
         interval: TimeDelta | tuple[int | float, str] | None = None,
         *,
         transforms: TransformCollection | Transform = TransformCollection(),
@@ -556,9 +556,9 @@ class TimeIndex(SingleTimeIndex):
         Provides a safer way into get a series of data.
 
         Args:
-            start (str | pyearthtoolsDatetime):
+            start (str | Petdt):
                 Start time for series
-            end (str | pyearthtoolsDatetime):
+            end (str | Petdt):
                 End time for series
             interval (tuple[int, str], optional):
                 Interval to retrieve data at. Defaults to initialised resolution .
@@ -586,8 +586,8 @@ class TimeIndex(SingleTimeIndex):
     @functools.wraps(index_operations.aggregation)
     def aggregation(
         self,
-        start: str | pyearthtoolsDatetime,
-        end: str | pyearthtoolsDatetime,
+        start: str | Petdt,
+        end: str | Petdt,
         interval: TimeDelta | tuple[int | float, str] | None = None,
         *,
         transforms: TransformCollection | Transform = TransformCollection(),
@@ -597,9 +597,9 @@ class TimeIndex(SingleTimeIndex):
         API Function of [aggregation][pyearthtools.data.index_operations.index_operations.aggregation] for each AdvancedTimeIndex
 
         Args:
-            start (str | pyearthtoolsDatetime):
+            start (str | Petdt):
                 Start time for series
-            end (str | pyearthtoolsDatetime):
+            end (str | Petdt):
                 End time for series
             interval (tuple[int, str], optional):
                 Interval to retrieve data at. Defaults to initialise resolution .
@@ -612,7 +612,7 @@ class TimeIndex(SingleTimeIndex):
         """
         interval = self._get_interval(interval)
         if self.data_resolution:
-            start = pyearthtoolsDatetime(start).at_resolution(self.data_resolution)
+            start = Petdt(start).at_resolution(self.data_resolution)
         # transforms = self.base_transforms + transforms
 
         return index_operations.aggregation(self, start, end, interval, transforms=transforms, **kwargs)
@@ -620,8 +620,8 @@ class TimeIndex(SingleTimeIndex):
     @functools.wraps(index_operations.find_range)
     def range(
         self,
-        start: str | pyearthtoolsDatetime,
-        end: str | pyearthtoolsDatetime,
+        start: str | Petdt,
+        end: str | Petdt,
         interval: TimeDelta | tuple[int, str] | None = None,
         *,
         transforms: TransformCollection | Transform = TransformCollection(),
@@ -631,9 +631,9 @@ class TimeIndex(SingleTimeIndex):
         API Function of [range][pyearthtools.data.index_operations.index_operations.find_range] for each AdvancedTimeIndex
 
         Args:
-            start (str | pyearthtoolsDatetime):
+            start (str | Petdt):
                 Start time for series
-            end (str | pyearthtoolsDatetime):
+            end (str | Petdt):
                 End time for series
             interval (tuple[int, str], optional):
                 Interval to retrieve data at. Defaults to initialise resolution .
@@ -750,7 +750,7 @@ class AdvancedTimeIndex(TimeIndex):
 
     def retrieve(
         self,
-        querytime: str | datetime.datetime | pyearthtoolsDatetime,
+        querytime: str | datetime.datetime | Petdt,
         *,
         aggregation: str | None = None,
         select: bool = True,
@@ -793,7 +793,7 @@ class AdvancedTimeIndex(TimeIndex):
             Extra transforms can be supplied, using `transforms = `
         """
 
-        querytime = pyearthtoolsDatetime(querytime)
+        querytime = Petdt(querytime)
 
         if not hasattr(self, "data_resolution") or not self.data_resolution or use_simple:
             data = super().retrieve(querytime, select=select, **kwargs)
@@ -818,7 +818,7 @@ class AdvancedTimeIndex(TimeIndex):
             start_time = querytime
 
         # Lower Resolution, find via series
-        end_time = pyearthtoolsDatetime(querytime)
+        end_time = Petdt(querytime)
         end_time += 1  # Automatically adds one to the last defined date
 
         if self.data_resolution:
@@ -887,13 +887,13 @@ class AdvancedTimeIndex(TimeIndex):
             time_values = ds[ds_time_dim].values
 
             if not isinstance(time_values, Iterable):
-                time_values = pyearthtoolsDatetime(time_values)
+                time_values = Petdt(time_values)
                 if self.data_resolution:
                     time_values = time_values.at_resolution(self.data_resolution)
                 return self.retrieve(time_values, transforms=transforms, **kwargs)
 
-            start_time = pyearthtoolsDatetime(time_values[0])
-            end_time = pyearthtoolsDatetime(time_values[-1])
+            start_time = Petdt(time_values[0])
+            end_time = Petdt(time_values[-1])
 
             if self.data_resolution:
                 start_time = start_time.at_resolution(self.data_resolution)
@@ -965,7 +965,7 @@ class ArchiveIndex(AdvancedTimeDataIndex, FileSystemIndex):
     @functools.wraps(FileSystemIndex.search)
     def search(self, *args):
         """
-        Attempt to convert first arg to a [pyearthtoolsDatetime][pyearthtools.data.time.pyearthtoolsDatetime],
+        Attempt to convert first arg to a [Petdt][pyearthtools.data.time.Petdt],
         if conversion fails, ignore and continue
 
         Will operate with time resolution behaviour from `AdvancedTimeIndex`.
@@ -973,7 +973,7 @@ class ArchiveIndex(AdvancedTimeDataIndex, FileSystemIndex):
         args = list(args)
         if len(args) > 0:
             try:
-                date = pyearthtoolsDatetime(args[0])
+                date = Petdt(args[0])
                 if date:
                     args[0] = date
 
@@ -1036,13 +1036,13 @@ class ForecastIndex(TimeIndex, DataFileSystemIndex):
     @functools.wraps(FileSystemIndex.search)
     def search(self, *args) -> Path:
         """
-        Attempt to convert first arg to a [pyearthtoolsDatetime][pyearthtools.data.time.pyearthtoolsDatetime],
+        Attempt to convert first arg to a [Petdt][pyearthtools.data.time.Petdt],
         if conversion fails, ignore and continue
         """
         args = list(args)
         if len(args) > 0:
             try:
-                date = pyearthtoolsDatetime(args[0])
+                date = Petdt(args[0])
                 if date:
                     args[0] = date
             except Exception:
@@ -1052,8 +1052,8 @@ class ForecastIndex(TimeIndex, DataFileSystemIndex):
     @functools.wraps(forecast_op.forecast_series)
     def series(
         self,
-        start: str | pyearthtoolsDatetime,
-        end: str | pyearthtoolsDatetime,
+        start: str | Petdt,
+        end: str | Petdt,
         interval: Optional[TimeDelta | tuple[int, str]] = None,
         *args,
         **kwargs,
@@ -1064,18 +1064,18 @@ class ForecastIndex(TimeIndex, DataFileSystemIndex):
 
     def retrieve(
         self,
-        basetime: str | pyearthtoolsDatetime,
+        basetime: str | Petdt,
         *args,
-        querytime: str | pyearthtoolsDatetime | TimeDelta | None = None,
+        querytime: str | Petdt | TimeDelta | None = None,
         **kwargs,
     ) -> Any:
         """
         Retrieve data from a forecast product, allowing seperate specification of basetime and querytime
 
         Args:
-            basetime (str | pyearthtoolsDatetime):
+            basetime (str | Petdt):
                 Basetime to get forecast from
-            querytime (str | pyearthtoolsDatetime | None, optional):
+            querytime (str | Petdt | None, optional):
                 Time to select from forecast. Defaults to None.
 
         Raises:
@@ -1091,7 +1091,7 @@ class ForecastIndex(TimeIndex, DataFileSystemIndex):
 
         if querytime:
             if isinstance(querytime, (tuple, TimeDelta)):
-                querytime = pyearthtoolsDatetime(basetime) + TimeDelta(querytime)
+                querytime = Petdt(basetime) + TimeDelta(querytime)
 
             if isinstance(data, (xr.Dataset, xr.DataArray)) and time_dim in data:
                 data = data.sel(**{time_dim: [str(querytime)]})
@@ -1101,7 +1101,7 @@ class ForecastIndex(TimeIndex, DataFileSystemIndex):
 
     def aggregation(
         self,
-        querytime: str | pyearthtoolsDatetime,
+        querytime: str | Petdt,
         aggregation: str | Callable,
         *,
         preserve_dims: list | None = None,
@@ -1113,7 +1113,7 @@ class ForecastIndex(TimeIndex, DataFileSystemIndex):
         API Function of [aggregation][pyearthtools.data.index_operations.index_operations.aggregation] for each ForecastIndex
 
         Args:
-            querytime (str | pyearthtoolsDatetime):
+            querytime (str | Petdt):
                 Time to get data at
             aggregation (str | Callable):
                 Aggregation method to apply.

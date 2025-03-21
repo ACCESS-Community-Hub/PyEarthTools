@@ -15,7 +15,7 @@
 
 import pytest
 
-from pyearthtools.data.time import pyearthtoolsDatetime, TimeDelta, TimeRange, TimeResolution
+from pyearthtools.data.time import Petdt, TimeDelta, TimeRange, TimeResolution
 
 
 @pytest.mark.parametrize(
@@ -24,12 +24,12 @@ from pyearthtools.data.time import pyearthtoolsDatetime, TimeDelta, TimeRange, T
         ("2020-01-01", "day", "2020-01-01"),
         ("2020-01-01", "month", "2020-01"),
         ("2020-01-01", TimeResolution("month"), "2020-01"),
-        ("2020-01-01", pyearthtoolsDatetime("1970-01"), "2020-01"),
+        ("2020-01-01", Petdt("1970-01"), "2020-01"),
         ("2020-01-01", "second", "2020-01-01T00:00:00"),
     ],
 )
 def test_time_resolution_change(basetime, resolution, expected):
-    assert str(pyearthtoolsDatetime(basetime).at_resolution(resolution)) == expected
+    assert str(Petdt(basetime).at_resolution(resolution)) == expected
 
 
 @pytest.mark.parametrize(
@@ -46,7 +46,7 @@ def test_time_resolution_change(basetime, resolution, expected):
     ],
 )
 def test_time_addition(basetime, delta, expected):
-    assert str(pyearthtoolsDatetime(basetime) + TimeDelta(delta)) == expected
+    assert str(Petdt(basetime) + TimeDelta(delta)) == expected
 
 
 @pytest.mark.parametrize(
@@ -87,7 +87,7 @@ def test_range(start, end, interval, length):
     ],
 )
 def test_resolution(time, expected_resolution):
-    assert str(pyearthtoolsDatetime(time).resolution) == expected_resolution
+    assert str(Petdt(time).resolution) == expected_resolution
 
 
 @pytest.mark.parametrize(
@@ -114,4 +114,4 @@ def test_added_resolution(init_resolution, addition, expected_resolution):
     ],
 )
 def test_f_str(time, str_format, expected):
-    assert f"{pyearthtoolsDatetime(time):{str_format}}" == expected
+    assert f"{Petdt(time):{str_format}}" == expected
