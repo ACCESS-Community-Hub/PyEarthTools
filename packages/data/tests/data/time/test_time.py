@@ -32,6 +32,16 @@ def test_time_resolution_change(basetime, resolution, expected):
     assert str(Petdt(basetime).at_resolution(resolution)) == expected
 
 
+def test_time_resolution_compatibility():
+    dt1 = Petdt('20230503T071500')
+    dt2 = Petdt('20230503T091500')
+    assert dt1 != dt2  # Confirm the datetime objects start life different
+    assert str(dt1.at_resolution("day")) == '2023-05-03'
+    assert str(dt2.at_resolution("day")) == '2023-05-03'
+    assert str(dt1.at_resolution("day")) == str(dt2.at_resolution("day"))
+    assert dt1.at_resolution("day") == dt2.at_resolution("day")  # But the same at daily resolution
+
+
 @pytest.mark.parametrize(
     "basetime, delta, expected",
     [
