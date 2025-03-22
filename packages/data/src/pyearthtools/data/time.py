@@ -264,7 +264,7 @@ class Petdt:
 
         Notes:
             time must be a str or Petdt for resolution awareness to take effect,
-            If str, it must be in isoformat        
+            If str, it must be in isoformat
 
         Valid time resolutions are:
             "year",
@@ -273,11 +273,11 @@ class Petdt:
             "hour",
             "minute",
             "second",
-            "nanosecond",            
+            "nanosecond",
 
         Time when supplied as a string may be underspecified (e.g. just the year).
-        
-        The resolution of a supplied time string will be inferred from the 
+
+        The resolution of a supplied time string will be inferred from the
         time components which are present in the string.
 
         If a resolution is specified lower than the specified time string,
@@ -510,9 +510,7 @@ class Petdt:
     def __sub__(self, other: Petdt) -> TimeDelta:
         ...
 
-    def __sub__(
-        self, other: Petdt | TimeDelta | int | datetime.timedelta
-    ) -> Petdt | TimeDelta:
+    def __sub__(self, other: Petdt | TimeDelta | int | datetime.timedelta) -> Petdt | TimeDelta:
         """
         Subtract from underlying '_pandas_timestep'.
 
@@ -595,7 +593,7 @@ class Petdt:
         return self._pandas_timestep > other
 
     def __eq__(self, other):
-        # Rather than test identity on the fully-qualified object, the 
+        # Rather than test identity on the fully-qualified object, the
         # Petdts should be compared according to their specified resolution
         # Comparing the string representations will take care of this for now.
         return str(self) == str(other)

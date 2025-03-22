@@ -475,9 +475,7 @@ class TimeSeriesManagedPredictor(TimeSeriesAutoRecurrentPredictor):
                     for key, val in self.variable_manager.split(model_output_shaped, self._output_order).items()
                 }
 
-            current_time_step = Petdt(idx) + (
-                self._interval * step * model_output.shape[self._combine_axis]
-            )
+            current_time_step = Petdt(idx) + (self._interval * step * model_output.shape[self._combine_axis])
             outputs.append(model_output)
 
             output_components = self.prepare_output(output_components)
