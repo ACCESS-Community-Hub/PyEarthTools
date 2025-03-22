@@ -243,33 +243,49 @@ class pyearthtoolsMonthtime:
 
 @functools.total_ordering
 class Petdt:
-    """Datetime object with awareness of which values were set.
-
-    time must be a str or Petdt for resolution awareness to take effect,
-    If str, it must be in isoformat
-
-    Uses pandas.Datetime64 as underlying object.
-    But will return str of datetime using only what was set.
+    """
+    PyEarthTooils Datetime object which has additional functionality
+    relating to temporal resolution and resolution conversion compared
+    to other libraries, and also supports alternative calendars to
+    some degree.
 
     Examples:
-        >>> str(pyearthtools_datetime('2021-01'))
+        >>> str(Petdt('2021-01'))
         "2021-01"
-        >>> str(pyearthtools_datetime('2021-01-12'))
+        >>> str(Petdt('2021-01-12'))
         "2021-01-12"
     """
 
     def __init__(self, time: Any, *, resolution: str | TimeResolution | None = None):
         """
-        Datetime object with awareness of which values were set.
-
         Args:
-            time (Any):
-                Time to get resolution of. Can use 'today' to get today
-            resolution (str | TimeResolution | None, optional):
-                Override for resolution specification. Defaults to None.
+            time: Time to get resolution of. Can use 'today' to get today
+            resolution: Override for resolution specification. Defaults to None.
+
+        Notes:
+            time must be a str or Petdt for resolution awareness to take effect,
+            If str, it must be in isoformat        
+
+        Valid time resolutions are:
+            "year",
+            "month",
+            "day",
+            "hour",
+            "minute",
+            "second",
+            "nanosecond",            
+
+        Time when supplied as a string may be underspecified (e.g. just the year).
+        
+        The resolution of a supplied time string will be inferred from the 
+        time components which are present in the string.
+
+        If a resolution is specified lower than the specified time string,
+        the datetime will be down-sampled to match the specified resolution.
         """
 
-        _pandas_timestep = None
+        _pandas_timestep = None  # Internal storage object
+
         if isinstance(time, str) and time == "today":
             time = str(datetime.datetime.today().strftime("%Y-%m-%d"))
 
@@ -310,21 +326,11 @@ class Petdt:
         return np.datetime64(str(self), time_unit)
 
     @property
-    def qualified(self) -> pd.Timestamp:
-        """
-        Get fully qualified datetime of Petdt.
-
-        Uses underlying pandas.datetime object
-
-        """
-        return self._pandas_timestep
-
-    @property
     def datetime(self) -> datetime.datetime:
         """
         Get `datetime.datetime` object
         """
-        return datetime.datetime.fromisoformat(self.qualified.isoformat())
+        return datetime.datetime.fromisoformat(self._pandas_timestep.isoformat())
 
     def to_cftime(self, calendar="noleap"):
         """
@@ -385,7 +391,8 @@ class Petdt:
         elif isinstance(resolution, pd.Timedelta):
             resolution = time_delta_resolution(resolution)
 
-        return Petdt(self.qualified, resolution=resolution)
+        resampled = Petdt(self._pandas_timestep, resolution=resolution)
+        return resampled
 
     def __format__(self, *a):
         if len(a) == 0 or (len(a) == 1 and a[0] == ""):
@@ -588,7 +595,10 @@ class Petdt:
         return self._pandas_timestep > other
 
     def __eq__(self, other):
-        return self._pandas_timestep == other
+        # Rather than test identity on the fully-qualified object, the 
+        # Petdts should be compared according to their specified resolution
+        # Comparing the string representations will take care of this for now.
+        return str(self) == str(other)
 
 
 @functools.total_ordering

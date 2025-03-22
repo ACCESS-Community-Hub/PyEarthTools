@@ -39,6 +39,7 @@ def test_time_resolution_compatibility():
     assert str(dt1.at_resolution("day")) == '2023-05-03'
     assert str(dt2.at_resolution("day")) == '2023-05-03'
     assert str(dt1.at_resolution("day")) == str(dt2.at_resolution("day"))
+
     assert dt1.at_resolution("day") == dt2.at_resolution("day")  # But the same at daily resolution
 
 

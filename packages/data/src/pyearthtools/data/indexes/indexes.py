@@ -775,7 +775,8 @@ class AdvancedTimeIndex(TimeIndex):
             aggregation (str, optional):
                 If data becomes a range, can specify an aggregation method. Defaults to None.
             select (bool, optional):
-                Whether to attempt to select the given timestep if date is either fully qualified or data_interval not given. Defaults to True.
+                Whether to attempt to select the given timestep if date is either fully qualified 
+                or data_interval not given. Defaults to True.
             use_simple (bool, optional):
                 Whether to simply use the DataIndex.retrieve instead. Defaults to False.
             kwargs (Any, optional):
