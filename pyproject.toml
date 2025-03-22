@@ -9,11 +9,10 @@ readme = "README.md"
 requires-python = ">=3.9"
 keywords = ["pyearthtools"]
 authors = [
-  {email = "harrison.cook@bom.gov.au"},
-  {name = "Harrison Cook"}
+  {name = "Tennessee Leeuwenburg", email = "tennessee.leeuwenburg@bom.gov.au"}
 ]
 maintainers = [
-  {name = "Harrison Cook", email = "harrison.cook@bom.gov.au"}
+  {name = "Tennessee Leeuwenburg", email = "tennessee.leeuwenburg@bom.gov.au"}
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
