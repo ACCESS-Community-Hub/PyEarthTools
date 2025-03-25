@@ -7,12 +7,7 @@ name = "pyearthtools-utils"
 description = "Utilities for pyearthtools"
 requires-python = ">=3.8"
 keywords = ["pyearthtools"]
-authors = [
-  {email = "harrison.cook@bom.gov.au", name = "Harrison Cook"},
-  {name = "Tennessee Leeuwenburg", email = "tennessee.leeuwenburg@bom.gov.au"},
-]
 maintainers = [
-  {name = "Harrison Cook", email = "harrison.cook@bom.gov.au"},
   {name = "Tennessee Leeuwenburg", email = "tennessee.leeuwenburg@bom.gov.au"},
 ]
 classifiers = [
