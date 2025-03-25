@@ -3,4 +3,4 @@
 -e packages/training[all]
 -e packages/pipeline[all]
 -e packages/tutorial
--e .[test,docs]
+-e .[test,dev,docs]

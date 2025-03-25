@@ -46,7 +46,8 @@ all = [
   "pyearthtools-pipeline[all] @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/pipeline",
   "pyearthtools-training[all] @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/training"
 ]
-test = ["pytest", "pytest-cov", "pytest-xdist", "pudb", "pre-commit"]
+test = ["pytest", "pytest-cov", "pytest-xdist", "pudb"]
+dev = ["pre-commit"]
 docs = [
   "sphinx",
   "myst-parser",
