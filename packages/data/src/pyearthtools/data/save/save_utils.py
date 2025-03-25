@@ -253,6 +253,7 @@ class ManageTemp:
 
 SLEEP_INTERVAL = 0.1
 
+
 class ManageFiles:
     """
     Automatically manage the saving of files.

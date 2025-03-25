@@ -163,7 +163,6 @@ class Insolation(AdvancedTimeDerivedValue):
             coords={"time": time, "latitude": self._latitude[:, 0], "longitude": self._longitude[0, :]},
         )
 
-
         insolation.time.encoding.update(
             {"dtype": "int32", "units": "hours since 1900-01-01 00:00:00.0", "calendar": "gregorian"}
         )

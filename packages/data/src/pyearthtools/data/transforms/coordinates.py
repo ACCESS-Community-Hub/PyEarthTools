@@ -151,9 +151,7 @@ class ReIndex(Transform):
     """Reindex Coordinates"""
 
     def __init__(
-        self, 
-        coordinates: dict[str, Literal["reversed", "sorted"] | Iterable] | xr.Coordinates | None = None, 
-        **coords
+        self, coordinates: dict[str, Literal["reversed", "sorted"] | Iterable] | xr.Coordinates | None = None, **coords
     ):
         """
         Reindex coordinates
@@ -323,7 +321,6 @@ class Select(Transform):
         return dataset
 
 
-
 class Drop(Transform):
     """Drop items from Dataset"""
 
@@ -370,10 +367,10 @@ class Drop(Transform):
 
 
 def weak_cast_to_int(value):
-    '''
+    """
     Basically, turns integer floats to int types, otherwise
     does nothing.
-    '''
+    """
     try:
         if int(value) == value:
             value = int(value)
@@ -600,7 +597,6 @@ class Assign(Transform):
     # @property
     # def _info_(self) -> dict:
     #     return dict(as_dataarray=self._as_dataarray, **self._coordinates)
-
 
 
 class Pad(Transform):
