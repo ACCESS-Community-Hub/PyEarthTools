@@ -23,18 +23,18 @@ import xarray as xr
 
 xr.set_options(keep_attrs=True)
 
-from pyearthtools.data.transforms.normalisation.default import normaliser, open_file
+from pyearthtools.data.transforms.normalisation.default import Normaliser, open_file
 from pyearthtools.data.transforms.transform import FunctionTransform, Transform
 
 
-class Normalise(normaliser):
+class Normalise(Normaliser):
     """
     Normalise incoming data.
 
     Either call this class, or get attribute for specific normalisation strategy
     """
 
-    @functools.wraps(normaliser.__init__)
+    @functools.wraps(Normaliser.__init__)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

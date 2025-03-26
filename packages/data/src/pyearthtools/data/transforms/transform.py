@@ -240,8 +240,8 @@ class TransformCollection(initialisation.InitialisationRecordingMixin):
     def __call__(self, dataset: XR_TYPES | tuple[XR_TYPES] | list[XR_TYPES] | dict[str, XR_TYPES]) -> XR_TYPES | Any:
 
         # Do not try to transform empty datasets
-        if not dataset:
-            return dataset
+        if dataset is None:
+            return None
 
         for transform in self._transforms:
             dataset = transform(dataset)

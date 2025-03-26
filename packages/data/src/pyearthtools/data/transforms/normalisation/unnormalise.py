@@ -21,16 +21,16 @@ import warnings
 import numpy as np
 import xarray as xr
 
-from pyearthtools.data.transforms.normalisation.default import normaliser, open_file
+from pyearthtools.data.transforms.normalisation.default import Normaliser, open_file
 from pyearthtools.data.transforms.transform import FunctionTransform, Transform
 
 xr.set_options(keep_attrs=True)
 
 
-class Unnormalise(normaliser):
+class Unnormalise(Normaliser):
     """Unnormalise Incoming Data"""
 
-    @functools.wraps(normaliser)
+    @functools.wraps(Normaliser)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
