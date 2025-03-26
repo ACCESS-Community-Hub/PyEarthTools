@@ -214,7 +214,7 @@ class Normaliser:
         # )
 
         aggregated_data = get_and_print(
-            lambda: pyearthtools.data.transforms.aggregation.over(method, dims)(
+            lambda: pyearthtools.data.transforms.aggregation.over(method=method, dimension=dims)(
                 self.index.series(
                     **retrieval_args,
                     transforms=transforms,

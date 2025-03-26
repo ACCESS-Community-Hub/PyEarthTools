@@ -1,5 +1,7 @@
 import pyearthtools.data.transforms.normalisation
 from pyearthtools.data.transforms.normalisation import default
+from pyearthtools.data.time import Petdt
+import pyearthtools.data.indexes
 import xarray as xr
 import numpy as np
 
@@ -16,6 +18,17 @@ def test_open_file(monkeypatch):
     assert result is not None
 
 
-def test_Normaliser():
-    n = default.Normaliser("fake index", "start", "end", "month")
+def test_Normaliser(monkeypatch):
+
+    monkeypatch.setattr("pyearthtools.data.indexes.AdvancedTimeIndex.__abstractmethods__", set())
+
+    data_interval = "day"
+    ati = pyearthtools.data.indexes.AdvancedTimeIndex(data_interval)
+    monkeypatch.setattr(ati, "get", lambda x: sample_da)
+    start = Petdt("2023-02")
+    end = Petdt("2023-06")
+
+    n = default.Normaliser(ati, start, end, "month")
     n.check_init_args()
+
+    n.get_average("temperature")
