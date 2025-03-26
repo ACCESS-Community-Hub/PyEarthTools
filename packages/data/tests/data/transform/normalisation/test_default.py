@@ -31,4 +31,6 @@ def test_Normaliser(monkeypatch):
     n = default.Normaliser(ati, start, end, "month")
     n.check_init_args()
 
-    n.get_average("temperature")
+    result = n.get_average("temperature")
+    assert result == 1
+
