@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pyearthtools.data.indexes import FileSystemIndex
+from pyearthtools.data.indexes.indexes import FileSystemIndex
 
 
 def save(

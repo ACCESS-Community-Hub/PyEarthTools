@@ -22,7 +22,7 @@ from __future__ import annotations
 from typing import Literal
 
 import xarray as xr
-from pyearthtools.data import TimeDelta
+from pyearthtools.data.time import TimeDelta
 
 BINNING_SETUP = {  # Base Binning setup
     "seasonal": [

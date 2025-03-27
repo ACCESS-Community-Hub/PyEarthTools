@@ -20,7 +20,7 @@ from typing import Any, Literal
 
 import pyearthtools.data
 import xarray as xr
-from pyearthtools.data.download import DownloadIndex
+from pyearthtools.data.download.templates import DownloadIndex
 from pyearthtools.data.download.ecmwf_opendata import opendata_variables
 from pyearthtools.data.indexes import (
     VARIABLE_DEFAULT,
@@ -42,7 +42,7 @@ VARIABLES = [*opendata_variables.single, *opendata_variables.pressure, "all"]
 RENAME_DICT = {"t2m": "2t", "u10": "10u", "v10": "10v"}
 
 
-def rounder(time: pyearthtools.data.Petdt, round_value: int = 6) -> int:
+def rounder(time: pyearthtools.data.time.Petdt, round_value: int = 6) -> int:
     return (time.hour // round_value) * round_value
 
 
@@ -193,7 +193,7 @@ class OpenData(DownloadIndex):
         """Get the latest data from `ecwmf-opendata`"""
         return self(self._get_latest())
 
-    def download(self, querytime: str | pyearthtools.data.Petdt) -> xr.Dataset:
+    def download(self, querytime: str | pyearthtools.data.time.Petdt) -> xr.Dataset:
         """Download data from `ecwmf-opendata`"""
         if self._client is None:
             raise ImportError(f"`ecwmwf.opendata` was not imported, cannot download new data.")
@@ -201,8 +201,8 @@ class OpenData(DownloadIndex):
         if querytime == "l1atest":
             querytime = self._get_latest()
 
-        date = pyearthtools.data.Petdt(querytime).at_resolution("day")
-        time = rounder(pyearthtools.data.Petdt(querytime))
+        date = pyearthtools.data.time.Petdt(querytime).at_resolution("day")
+        time = rounder(pyearthtools.data.time.Petdt(querytime))
 
         request = dict(self._request_base)
         path = self.get_tempdir()

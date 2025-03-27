@@ -92,16 +92,10 @@ from pyearthtools.data import (
 )
 from pyearthtools.data import operations
 from pyearthtools.data import operations as op
-from pyearthtools.data import (
-    patterns,
-    save,
-    static,
-)
+from pyearthtools.data import patterns, save, static
 from pyearthtools.data import transforms
 from pyearthtools.data import transforms as transform
-from pyearthtools.data import (
-    utils,
-)
+from pyearthtools.data import utils
 from pyearthtools.data.archive.utils import auto_import
 from pyearthtools.data.collection import Collection, LabelledCollection
 from pyearthtools.data.exceptions import DataNotFoundError, InvalidIndexError

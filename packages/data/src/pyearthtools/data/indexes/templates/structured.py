@@ -21,7 +21,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pyearthtools.data import Petdt
+from pyearthtools.data.time import Petdt
 from pyearthtools.data.indexes import ArchiveIndex, decorators
 from pyearthtools.data.indexes.utilities.spellcheck import (
     VARIABLE_DEFAULT,

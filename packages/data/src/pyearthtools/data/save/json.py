@@ -19,7 +19,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from pyearthtools.data.indexes import FileSystemIndex
+from pyearthtools.data.indexes.indexes import FileSystemIndex
 
 
 def save(

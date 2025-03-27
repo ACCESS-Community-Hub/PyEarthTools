@@ -21,14 +21,19 @@ from typing import Any, Iterable
 import pyearthtools.utils
 from pyearthtools.data.indexes import decorators
 from pyearthtools.data.indexes.utilities import spellcheck
-from pyearthtools.data.patterns import PatternIndex, PatternVariableAware
+from pyearthtools.data.patterns.default import PatternIndex, PatternVariableAware
 from pyearthtools.utils.decorators import classproperty
 
 """
 Generate FilePath Structure based upon expansion of arguments
 """
 
-DEFAULT_EXTENSION = pyearthtools.utils.config.get("data.patterns.default_extension")
+import pyearthtools.data.logger  # Initialise data logger
+
+try:
+    DEFAULT_EXTENSION = pyearthtools.utils.config.get("data.patterns.default_extension")
+except:
+    DEFAULT_EXTENSION = ".nc"
 
 
 def flattened_combinations(iterable: Iterable[Any | Iterable[Any]], r: int = 1) -> list[Any | list[Any]]:

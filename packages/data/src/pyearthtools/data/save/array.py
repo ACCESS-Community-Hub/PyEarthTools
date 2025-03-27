@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-from pyearthtools.data.indexes import FileSystemIndex
+from pyearthtools.data.indexes.indexes import FileSystemIndex
 from pyearthtools.data.save.save_utils import ManageFiles
 
 VALID_EXTENSIONS = [".npy", ".numpy"]

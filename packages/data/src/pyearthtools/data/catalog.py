@@ -191,7 +191,7 @@ class CatalogEntry:
             Converts non serialisable to serialisable
             """
             for key, value in kwargs.items():
-                if isinstance(value, (pyearthtools.data.TimeDelta, pyearthtools.data.TimeResolution, Path)):
+                if isinstance(value, (pyearthtools.data.time.TimeDelta, pyearthtools.data.TimeResolution, Path)):
                     kwargs[key] = str(value)
             return kwargs
 

@@ -24,7 +24,7 @@ from typing import Callable, Hashable
 
 import pyearthtools.data
 import xarray as xr
-from pyearthtools.data import Petdt
+from pyearthtools.data.time import Petdt
 from pyearthtools.data.indexes.utilities.fileload import open_files
 from pyearthtools.data.transforms.normalisation._utils import format_class_name
 from pyearthtools.data.transforms.transform import (

@@ -27,7 +27,7 @@ from typing import Any
 
 import numpy as np
 import xarray as xr
-from pyearthtools.data.transforms import Transform
+from pyearthtools.data.transforms.transform import Transform
 from pyearthtools.utils.decorators import BackwardsCompatibility
 
 LOG = logging.getLogger("pyearthtools.data")

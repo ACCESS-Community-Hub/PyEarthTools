@@ -28,8 +28,10 @@ from typing import Any, Callable, Literal
 
 import pyearthtools.data
 import xarray as xr
-from pyearthtools.data import DataNotFoundError, TimeDelta, patterns
-from pyearthtools.data.indexes import (
+from pyearthtools.data.time import TimeDelta
+from pyearthtools.data.exceptions import DataNotFoundError
+from pyearthtools.data import patterns
+from pyearthtools.data.indexes.indexes import (
     ArchiveIndex,
     DataIndex,
     FileSystemIndex,

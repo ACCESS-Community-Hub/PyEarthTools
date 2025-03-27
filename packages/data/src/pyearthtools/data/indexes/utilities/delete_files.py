@@ -26,7 +26,7 @@ import time
 from pathlib import Path
 from typing import Literal, Sequence
 
-from pyearthtools.data import TimeDelta
+from pyearthtools.data.time import TimeDelta
 from pyearthtools.utils.context import Catch
 
 LOG = logging.getLogger("pyearthtools.data")

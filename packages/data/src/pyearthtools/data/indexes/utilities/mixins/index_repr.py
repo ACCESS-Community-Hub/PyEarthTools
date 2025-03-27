@@ -21,9 +21,7 @@ try:
 except ImportError:
     UTILS_REPR = False
 
-import pyearthtools.data
 import pyearthtools.data.catalog
-
 
 class reprMixin:
     def __get_steps_for_repr(self):

@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import Literal, Optional, Union
 
 import pyearthtools.data
-from pyearthtools.data import Petdt
+from pyearthtools.data.time import Petdt
 from pyearthtools.data.download.cds._ERA5 import (
     ERA5_LEVELS,
     ERA_PRESSURE_NAME_CHANGE,

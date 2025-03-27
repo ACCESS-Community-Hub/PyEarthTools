@@ -20,7 +20,7 @@ from typing import Any
 import numpy as np
 import xarray as xr
 from matplotlib.figure import Figure
-from pyearthtools.data.indexes import FileSystemIndex
+from pyearthtools.data.indexes.indexes import FileSystemIndex
 from pyearthtools.data.save import array, dataset, json, plot
 from xarray import plot as xplt
 

@@ -18,7 +18,8 @@ from __future__ import annotations
 from typing import Callable, Optional, Union
 
 import xarray as xr
-from pyearthtools.data.transforms import Transform, aggregation
+from pyearthtools.data.transforms.transform import Transform
+from pyearthtools.data.transforms import aggregation    
 from pyearthtools.utils.initialisation.imports import dynamic_import
 
 known_methods = ["mean", "max", "min", "sum", "std"]

@@ -27,8 +27,9 @@ from typing import Any, Iterable, Type
 
 import urllib3
 import xarray as xr
-from pyearthtools.data import DataNotFoundError, Petdt
-from pyearthtools.data.download import DownloadIndex
+from pyearthtools.data.exceptions import DataNotFoundError
+from pyearthtools.data.time import Petdt
+from pyearthtools.data.download.templates import DownloadIndex
 from pyearthtools.data.indexes import utilities
 from pyearthtools.data.patterns import PatternIndex, TemporalExpandedDateVariable
 from pyearthtools.data.transforms import Transform, TransformCollection

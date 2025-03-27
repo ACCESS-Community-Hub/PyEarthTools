@@ -26,7 +26,7 @@ import re
 from typing import Any, Callable, Optional, Type, Union
 
 import xarray as xr
-from pyearthtools.data.indexes import TimeDataIndex
+from pyearthtools.data.indexes.indexes import TimeDataIndex
 from pyearthtools.data.modifications.modification import Modification
 from pyearthtools.data.modifications.register import MODIFICATION_DICT
 from pyearthtools.data.transforms.transform import Transform

@@ -24,13 +24,13 @@ from typing import Any, Callable
 import xarray as xr
 from pyearthtools.data import patterns
 from pyearthtools.data.exceptions import DataNotFoundError
-from pyearthtools.data.indexes import (
+from pyearthtools.data.indexes.indexes import (
     AdvancedTimeIndex,
     DataIndex,
     FileSystemIndex,
     ForecastIndex,
-    decorators,
 )
+from pyearthtools.data.indexes import decorators
 from pyearthtools.data.save import save
 from pyearthtools.data.warnings import pyearthtoolsDataWarning
 

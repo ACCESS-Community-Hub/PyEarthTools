@@ -78,7 +78,7 @@ class TimeSeriesPredictor(Predictor):
             fix_time_dim (bool, optional):
                 Fix time dimension after prediction. Defaults to True.
             interval (int | str | TimeDelta, optional):
-                Interval of temporal predictions, must be passable by `pyearthtools.data.TimeDelta`. Defaults to 1.
+                Interval of temporal predictions, must be passable by `pyearthtools.data.time.TimeDelta`. Defaults to 1.
             time_dim (str, optional):
                 Name of time dimension in undone data. Defaults to "time".
         """
@@ -209,7 +209,7 @@ class TimeSeriesAutoRecurrentPredictor(TimeSeriesPredictor):
             fix_time_dim (bool, optional):
                 Fix time dimension after prediction. Defaults to True.
             interval (int | str | TimeDelta, optional):
-                Interval of temporal predictions, must be passable by `pyearthtools.data.TimeDelta`. Defaults to 1.
+                Interval of temporal predictions, must be passable by `pyearthtools.data.time.TimeDelta`. Defaults to 1.
             time_dim (str, optional):
                 Name of time dimension in undone data. Defaults to "time".
             combine (Optional[Literal['stack', 'combine']], optional):

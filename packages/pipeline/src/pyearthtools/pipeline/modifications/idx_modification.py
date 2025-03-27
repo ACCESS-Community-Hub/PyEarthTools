@@ -216,7 +216,7 @@ class IdxModifier(PipelineIndex, ParallelEnabledMixin):
 
 
 class TimeIdxModifier(IdxModifier):
-    """`IdxModifier` which converts all `modification`'s to `pyearthtools.data.TimeDelta`"""
+    """`IdxModifier` which converts all `modification`'s to `pyearthtools.data.time.TimeDelta`"""
 
     def __init__(
         self,
@@ -225,7 +225,7 @@ class TimeIdxModifier(IdxModifier):
         **kwargs,
     ):
         """
-        Modify `idx` but convert all `modification`'s to `pyearthtools.data.TimeDelta`
+        Modify `idx` but convert all `modification`'s to `pyearthtools.data.time.TimeDelta`
 
         Args:
             modification (Union[Any, tuple[Union[Any, tuple[Any, ...]], ...]]):
@@ -249,7 +249,7 @@ class TimeIdxModifier(IdxModifier):
             """Map elements to `TimeDelta`"""
             if can_map(mod):
                 return tuple(map(map_to_time, mod))
-            return pyearthtools.data.TimeDelta(mod)
+            return pyearthtools.data.time.TimeDelta(mod)
 
         if extra_mods:
             modification = (
@@ -426,7 +426,7 @@ class SequenceRetrieval(IdxModifier):
 class TemporalRetrieval(SequenceRetrieval):
     """
     Retrieve a sequence of samples from `SequenceRetrieval`,
-    but force all indexes to be an `pyearthtools.data.Petdt`.
+    but force all indexes to be an `pyearthtools.data.time.Petdt`.
 
     Examples:
         >>> TemporalRetrieval(-6)['2000-01-01T12']
@@ -447,15 +447,15 @@ class TemporalRetrieval(SequenceRetrieval):
         def map_to_tuple(mod):
             if isinstance(mod, tuple):
                 return tuple(map(map_to_tuple, mod))
-            return pyearthtools.data.TimeDelta((mod, delta_unit))
+            return pyearthtools.data.time.TimeDelta((mod, delta_unit))
 
         if delta_unit is not None:
             self._modification = map_to_tuple(self._modification)
 
     def __getitem__(self, idx: Any):
-        if not isinstance(idx, pyearthtools.data.Petdt):
-            if not pyearthtools.data.Petdt.is_time(idx):
-                raise TypeError(f"Cannot convert {idx!r} to `pyearthtools.data.Petdt`.")
-            idx = pyearthtools.data.Petdt(idx)
+        if not isinstance(idx, pyearthtools.data.time.Petdt):
+            if not pyearthtools.data.time.Petdt.is_time(idx):
+                raise TypeError(f"Cannot convert {idx!r} to `pyearthtools.data.time.Petdt`.")
+            idx = pyearthtools.data.time.Petdt(idx)
 
         return super().__getitem__(idx)

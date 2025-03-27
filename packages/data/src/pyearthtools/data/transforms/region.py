@@ -30,7 +30,7 @@ try:
 except ImportError:
     GEOPANDAS_IMPORTED = False
 
-from pyearthtools.data.transforms import Transform
+from pyearthtools.data.transforms.transform import Transform
 from pyearthtools.data.transforms.utils import parse_dataset
 from pyearthtools.utils.decorators import BackwardsCompatibility
 

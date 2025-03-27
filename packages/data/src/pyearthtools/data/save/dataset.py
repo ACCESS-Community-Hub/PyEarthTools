@@ -21,7 +21,7 @@ from typing import Any
 
 import pyearthtools.utils
 import xarray as xr
-from pyearthtools.data.indexes import FileSystemIndex
+from pyearthtools.data.indexes.indexes import FileSystemIndex
 from pyearthtools.data.save.save_utils import ManageFiles
 
 VALID_EXTENSIONS = [".nc", ".netcdf"]

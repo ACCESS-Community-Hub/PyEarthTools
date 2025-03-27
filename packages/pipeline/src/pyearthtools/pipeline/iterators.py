@@ -27,8 +27,8 @@ from pathlib import Path
 from typing import Any, Callable, Generator, Hashable, Iterable, Optional, Union
 
 import numpy as np
-import pyearthtools.data
 from pyearthtools.pipeline.recording import PipelineRecordingMixin
+import pyearthtools.data.time
 
 
 class Iterator(PipelineRecordingMixin, metaclass=ABCMeta):
@@ -176,22 +176,22 @@ class DateRange(Iterator):
         Args:
             start (str):
                 Start time. Must be understandable by
-                `pyearthtools.data.Petdt`.
+                `pyearthtools.data.time.Petdt`.
             end (str):
                 End time. Must be understandable by
-                `pyearthtools.data.Petdt`.
+                `pyearthtools.data.time.Petdt`.
             interval (Any):
                 Interval between times. Must be understandable by
-                `pyearthtools.data.TimeDelta`.
+                `pyearthtools.data.time.TimeDelta`.
         """
         super().__init__()
         self.record_initialisation()
 
         import pyearthtools.data
 
-        self._timerange = pyearthtools.data.TimeRange(start, end, interval)
+        self._timerange = pyearthtools.data.time.TimeRange(start, end, interval)
 
-    def __iter__(self) -> Generator[pyearthtools.data.Petdt, None, None]:
+    def __iter__(self) -> Generator[pyearthtools.data.time.Petdt, None, None]:
         for i in self._timerange:
             yield i
 
@@ -212,12 +212,12 @@ class DateRangeLimit(DateRange):
                 Start time
             interval (Any):
                 Interval between times. Must be understandable by
-                `pyearthtools.data.TimeDelta`.
+                `pyearthtools.data.time.TimeDelta`.
             num (int):
                 Number of total samples to iterate over.
         """
 
-        end = pyearthtools.data.Petdt(start) + (pyearthtools.data.TimeDelta(interval) * num)
+        end = pyearthtools.data.time.Petdt(start) + (pyearthtools.data.time.TimeDelta(interval) * num)
         super().__init__(start, str(end), interval)
 
 

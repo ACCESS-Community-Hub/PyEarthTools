@@ -27,8 +27,9 @@ from tempfile import TemporaryDirectory
 from typing import Type
 
 import urllib3
-from pyearthtools.data import DataNotFoundError, IndexWarning
-from pyearthtools.data.indexes import CachingIndex
+from pyearthtools.data.exceptions import DataNotFoundError
+from pyearthtools.data.warnings import IndexWarning
+from pyearthtools.data.indexes.cacheIndex import CachingIndex
 from pyearthtools.data.patterns import PatternIndex
 
 
