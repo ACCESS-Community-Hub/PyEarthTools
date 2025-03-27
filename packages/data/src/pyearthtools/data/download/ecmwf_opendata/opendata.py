@@ -20,8 +20,8 @@ from typing import Any, Literal
 
 import pyearthtools.data
 import xarray as xr
-from pyearthtools.data.download.templates import DownloadIndex
 from pyearthtools.data.download.ecmwf_opendata import opendata_variables
+from pyearthtools.data.download.templates import DownloadIndex
 from pyearthtools.data.indexes import (
     VARIABLE_DEFAULT,
     VariableDefault,

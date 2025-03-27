@@ -27,8 +27,8 @@ from pathlib import Path
 from typing import Any, Callable, Generator, Hashable, Iterable, Optional, Union
 
 import numpy as np
-from pyearthtools.pipeline.recording import PipelineRecordingMixin
 import pyearthtools.data.time
+from pyearthtools.pipeline.recording import PipelineRecordingMixin
 
 
 class Iterator(PipelineRecordingMixin, metaclass=ABCMeta):

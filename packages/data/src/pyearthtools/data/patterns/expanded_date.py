@@ -26,7 +26,6 @@ from pathlib import Path
 from typing import Any
 
 import pyearthtools.utils
-from pyearthtools.data.time import Petdt, TimeResolution
 from pyearthtools.data.indexes import decorators
 from pyearthtools.data.patterns.default import (
     PatternForecastIndex,
@@ -34,16 +33,18 @@ from pyearthtools.data.patterns.default import (
     PatternTimeIndex,
     PatternVariableAware,
 )
+from pyearthtools.data.time import Petdt, TimeResolution
 from pyearthtools.utils.decorators import classproperty
 
 DIRECTORY_PATTERN = "{ROOT_DIR}/{FILE_DATE}/{FILE}"
 FILE_PATTERN = "{prefix}{time}{extension}"
 
 import pyearthtools.data.logger
+
 try:
     DEFAULT_EXTENSION = pyearthtools.utils.config.get("data.patterns.default_extension")
 except:
-    DEFAULT_EXTENSION = ".nc" 
+    DEFAULT_EXTENSION = ".nc"
 
 
 def parse_time_str(time, directory: bool = False, delimiter: str | tuple | list = "") -> str:

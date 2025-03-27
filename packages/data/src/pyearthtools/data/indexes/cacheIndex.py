@@ -28,9 +28,8 @@ from typing import Any, Callable, Literal
 
 import pyearthtools.data
 import xarray as xr
-from pyearthtools.data.time import TimeDelta
-from pyearthtools.data.exceptions import DataNotFoundError
 from pyearthtools.data import patterns
+from pyearthtools.data.exceptions import DataNotFoundError
 from pyearthtools.data.indexes.indexes import (
     ArchiveIndex,
     DataIndex,
@@ -45,6 +44,7 @@ from pyearthtools.data.indexes.utilities.delete_files import (
 )
 from pyearthtools.data.indexes.utilities.folder_size import ByteSize, FolderSize
 from pyearthtools.data.patterns.default import PatternIndex
+from pyearthtools.data.time import TimeDelta
 from pyearthtools.data.transforms import Transform, TransformCollection
 from pyearthtools.data.warnings import pyearthtoolsDataWarning
 from pyearthtools.utils.context import ChangeValue

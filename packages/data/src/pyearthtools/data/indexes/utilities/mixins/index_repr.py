@@ -23,6 +23,7 @@ except ImportError:
 
 import pyearthtools.data.catalog
 
+
 class reprMixin:
     def __get_steps_for_repr(self):
         class Information:

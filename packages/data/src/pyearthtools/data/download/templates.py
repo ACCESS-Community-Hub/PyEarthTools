@@ -28,9 +28,9 @@ from typing import Type
 
 import urllib3
 from pyearthtools.data.exceptions import DataNotFoundError
-from pyearthtools.data.warnings import IndexWarning
 from pyearthtools.data.indexes.cacheIndex import CachingIndex
 from pyearthtools.data.patterns import PatternIndex
+from pyearthtools.data.warnings import IndexWarning
 
 
 @functools.lru_cache(None)

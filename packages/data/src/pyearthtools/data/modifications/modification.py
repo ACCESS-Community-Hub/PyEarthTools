@@ -23,8 +23,8 @@ from abc import ABCMeta, abstractmethod
 from typing import Any, Union
 
 import pyearthtools.data
-import xarray as xr
 import pyearthtools.data.indexes.indexes
+import xarray as xr
 from pyearthtools.data.indexes.indexes import TimeDataIndex
 from pyearthtools.data.indexes.utilities.dimensions import identify_time_dimension
 from pyearthtools.data.transforms.transform import TransformCollection

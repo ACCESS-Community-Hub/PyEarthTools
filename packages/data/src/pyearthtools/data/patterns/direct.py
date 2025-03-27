@@ -27,8 +27,8 @@ from pathlib import Path
 from typing import Any
 
 import pyearthtools.utils
-from pyearthtools.data.indexes.indexes import TimeIndex
 from pyearthtools.data.indexes import decorators
+from pyearthtools.data.indexes.indexes import TimeIndex
 from pyearthtools.data.patterns import (
     PatternForecastIndex,
     PatternIndex,
@@ -42,10 +42,11 @@ DIRECTORY_PATTERN = "{ROOT_DIR}/{FILE}"
 FILE_PATTERN = "{prefix}{time}{extension}"
 
 import pyearthtools.data.logger
+
 try:
     DEFAULT_EXTENSION = pyearthtools.utils.config.get("data.patterns.default_extension")
 except:
-    DEFAULT_EXTENSION = ".nc" 
+    DEFAULT_EXTENSION = ".nc"
 
 
 def nonNone(*args):
