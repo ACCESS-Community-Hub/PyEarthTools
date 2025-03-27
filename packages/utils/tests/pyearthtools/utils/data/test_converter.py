@@ -13,9 +13,9 @@
 # limitations under the License.
 
 
-from pyearthtools.utils.data import converter
-import xarray as xr
 import pytest
+import xarray as xr
+from pyearthtools.utils.data import converter
 
 SIMPLE_DATA_ARRAY = xr.DataArray([1, 2, 3, 4, 5])
 SIMPLE_DATA_SET = xr.Dataset({"Entry": SIMPLE_DATA_ARRAY})

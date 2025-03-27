@@ -15,22 +15,19 @@
 
 from __future__ import annotations
 
-from typing import Any, Literal, Optional, Union
 import warnings
+from typing import Any, Literal, Optional, Union
 
 import graphviz
-
 from pyearthtools.data.indexes import Index
 from pyearthtools.data.transforms import Transform, TransformCollection
-
-from pyearthtools.pipeline.step import PipelineStep
-from pyearthtools.pipeline.controller import PipelineIndex, Pipeline, _Pipeline
-from pyearthtools.pipeline.operation import Operation
-
 from pyearthtools.pipeline import parallel
-from pyearthtools.pipeline.warnings import PipelineWarning
-from pyearthtools.pipeline.validation import filter_steps
+from pyearthtools.pipeline.controller import Pipeline, PipelineIndex, _Pipeline
 from pyearthtools.pipeline.exceptions import PipelineRuntimeError
+from pyearthtools.pipeline.operation import Operation
+from pyearthtools.pipeline.step import PipelineStep
+from pyearthtools.pipeline.validation import filter_steps
+from pyearthtools.pipeline.warnings import PipelineWarning
 
 
 def get_key_from_steps(key: str, steps: tuple[Any, ...]):

@@ -32,9 +32,7 @@ except ImportError:
 
 from pyearthtools.data.transforms import Transform
 from pyearthtools.data.transforms.utils import parse_dataset
-
 from pyearthtools.utils.decorators import BackwardsCompatibility
-
 
 RegionLookupFILE = Path(__file__).parent / "RegionLookup.yaml"
 

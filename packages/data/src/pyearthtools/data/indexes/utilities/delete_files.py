@@ -19,12 +19,12 @@ Utilities to delete files
 
 from __future__ import annotations
 
+import logging
 import os
-from pathlib import Path
 import shutil
 import time
+from pathlib import Path
 from typing import Literal, Sequence
-import logging
 
 from pyearthtools.data import TimeDelta
 from pyearthtools.utils.context import Catch

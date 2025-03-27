@@ -22,14 +22,19 @@ pyearthtools Utilities
 __version__ = "0.1.0"
 
 import importlib
-
-from pyearthtools.utils import parameter, repr_utils, context, decorators, initialisation, config, logger
-from pyearthtools.utils.initialisation import load, save, dynamic_import
-
-
-import pyearthtools
 import importlib.util
 
-from pyearthtools.utils import data
+import pyearthtools
+from pyearthtools.utils import (
+    config,
+    context,
+    data,
+    decorators,
+    initialisation,
+    logger,
+    parameter,
+    repr_utils,
+)
+from pyearthtools.utils.initialisation import dynamic_import, load, save
 
 setattr(pyearthtools, "config", config)

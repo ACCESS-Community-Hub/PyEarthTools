@@ -1,6 +1,11 @@
 import numpy as np
 import pytest
-from pyearthtools.utils.data.tesselator._patching.reorder import setup_formats, reorder, move_to_end
+from pyearthtools.utils.data.tesselator._patching.reorder import (
+    move_to_end,
+    reorder,
+    setup_formats,
+)
+
 
 # Test setup_formats function.
 def test_setup_formats():

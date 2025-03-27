@@ -78,65 +78,71 @@ At the moment, data is confined to geospatial netcdf sources.
 
 __version__ = "0.1.0"
 
-from pyearthtools.data import logger
-from pyearthtools.data import config
+import warnings as __python_warnings
 
-from pyearthtools.data.time import Petdt, TimeResolution, TimeDelta, TimeRange
-from pyearthtools.data.time import Petdt as datetime
-
+import pyearthtools.utils
+from pyearthtools.data import (
+    archive,
+    config,
+    derived,
+    download,
+    indexes,
+    logger,
+    modifications,
+)
+from pyearthtools.data import operations
+from pyearthtools.data import operations as op
+from pyearthtools.data import (
+    patterns,
+    save,
+    static,
+)
+from pyearthtools.data import transforms
+from pyearthtools.data import transforms as transform
+from pyearthtools.data import (
+    utils,
+)
+from pyearthtools.data.archive.utils import auto_import
+from pyearthtools.data.collection import Collection, LabelledCollection
 from pyearthtools.data.exceptions import DataNotFoundError, InvalidIndexError
+from pyearthtools.data.indexes import (
+    AdvancedTimeDataIndex,
+    AdvancedTimeIndex,
+    ArchiveIndex,
+    BaseTimeIndex,
+    CachingForecastIndex,
+    CachingIndex,
+    DataFileSystemIndex,
+    DataIndex,
+    FileSystemIndex,
+    ForecastIndex,
+    Index,
+    IntakeIndex,
+    IntakeIndexCache,
+    StaticDataIndex,
+    TimeIndex,
+    register_accessor,
+)
+from pyearthtools.data.load import load
+from pyearthtools.data.patterns import PatternIndex
+from pyearthtools.data.save import ManageFiles, ManageTemp
+from pyearthtools.data.time import Petdt
+from pyearthtools.data.time import Petdt as datetime
+from pyearthtools.data.time import TimeDelta, TimeRange, TimeResolution
+from pyearthtools.data.transforms.derive import evaluate
+from pyearthtools.data.transforms.transform import (
+    FunctionTransform,
+    Transform,
+    TransformCollection,
+)
 from pyearthtools.data.warnings import (
+    AccessorRegistrationWarning,
     IndexWarning,
     pyearthtoolsDataWarning,
-    AccessorRegistrationWarning,
 )
-
-
-from pyearthtools.data.collection import Collection, LabelledCollection
 
 # from pyearthtools.data.catalog import Catalog, CatalogEntry
 
-from pyearthtools.data.indexes import (
-    Index,
-    DataIndex,
-    FileSystemIndex,
-    TimeIndex,
-    AdvancedTimeIndex,
-    AdvancedTimeDataIndex,
-    BaseTimeIndex,
-    DataFileSystemIndex,
-    ArchiveIndex,
-    ForecastIndex,
-    StaticDataIndex,
-    CachingIndex,
-    CachingForecastIndex,
-    IntakeIndex,
-    IntakeIndexCache,
-)
-from pyearthtools.data import indexes
-from pyearthtools.data.indexes import register_accessor
-
-from pyearthtools.data import operations as op
-
-from pyearthtools.data import archive, operations, static, transforms, patterns, download, modifications, derived, utils
-from pyearthtools.data import transforms as transform
-from pyearthtools.data.patterns import PatternIndex
-
-from pyearthtools.data.transforms.transform import (
-    Transform,
-    TransformCollection,
-    FunctionTransform,
-)
-from pyearthtools.data.transforms.derive import evaluate
-from pyearthtools.data import save
-from pyearthtools.data.save import ManageFiles, ManageTemp
-
-from pyearthtools.data.load import load
-
-import pyearthtools.utils
-import warnings as __python_warnings
-
-from pyearthtools.data.archive.utils import auto_import
 
 """Auto import archives if available"""
 

@@ -1,8 +1,7 @@
-from pyearthtools.data.transforms import coordinates
-import xarray as xr
 import numpy as np
 import pytest
-
+import xarray as xr
+from pyearthtools.data.transforms import coordinates
 
 # Test data, re-used across tests
 lon180 = list(range(-180, 180))

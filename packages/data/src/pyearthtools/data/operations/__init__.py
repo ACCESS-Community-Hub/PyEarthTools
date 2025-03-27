@@ -32,13 +32,13 @@ Useful Data Operations to apply to [indexes][pyearthtools.data.indexes] or [Data
 """
 
 from pyearthtools.data.operations import interpolation
-from pyearthtools.data.operations.interpolation import (
-    SpatialInterpolation,
-    TemporalInterpolation,
-    FullInterpolation,
-)
-from pyearthtools.data.operations.percentile import percentile
 from pyearthtools.data.operations.aggregation import aggregation
 from pyearthtools.data.operations.binning import binning
+from pyearthtools.data.operations.interpolation import (
+    FullInterpolation,
+    SpatialInterpolation,
+    TemporalInterpolation,
+)
+from pyearthtools.data.operations.percentile import percentile
 
 # from pyearthtools.data.operations.index_routines import safe_series, series

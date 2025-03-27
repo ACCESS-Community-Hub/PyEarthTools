@@ -108,12 +108,9 @@ a dataset to be returned with the variable as modified but all timesteps as defi
 """
 
 
-from pyearthtools.data.modifications.modification import Modification
-
-from pyearthtools.data.modifications.register import register_modification
+from pyearthtools.data.modifications import aggregations, constants, reductions
 from pyearthtools.data.modifications.decorator import variable_modifications
-
-from pyearthtools.data.modifications import aggregations, reductions, constants
-
+from pyearthtools.data.modifications.modification import Modification
+from pyearthtools.data.modifications.register import register_modification
 
 __all__ = ["register_modification", "variable_modifications", "Modification"]

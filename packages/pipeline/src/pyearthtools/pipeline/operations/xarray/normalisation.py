@@ -18,12 +18,9 @@ from pathlib import Path
 from typing import TypeVar, Union
 
 import xarray as xr
-
 from pyearthtools.data.utils import parse_path
-
-from pyearthtools.utils.decorators import BackwardsCompatibility
 from pyearthtools.pipeline.operation import Operation
-
+from pyearthtools.utils.decorators import BackwardsCompatibility
 
 FILE = Union[str, Path]
 

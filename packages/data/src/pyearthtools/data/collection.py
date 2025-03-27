@@ -22,10 +22,11 @@ Additional base data types included for use in `pyearthtools`
 """
 
 from __future__ import annotations
-from _collections_abc import dict_keys
 
-from typing import Any
 from collections import OrderedDict
+from typing import Any
+
+from _collections_abc import dict_keys
 
 
 class Collection(tuple):

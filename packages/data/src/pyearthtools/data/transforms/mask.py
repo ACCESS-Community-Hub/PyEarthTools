@@ -14,18 +14,15 @@
 
 
 from __future__ import annotations
+
 import operator
-
-from typing import Any, Literal, overload
-
 from pathlib import Path
+from typing import Any, Literal, overload
 
 import numpy as np
 import xarray as xr
-
 from pyearthtools.data.transforms.transform import Transform
 from pyearthtools.data.transforms.utils import parse_dataset
-
 from pyearthtools.utils.decorators import BackwardsCompatibility
 
 OPERATIONS = ["==", "!=", ">", "<", ">=", "<="]

@@ -1,10 +1,10 @@
-import pyearthtools.data.transforms.normalisation
-from pyearthtools.data.transforms.normalisation import default
-from pyearthtools.data.time import Petdt
-import pyearthtools.data.indexes
-import xarray as xr
 import numpy as np
+import pyearthtools.data.indexes
+import pyearthtools.data.transforms.normalisation
 import pytest
+import xarray as xr
+from pyearthtools.data.time import Petdt
+from pyearthtools.data.transforms.normalisation import default
 
 sample_da = xr.DataArray(
     coords={"latitude": [1, 2, 3, 4], "longitude": [1, 2, 3], "time": ["2023-02"]}, data=np.ones((4, 3, 1))

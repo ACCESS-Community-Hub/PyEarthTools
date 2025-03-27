@@ -15,37 +15,36 @@
 
 from __future__ import annotations
 
+import logging
 import sys
+import time
+import warnings
 from abc import abstractmethod
 from functools import cached_property
-from pathlib import Path
-from typing import Any, Literal, Callable
-import warnings
-import logging
 from hashlib import sha512
-import time
 from multiprocessing import Process
-
-import xarray as xr
+from pathlib import Path
+from typing import Any, Callable, Literal
 
 import pyearthtools.data
-
-from pyearthtools.data import patterns, TimeDelta, DataNotFoundError
-from pyearthtools.data.transforms import Transform, TransformCollection
-from pyearthtools.data.patterns.default import PatternIndex
-from pyearthtools.data.warnings import pyearthtoolsDataWarning
-
+import xarray as xr
+from pyearthtools.data import DataNotFoundError, TimeDelta, patterns
 from pyearthtools.data.indexes import (
     ArchiveIndex,
+    DataIndex,
     FileSystemIndex,
     ForecastIndex,
-    TimeIndex,
-    DataIndex,
     Index,
+    TimeIndex,
 )
-from pyearthtools.data.indexes.utilities.delete_files import delete_older_than, delete_path
+from pyearthtools.data.indexes.utilities.delete_files import (
+    delete_older_than,
+    delete_path,
+)
 from pyearthtools.data.indexes.utilities.folder_size import ByteSize, FolderSize
-
+from pyearthtools.data.patterns.default import PatternIndex
+from pyearthtools.data.transforms import Transform, TransformCollection
+from pyearthtools.data.warnings import pyearthtoolsDataWarning
 from pyearthtools.utils.context import ChangeValue
 
 LOG = logging.getLogger("pyearthtools.data")

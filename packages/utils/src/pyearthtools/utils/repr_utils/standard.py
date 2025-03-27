@@ -13,9 +13,8 @@
 # limitations under the License.
 
 
-from typing import Optional
-
 import copy
+from typing import Optional
 
 
 def dynamic_padding(name, length_):

@@ -20,15 +20,14 @@ Provides ways to split data into patches, and reform patches back to full data
 """
 from __future__ import annotations
 
-from typing import Union
 import warnings
+from typing import Union
 
 import numpy as np
 import xarray as xr
-
 from pyearthtools.utils.data.tesselator import _patching
-from pyearthtools.utils.warnings import TesselatorWarning
 from pyearthtools.utils.exceptions import TesselatorException
+from pyearthtools.utils.warnings import TesselatorWarning
 
 
 class Tesselator:

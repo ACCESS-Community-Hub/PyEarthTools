@@ -19,7 +19,6 @@ from pathlib import Path
 from typing import Any
 
 import pyearthtools.data
-
 from pyearthtools.data.patterns import PatternIndex
 from pyearthtools.data.transforms import Transform, TransformCollection
 

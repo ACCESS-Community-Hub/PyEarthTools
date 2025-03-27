@@ -17,10 +17,10 @@
 Contexts
 """
 from __future__ import annotations
-from typing import Any, Type, Callable
-import logging
 
+import logging
 from contextlib import ContextDecorator
+from typing import Any, Callable, Type
 
 
 class ChangeValue(ContextDecorator):

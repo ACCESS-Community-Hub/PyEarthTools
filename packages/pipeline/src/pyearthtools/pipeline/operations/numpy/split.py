@@ -16,8 +16,6 @@
 from typing import Optional
 
 import numpy as np
-
-
 from pyearthtools.pipeline.branching.split import Spliter
 
 

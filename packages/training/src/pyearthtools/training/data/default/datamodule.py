@@ -14,17 +14,20 @@
 
 
 from __future__ import annotations
+
 import functools
-from typing import Callable, Any
+from typing import Any, Callable
 
 import numpy as np
 import xarray as xr
-
 from pyearthtools.pipeline.controller import Pipeline
 from pyearthtools.pipeline.iterators import Iterator
-
 from pyearthtools.training.data.datamodule import PipelineDataModule
-from pyearthtools.training.data.default.datasets import IndexableDataset, IterableDataset, BaseDefault
+from pyearthtools.training.data.default.datasets import (
+    BaseDefault,
+    IndexableDataset,
+    IterableDataset,
+)
 
 
 def map_function(obj, function: Callable[[Any], Any], **kwargs):

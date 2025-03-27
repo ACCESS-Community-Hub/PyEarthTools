@@ -15,13 +15,12 @@
 
 from __future__ import annotations
 
+import warnings
 from pathlib import Path
 from typing import Any
-import warnings
-
-import xarray as xr
 
 import pyearthtools.utils
+import xarray as xr
 from pyearthtools.data.indexes import FileSystemIndex
 from pyearthtools.data.save.save_utils import ManageFiles
 

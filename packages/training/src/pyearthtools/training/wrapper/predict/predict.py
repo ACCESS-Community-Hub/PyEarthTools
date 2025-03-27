@@ -15,15 +15,12 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 from abc import ABCMeta
-
-
-from pyearthtools.utils.initialisation import InitialisationRecordingMixin
+from typing import Any
 
 from pyearthtools.pipeline.controller import Pipeline
 from pyearthtools.training.wrapper.wrapper import ModelWrapper
+from pyearthtools.utils.initialisation import InitialisationRecordingMixin
 
 
 class Predictor(InitialisationRecordingMixin, metaclass=ABCMeta):

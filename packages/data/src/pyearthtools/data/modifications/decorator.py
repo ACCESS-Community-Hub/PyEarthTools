@@ -19,21 +19,17 @@ Variable Modification decorator
 
 from __future__ import annotations
 
-import inspect
-import re
-import json
-
 import functools
-from typing import Callable, Any, Optional, Type, Union
+import inspect
+import json
+import re
+from typing import Any, Callable, Optional, Type, Union
+
 import xarray as xr
-
 from pyearthtools.data.indexes import TimeDataIndex
-
-from pyearthtools.data.transforms.transform import Transform
 from pyearthtools.data.modifications.modification import Modification
-
 from pyearthtools.data.modifications.register import MODIFICATION_DICT
-
+from pyearthtools.data.transforms.transform import Transform
 
 __all__ = ["variable_modifications", "Modification"]
 

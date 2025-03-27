@@ -27,6 +27,6 @@ Implemented:
 
 """
 
-from pyearthtools.data.download.templates import DownloadIndex
-from pyearthtools.data.download import cds, arco
+from pyearthtools.data.download import arco, cds
 from pyearthtools.data.download import ecmwf_opendata as opendata
+from pyearthtools.data.download.templates import DownloadIndex

@@ -18,11 +18,9 @@ from __future__ import annotations
 from typing import Literal, Optional, Type, Union
 
 import numpy as np
-
-from pyearthtools.pipeline.step import PipelineStep
-
-from pyearthtools.pipeline.decorators import potentialabstractmethod, PotentialABC
 from pyearthtools.pipeline import parallel
+from pyearthtools.pipeline.decorators import PotentialABC, potentialabstractmethod
+from pyearthtools.pipeline.step import PipelineStep
 
 __all__ = ["Operation"]
 

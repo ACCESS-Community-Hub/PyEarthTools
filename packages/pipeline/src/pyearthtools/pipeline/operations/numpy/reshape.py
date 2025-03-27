@@ -13,12 +13,11 @@
 # limitations under the License.
 
 
-from typing import Union, Optional, Any
-
 import math
+from typing import Any, Optional, Union
+
 import einops
 import numpy as np
-
 from pyearthtools.pipeline.operation import Operation
 
 

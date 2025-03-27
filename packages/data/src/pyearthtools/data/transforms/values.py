@@ -18,11 +18,11 @@ Transform to apply to values of datasets
 """
 
 from __future__ import annotations
+
 from typing import Literal
 
-import xarray as xr
-
 import pyearthtools.data
+import xarray as xr
 from pyearthtools.data.transforms.transform import Transform
 from pyearthtools.utils.decorators import BackwardsCompatibility
 

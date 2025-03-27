@@ -16,12 +16,10 @@
 from __future__ import annotations
 
 import warnings
-
 from pathlib import Path
 
-from pyearthtools.utils import initialisation
 from pyearthtools.data.utils import parse_path
-
+from pyearthtools.utils import initialisation
 
 SUFFIX = "edi"
 

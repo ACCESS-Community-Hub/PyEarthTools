@@ -14,21 +14,19 @@
 
 
 from __future__ import annotations
+
+import copy
 import json
 import os
+from importlib.resources import as_file, files
+from pathlib import Path
 from typing import Any, Callable
 
-import xarray as xr
 import numpy as np
 import pandas as pd
-
-from pathlib import Path
-from importlib.resources import files, as_file
-import yaml
-import copy
-
-
 import pyearthtools.utils
+import xarray as xr
+import yaml
 
 pyearthtools_CATALOG_EXTENSIONS = [".cat", ".catalog"]
 BLACKLISTED_EXTENSIONS = []

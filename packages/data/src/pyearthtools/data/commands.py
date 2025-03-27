@@ -18,6 +18,7 @@ Command Line Interface for `pyearthtools.data`
 """
 
 from __future__ import annotations
+
 from pathlib import Path
 
 import click
@@ -98,8 +99,8 @@ def create_structure(top, blacklisted, save, verbose):
         top: Path
             Location to generate structure for
     """
-    from pyearthtools.data.indexes.utilities.structure import structure
     import yaml
+    from pyearthtools.data.indexes.utilities.structure import structure
 
     structure_dict: dict[str, dict | list] = {}
     structure_d: dict[str, dict[str, Any] | list[str]] = structure(top, blacklisted=blacklisted, verbose=verbose)  # type: ignore

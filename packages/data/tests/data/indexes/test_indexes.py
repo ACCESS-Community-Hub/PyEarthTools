@@ -1,8 +1,9 @@
-from pyearthtools.data import indexes
-import pyearthtools.data.archive
-from pyearthtools.data.time import Petdt
-import pytest
 import pathlib
+
+import pyearthtools.data.archive
+import pytest
+from pyearthtools.data import indexes
+from pyearthtools.data.time import Petdt
 
 
 def test_Index(monkeypatch):

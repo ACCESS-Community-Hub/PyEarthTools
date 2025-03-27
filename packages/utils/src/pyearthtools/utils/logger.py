@@ -15,15 +15,15 @@
 
 from __future__ import annotations
 
-import os
-import socket
+import datetime as dt
 import logging
 import logging.handlers
+import os
+import socket
 from typing import Literal
-import datetime as dt
+
 import yaml
 from pyearthtools.utils import config
-
 
 LOGGING_LEVELS = Literal["CRITICAL", "FATAL", "ERROR", "WARN", "WARNING", "INFO", "DEBUG", "NOTSET"]
 

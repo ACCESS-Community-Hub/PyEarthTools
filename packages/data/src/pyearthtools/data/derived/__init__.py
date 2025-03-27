@@ -18,8 +18,11 @@ Calculated / Derived Value Indexes
 """
 
 
-from pyearthtools.data.derived.derived import DerivedValue, TimeDerivedValue, AdvancedTimeDerivedValue
+from pyearthtools.data.derived.derived import (
+    AdvancedTimeDerivedValue,
+    DerivedValue,
+    TimeDerivedValue,
+)
 from pyearthtools.data.derived.insolation import Insolation
-
 
 __all__ = ["DerivedValue", "TimeDerivedValue", "AdvancedTimeDerivedValue", "Insolation"]

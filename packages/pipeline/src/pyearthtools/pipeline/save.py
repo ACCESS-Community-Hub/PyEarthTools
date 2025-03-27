@@ -15,22 +15,17 @@
 
 """Saving and Loading of `Pipelines`"""
 
-import os
-from typing import Any, Union, Optional
-
-from pathlib import Path
-import warnings
-
-import yaml
-
 import logging
-
-from pyearthtools.data.utils import parse_path
-
-from pyearthtools.utils.initialisation.imports import dynamic_import
-from pyearthtools.utils import initialisation
+import os
+import warnings
+from pathlib import Path
+from typing import Any, Optional, Union
 
 import pyearthtools.pipeline
+import yaml
+from pyearthtools.data.utils import parse_path
+from pyearthtools.utils import initialisation
+from pyearthtools.utils.initialisation.imports import dynamic_import
 
 CONFIG_KEY = "--CONFIG--"
 SUFFIX = ".epi"

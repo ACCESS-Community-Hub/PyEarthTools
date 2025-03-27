@@ -26,5 +26,5 @@ from pathlib import Path
 DOWNLOAD_DATA: bool = True
 DATA_BASEDIRECTORY: Path = Path(__file__).parent.resolve().absolute()
 
-from pyearthtools.data.static._geographic.retrieval import get  # noqa: E402 F401
 from pyearthtools.data.static._geographic import retrieval
+from pyearthtools.data.static._geographic.retrieval import get  # noqa: E402 F401

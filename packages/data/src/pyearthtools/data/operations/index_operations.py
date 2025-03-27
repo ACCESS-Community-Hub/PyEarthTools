@@ -19,25 +19,23 @@ Provide common operations to be applied to [DataIndexes][pyearthtools.data.DataI
 
 from __future__ import annotations
 
-import datetime
 import builtins
+import datetime
 import os
 from pathlib import Path
 from typing import Callable, Union
 
 import numpy as np
-from tqdm.auto import tqdm, trange
-import xarray as xr
-
 import pyearthtools.data
-
-from pyearthtools.data.time import Petdt, TimeDelta
+import xarray as xr
 from pyearthtools.data.exceptions import (
     DataNotFoundError,
     InvalidIndexError,
     run_and_catch_exception,
 )
+from pyearthtools.data.time import Petdt, TimeDelta
 from pyearthtools.data.transforms import Transform, TransformCollection
+from tqdm.auto import tqdm, trange
 
 
 def split_ds(dataset: xr.Dataset, divisions: int = 1, dim: str = "time") -> list[xr.Dataset]:

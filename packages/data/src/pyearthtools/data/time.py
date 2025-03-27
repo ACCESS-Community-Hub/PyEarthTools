@@ -26,14 +26,12 @@ Subsequently, a [TimeDelta][pyearthtools.data.time.TimeDelta], and an override f
 from __future__ import annotations
 
 import datetime
-
 import functools
-from typing import Any, Generator, Literal, overload, Union
+from typing import Any, Generator, Literal, Union, overload
 
 import numpy as np
 import pandas as pd
 import yaml
-
 from pyearthtools.utils import initialisation
 
 VALID_RESOLUTIONS = Literal["year", "month", "day", "hour", "minute", "min", "second", "nanosecond"]

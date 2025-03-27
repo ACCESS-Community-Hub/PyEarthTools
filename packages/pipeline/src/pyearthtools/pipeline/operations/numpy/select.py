@@ -16,7 +16,6 @@
 from typing import Any, Optional
 
 import numpy as np
-
 from pyearthtools.pipeline.operation import Operation
 
 

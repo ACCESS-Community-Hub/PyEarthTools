@@ -33,22 +33,21 @@ xarray Operations
 | remapping | Reproject data | `HEALPix` |
 """
 
-from pyearthtools.pipeline.operations.xarray.compute import Compute
-from pyearthtools.pipeline.operations.xarray.join import Merge, Concatenate
-from pyearthtools.pipeline.operations.xarray.sort import Sort
-from pyearthtools.pipeline.operations.xarray.chunk import Chunk
-
 from pyearthtools.pipeline.operations.xarray import (
     conversion,
     filters,
+    metadata,
+    normalisation,
+    remapping,
     reshape,
     select,
     split,
     values,
-    metadata,
-    normalisation,
-    remapping,
 )
+from pyearthtools.pipeline.operations.xarray.chunk import Chunk
+from pyearthtools.pipeline.operations.xarray.compute import Compute
+from pyearthtools.pipeline.operations.xarray.join import Concatenate, Merge
+from pyearthtools.pipeline.operations.xarray.sort import Sort
 
 __all__ = [
     "Compute",

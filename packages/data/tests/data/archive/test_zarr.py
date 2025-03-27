@@ -13,10 +13,9 @@
 # limitations under the License.
 
 
-import xarray as xr
-
 import pyearthtools.data
 import pytest
+import xarray as xr
 
 
 @pytest.mark.xfail

@@ -14,12 +14,12 @@
 
 
 from __future__ import annotations
+
 import functools
-
-from typing import Callable
 import math
+from typing import Callable
 
-from pyearthtools.data import TimeDelta, Petdt
+from pyearthtools.data import Petdt, TimeDelta
 
 
 def parse_recurrent(interval: int | TimeDelta = 1):

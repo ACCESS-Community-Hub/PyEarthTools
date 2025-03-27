@@ -13,12 +13,10 @@
 # limitations under the License.
 
 
-from typing import Any, Literal, Union, Optional
-
-import xarray as xr
-
+from typing import Any, Literal, Optional, Union
 
 import pyearthtools.data
+import xarray as xr
 from pyearthtools.pipeline.operation import Operation
 
 

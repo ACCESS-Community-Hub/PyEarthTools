@@ -14,18 +14,16 @@
 
 
 from __future__ import annotations
+
 from typing import Optional
 
-import xarray as xr
-from xarray.core.types import InterpOptions
 import numpy as np
-
-
 import pyearthtools.data
+import xarray as xr
 from pyearthtools.data.transforms.transform import Transform
 from pyearthtools.data.transforms.utils import parse_dataset
-
 from pyearthtools.utils.decorators import BackwardsCompatibility
+from xarray.core.types import InterpOptions
 
 xESMF_IMPORTED = True
 try:

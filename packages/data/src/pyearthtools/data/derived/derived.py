@@ -19,15 +19,13 @@ Derived Data
 
 from __future__ import annotations
 
-from typing import Union
 import inspect
-from abc import abstractmethod, ABCMeta
+from abc import ABCMeta, abstractmethod
+from typing import Union
 
 import xarray as xr
-
-
+from pyearthtools.data.indexes import AdvancedTimeDataIndex, DataIndex, TimeDataIndex
 from pyearthtools.data.time import Petdt, TimeDelta, TimeRange
-from pyearthtools.data.indexes import DataIndex, TimeDataIndex, AdvancedTimeDataIndex
 
 
 class DerivedValue(DataIndex, metaclass=ABCMeta):

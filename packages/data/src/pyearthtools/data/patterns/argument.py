@@ -18,11 +18,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Iterable
 
-from pyearthtools.data.patterns import PatternIndex, PatternVariableAware
+import pyearthtools.utils
 from pyearthtools.data.indexes import decorators
 from pyearthtools.data.indexes.utilities import spellcheck
-
-import pyearthtools.utils
+from pyearthtools.data.patterns import PatternIndex, PatternVariableAware
 from pyearthtools.utils.decorators import classproperty
 
 """

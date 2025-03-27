@@ -14,7 +14,6 @@
 
 import pytest
 import xarray as xr
-
 from pyearthtools.pipeline.operations.xarray import sort
 
 SIMPLE_DA1 = xr.DataArray(

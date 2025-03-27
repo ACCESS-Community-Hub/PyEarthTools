@@ -15,15 +15,13 @@
 
 # type: ignore[reportPrivateImportUsage]
 
-from typing import Union, Optional, Any
-
 import math
-import einops
+from typing import Any, Optional, Union
 
-import numpy as np
 import dask.array as da
+import einops
+import numpy as np
 from dask.delayed import delayed
-
 from pyearthtools.pipeline.operations.dask.dask import DaskOperation
 
 

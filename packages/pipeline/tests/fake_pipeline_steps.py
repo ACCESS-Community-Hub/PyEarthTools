@@ -15,10 +15,8 @@
 from __future__ import annotations
 
 import pyearthtools.utils
-
-from pyearthtools.pipeline import Operation
 from pyearthtools.data import Index
-
+from pyearthtools.pipeline import Operation
 
 pyearthtools.utils.config.set({"pipeline.run_parallel": False})
 

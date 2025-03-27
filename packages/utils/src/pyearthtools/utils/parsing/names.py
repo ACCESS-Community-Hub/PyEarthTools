@@ -13,8 +13,8 @@
 # limitations under the License.
 
 
-from typing import Callable
 import types
+from typing import Callable
 
 
 def function_name(object: Callable) -> str:

@@ -15,10 +15,9 @@
 
 from __future__ import annotations
 
-from torch.utils.data import IterableDataset, get_worker_info, Dataset
-
 import pyearthtools
 from pyearthtools.pipeline import Pipeline
+from torch.utils.data import Dataset, IterableDataset, get_worker_info
 
 
 class BasePytorchPipeline:

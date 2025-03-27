@@ -17,9 +17,8 @@ import logging
 from typing import Any, Union
 
 import numpy as np
-import xarray as xr
-
 import pyearthtools.data
+import xarray as xr
 from pyearthtools.data import Transform
 
 LOG = logging.getLogger("pyearthtools.pipeline")

@@ -14,23 +14,21 @@
 
 
 from __future__ import annotations
+
 from typing import Any
 
-import xarray as xr
-from xarray import plot as xplt
-
 import numpy as np
-
+import xarray as xr
 from matplotlib.figure import Figure
-
 from pyearthtools.data.indexes import FileSystemIndex
-from pyearthtools.data.save import dataset, json, array, plot
+from pyearthtools.data.save import array, dataset, json, plot
+from xarray import plot as xplt
 
 DASK_IMPORTED = True
 try:
     import dask
-    from dask.delayed import Delayed
     import dask.array as da
+    from dask.delayed import Delayed
     from pyearthtools.data.save import dask as dask_save
 except (ImportError, ModuleNotFoundError) as e:
     DASK_IMPORTED = False

@@ -15,11 +15,9 @@
 
 from __future__ import annotations
 
-import xarray as xr
-
 import pyearthtools.data.transforms.attributes as attr
+import xarray as xr
 from pyearthtools.data.transforms.transform import Transform
-
 from pyearthtools.utils.decorators import BackwardsCompatibility
 
 # Backwards compatability

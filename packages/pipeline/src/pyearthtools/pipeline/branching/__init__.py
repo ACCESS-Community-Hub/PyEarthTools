@@ -13,12 +13,11 @@
 # limitations under the License.
 
 
+from pyearthtools.pipeline.branching import join, split, unify
 from pyearthtools.pipeline.branching.branching import PipelineBranchPoint
-from pyearthtools.pipeline.branching.unify import Unifier
 from pyearthtools.pipeline.branching.join import Joiner
 from pyearthtools.pipeline.branching.split import Spliter
 from pyearthtools.pipeline.branching.stop import StopUndo
-
-from pyearthtools.pipeline.branching import unify, join, split
+from pyearthtools.pipeline.branching.unify import Unifier
 
 __all__ = ["PipelineBranchPoint", "Unifier", "Joiner", "Spliter"]

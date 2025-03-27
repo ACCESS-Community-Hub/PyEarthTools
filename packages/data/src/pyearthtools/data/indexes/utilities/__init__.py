@@ -17,6 +17,6 @@
 Various utilites for `pyearthtools.data.indexes`
 """
 
-from pyearthtools.data.indexes.utilities import mixins, delete_files
+from pyearthtools.data.indexes.utilities import delete_files, mixins
 from pyearthtools.data.indexes.utilities.fileload import open_files, open_static
 from pyearthtools.data.indexes.utilities.spellcheck import check_prompt

@@ -18,10 +18,10 @@ Attribute modification
 """
 
 from __future__ import annotations
+
 from typing import Any, Literal
 
 import xarray as xr
-
 from pyearthtools.data.transforms import Transform
 from pyearthtools.utils.decorators import BackwardsCompatibility
 

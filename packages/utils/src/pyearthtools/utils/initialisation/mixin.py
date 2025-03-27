@@ -14,8 +14,7 @@
 
 
 import copy
-from typing import Literal, Sequence, Any, Optional, TypeVar
-
+from typing import Any, Literal, Optional, Sequence, TypeVar
 
 import pyearthtools.utils
 from pyearthtools.utils.initialisation import init_parsing

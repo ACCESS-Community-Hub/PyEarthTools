@@ -13,13 +13,12 @@
 # limitations under the License.
 
 
-from typing import Literal, Sequence, Any, Union, Optional, TypeVar
 from collections.abc import Mapping
-
 from pathlib import Path
-import yaml
+from typing import Any, Literal, Optional, Sequence, TypeVar, Union
 
 import pyearthtools.utils
+import yaml
 from pyearthtools.utils.initialisation.imports import dynamic_import
 from pyearthtools.utils.initialisation.mixin import InitialisationRecordingMixin
 

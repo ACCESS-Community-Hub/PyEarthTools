@@ -20,15 +20,13 @@ Training DataModule to source data from `pipeline`'s.
 from __future__ import annotations
 
 import functools
-from typing import Optional, Callable, Any, TypeVar
+from pathlib import Path
+from typing import Any, Callable, Optional, TypeVar
 
 import numpy as np
-from pathlib import Path
-
 import pyearthtools.pipeline
-from pyearthtools.pipeline import Pipeline, Iterator
+from pyearthtools.pipeline import Iterator, Pipeline
 from pyearthtools.utils.initialisation import InitialisationRecordingMixin
-
 
 CONFIG_KEY = "--CONFIG--"
 SUFFIX = ".datamodule"

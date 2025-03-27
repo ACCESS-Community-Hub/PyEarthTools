@@ -15,9 +15,8 @@
 
 from typing import Hashable, TypeVar, Union
 
-import xarray as xr
-
 import pyearthtools.data
+import xarray as xr
 from pyearthtools.pipeline.operation import Operation
 
 T = TypeVar("T", xr.Dataset, xr.DataArray)

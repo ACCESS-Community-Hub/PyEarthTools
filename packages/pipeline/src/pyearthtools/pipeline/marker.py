@@ -14,7 +14,6 @@
 
 
 import xarray as xr
-
 from pyearthtools.pipeline.graph import Graphed
 from pyearthtools.pipeline.operation import PipelineStep
 

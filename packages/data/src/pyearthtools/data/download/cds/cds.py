@@ -18,19 +18,19 @@ Copernicus Data Storage Root Index
 """
 
 from __future__ import annotations
-from abc import abstractmethod, ABCMeta
-from pathlib import Path
-from typing import Iterable, Any, Type
-import xarray as xr
+
 import logging
 import warnings
+from abc import ABCMeta, abstractmethod
+from pathlib import Path
+from typing import Any, Iterable, Type
 
 import urllib3
-
+import xarray as xr
 from pyearthtools.data import DataNotFoundError, Petdt
 from pyearthtools.data.download import DownloadIndex
 from pyearthtools.data.indexes import utilities
-from pyearthtools.data.patterns import TemporalExpandedDateVariable, PatternIndex
+from pyearthtools.data.patterns import PatternIndex, TemporalExpandedDateVariable
 from pyearthtools.data.transforms import Transform, TransformCollection
 
 LOG = logging.getLogger("pyearthtools.data")

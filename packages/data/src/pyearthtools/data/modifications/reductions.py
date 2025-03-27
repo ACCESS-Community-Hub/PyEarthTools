@@ -20,12 +20,11 @@ Reduction based `Modification's`
 from __future__ import annotations
 
 from typing import Union
+
 import xarray as xr
-
-from pyearthtools.data.time import Petdt, TimeDelta, TimeResolution
 from pyearthtools.data.indexes.utilities.dimensions import identify_time_dimension
-
 from pyearthtools.data.modifications import Modification, register_modification
+from pyearthtools.data.time import Petdt, TimeDelta, TimeResolution
 
 
 class Reduction(Modification):

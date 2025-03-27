@@ -1,5 +1,4 @@
 import pytest
-
 from pyearthtools.pipeline import controller
 
 # def test_PipelineIndex():

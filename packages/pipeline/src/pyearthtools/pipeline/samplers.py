@@ -20,8 +20,8 @@ Allows data to be on the fly iterated through, and sampled from the stream.
 """
 
 from __future__ import annotations
-from abc import ABCMeta, abstractmethod
 
+from abc import ABCMeta, abstractmethod
 from typing import Any, Generator, Union
 
 from pyearthtools.pipeline.recording import PipelineRecordingMixin

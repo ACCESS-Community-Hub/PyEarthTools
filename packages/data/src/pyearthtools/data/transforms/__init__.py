@@ -48,27 +48,26 @@ class CustomTransform(pyearthtools.data.transforms.Transform):
 
 """
 
-from pyearthtools.data.transforms.transform import (
-    Transform,
-    TransformCollection,
-    FunctionTransform,
-)
-
 from pyearthtools.data.transforms import (
     aggregation,
+    attributes,
     coordinates,
     dimensions,
-    normalisation,
-    utils,
-    variables,
-    attributes,
-    optimisation,
-    values,
     interpolation,
-    region,
     mask,
+    normalisation,
+    optimisation,
+    region,
+    utils,
+    values,
+    variables,
 )
 from pyearthtools.data.transforms.default import get_default_transforms
 
 # from pyearthtools.data.transforms.mask import MaskTransform as mask
-from pyearthtools.data.transforms.derive import derive, Derive
+from pyearthtools.data.transforms.derive import Derive, derive
+from pyearthtools.data.transforms.transform import (
+    FunctionTransform,
+    Transform,
+    TransformCollection,
+)

@@ -14,13 +14,12 @@
 
 
 from __future__ import annotations
+
 from abc import ABCMeta, abstractmethod
 from typing import Any, Union
 
-
-from pyearthtools.pipeline.operation import Operation
 from pyearthtools.pipeline.exceptions import PipelineUnificationException
-
+from pyearthtools.pipeline.operation import Operation
 
 __all__ = ["Unifier", "Equality"]
 

@@ -15,16 +15,17 @@
 
 from __future__ import annotations
 
-
 import lightning as L
 from lightning.pytorch.utilities import CombinedLoader
-from torch.utils.data import DataLoader
-
 from pyearthtools.pipeline.controller import Pipeline
 from pyearthtools.pipeline.iterators import Iterator
-
 from pyearthtools.training.data.datamodule import PipelineDataModule
-from pyearthtools.training.data.lightning.datasets import PytorchDataset, PytorchIterable, BasePytorchPipeline
+from pyearthtools.training.data.lightning.datasets import (
+    BasePytorchPipeline,
+    PytorchDataset,
+    PytorchIterable,
+)
+from torch.utils.data import DataLoader
 
 
 class PipelineLightningDataModule(PipelineDataModule, L.LightningDataModule):

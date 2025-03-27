@@ -14,9 +14,7 @@
 
 
 import numpy as np
-
 import pytest
-
 from pyearthtools.utils.data import Tesselator
 
 tesselator_tests = [

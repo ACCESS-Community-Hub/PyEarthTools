@@ -13,12 +13,10 @@
 # limitations under the License.
 
 
-import pytest
-
-from pyearthtools.pipeline import Pipeline, iterators, filters, exceptions, Operation
-from pyearthtools.data import Index
-
 import pyearthtools.utils
+import pytest
+from pyearthtools.data import Index
+from pyearthtools.pipeline import Operation, Pipeline, exceptions, filters, iterators
 
 pyearthtools.utils.config.set({"pipeline.run_parallel": False})
 

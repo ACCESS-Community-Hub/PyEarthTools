@@ -13,9 +13,9 @@
 # limitations under the License.
 
 
-import pytest
 import math
 
+import pytest
 from pyearthtools.data.transforms.derive import EquationException, evaluate
 
 

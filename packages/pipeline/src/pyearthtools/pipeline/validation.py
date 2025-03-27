@@ -15,7 +15,7 @@
 
 from __future__ import annotations
 
-from typing import Type, Iterable, Optional, Union, Any
+from typing import Any, Iterable, Optional, Type, Union
 
 from pyearthtools.pipeline.exceptions import PipelineTypeError
 

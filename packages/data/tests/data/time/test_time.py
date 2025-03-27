@@ -14,7 +14,6 @@
 
 
 import pytest
-
 from pyearthtools.data.time import Petdt, TimeDelta, TimeRange, TimeResolution
 
 

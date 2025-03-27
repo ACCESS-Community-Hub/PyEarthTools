@@ -19,10 +19,9 @@ Load Classes from dictionary or strings
 
 
 from __future__ import annotations
+
 import builtins
-
 import importlib
-
 from types import ModuleType
 from typing import Callable
 

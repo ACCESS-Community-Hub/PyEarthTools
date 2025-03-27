@@ -20,9 +20,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from pyearthtools.data.save.array import save as numpy_save
-
 import dask.array as da
+from pyearthtools.data.save.array import save as numpy_save
 
 
 def save(

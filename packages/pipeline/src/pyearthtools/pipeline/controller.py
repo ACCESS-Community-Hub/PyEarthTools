@@ -18,30 +18,28 @@ Pipeline Controller
 
 from __future__ import annotations
 
-from abc import ABCMeta, abstractmethod
-
-from typing import Any, ContextManager, Literal, Union, Optional, Type, overload
-from pathlib import Path
+import builtins
 import functools
 import logging
+from abc import ABCMeta, abstractmethod
+from pathlib import Path
+from typing import Any, ContextManager, Literal, Optional, Type, Union, overload
 
-import builtins
 import graphviz
-
+import pyearthtools.pipeline
 import pyearthtools.utils
-
 from pyearthtools.data.indexes import Index
 from pyearthtools.data.transforms import Transform, TransformCollection
-
-import pyearthtools.pipeline
-from pyearthtools.pipeline.recording import PipelineRecordingMixin
-from pyearthtools.pipeline import samplers, iterators, filters
-from pyearthtools.pipeline.step import PipelineStep
-from pyearthtools.pipeline.operation import Operation
-from pyearthtools.pipeline.exceptions import PipelineFilterException, ExceptionIgnoreContext
-from pyearthtools.pipeline.validation import filter_steps
+from pyearthtools.pipeline import filters, iterators, samplers
+from pyearthtools.pipeline.exceptions import (
+    ExceptionIgnoreContext,
+    PipelineFilterException,
+)
 from pyearthtools.pipeline.graph import Graphed, format_graph_node
-
+from pyearthtools.pipeline.operation import Operation
+from pyearthtools.pipeline.recording import PipelineRecordingMixin
+from pyearthtools.pipeline.step import PipelineStep
+from pyearthtools.pipeline.validation import filter_steps
 
 PIPELINE_TYPES = Union[Index, PipelineStep, Transform, TransformCollection]
 VALID_PIPELINE_TYPES = Union[PIPELINE_TYPES, tuple[PIPELINE_TYPES, ...], tuple[tuple, ...]]
@@ -773,7 +771,7 @@ class Pipeline(_Pipeline, Index):
 
     def _ipython_display_(self):
         """Override for repr of `Pipeline`, shows initialisation arguments and graph"""
-        from IPython.core.display import display, HTML
+        from IPython.core.display import HTML, display
 
         display(HTML(self._repr_html_()))
 

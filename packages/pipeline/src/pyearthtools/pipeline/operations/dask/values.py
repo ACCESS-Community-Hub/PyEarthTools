@@ -15,13 +15,11 @@
 
 # type: ignore[reportPrivateImportUsage]
 
-from typing import Literal, Union, Optional
+from typing import Literal, Optional, Union
 
 import dask.array as da
 import numpy as np
-
 import pyearthtools.data
-
 from pyearthtools.pipeline.operations.dask.dask import DaskOperation
 
 

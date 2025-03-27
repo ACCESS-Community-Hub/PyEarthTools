@@ -15,21 +15,19 @@
 
 from __future__ import annotations
 
-from typing import Literal, Any
 import warnings
-import xarray as xr
+from typing import Any, Literal
 
 import pyearthtools.data
+import xarray as xr
+from pyearthtools.data.download import DownloadIndex
+from pyearthtools.data.download.ecmwf_opendata import opendata_variables
 from pyearthtools.data.indexes import (
+    VARIABLE_DEFAULT,
+    VariableDefault,
     alias_arguments,
     check_arguments,
-    VariableDefault,
-    VARIABLE_DEFAULT,
 )
-
-from pyearthtools.data.download.ecmwf_opendata import opendata_variables
-from pyearthtools.data.download import DownloadIndex
-
 
 VALID_MODELS = Literal["aifs", "ifs"]
 VALID_STREAM = Literal["oper", "enfo", "waef", "wave"]

@@ -19,16 +19,11 @@ from abc import abstractmethod
 from pathlib import Path
 from typing import Union
 
-
-import numpy as np
 import dask.array as da
-
-
+import numpy as np
 from pyearthtools.data.utils import parse_path
-
-from pyearthtools.utils.decorators import BackwardsCompatibility
 from pyearthtools.pipeline.operations.dask.dask import DaskOperation
-
+from pyearthtools.utils.decorators import BackwardsCompatibility
 
 FILE = Union[str, Path]
 

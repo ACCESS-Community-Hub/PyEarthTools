@@ -18,6 +18,7 @@ Index spell checking
 """
 
 from __future__ import annotations
+
 from typing import Any, Type
 
 from pyearthtools.data.exceptions import InvalidIndexError

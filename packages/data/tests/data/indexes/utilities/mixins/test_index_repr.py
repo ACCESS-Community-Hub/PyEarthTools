@@ -14,9 +14,8 @@
 
 from collections import namedtuple
 
-from pyearthtools.data.indexes.utilities.mixins import index_repr
-
 from pyearthtools.data.catalog import Catalog
+from pyearthtools.data.indexes.utilities.mixins import index_repr
 
 
 class MixableTestClass(index_repr.reprMixin):

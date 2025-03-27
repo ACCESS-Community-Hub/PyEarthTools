@@ -16,9 +16,8 @@
 from __future__ import annotations
 
 import functools
-from typing import Any, Callable
-
 import warnings
+from typing import Any, Callable
 
 
 class classproperty(property):

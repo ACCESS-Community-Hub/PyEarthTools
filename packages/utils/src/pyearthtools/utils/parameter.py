@@ -19,11 +19,11 @@ Function parameter searching
 
 """
 
+import concurrent.futures
 import itertools
 from typing import Callable
-import tqdm.auto as tqdm
 
-import concurrent.futures
+import tqdm.auto as tqdm
 
 _executor = concurrent.futures.ThreadPoolExecutor()
 

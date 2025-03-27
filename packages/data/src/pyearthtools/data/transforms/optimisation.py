@@ -14,12 +14,11 @@
 
 
 from __future__ import annotations
-from typing import Literal, Any
 
+from typing import Any, Literal
 
 import xarray as xr
 from pyearthtools.data.transforms.transform import Transform
-
 from pyearthtools.utils.decorators import BackwardsCompatibility
 
 

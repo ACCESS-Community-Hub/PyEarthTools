@@ -1,7 +1,6 @@
-import pytest
-
-from pyearthtools.data.archive import extensions
 import pyearthtools.data
+import pytest
+from pyearthtools.data.archive import extensions
 
 
 def test_register_archive():

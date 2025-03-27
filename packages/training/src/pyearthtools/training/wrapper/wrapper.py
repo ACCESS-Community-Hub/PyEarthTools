@@ -16,10 +16,9 @@ from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
 
-from pyearthtools.utils.initialisation import InitialisationRecordingMixin
 from pyearthtools.pipeline import Pipeline
-
 from pyearthtools.training.data import PipelineDataModule
+from pyearthtools.utils.initialisation import InitialisationRecordingMixin
 
 
 class ModelWrapper(InitialisationRecordingMixin, metaclass=ABCMeta):

@@ -21,17 +21,15 @@ This will allow data to be retrieved as normal, with the user not having to worr
 from __future__ import annotations
 
 import os
-
 from pathlib import Path
-import yaml
 from typing import Any
 
 import pyearthtools.data
-from pyearthtools.data import Petdt, Transform, TransformCollection, TimeDelta
+import pyearthtools.training.wrapper
+import yaml
+from pyearthtools.data import Petdt, TimeDelta, Transform, TransformCollection
 from pyearthtools.data.indexes import TimeIndex
 from pyearthtools.data.indexes.cacheIndex import BaseCacheIndex
-
-import pyearthtools.training.wrapper
 
 ATTRIBUTE_MARK = pyearthtools.data.transforms.attributes.set_attributes(
     purpose="Research Use Only.",
