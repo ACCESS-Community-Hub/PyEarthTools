@@ -1,0 +1,39 @@
+# This workflow will install and run the interrogate package to check for missing docstrings
+
+name: Run interrogate
+
+on: pull_request
+
+permissions:
+  contents: read
+
+jobs:
+    interrogate:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: '3.x'
+            - name: Install dev dependencies
+              run: |
+                python -m pip install --upgrade pip
+                pip install .[dev]
+            - name: interrogate checks
+              run: |
+                python -m pip install interrogate
+                interrogate -v --fail-under 40 --exclude "*/__init__.py" --exclude "*/__main__.py" --output docstring-coverage.txt --generate-badge interrogate-badge.svg
+                ls -l
+            - name: Upload docstring-coverage
+              uses: actions/upload-artifact@v4
+              with:
+                name: docstring-coverage
+                path: docstring-coverage.txt
+                if-no-files-found: warn
+            - name: Upload interrogate badge
+              uses: actions/upload-artifact@v4
+              with: 
+                name: interrogate-badge
+                path: interrogate-badge.svg
+                if-no-files-found: warn

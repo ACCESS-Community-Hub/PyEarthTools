@@ -14,6 +14,7 @@
 
 from pyearthtools.pipeline.branching import stop
 
+
 def test_StopUndo():
 
     su = stop.StopUndo()

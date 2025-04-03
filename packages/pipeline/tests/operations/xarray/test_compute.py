@@ -17,11 +17,12 @@ from pyearthtools.pipeline.operations.xarray import compute
 import xarray as xr
 import numpy as np
 
+
 def test_compute():
 
     compute_operation = compute.Compute()
 
-    da = xr.DataArray(np.ones((50,50)))
+    da = xr.DataArray(np.ones((50, 50)))
     da2 = da.chunk(10)
 
     # Test computation

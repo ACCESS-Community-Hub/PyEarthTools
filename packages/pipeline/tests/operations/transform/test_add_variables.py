@@ -19,16 +19,14 @@ import xarray as xr
 import numpy as np
 import pytest
 
+
 def test_TimeOfYear():
 
     times = [datetime.datetime(2020, 1, 1) + datetime.timedelta(days=day) for day in range(365)]
 
-    da = xr.DataArray(coords = {"time": times, "level": [1,2]},
-                      data = np.ones((365,2)))
+    da = xr.DataArray(coords={"time": times, "level": [1, 2]}, data=np.ones((365, 2)))
 
-    ds = xr.Dataset(coords = {"time": times, "level": [1,2]},
-                    data_vars = {"temperature": da}
-                    )
+    ds = xr.Dataset(coords={"time": times, "level": [1, 2]}, data_vars={"temperature": da})
 
     toy = add_variables.TimeOfYear("dayofyear")
     result = toy.apply(ds)

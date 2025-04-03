@@ -18,25 +18,18 @@ import xarray as xr
 import numpy as np
 import dask
 
-def test_save(monkeypatch):
 
+def test_save(monkeypatch):
     def mock_save(da, *args, **kwargs):
         return da
 
-    monkeypatch.setattr(dasksave, 'numpy_save', mock_save)
+    monkeypatch.setattr(dasksave, "numpy_save", mock_save)
 
-    da = xr.DataArray(np.ones((50,50)))
+    da = xr.DataArray(np.ones((50, 50)))
     assert len(da.chunksizes) == 0
 
-    da2 = da.chunk(10)  
-    assert len(da2.chunksizes['dim_0']) == 5
+    da2 = da.chunk(10)
+    assert len(da2.chunksizes["dim_0"]) == 5
 
     # Smoke test the save operation which just calls compute
     dasksave.save(da2)
-
-
-
-
-
-
-

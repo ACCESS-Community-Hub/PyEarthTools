@@ -15,12 +15,12 @@
 from pyearthtools.data.transforms import utils
 import xarray as xr
 
-def test_parse_dataset(monkeypatch):
 
+def test_parse_dataset(monkeypatch):
     def mock_open(target):
         return "opened"
 
-    monkeypatch.setattr(xr, 'open_dataset', mock_open)
+    monkeypatch.setattr(xr, "open_dataset", mock_open)
 
     result = utils.parse_dataset("openme")
     assert result == "opened"

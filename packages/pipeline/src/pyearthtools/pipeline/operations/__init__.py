@@ -32,8 +32,8 @@ from pyearthtools.pipeline.operations import transform
 
 try:
     from pyearthtools.pipeline.operations import dask
-except (ImportError, ModuleNotFoundError) as e: # pragma: no cover
-    warnings.warn(f"Unable to import `operations.dask` due to {e}", ImportWarning) 
+except (ImportError, ModuleNotFoundError) as e:  # pragma: no cover
+    warnings.warn(f"Unable to import `operations.dask` due to {e}", ImportWarning)
 
 __all__ = [
     "xarray",

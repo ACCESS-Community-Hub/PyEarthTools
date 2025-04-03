@@ -21,4 +21,4 @@ import warnings
 
 from .healpix import HEALPix  # noqa: F401
 
-__all__ = ['HEALPix']
+__all__ = ["HEALPix"]

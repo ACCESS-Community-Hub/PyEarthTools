@@ -16,8 +16,8 @@ import pytest
 
 from pyearthtools.data.operations import _aggregation
 
-def test_aggregation(monkeypatch):
 
+def test_aggregation(monkeypatch):
     def mock_aggregation(dataset):
         return dataset
 
@@ -28,23 +28,18 @@ def test_aggregation(monkeypatch):
         def leaving(self, *args, **kwargs):
             return mock_aggregation
 
-    monkeypatch.setattr(_aggregation, 'aggr_trans', MockThing())
+    monkeypatch.setattr(_aggregation, "aggr_trans", MockThing())
 
     # Intended functionality
-    result = _aggregation.aggregation("dataset",
-                                     "aggregation",
-                                     "reduction")
+    result = _aggregation.aggregation("dataset", "aggregation", "reduction")
     assert result == "dataset"
 
-    result = _aggregation.aggregation("a", "b", None,
-                                      preserve_dims="d")
+    result = _aggregation.aggregation("a", "b", None, preserve_dims="d")
     assert result == "a"
-
 
     # Test exception handling
     with pytest.raises(ValueError):
         result = _aggregation.aggregation("a", "b")
 
     with pytest.raises(ValueError):
-        result = _aggregation.aggregation("a", "b", "c",
-                                          preserve_dims="d")
+        result = _aggregation.aggregation("a", "b", "c", preserve_dims="d")

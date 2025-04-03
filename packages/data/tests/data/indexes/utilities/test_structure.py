@@ -20,24 +20,18 @@ from pyearthtools.data.indexes.utilities import structure
 
 filter_tests = [
     # Filter out a name
-    {"names": ["temperature", "wind", "wombats"],
-     "disallowed": 'wombats',
-     "expected": ['temperature', 'wind']
-    },
-
+    {"names": ["temperature", "wind", "wombats"], "disallowed": "wombats", "expected": ["temperature", "wind"]},
     # Filter out something that's not there
-    {"names": ["temperature", "wind"],
-     "disallowed": 'wombats',
-     "expected": ['temperature', 'wind']
-    }
+    {"names": ["temperature", "wind"], "disallowed": "wombats", "expected": ["temperature", "wind"]},
 ]
+
 
 @pytest.mark.parametrize("test_dictionary", filter_tests)
 def test_filter_disallowed(test_dictionary):
     td = test_dictionary
 
-    result = structure.filter_disallowed(td['names'], td['disallowed'])
-    assert result == td['expected']
+    result = structure.filter_disallowed(td["names"], td["disallowed"])
+    assert result == td["expected"]
 
 
 def test_get_structure():
@@ -48,10 +42,9 @@ def test_get_structure():
         # the disallow functionality also
         structure.get_structure(location, [])
 
+
 def test_clean_structure():
 
     structure.clean_structure(
-        {"names": ["temperature", "wind", "wombats"],
-         "disallowed": 'wombats',
-         "expected": ['temperature', 'wind']
-    })
+        {"names": ["temperature", "wind", "wombats"], "disallowed": "wombats", "expected": ["temperature", "wind"]}
+    )

@@ -21,17 +21,14 @@ import xarray as xr
 import numpy as np
 import pytest
 
+
 def test_binning():
 
-    data = np.random.random((30, 30,3))
+    data = np.random.random((30, 30, 3))
     times = ["2020-01-01", "2020-01-02", "2020-01-03"]
     times = [datetime.datetime.fromisoformat(t) for t in times]
 
-    da = xr.DataArray(coords = {"lat": list(range(30)),
-                                "lon": list(range(30)),
-                                "time": times
-                      },  
-                      data=data)
+    da = xr.DataArray(coords={"lat": list(range(30)), "lon": list(range(30)), "time": times}, data=data)
 
     # Smoke tests
     binned = binning(da, "daily")

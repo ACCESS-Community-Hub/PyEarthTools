@@ -16,14 +16,17 @@ from pyearthtools.data import exceptions as e
 
 import pytest
 
+
 def test_InvalidIndexError():
 
     # I tried setting samples up to parametrise the test but
     # it just didn't want to work that way
 
-    samples = [(e.InvalidIndexError, KeyError),
-           (e.InvalidDataError, KeyError),
-           (e.DataNotFoundError, FileNotFoundError)]    
+    samples = [
+        (e.InvalidIndexError, KeyError),
+        (e.InvalidDataError, KeyError),
+        (e.DataNotFoundError, FileNotFoundError),
+    ]
 
     for (etype, ptype) in samples:
 
@@ -39,8 +42,8 @@ def test_InvalidIndexError():
             assert exc.message == "testmessageab"
             assert str(exc) == "testmessageab"
 
-def test_run_and_catch():
 
+def test_run_and_catch():
     def makemistake():
 
         raise e.InvalidIndexError("Not here")

@@ -14,9 +14,7 @@ def test_get_size():
 
 def test_MemCache():
 
-    mc = cacheIndex.FunctionalMemCacheIndex("PatternIndex", 
-                                            {"transforms": None}, 
-                                            function=str)
+    mc = cacheIndex.FunctionalMemCacheIndex("PatternIndex", {"transforms": None}, function=str)
     assert mc.size != 0
 
     assert mc.pattern is not None
@@ -24,10 +22,10 @@ def test_MemCache():
 
     mc.cleanup()
 
+
 def test_FileSystemCacheIndex():
 
     with tempfile.TemporaryDirectory() as tempdir:
 
-        fsci = cacheIndex.FunctionalCacheIndex(tempdir,
-                                               function=str)
+        fsci = cacheIndex.FunctionalCacheIndex(tempdir, function=str)
         assert fsci.cache is not None

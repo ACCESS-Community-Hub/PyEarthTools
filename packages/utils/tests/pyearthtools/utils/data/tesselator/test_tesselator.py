@@ -119,18 +119,14 @@ def test_tesselator_set_coords():
     # Sketching out some testing for the _set_coords methdo
 
     t = Tesselator(10)
-    da = xr.DataArray(coords = {"lat": list(range(0,100)),
-                                  "lon": list(range(0,100))  },
-                        data=np.ones((100,100)))
+    da = xr.DataArray(coords={"lat": list(range(0, 100)), "lon": list(range(0, 100))}, data=np.ones((100, 100)))
     t._set_coords(da)
+
 
 def test_stitch():
 
     t = Tesselator(10)
-    da = xr.DataArray(coords = {"lat": list(range(0,100)),
-                                  "lon": list(range(0,100))  },
-                        data=np.ones((100,100)))
+    da = xr.DataArray(coords={"lat": list(range(0, 100)), "lon": list(range(0, 100))}, data=np.ones((100, 100)))
 
     patches = t.patch(da)
     t.stitch(patches)
-

@@ -15,8 +15,9 @@
 from pyearthtools.data.transforms.normalisation import _utils
 import pyearthtools.data.time
 
+
 def test_format_class_name():
 
-    obj = pyearthtools.data.time.Petdt('2010-01-01')
+    obj = pyearthtools.data.time.Petdt("2010-01-01")
     result = _utils.format_class_name(obj)
-    assert result == ['time', 'Petdt']
+    assert result == ["time", "Petdt"]

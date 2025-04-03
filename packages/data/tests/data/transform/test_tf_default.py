@@ -17,9 +17,7 @@ from pyearthtools.data.transforms import default
 
 def test_get_default_transforms():
     # Provide coverage with a smoke test
-    
-    tf_default = default.get_default_transforms(
-        intelligence_level = 0
-    )
+
+    tf_default = default.get_default_transforms(intelligence_level=0)
 
     assert tf_default is not None

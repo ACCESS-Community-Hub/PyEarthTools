@@ -19,33 +19,32 @@ import os.path
 
 from pyearthtools.data.save import jsonsave
 
-def test_save(monkeypatch):
 
+def test_save(monkeypatch):
     def mock_dump(*args, **kwargs):
         return True
 
-    monkeypatch.setattr(json, 'dump', mock_dump)
+    monkeypatch.setattr(json, "dump", mock_dump)
 
     class MockThingError:
-        '''
+        """
         Used to return a non-string from search
-        '''
+        """
 
         def search(self, *args, **kwargs):
             return {}
 
-
     class MockThingWorks:
-        '''
+        """
         Used to return a valid temporary path which
         will get cleaned up
-        '''
+        """
 
         def __init__(self, usedir=None):
             self.usedir = usedir
 
         def search(self, *args, **kwargs):
-            return os.path.join(self.usedir, "fakefile.txt")            
+            return os.path.join(self.usedir, "fakefile.txt")
 
     with pytest.raises(NotImplementedError):
         jsonsave.save("saveme", MockThingError())
@@ -55,6 +54,3 @@ def test_save(monkeypatch):
         mtw = MockThingWorks(tmpdir)
         path = jsonsave.save("saveme", mtw)
         assert path is not None
-
-
-

@@ -14,10 +14,11 @@
 
 from pyearthtools.data.indexes.fake import FakeIndex
 
+
 def test_FakeIndex():
 
     # Just brings coverage up to 100% with smoke test
 
     fi = FakeIndex(["temperature", "humidity"])
-    result = fi.get('2020-01-01')
+    result = fi.get("2020-01-01")
     fi._desc_
