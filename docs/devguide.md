@@ -58,7 +58,17 @@ A code review is responsible for checking the following:
 1. Unit test coverage is 100% and unit tests cover functionality and robustness (or improves the previous situation to these ends)
 2. Any security issues are resolved and appropriately handled
 3. Documentation and tutorials are written to cover any new functionality
-4. Style guidelines are followed, static analysis and lint checking have been done
-5. Code is readable and well-structured
-6. Code does not do anything unexpected or beyond the scope of the function
-7. Any additional dependencies are justified and do not result in bloat
+5. Style guidelines are followed, static analysis and lint checking have been done
+6. Code is readable and well-structured
+7. Code does not do anything unexpected or beyond the scope of the function
+8. Any additional dependencies are justified and do not result in bloat
+
+
+## Github Actions - Workflows
+We are using Github actions to automated testing and specific workflows. 
+1. **Black** - Python code formatting. https://pypi.org/project/black/
+2. **Interrogate** - will check the codebase docstring coverage and create a report. https://interrogate.readthedocs.io/en/latest/
+    * To use manually run: `interrogate -v [PATH]`
+    * To run with a failing test float, exclusions, output file and badge run: `interrogate -v --fail-under 40 --exclude "*/__init__.py" --exclude "*/__main__.py" --output docstring-coverage.txt --generate-badge interrogate-badge.svg` 
+
+    
