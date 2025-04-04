@@ -34,6 +34,11 @@
             "orcid": "https://orcid.org/0009-0001-6250-3987",
             "affiliation": "Met Office, United Kingdom",
             "name": "Pill, John"
+        },
+        {
+            "orcid": "https://orcid.org/0000-0002-1975-0042",
+            "affiliation": "Bureau of Meteorology, Australia",
+            "name": "de Burgh-Day, Catherine"
         }
     ],
     "license": "Apache-2.0"
