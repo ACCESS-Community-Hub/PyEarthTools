@@ -21,12 +21,13 @@ import warnings
 
 __all__ = ["HEALPix"]
 
-try: 
+try:
     from .healpix import HEALPix  # noqa: F401
 
 except:
 
-    class HealPix():
+    class HealPix:
         def __init__(self):
-            warnings.warn("Could not import the healpix projection, please install the 'healpy' and 'reproject' optional dependencies")
-
+            warnings.warn(
+                "Could not import the healpix projection, please install the 'healpy' and 'reproject' optional dependencies"
+            )
