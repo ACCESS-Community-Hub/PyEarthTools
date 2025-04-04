@@ -58,10 +58,10 @@ A code review is responsible for checking the following:
 1. Unit test coverage is 100% and unit tests cover functionality and robustness (or improves the previous situation to these ends)
 2. Any security issues are resolved and appropriately handled
 3. Documentation and tutorials are written to cover any new functionality
-5. Style guidelines are followed, static analysis and lint checking have been done
-6. Code is readable and well-structured
-7. Code does not do anything unexpected or beyond the scope of the function
-8. Any additional dependencies are justified and do not result in bloat
+4. Style guidelines are followed, static analysis and lint checking have been done
+5. Code is readable and well-structured
+6. Code does not do anything unexpected or beyond the scope of the function
+7. Any additional dependencies are justified and do not result in bloat
 
 
 ## Github Actions - Workflows
