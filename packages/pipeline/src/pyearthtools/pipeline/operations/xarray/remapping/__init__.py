@@ -19,6 +19,15 @@ Re-mapping tools for processing data on different coordinate projections.
 
 import warnings
 
-from .healpix import HEALPix  # noqa: F401
-
 __all__ = ["HEALPix"]
+
+try:
+    from .healpix import HEALPix  # noqa: F401
+
+except:
+
+    class HealPix:
+        def __init__(self):
+            warnings.warn(
+                "Could not import the healpix projection, please install the 'healpy' and 'reproject' optional dependencies"
+            )
