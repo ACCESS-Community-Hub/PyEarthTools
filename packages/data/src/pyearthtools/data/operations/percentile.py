@@ -25,9 +25,14 @@ import numpy as np
 import xarray as xr
 
 
-def _find_percentile(data: xr.DataArray | xr.Dataset, percentiles: float | list[float]):
-    if isinstance(data, xr.Dataset):
-        return tuple(map(_find_percentile, data))  # type: ignore
+def _find_percentile(data: xr.DataArray, percentiles: float | list[float]):
+
+    # Given the parent method unpacks datasets by variable, unclear this is
+    # needed. TODO Review after 100% test coverage reached in case it is hit in
+    # some use cases.
+    # if isinstance(data, xr.Dataset):
+    #     return tuple(map(_find_percentile, data))  # type: ignore
+
     return np.nanpercentile(data, percentiles)
 
 
@@ -57,10 +62,13 @@ def percentile(dataset: xr.DataArray | xr.Dataset, percentiles: float | list[flo
     coords = {"Percentile": percentiles}
 
     for data_var in dataset.data_vars:
-        new_data[data_var] = (
-            coords,
-            _find_percentile(dataset[data_var], percentiles),
-            dataset[data_var].attrs,
+        the_percentiles = _find_percentile(dataset[data_var], percentiles)
+        the_attrs = dataset[data_var].attrs
+        da = xr.DataArray(
+            coords=coords,
+            data=the_percentiles,
+            attrs=the_attrs,
         )
+        new_data[data_var] = da
 
     return xr.Dataset(data_vars=new_data, coords=coords)

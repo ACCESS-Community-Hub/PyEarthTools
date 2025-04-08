@@ -12,23 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pyearthtools.utils.parameter
-from pyearthtools.utils.parsing import names
+from pyearthtools.data.transforms.optimisation import Rechunk
+
+import xarray as xr
+import numpy as np
+import pytest
+import dask
 
 
-def test_function_name():
-    """
-    This test just provides coverage of the function_name method
-    """
+def test_Rechunk():
 
-    # Test a function pointer
-    name = names.function_name(names.function_name)
-    assert name == "pyearthtools.utils.parsing.names.function_name"
+    rc = Rechunk(method="auto")
 
-    # Test a type object
-    name = names.function_name(type(names.function_name))
-    assert name == "function"
+    data = np.ones((50, 50))
+    data = dask.array.from_array(data)
+    coords = {"a": list(range(50)), "b": list(range(50))}
 
-    # Test a class
-    name = names.function_name(pyearthtools.utils.parameter.SingleParameter)
-    assert name == "pyearthtools.utils.parameter.SingleParameter"
+    da = xr.DataArray(coords=coords, data=data)
+    ds = xr.Dataset(coords=coords, data_vars={"z": da})
+
+    rc.apply(ds)
+
+    with pytest.raises(ValueError):
+        rc = Rechunk(method="crystalball")
+
+    with pytest.raises(ValueError):
+        rc = Rechunk(method="encoding")
+        rc.apply(ds)

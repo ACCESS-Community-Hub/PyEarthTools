@@ -1,4 +1,4 @@
-# Copyright Commonwealth of Australia, Bureau of Meteorology 2024.
+# Copyright Commonwealth of Australia, Bureau of Meteorology 2025.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,22 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pyearthtools.pipeline.operations.xarray.chunk import Chunk
 
-"""
-Re-mapping tools for processing data on different coordinate projections.
-"""
+import numpy as np
+import xarray as xr
 
-import warnings
 
-__all__ = ["HEALPix"]
+def test_Chunk():
 
-try:
-    from .healpix import HEALPix  # noqa: F401
+    c = Chunk()
 
-except:
+    data = np.ones((50, 50))
+    da = xr.DataArray(coords={"a": list(range(50)), "b": list(range(50))}, data=data)
 
-    class HealPix:
-        def __init__(self):
-            warnings.warn(
-                "Could not import the healpix projection, please install the 'healpy' and 'reproject' optional dependencies"
-            )
+    da2 = c.apply_func(da)
+    da3 = c.undo_func(da2)
+
+    xr.testing.assert_equal(da3, da)

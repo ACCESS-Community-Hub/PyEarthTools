@@ -34,7 +34,7 @@ from pyearthtools.data.time import Petdt
 from pyearthtools.data.transforms import Transform, TransformCollection
 from pyearthtools.data.indexes.indexes import DataFileSystemIndex, TimeIndex
 
-from pyearthtools.data.indexes.utilities.dimensions import identify_time_dimension
+from pyearthtools.data.operations.utils import identify_time_dimension
 from pyearthtools.data.utils import parse_path
 
 from pyearthtools.data.save import save

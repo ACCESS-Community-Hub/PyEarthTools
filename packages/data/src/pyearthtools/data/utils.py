@@ -28,25 +28,19 @@ LOG = logging.getLogger("pyearthtools.data")
 
 def parse_path(path: os.PathLike[Any] | str) -> Path:
     """
-    Parse given `root_dir`
+    Replace path components with environment variables.
 
-    Parse environment variables. .e.g. $USER evalutes correctly.
+    e.g., given a path such as /home/fictional/$USER/someplace,
+    replace $USER with the value of the environment $USER if it set
 
     Args:
-        path (os.PathLike[Any]):
-            Path to parse.
+        path: Path to parse.
 
     Returns:
-        Path:
-            Parsed path
+        Parsed path with environment variables replaces
 
     """
     path_str = str(path)
-
-    if path_str == "temp":
-        LOG.warn(
-            "Path being parsed was 'temp', yet this parser does not autocreate temp directories. Use `patterns` to use auto temp dirs."
-        )
 
     matches: list[str] = re.findall(r"(\$[A-z0-9]+)", path_str)  # type: ignore
     for match in matches:

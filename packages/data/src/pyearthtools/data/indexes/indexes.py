@@ -59,7 +59,8 @@ from pyearthtools.data.indexes.utilities.mixins import (
     CallRedirectMixin,
     CatalogMixin,
 )
-from pyearthtools.data.indexes.utilities import open_files, dimensions
+from pyearthtools.data.indexes.utilities import open_files
+from pyearthtools.data.operations.utils import identify_time_dimension
 
 from pyearthtools.utils.context import ChangeValue
 
@@ -468,7 +469,7 @@ class SingleTimeIndex(Index):
         if not isinstance(data, (xr.Dataset, xr.DataArray)):
             return data
 
-        time_dim = dimensions.identify_time_dimension(data)
+        time_dim = identify_time_dimension(data)
 
         round = round or self._round
         if time_dim not in data.dims and time_dim in data.coords:

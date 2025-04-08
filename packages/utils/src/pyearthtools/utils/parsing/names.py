@@ -17,7 +17,7 @@ import types
 from typing import Callable
 
 
-def function_name(object: Callable) -> str:
+def function_name(anobject: Callable) -> str:
     """
     Get Function Name of step
 
@@ -27,19 +27,21 @@ def function_name(object: Callable) -> str:
     Returns:
         str: Module path to Callable
     """
-    if isinstance(object, type):
-        return str(object).split("'")[1]
+    if isinstance(anobject, type):
+        return str(anobject).split("'")[1]
 
-    module = object.__module__
+    module = anobject.__module__
 
-    if isinstance(object, types.FunctionType):
-        name = object.__name__
+    if isinstance(anobject, types.FunctionType):
+        name = anobject.__name__
     else:
-        name = object.__class__.__name__
+        name = anobject.__class__.__name__
 
     str_name = str(name)
-    if "<locals>" in str_name:
-        return str_name.split("'")[1].split("<locals>")[0].removesuffix(".")
+
+    # Not covered by testing. Presumably here for a reason. Leaving for posterity.
+    # if "<locals>" in str_name:
+    #     return str_name.split("'")[1].split("<locals>")[0].removesuffix(".")
 
     if module is not None and module != "__builtin__":
         name = module + "." + str(name)

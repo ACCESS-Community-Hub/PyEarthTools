@@ -23,7 +23,7 @@ from typing import Literal
 import xarray as xr
 
 from pyearthtools.data.time import Petdt, TimeDelta, TimeResolution, TimeRange
-from pyearthtools.data.indexes.utilities.dimensions import identify_time_dimension
+from pyearthtools.data.operations.utils import identify_time_dimension
 
 from pyearthtools.data.modifications import Modification, register_modification
 

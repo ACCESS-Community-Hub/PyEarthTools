@@ -26,7 +26,7 @@ import xarray as xr
 
 import pyearthtools.data
 from pyearthtools.data.indexes import TimeDataIndex
-from pyearthtools.data.indexes.utilities.dimensions import identify_time_dimension
+from pyearthtools.data.operations.utils import identify_time_dimension
 
 from pyearthtools.data.transforms.transform import TransformCollection
 
