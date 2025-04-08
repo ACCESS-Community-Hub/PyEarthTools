@@ -22,7 +22,6 @@ jobs:
                 pip install .[dev]
             - name: interrogate checks
               run: |
-                python -m pip install interrogate
                 interrogate -v --fail-under 40 --exclude "*/__init__.py" --exclude "*/__main__.py" --output docstring-coverage.txt --generate-badge interrogate-badge.svg
                 ls -l
             - name: Upload docstring-coverage

@@ -17,15 +17,15 @@ from pyearthtools.pipeline.operations.xarray.chunk import Chunk
 import numpy as np
 import xarray as xr
 
+
 def test_Chunk():
 
     c = Chunk()
 
     data = np.ones((50, 50))
-    da = xr.DataArray(coords = {"a": list(range(50)), "b": list(range(50))}, data=data)
+    da = xr.DataArray(coords={"a": list(range(50)), "b": list(range(50))}, data=data)
 
     da2 = c.apply_func(da)
     da3 = c.undo_func(da2)
 
     xr.testing.assert_equal(da3, da)
-

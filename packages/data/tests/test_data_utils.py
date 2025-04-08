@@ -12,30 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyearthtools.data.transforms.optimisation import Rechunk
-
-import xarray as xr
-import numpy as np
+from pyearthtools.data import utils
+import os
 import pytest
-import dask
 
-def test_Rechunk():
 
-    rc = Rechunk(method='auto')
+def test_parse_path(monkeypatch):
 
-    data = np.ones((50, 50))
-    data = dask.array.from_array(data)
-    coords = {'a': list(range(50)),
-              'b': list(range(50))}
+    # import pudb; pudb.set_trace()
 
-    da = xr.DataArray(coords=coords, data=data)
-    ds = xr.Dataset(coords=coords, data_vars = {'z': da})
+    monkeypatch.setitem(os.environ, "SPECIAL", "fake_username")
 
-    rc.apply(ds)
+    test_path = "/home/fictional/path/$SPECIAL/root_dir"
+    result = utils.parse_path(test_path)
+    assert "/home/fictional/path/fake_username/root_dir" in str(result)
 
     with pytest.raises(ValueError):
-        rc = Rechunk(method="crystalball")
-
-    with pytest.raises(ValueError):
-        rc = Rechunk(method="encoding")
-        rc.apply(ds)
+        test_path = "/home/fictional/path/$NONEXISTENTREALLYREALLYREALLY/root_dir"
+        result = utils.parse_path(test_path)

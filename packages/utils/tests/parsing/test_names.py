@@ -17,6 +17,7 @@ from pyearthtools.utils.parsing import names
 
 import datetime
 
+
 def test_function_name():
     """
     This test just provides coverage of the function_name method
@@ -37,7 +38,7 @@ def test_function_name():
     class MockThing:
 
         def __init__(self):
-            self.__module__ = '__builtin__'
+            self.__module__ = "__builtin__"
 
         def __call__(self):
             return "Hello"

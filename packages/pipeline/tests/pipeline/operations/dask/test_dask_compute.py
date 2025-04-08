@@ -19,14 +19,13 @@ import xarray as xr
 import dask
 import numpy as np
 
+
 def test_Compute():
 
     c = Compute()
 
-    data = np.ones((50,50))
-    da = xr.DataArray(coords={'a': list(range(0,50)), 
-                              'b': list(range(0,50))},
-                      data=data)
+    data = np.ones((50, 50))
+    da = xr.DataArray(coords={"a": list(range(0, 50)), "b": list(range(0, 50))}, data=data)
 
     da.chunk(10)
 

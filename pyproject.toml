@@ -44,7 +44,7 @@ all = [
   "pyearthtools-training[all] @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/training"
 ]
 test = ["pytest", "pytest-cov", "pytest-xdist", "pudb"]
-dev = ["pre-commit", "black==25.1.0"]
+dev = ["pre-commit", "black==25.1.0", "interrogate"]
 docs = [
   "sphinx",
   "myst-parser",

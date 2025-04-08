@@ -12,26 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyearthtools.data.operations import percentile
+from pyearthtools.data.transforms.optimisation import Rechunk
 
 import xarray as xr
 import numpy as np
+import pytest
+import dask
 
-def test_percentile():
 
-    data = np.linspace(0, 100, 100)
-    da = xr.DataArray(coords = {'index': list(range(0,100))},
-                          data=data,
-                          name="Sam")
+def test_Rechunk():
 
-    ds = xr.Dataset(coords = {'index': list(range(0,100))},
-                    data_vars = {'temp': da}
-                    )
+    rc = Rechunk(method="auto")
 
-    result = percentile(ds, [10, 90])
-    np.testing.assert_allclose(result['temp'].values, (10, 90))  
+    data = np.ones((50, 50))
+    data = dask.array.from_array(data)
+    coords = {"a": list(range(50)), "b": list(range(50))}
 
-    result = percentile(ds, 10)
-    np.testing.assert_allclose(result['temp'].values, (10,))      
+    da = xr.DataArray(coords=coords, data=data)
+    ds = xr.Dataset(coords=coords, data_vars={"z": da})
 
-    result = percentile(da, [10, 90])
+    rc.apply(ds)
+
+    with pytest.raises(ValueError):
+        rc = Rechunk(method="crystalball")
+
+    with pytest.raises(ValueError):
+        rc = Rechunk(method="encoding")
+        rc.apply(ds)

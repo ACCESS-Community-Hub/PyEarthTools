@@ -12,20 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyearthtools.data import utils
-import os
-import pytest
+from pyearthtools.data.operations import percentile
 
-def test_parse_path(monkeypatch):
+import xarray as xr
+import numpy as np
 
-    # import pudb; pudb.set_trace()
 
-    monkeypatch.setitem(os.environ, 'SPECIAL', 'fake_username')
+def test_percentile():
 
-    test_path = '/home/fictional/path/$SPECIAL/root_dir'
-    result = utils.parse_path(test_path)
-    assert '/home/fictional/path/fake_username/root_dir' in str(result)
+    data = np.linspace(0, 100, 100)
+    da = xr.DataArray(coords={"index": list(range(0, 100))}, data=data, name="Sam")
 
-    with pytest.raises(ValueError):
-        test_path = '/home/fictional/path/$NONEXISTENTREALLYREALLYREALLY/root_dir'
-        result = utils.parse_path(test_path)
+    ds = xr.Dataset(coords={"index": list(range(0, 100))}, data_vars={"temp": da})
+
+    result = percentile(ds, [10, 90])
+    np.testing.assert_allclose(result["temp"].values, (10, 90))
+
+    result = percentile(ds, 10)
+    np.testing.assert_allclose(result["temp"].values, (10,))
+
+    result = percentile(da, [10, 90])

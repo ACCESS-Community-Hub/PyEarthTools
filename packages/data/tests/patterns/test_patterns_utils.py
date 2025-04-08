@@ -16,23 +16,24 @@ from pyearthtools.data.patterns import utils
 import os
 import pytest
 
+
 def test_parse_path(monkeypatch):
 
     # import pudb; pudb.set_trace()
 
-    monkeypatch.setitem(os.environ, 'SPECIAL', 'fake_username')
+    monkeypatch.setitem(os.environ, "SPECIAL", "fake_username")
 
     # Test temporary directory request
-    test_path = 'temp'
+    test_path = "temp"
     result = utils.parse_root_dir(test_path)
-    assert 'tmp' in str(result)
+    assert "tmp" in str(result)
 
     # Test variable replacement
-    test_path = '/home/fictional/path/$SPECIAL/root_dir'
+    test_path = "/home/fictional/path/$SPECIAL/root_dir"
     result = utils.parse_root_dir(test_path)
-    assert '/home/fictional/path/fake_username/root_dir' in str(result)    
+    assert "/home/fictional/path/fake_username/root_dir" in str(result)
 
     # Test nonexistent variable request
     with pytest.raises(ValueError):
-        test_path = '/home/fictional/path/$NONEXISTENTREALLYREALLYREALLY/root_dir'
+        test_path = "/home/fictional/path/$NONEXISTENTREALLYREALLYREALLY/root_dir"
         result = utils.parse_root_dir(test_path)

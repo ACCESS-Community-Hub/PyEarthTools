@@ -18,42 +18,35 @@ import xarray as xr
 import numpy as np
 from datetime import datetime as dt
 
+
 def test_identify_time_dimension():
 
-    times = ['2020-01-01', '2020-01-02']
+    times = ["2020-01-01", "2020-01-02"]
     datetimes = [dt(2020, 1, 1), dt(2020, 1, 2)]
     data = np.linspace(0, 10, 2)
 
     # Test array without a time dim
-    da = xr.DataArray(coords = {'rabbits': times},
-                      data=data
-                      )
+    da = xr.DataArray(coords={"rabbits": times}, data=data)
 
     result = itd(da)
-    assert result == 'time'
+    assert result == "time"
 
     # Test time named time
-    da = xr.DataArray(coords = {'time': times},
-                      data=data
-                      )
+    da = xr.DataArray(coords={"time": times}, data=data)
 
     result = itd(da)
-    assert result == 'time'
+    assert result == "time"
 
     # Test time named time
-    da = xr.DataArray(coords = {'poodletime': times},
-                      data=data
-                      )
+    da = xr.DataArray(coords={"poodletime": times}, data=data)
 
     result = itd(da)
-    assert result == 'poodletime'    
+    assert result == "poodletime"
 
     # Test an unusual name but actually it's times
-    da = xr.DataArray(coords = {'something': datetimes},
-                      data=data
-                      )
+    da = xr.DataArray(coords={"something": datetimes}, data=data)
 
     result = itd(da)
-    assert result == 'something'    
+    assert result == "something"
 
-    result = itd(da)    
+    result = itd(da)
