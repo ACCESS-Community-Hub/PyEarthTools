@@ -38,37 +38,6 @@ from pyearthtools.data.exceptions import DataNotFoundError
 from pyearthtools.data.indexes import ArchiveIndex, decorators
 from pyearthtools.data.transforms import Transform, TransformCollection
 
-from pyearthtools.tutorial.ancilliary.ERA5lowres import (
-    ERA5_PRESSURE_VARIABLES,
-    ERA5_SINGLE_VARIABLES,
-)
-
-# This tells pyearthtools what the actual resolution or time-step of the data is inside the files
-ERA_RESOLUTION = (1, "hour")
-
-# This dictionary tells pyearthtools what variable renames to apply during load
-ERA5_RENAME = {"t2m": "2t", "u10": "10u", "v10": "10v", "siconc": "ci"}
-
-V_TO_PATH = {
-    "10m_u_component_of_wind": "10m_u_component_of_wind",
-    "10m_v_component_of_wind": "10m_v_component_of_wind",
-    "2m_temperature": "2m_temperature",
-    # "constants": "constants",  # FIXME not working
-    "geopotential": "geopotential",
-    # "geopotential_500": "geopotential_500",  # FIXME not working
-    "potential_vorticity": "potential_vorticity",
-    "rh": "relative_humidity",
-    "specific_humidity": "specific_humidity",
-    "temperature": "temperature",
-    # "temperature_850": "temperature_850",  # FIXME not working
-    "toa_incident_solar_radiation": "toa_incident_solar_radiation",
-    "total_cloud_cover": "total_cloud_cover",
-    "total_precipitation": "total_precipitation",
-    "u": "u_component_of_wind",
-    "v": "v_component_of_wind",
-    "vorticity": "vorticity",
-}
-
 
 @functools.lru_cache()
 def cached_iterdir(path: Path) -> list[Path]:
@@ -106,12 +75,9 @@ class HadISDIndex(ArchiveIndex):
         super().__init__(transforms=transforms)
 
 
-    def filesystem(self, querytime: str | Petdt) -> Path:
+    def filesystem(self, *args, **kwargs) -> Path:
         """
-        Map a query (station ID and date) to the corresponding file.
-
-        Args:
-            querytime (str | Petdt): Query date.
+        Map a query (station ID) to the corresponding file.
 
         Returns:
             Path: Path to the corresponding file.
@@ -121,12 +87,9 @@ class HadISDIndex(ArchiveIndex):
         """
         HADISD_HOME = self.ROOT_DIRECTORIES["hadisd"]
 
-        # Convert querytime to Petdt for consistency
-        querytime = Petdt(querytime)
-
         # Determine the parent folder based on the station ID
         station_id = self.station
-        wmo_number = station_id[:6]  # Extract the first 6 digits of the station ID
+        wmo_number = station_id[:6]  # Extract the first 6 digits of the station ID for determining the WMO number and parent folder
 
         # Define the station ranges and corresponding folders
         STATION_RANGES = [
@@ -175,9 +138,9 @@ class HadISDIndex(ArchiveIndex):
             raise ValueError(f"Station ID {station_id} does not fall within any defined range.")
 
         # Construct the expected filename
-        date_range = "19310101-20240101"  # Hardcoded for now; adjust if needed
+        date_range = "19310101-20240101"  # Hardcoded for now; adjust if dataset is updated
         version = "hadisd.3.4.0.2023f"
-        filename = f"{version}_{date_range}_{wmo_number}.nc"
+        filename = f"{version}_{date_range}_{station_id}.nc"
 
         # Construct the full path
         file_path = Path(HADISD_HOME) / parent_folder / filename
@@ -185,7 +148,7 @@ class HadISDIndex(ArchiveIndex):
         # Check if the file exists
         if not file_path.exists():
             raise DataNotFoundError(
-                f"File not found for station: {station_id}, date: {querytime}, path: {file_path}"
+                f"File not found for station: {station_id}, path: {file_path}"
             )
 
         # Return the constructed file path
@@ -201,3 +164,5 @@ class HadISDIndex(ArchiveIndex):
 # Notes to Joel
 # - Does PET have the ability to check a NetCDF file for the variables it contains?
 # - If not, we should add that to PET so that a user can be given suggestions for what variables to select, should they give an incorrect variable name
+# - # Convert querytime to Petdt for consistency. Useful for other classes that may not have the same conversion
+       # querytime = Petdt(querytime)
