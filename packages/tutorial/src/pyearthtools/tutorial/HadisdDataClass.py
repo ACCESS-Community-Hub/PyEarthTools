@@ -63,7 +63,13 @@ class HadISDIndex(ArchiveIndex):
             "Documentation": "https://www.metoffice.gov.uk/hadobs/hadisd/",
         }
 
-    def __init__(self, station: str, *, transforms=None):
+    def __init__(
+        self,
+        station: str,
+        variables: list[str] | str | None = None,  # Ensure this is defined
+        *,
+        transforms: Transform | TransformCollection | None = None,  # Ensure this is keyword-only
+    ):
         """
         Setup HadISD Indexer
 
@@ -72,7 +78,31 @@ class HadISDIndex(ArchiveIndex):
             transforms (optional): Base transforms to apply.
         """
         self.station = station
-        super().__init__(transforms=transforms)
+        self.variables = [variables] if isinstance(variables, str) else variables
+
+        
+        # Define the base transforms
+        base_transform = TransformCollection()
+
+        # Add a transform to drop unused variables (if variables are provided) REMOVE ONCE TESTED!!!!!!
+        if variables:
+            base_transform += pyearthtools.data.transforms.variables.Select(self.variables)
+
+        # Add the variable selection transform, and any other transforms you want to apply
+        # Future code to do this goes here, but the selcet class for variable doesn't exist yet, should look like this
+        # if variables:
+        #     base_transform += pyearthtools.data.transforms.variables.Select(
+        #         {var: self.variable for var in ["variable"]}, ignore_missing=True
+        #     )
+
+
+        # Call the parent class's __init__ method
+        super().__init__(
+            transforms=base_transform + (transforms or TransformCollection()),
+        )
+       
+        self.record_initialisation()
+
 
 
     def filesystem(self, *args, **kwargs) -> Path:
@@ -128,7 +158,7 @@ class HadISDIndex(ArchiveIndex):
 
         # Find the parent folder dynamically
         parent_folder = None
-        station_numeric = int(wmo_number)  # Convert the WMO number to an integer
+        station_numeric = int(wmo_number)  # Convert the WMO number to an integer (I think WMO is just first 6 digitis of station ID?)
         for start, end, folder in STATION_RANGES:
             if start <= station_numeric <= end:
                 parent_folder = folder
