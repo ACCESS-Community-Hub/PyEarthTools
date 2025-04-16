@@ -1,7 +1,7 @@
 # Data Catalogues
 
 ```{Caution}
-    This page is a work in progress and is currently highly incomplete
+This page is a work in progress and is currently highly incomplete
 ```
 
 Table of Contents

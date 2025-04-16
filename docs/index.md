@@ -18,6 +18,7 @@ projectideas
 installation
 notebooks/Gallery
 catalogue
+config
 api
 roadmap
 devguide

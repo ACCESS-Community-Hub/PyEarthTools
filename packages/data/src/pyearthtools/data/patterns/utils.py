@@ -51,7 +51,7 @@ def parse_root_dir(root_dir: str | Path, ignore_temp: bool = False) -> tuple[Pat
         temp_dir = tempfile.TemporaryDirectory()
         root_dir = temp_dir.name
 
-    # TODO: Resolve if this can be unified with pyearthtools.data.utils.part_path which is 
+    # TODO: Resolve if this can be unified with pyearthtools.data.utils.part_path which is
     # only slightly different in implementation
 
     matches: list[str] = re.findall(r"(\$[A-z0-9]+)", root_dir)

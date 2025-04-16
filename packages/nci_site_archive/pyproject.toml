@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=61", "setuptools-scm>=8.0"]
+
+
+[project]
+name = "PyEarthTools-archive-NCI"
+description = "PyEarthTools archive for NCI"
+requires-python = ">=3.9"
+license = {file = "LICENSE"}
+keywords = ["pyearthtools"]
+authors = [
+  {email = "harrison.cook@bom.gov.au", name = "Harrison Cook"},
+  {email = "tennessee.leeuwenburg@bom.gov.au", name = "Tennessee Leeuwenburg"}
+]
+maintainers = [
+  {email = "tennessee.leeuwenburg@bom.gov.au", name = "Tennessee Leeuwenburg"}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  "pyearthtools-data>=0.1.0",
+]
+dynamic = ["version", "readme"]
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.md"], content-type = "text/markdown"}
+
+[project.urls]
+homepage = "https://pyearthtools.readthedocs.io/en/latest/"
+documentation = "https://pyearthtools.readthedocs.io/en/latest/"
+repository = "https://github.com/ACCESS-Community-Hub/PyEarthTools"
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 120
+
+[tool.mypy]
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.setuptools.packages.find]
+where = ["src"] 
+
+[tool.setuptools_scm]
+version_file = "src/site_archive_nci/_version.py"

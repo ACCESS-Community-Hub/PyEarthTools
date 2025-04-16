@@ -27,7 +27,7 @@ import xarray as xr
 
 def _find_percentile(data: xr.DataArray, percentiles: float | list[float]):
 
-    # Given the parent method unpacks datasets by variable, unclear this is 
+    # Given the parent method unpacks datasets by variable, unclear this is
     # needed. TODO Review after 100% test coverage reached in case it is hit in
     # some use cases.
     # if isinstance(data, xr.Dataset):
@@ -64,10 +64,11 @@ def percentile(dataset: xr.DataArray | xr.Dataset, percentiles: float | list[flo
     for data_var in dataset.data_vars:
         the_percentiles = _find_percentile(dataset[data_var], percentiles)
         the_attrs = dataset[data_var].attrs
-        da = xr.DataArray(coords=coords,
-                                          data=the_percentiles,
-                                          attrs=the_attrs,
-                                         )
+        da = xr.DataArray(
+            coords=coords,
+            data=the_percentiles,
+            attrs=the_attrs,
+        )
         new_data[data_var] = da
 
     return xr.Dataset(data_vars=new_data, coords=coords)
