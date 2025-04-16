@@ -37,6 +37,18 @@ from pyearthtools.data.archive import register_archive
 from pyearthtools.data.exceptions import DataNotFoundError
 from pyearthtools.data.indexes import ArchiveIndex, decorators
 from pyearthtools.data.transforms import Transform, TransformCollection
+from pyearthtools.data.transforms.variables import Drop, Select
+from pyearthtools.data.transforms.values import SetMissingToNaN
+
+
+# This dictionary tells pyearthtools which variables have missing values and what those values are.
+varname_val_map = {
+        "total_cloud_cover": -999., 
+        "low_cloud_cover": -999., 
+        "mid_cloud_cover": -999.,
+        "high_cloud_cover": -999.
+    }
+# TODO:Check that these values actually represent missing values in the dataset
 
 
 @functools.lru_cache()
@@ -80,14 +92,15 @@ class HadISDIndex(ArchiveIndex):
         self.station = station
         self.variables = [variables] if isinstance(variables, str) else variables
 
-        
         # Define the base transforms
         base_transform = TransformCollection()
+        base_transform += Drop("reporting_stats" )
 
         # Add a transform to select variables (if variables are provided)
         if variables:
-            base_transform += pyearthtools.data.transforms.variables.Select(self.variables)
+            base_transform += Select(self.variables)
 
+        base_transform += SetMissingToNaN(varname_val_map)
 
         # Call the parent class's __init__ method
         super().__init__(
@@ -95,7 +108,6 @@ class HadISDIndex(ArchiveIndex):
         )
        
         self.record_initialisation()
-
 
 
     def filesystem(self, *args, **kwargs) -> Path:
