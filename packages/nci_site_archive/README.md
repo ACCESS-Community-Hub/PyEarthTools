@@ -15,18 +15,7 @@ This package contains the `edit.Index`'s for the NCI, which consists of
 
 ## Installation
 
-To install this package, clone this repository
-
-```shell
-git clone https://git.nci.org.au/bom/dset/edit-package/archives/nci.git
-
-```
-
-And then install it
-
-```shell
-pip install nci/
-```
+This should be installed as a package as with the other PyEarthTools sub-packages.
 
 ## Usage
 
@@ -38,12 +27,12 @@ It can also be explicitly imported if installed by,
 import site_archive_nci
 ```
 
-Once imported all archives are accesible underneath `edit.data.archive`
+Once imported all archives are accesible underneath `pyearthtools.data.archive`
 
 ```python
-import edit.data
+import pyearthtools.data
 
-BRAN_data = edit.data.archive.BRAN('ocean_temp', resolution = 'daily')
+BRAN_data = pyearthtools.data.archive.BRAN('ocean_temp', resolution = 'daily')
 BRAN_data
 
 # BRAN

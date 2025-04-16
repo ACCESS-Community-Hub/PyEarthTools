@@ -205,6 +205,8 @@ def series(
 
         subset_ds = data
 
+        import pudb; pudb.set_trace()
+
         try:
             try:
                 subset_ds = data.sel(**{time_dim: time}, **sel_kwargs)

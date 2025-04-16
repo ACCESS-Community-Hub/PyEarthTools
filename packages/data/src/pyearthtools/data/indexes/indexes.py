@@ -834,7 +834,7 @@ class AdvancedTimeIndex(TimeIndex):
         except DataNotFoundError as e:
             raise DataNotFoundError(f"No Data found at {querytime}. Ensure data exists.") from e
 
-        time_dim = dimensions.identify_time_dimension(all_data)
+        time_dim = identify_time_dimension(all_data)
         # try:
         #     if time_dim in all_data:
         #         all_data = all_data.sel(time=str(querytime))
@@ -870,7 +870,7 @@ class AdvancedTimeIndex(TimeIndex):
 
         if len(args) >= 1 and isinstance(args[0], (xr.Dataset, xr.DataArray)):
             ds = args[0]
-            ds_time_dim = dimensions.identify_time_dimension(ds)
+            ds_time_dim = identify_time_dimension(ds)
 
             if ds_time_dim not in ds.coords:
                 raise KeyError("If passing dataset to get data at the same time as, it must have a 'time' coordinate.")
@@ -1085,7 +1085,7 @@ class ForecastIndex(TimeIndex, DataFileSystemIndex):
                 Retrieved data
         """
         data = super().retrieve(basetime, *args, select=False, **kwargs)
-        time_dim = dimensions.identify_time_dimension(data)
+        time_dim = identify_time_dimension(data)
 
         if querytime:
             if isinstance(querytime, (tuple, TimeDelta)):
