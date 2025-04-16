@@ -21,6 +21,7 @@ from __future__ import annotations
 from typing import Literal
 
 import xarray as xr
+import numpy as np
 
 import pyearthtools.data
 from pyearthtools.data.transforms.transform import Transform
@@ -66,6 +67,27 @@ class Fill(Transform):
             if self._direction in ["both", "backward"]:
                 dataset = dataset.bfill(coord, limit=self._limit)
         return encod(dataset)
+    
+
+class SetMissingToNaN(Transform):
+    """
+    Transform to replace specified missing values with NaN for given variables.
+
+    Args:
+        varname_val_map (dict[str, float]): A dictionary mapping variable names to their missing values.
+    """
+
+    def __init__(self, varname_val_map: dict[str, float]):
+        super().__init__()
+        self.record_initialisation()
+
+        self.varname_val_map = varname_val_map
+
+    def apply(self, dataset: xr.Dataset) -> xr.Dataset:
+        for var_name, miss_val in self.varname_val_map.items():
+            if var_name in dataset:
+                dataset[var_name] = dataset[var_name].where(dataset[var_name] != miss_val, np.nan)
+        return dataset
 
 
 @BackwardsCompatibility(Fill)
