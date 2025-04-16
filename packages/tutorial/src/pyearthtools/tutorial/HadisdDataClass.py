@@ -84,16 +84,9 @@ class HadISDIndex(ArchiveIndex):
         # Define the base transforms
         base_transform = TransformCollection()
 
-        # Add a transform to drop unused variables (if variables are provided) REMOVE ONCE TESTED!!!!!!
+        # Add a transform to select variables (if variables are provided)
         if variables:
             base_transform += pyearthtools.data.transforms.variables.Select(self.variables)
-
-        # Add the variable selection transform, and any other transforms you want to apply
-        # Future code to do this goes here, but the selcet class for variable doesn't exist yet, should look like this
-        # if variables:
-        #     base_transform += pyearthtools.data.transforms.variables.Select(
-        #         {var: self.variable for var in ["variable"]}, ignore_missing=True
-        #     )
 
 
         # Call the parent class's __init__ method
