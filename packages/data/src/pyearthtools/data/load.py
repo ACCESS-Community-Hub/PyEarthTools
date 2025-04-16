@@ -42,11 +42,22 @@ def load(stream: Union[str, Path], **kwargs) -> "pyearthtools.data.Index":
         (pyearthtools.data.Index):
             Loaded Index
     """
+    
+    # Check if the stream is not a Path or String and raise an error
+    if not isinstance(stream, (str, Path)):
+        raise TypeError(
+            f"Stream is not a Path or String {type(stream)} - {stream}."
+        )
+
     contents = None
 
+    # Check is the stream is a path
     if os.path.sep in str(stream):
         try:
+            # Check if the path is a directory
             if parse_path(stream).is_dir():
+                
+                # Create a list of config files if found. 
                 stream = list(
                     [
                         *Path(stream).glob("catalog.cat"),
@@ -54,10 +65,9 @@ def load(stream: Union[str, Path], **kwargs) -> "pyearthtools.data.Index":
                         *Path(stream).glob("*.cat"),
                         *Path(stream).glob("*.edi"),
                     ]
-                )[
-                    0
-                ]  # Find default save file of index
-
+                )[0]  # Find default save file of index
+            
+            # Combine all files into a single variable
             contents = "".join(open(str(parse_path(stream))).readlines())
         except FileNotFoundError as e:
             raise e
@@ -66,6 +76,7 @@ def load(stream: Union[str, Path], **kwargs) -> "pyearthtools.data.Index":
         except IndexError:
             raise FileNotFoundError(f"No default catalog could be found at {stream!r}.")
 
+    # If the stream is not a path, check if it is a string and store it in contents. 
     if contents is None:
         contents = str(stream)
 
@@ -74,4 +85,5 @@ def load(stream: Union[str, Path], **kwargs) -> "pyearthtools.data.Index":
 
     contents = initialisation.update_contents(contents, **kwargs)
 
+    # Load and return the contents as yaml.
     return yaml.load(str(contents), initialisation.Loader)
