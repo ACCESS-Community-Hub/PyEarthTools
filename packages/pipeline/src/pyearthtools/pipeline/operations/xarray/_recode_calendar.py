@@ -21,6 +21,7 @@ from pyearthtools.pipeline.operation import Operation
 
 T = TypeVar("T", xr.Dataset, xr.DataArray)
 
+
 class RecodeCalendar(Operation):
     """
     Climate datasets often use the cftime module to index into data using non-standard calendars.

@@ -22,6 +22,7 @@ from pyearthtools.pipeline.operation import Operation
 
 T = TypeVar("T", xr.Dataset, xr.DataArray)
 
+
 class AlignDates(Operation):
     """
     Climate datasets often use the cftime module to index into data using non-standard calendars.
@@ -38,9 +39,9 @@ class AlignDates(Operation):
         Args:
             to: either "start_of_month" or a zero-padded string day-of-month
         """
-        
+
         if to == "start_of_month":
-            to = '01'
+            to = "01"
 
         if len(to) != 2:
             raise ValueError(f"Value of 'to' {to} is not recognised as a day of the month")
@@ -67,10 +68,10 @@ class AlignDates(Operation):
         """
         to = self.to
         if self.to == "start_of_month":
-            to = '01'
+            to = "01"
 
-        aligned = data.time.dt.strftime(f'%Y-%m-{to}')
+        aligned = data.time.dt.strftime(f"%Y-%m-{to}")
         aligned = [pd.Timestamp(a) for a in aligned.values]
-        data = data.assign_coords({'time': aligned})
+        data = data.assign_coords({"time": aligned})
 
         return data

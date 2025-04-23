@@ -43,7 +43,8 @@ class Merge(Joiner):
 
     def unjoin(self, sample: Any) -> tuple:
         return super().unjoin(sample)
-    
+
+
 class GeospatialTimeSeriesMerge(Joiner):
     """
     The default "merge" and "interplike" xarray commands are very general
@@ -56,11 +57,14 @@ class GeospatialTimeSeriesMerge(Joiner):
 
     _override_interface = "Serial"
 
-    def __init__(self, reference_dataset=None, 
-                 reference_index=None, 
-                 interpolation_method='nearest',
-                 time_dimension='time',
-                 merge_kwargs: Optional[dict[str, Any]] = None):
+    def __init__(
+        self,
+        reference_dataset=None,
+        reference_index=None,
+        interpolation_method="nearest",
+        time_dimension="time",
+        merge_kwargs: Optional[dict[str, Any]] = None,
+    ):
         super().__init__()
         self.record_initialisation()
         self.reference_dataset = reference_dataset
@@ -70,33 +74,31 @@ class GeospatialTimeSeriesMerge(Joiner):
         self._merge_kwargs = merge_kwargs
 
     def _join_two_datasets(self, sample_a: xr.Dataset, sample_b: xr.Dataset) -> xr.Dataset:
-        '''
+        """
         Used to reduce a sequence of joinable items. Only called by the public interface join method.
-        '''
+        """
 
         # Check each sample has the proper time dimension
         if self.time_dimension not in sample_a.coords:
             raise ValueError(f"Time dimension missing from {str(sample_a)}")
-        
+
         if self.time_dimension not in sample_b.coords:
             raise ValueError(f"Time dimension missing from {str(sample_b)}")
-        
 
-        interped_a = sample_a.interp_like(self.reference_dataset, method='nearest') 
-        interped_b = sample_b.interp_like(self.reference_dataset, method='nearest') 
+        interped_a = sample_a.interp_like(self.reference_dataset, method="nearest")
+        interped_b = sample_b.interp_like(self.reference_dataset, method="nearest")
         merged = xr.merge([interped_a, interped_b])
-        return merged        
-
+        return merged
 
     def join(self, sample: tuple[Union[xr.Dataset, xr.DataArray], ...]) -> xr.Dataset:
         """Join sample"""
 
-        # Obtain the reference dataset 
+        # Obtain the reference dataset
         if self.reference_dataset is None:
             if self.reference_index is not None:
                 self.reference_dataset = sample[self.reference_index]
             else:
-                raise ValueError("No reference dataset or reference index set")        
+                raise ValueError("No reference dataset or reference index set")
 
         merged = reduce(lambda a, b: self._join_two_datasets(a, b), sample)
         return merged
@@ -114,10 +116,13 @@ class InterpLike(Joiner):
 
     _override_interface = "Serial"
 
-    def __init__(self, reference_dataset=None, 
-                 reference_index=None, 
-                 method='nearest',
-                 merge_kwargs: Optional[dict[str, Any]] = None):
+    def __init__(
+        self,
+        reference_dataset=None,
+        reference_index=None,
+        method="nearest",
+        merge_kwargs: Optional[dict[str, Any]] = None,
+    ):
         super().__init__()
         self.record_initialisation()
         self.reference_dataset = reference_dataset
@@ -135,7 +140,7 @@ class InterpLike(Joiner):
             reference = sample[self.reference_index]
         else:
             raise ValueError("No reference dataset or reference index set")
-        
+
         interped = [i.interp_like(reference, method=self.interp_method) for i in sample]
         merged = xr.merge(interped)
         return merged

@@ -68,5 +68,5 @@ __all__ = [
     "normalisation",
     "remapping",
     "RecodeCalendar",
-    "AlignDates"
+    "AlignDates",
 ]

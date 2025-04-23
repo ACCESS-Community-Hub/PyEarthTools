@@ -242,7 +242,7 @@ class TransformCollection(initialisation.InitialisationRecordingMixin):
         # Do not try to transform null datasets
         if dataset is None:
             return None
-        
+
         # Do not try to transform empty datasets
         if not len(dataset):
             return None

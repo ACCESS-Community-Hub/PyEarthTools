@@ -45,17 +45,21 @@ from pyearthtools.data.operations.utils import identify_time_dimension
 from pyearthtools.data.operations.index_routines import _mf_series
 
 # Path schema for CMIP5
-NamedPath = namedtuple("NamedPath", [ "institute", "model", "scenario", "interval", "realm", "cat", "expid", "expver", "variable"])
+NamedPath = namedtuple(
+    "NamedPath", ["institute", "model", "scenario", "interval", "realm", "cat", "expid", "expver", "variable"]
+)
+
 
 class CMIP_Path:
-    '''
+    """
     Interpret the path elements of a file containing CMIP data according to the path schema
-    '''
+    """
+
     def __init__(self, *, elements=None, filepath=None):
-       
+
         if not elements:
             dirpath, filename = os.path.split(filepath)
-            elements = dirpath.split('/')[-9:]
+            elements = dirpath.split("/")[-9:]
 
         self.namedpath = NamedPath(*elements)
 
@@ -64,38 +68,58 @@ class CMIP_Path:
 
     def __getitem__(self, keyword):
         return self.namedpath.__getattribute__(keyword)
-            
 
-INSTITUTIONS = ['BCC', 'BNU', 'CCCma', 'CMCC', 'CNRM-CERFACS', 'FIO', 'ICHEC', 'INM', 'INPE', 'IPSL', 'LASG-CESS', 'LASG-IAP',
-                'MIROC', 'MOHC', 'MPI-M', 'MRI', 'NASA-GISS', 'NASA-GMAO', 'NCAR', 'NIMR-KMA', 'NOAA-GFDL', 'NOAA-NCEP', 'NSF-DOE-NCAR']
 
-UNDER_DEV_MSG = ''' 
+INSTITUTIONS = [
+    "BCC",
+    "BNU",
+    "CCCma",
+    "CMCC",
+    "CNRM-CERFACS",
+    "FIO",
+    "ICHEC",
+    "INM",
+    "INPE",
+    "IPSL",
+    "LASG-CESS",
+    "LASG-IAP",
+    "MIROC",
+    "MOHC",
+    "MPI-M",
+    "MRI",
+    "NASA-GISS",
+    "NASA-GMAO",
+    "NCAR",
+    "NIMR-KMA",
+    "NOAA-GFDL",
+    "NOAA-NCEP",
+    "NSF-DOE-NCAR",
+]
+
+UNDER_DEV_MSG = """ 
 Under development. This class currently only allows single values - e.g. one institution, one model, one experiment id etc. Expansion to allowing multiple
 values in under way, which will create a more complex DataSet object containing all relevant data in a single in-memory object.
-'''          
+"""
 
 
 def rounder(time: Petdt, interval: int) -> str:
     hour = time.hour
     return "%02d00" % ((hour // interval) * interval,)
 
-    
-SAMPLE_PLUGIN_DICT = {
-    'models': 'bcc-csm1-1', 
-    'scenarios': "an",
-    'institutions': 'BCC'
-}
+
+SAMPLE_PLUGIN_DICT = {"models": "bcc-csm1-1", "scenarios": "an", "institutions": "BCC"}
+
 
 def to_cftime(times):
-    '''
+    """
     Given an iterable of Petdts, return an iterable of cftime.DatetimeNoLeap
-    '''
+    """
 
     pdt = times[0]
 
     # converted = [cftime.num2date(pdt.datetime.timestamp(), 'seconds since 1970-01-01') for pdt in times]
 
-    converted = [pdt.to_cftime(calendar='noleap') for pdt in times]
+    converted = [pdt.to_cftime(calendar="noleap") for pdt in times]
 
     return converted
 
@@ -145,28 +169,27 @@ class CMIP5(ArchiveIndex):
 
         self.record_initialisation()
 
-   
     def quick_walk(self):
-        '''
+        """
         Walking a large filesystem to find matching filenames can take a long time.
-        This function uses the query dictionary to more effectively walk only 
+        This function uses the query dictionary to more effectively walk only
         the parts of the filesystem actually relevant to the dataset. If performance
         is not a concern or if the filesystem is small, just use os.walk.
-        '''
+        """
 
         CMIP5_HOME = self.ROOT_DIRECTORIES["CMIP5"]
         basepath = Path(CMIP5_HOME)
 
         # Only walk the filesystem once, use the cache thereafter
         if self.walk_cache:
-            for (root, dirs, files) in self.walk_cache:
+            for root, dirs, files in self.walk_cache:
                 yield (root, dirs, files)
 
-            return            
-        
+            return
+
         # Only walk the filesystem for configured institutions
         for institution in self.institutions:
-            institution_basepath = os.path.join(basepath, institution)       
+            institution_basepath = os.path.join(basepath, institution)
 
             for model in self.models:
                 model_basepath = os.path.join(institution_basepath, model)
@@ -177,70 +200,65 @@ class CMIP5(ArchiveIndex):
                     all_entries = list(os.walk(scenario_basepath))
                     walk_cache = []
 
-                    for (root, dirs, files) in all_entries:
+                    for root, dirs, files in all_entries:
                         # We don't care about directories with no files
                         if files:
                             walk_cache.append((root, dirs, files))
-                    
+
                     self.walk_cache = walk_cache
 
-    def filesystem(
-        self,
-        query_dictionary={}
-    ):
-        '''
+    def filesystem(self, query_dictionary={}):
+        """
         Given the supplied query, return all filenames which contain the data necessary to extract the data
         for the query. For example, figure out what time index and variables the user wants, and go find
         all the files matching those time indexes and variables so they can get loaded into memory and
         then the relevant data extracted and re-aggregated as needed by other parts of the system.
-        '''
+        """
         paths = {}
-        paths_to_open = []        
-
+        paths_to_open = []
 
         # Walk the filesystem finding relevant file paths
         # A more efficient walk ordered by time or primary dimension may be more efficient
-        for (root, _dirs, files) in self.quick_walk():  
+        for root, _dirs, files in self.quick_walk():
 
             paths = [os.path.join(root, file) for file in files]
             relevant = [p for p in paths if self.match_path(p, query_dictionary)]
             paths_to_open += relevant
 
         return paths_to_open
-       
+
     def match_path(self, path, query):
-        '''
+        """
         Given a query (typically a date/time) and a full path to a filename, go and check
         if that filename is likely to contain data relevant to the query
 
         Returns:
             True if the path and query match
             False if the file should be ignored
-        '''
+        """
 
         path = CMIP_Path(filepath=path)
 
         match = True
 
-        if path['variable'] not in self.variables:
+        if path["variable"] not in self.variables:
             match = False
 
-        if path['model'] not in self.models:
+        if path["model"] not in self.models:
             match = False
 
-        if path['interval'] not in self.interval:
+        if path["interval"] not in self.interval:
             match = False
 
-        if path['scenario'] not in self.scenarios:
+        if path["scenario"] not in self.scenarios:
             match = False
 
-        if 'atmos' != path['realm']:
+        if "atmos" != path["realm"]:
             match = False
 
         # TODO: Filter by matching time range of filename or data
-            
-        return match
 
+        return match
 
     # Override the series method because of the unusual datetime class
     # Maybe the data loader should convert from unusual calendar datetimes to regular calendar datetimes
@@ -260,7 +278,6 @@ class CMIP5(ArchiveIndex):
         tolerance: tuple | pd.Timedelta | None = None,
         **kwargs,
     ) -> xr.Dataset:
-        
         """
         Index into Provided Data function to create a continuous series of Data
 
@@ -372,7 +389,9 @@ class CMIP5(ArchiveIndex):
                 and DataFunction.data_resolution > start.resolution
             ):
                 timesteps = [
-                    t for time in timesteps for t in pyearthtools.data.TimeRange(time, time + 1, DataFunction.data_interval)
+                    t
+                    for time in timesteps
+                    for t in pyearthtools.data.TimeRange(time, time + 1, DataFunction.data_interval)
                 ]
 
             time = list(set(map(lambda x: x.datetime64("ns"), timesteps)) & set(data[time_dim].values))
@@ -434,4 +453,4 @@ class CMIP5(ArchiveIndex):
                     IndexWarning,
                 )
 
-        return transforms(data)        
+        return transforms(data)
