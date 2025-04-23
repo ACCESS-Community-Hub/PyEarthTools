@@ -38,6 +38,7 @@ from pyearthtools.pipeline.operations.xarray.join import Merge, Concatenate
 from pyearthtools.pipeline.operations.xarray.sort import Sort
 from pyearthtools.pipeline.operations.xarray.chunk import Chunk
 from pyearthtools.pipeline.operations.xarray._recode_calendar import RecodeCalendar
+from pyearthtools.pipeline.operations.xarray._align_dates import AlignDates
 
 from pyearthtools.pipeline.operations.xarray import (
     conversion,
@@ -67,4 +68,5 @@ __all__ = [
     "normalisation",
     "remapping",
     "RecodeCalendar",
+    "AlignDates"
 ]
