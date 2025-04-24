@@ -17,8 +17,6 @@ def test_Insolation():
 
     at_time = ["2021-01-01"]
 
-    # import pudb; pudb.set_trace()
-
     result = insol.derive(at_time)
     assert result is not None
 

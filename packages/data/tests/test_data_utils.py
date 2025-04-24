@@ -19,8 +19,6 @@ import pytest
 
 def test_parse_path(monkeypatch):
 
-    # import pudb; pudb.set_trace()
-
     monkeypatch.setitem(os.environ, "SPECIAL", "fake_username")
 
     test_path = "/home/fictional/path/$SPECIAL/root_dir"

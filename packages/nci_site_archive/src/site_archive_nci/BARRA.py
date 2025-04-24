@@ -136,7 +136,9 @@ class BARRA(DataIndex):
         preprocess = None
 
         if datatype == "analysis":
-            base_transform += pyearthtools.data.transforms.coordinates.Drop(["forecast_reference_time", "forecast_period"])
+            base_transform += pyearthtools.data.transforms.coordinates.Drop(
+                ["forecast_reference_time", "forecast_period"]
+            )
             preprocess = pyearthtools.data.transforms.dimensions.Expand("time", as_dataarray=True)
 
         self.pressure = pressure
