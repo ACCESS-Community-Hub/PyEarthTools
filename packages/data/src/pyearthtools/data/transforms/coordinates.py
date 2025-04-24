@@ -21,6 +21,7 @@ import logging
 
 import xarray as xr
 import numpy as np
+import pandas as pd
 
 
 import pyearthtools.data
@@ -205,6 +206,35 @@ class ReIndex(Transform):
             dataset = dataset.reindex({coord: new_coord})
 
         return dataset
+
+class ReIndexTime(Transform):
+    """Reindex the time coordinate to a complete hourly time series."""
+# TODO look into using Petdt for this
+
+    def __init__(self, date_range: tuple[str | pd.Timestamp, str | pd.Timestamp], freq: str = "h"):
+        """
+        Args:
+            date_range (tuple[str | pd.Timestamp, str | pd.Timestamp]):
+                Start and end dates for the desired time range.
+        """
+        super().__init__()
+        self.record_initialisation()
+        self.date_range = date_range
+        self.freq = freq
+
+    def apply(self, dataset: xr.Dataset) -> xr.Dataset:
+        """
+        Apply the transform to reindex the time coordinate.
+
+        Args:
+            dataset (xr.Dataset): The dataset to transform.
+
+        Returns:
+            xr.Dataset: The dataset with the time coordinate reindexed.
+        """
+        dataset = dataset.load()  # Ensure the dataset is fully loaded
+        date_obj = pd.date_range(self.date_range[0], self.date_range[1], freq=self.freq)
+        return dataset.reindex({"time": date_obj})
 
 
 class StandardCoordinateNames(Transform):
