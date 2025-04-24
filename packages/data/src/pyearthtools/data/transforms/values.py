@@ -90,6 +90,53 @@ class SetMissingToNaN(Transform):
         return dataset
 
 
+class AddFlaggedObs(Transform):
+    """
+    Transform to restore flagged observations removed by QC tests back into the dataset.
+
+    Args:
+        flagged_labels (list[str]): A list of variable names corresponding to flagged observations.
+    """
+
+    def __init__(self, flagged_labels: list[str]):
+        super().__init__()
+        self.record_initialisation()
+        self.flagged_labels = flagged_labels
+
+    def apply(self, dataset: xr.Dataset) -> xr.Dataset:
+        """
+        Apply the transformation to restore flagged observations.
+
+        Args:
+            dataset (xr.Dataset): The input dataset containing flagged_obs and QC'd variables.
+
+        Returns:
+            xr.Dataset: The dataset with flagged observations restored.
+        """
+        # Attach a coordinate to the flagged dimension with descriptive labels
+        dataset = dataset.assign_coords(flagged=("flagged", self.flagged_labels))
+
+        # Iterate through flagged variables and restore flagged data
+        for var_name in dataset["flagged"].data:
+            flagged_var = dataset["flagged_obs"].sel(flagged=var_name)
+            qcd_var = dataset[var_name]
+
+            # Fill NaNs in flagged variable with data from QC'd variable
+            dataset[var_name].data = flagged_var.fillna(qcd_var).data
+
+            #  # not all flagged values are available in flagged obs. Why?
+            # # TODO: understand why and replace with observations if possible
+            # dataset[var_name][dataset[var_name] == dataset[var_name].attrs['flagged_value']] = np.nan
+
+            # Replace flagged placeholder values with NaN
+            if "flagged_value" in dataset[var_name].attrs:
+                # Compute the boolean condition to avoid Dask-related issues
+                mask = (dataset[var_name] == dataset[var_name].attrs["flagged_value"]).compute()
+                dataset[var_name] = dataset[var_name].where(~mask, np.nan)
+
+        return dataset
+
+
 @BackwardsCompatibility(Fill)
 def fill(*args, **kwargs): ...
 
