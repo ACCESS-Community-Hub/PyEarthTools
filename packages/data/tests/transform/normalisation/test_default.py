@@ -14,17 +14,31 @@ sample_ds = xr.Dataset(
     coords={"latitude": [1, 2, 3, 4], "longitude": [1, 2, 3], "time": ["2023-02"]}, data_vars={"temperature": sample_da}
 )
 
+sample_npa = np.ones((4, 3, 1))
+
 
 def test_open_file(monkeypatch):
-
     monkeypatch.setattr(pyearthtools.data.transforms.normalisation.default, "open_files", lambda x: sample_da)
 
     result = default.open_file("pretend_filename.nc")
     assert result is not None
 
 
-def test_Normaliser(monkeypatch):
+def test_open_non_xarray_file(monkeypatch):
+    monkeypatch.setattr(pyearthtools.data.transforms.normalisation.default, "open_files", lambda x: sample_npa)
 
+    result = default.open_file("pretend_filename.nc")
+    assert result is not None
+
+
+def test_get_and_print(monkeypatch):
+    get_and_print_args = (lambda x: x * x, "dummy message", True)
+    monkeypatch.setattr(
+        pyearthtools.data.transforms.normalisation.default, "get_and_print", lambda x: get_and_print_args
+    )
+
+
+def test_Normaliser(monkeypatch):
     monkeypatch.setattr("pyearthtools.data.indexes.AdvancedTimeIndex.__abstractmethods__", set())
 
     data_interval = "day"
@@ -56,7 +70,6 @@ def test_Normaliser(monkeypatch):
 
 
 def test_Normaliser_errors(monkeypatch):
-
     monkeypatch.setattr("pyearthtools.data.indexes.AdvancedTimeIndex.__abstractmethods__", set())
 
     data_interval = "day"
