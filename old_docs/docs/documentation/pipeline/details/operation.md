@@ -60,7 +60,7 @@ inverse = example_operation.T
 
 ## Example Implementation
 
-Here is the implementation of `numpy.reshape.Squish`, to flatten a one element axis of an array
+Here is the implementation of `numpy.reshape.Squeeze`, to flatten a one element axis of an array
 
 ```python
 from typing import Union, Optional, Any
@@ -68,16 +68,16 @@ import numpy as np
 
 from pyearthtools.pipeline.operation import Operation
 
-class Squish(Operation):
+class Squeeze(Operation):
     """
-    Operation to Squish one Dimensional axis at 'axis' location
+    Operation to Squeeze one Dimensional axis at 'axis' location
     """
 
     _override_interface = ["Delayed", "Serial"] # Which parallel interfaces to use in order of priority.
-    _interface_kwargs = {"Delayed": {"name": "Squish"}}
+    _interface_kwargs = {"Delayed": {"name": "Squeeze"}}
 
     def __init__(self, axis: Union[tuple[int, ...], int]) -> None:
-        """Squish Dimension of Data
+        """Squeeze Dimension of Data
 
         Args:
             axis (Union[tuple[int, ...], int]):

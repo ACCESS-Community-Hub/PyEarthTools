@@ -238,7 +238,6 @@ def series(
     return transforms(data)
 
 
-@functools.wraps(series)
 def _mf_series(
     DataFunction: "AdvancedTimeIndex",
     start: Petdt,
@@ -252,6 +251,8 @@ def _mf_series(
 ):
     """
     Retrieve data using [xr.open_mfdataset][xr.open_mfdataset]
+
+    Called by the series method
     """
     dataset_paths = []
     timesteps = []
@@ -358,7 +359,6 @@ def _mf_series(
     return transforms(full_ds)
 
 
-@functools.wraps(series)
 def _get_series(
     DataFunction: "AdvancedTimeIndex",
     start: Petdt,
@@ -444,6 +444,8 @@ def safe_series(
     **kwargs,
 ) -> xr.Dataset:
     """Safely index into the provided Data function to create a continuous series of Data.
+
+    Called by the series method
 
     Uses [series][pyearthtools.data.operations.index_routines.series], but provides an automatic interpolation.
 

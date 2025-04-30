@@ -211,7 +211,7 @@
 <g id="node18" class="node">
 <title>Squish_2f9471ae&#45;d492&#45;4692&#45;8c44&#45;46bcb75a5526</title>
 <ellipse fill="none" stroke="#000000" cx="337.2895" cy="-162" rx="82.5854" ry="18"/>
-<text text-anchor="middle" x="337.2895" y="-158.3" font-family="Times,serif" font-size="14.00" fill="#000000">reshape.Squish</text>
+<text text-anchor="middle" x="337.2895" y="-158.3" font-family="Times,serif" font-size="14.00" fill="#000000">reshape.Squeeze</text>
 </g>
 <!-- ToDask_8bee1bd5&#45;72ea&#45;4d04&#45;b715&#45;cb46d85ae4a0&#45;&gt;Squish_2f9471ae&#45;d492&#45;4692&#45;8c44&#45;46bcb75a5526 -->
 <g id="edge17" class="edge">
