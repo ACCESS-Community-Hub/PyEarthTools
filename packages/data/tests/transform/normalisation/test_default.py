@@ -31,11 +31,18 @@ def test_open_non_xarray_file(monkeypatch):
     assert result is not None
 
 
-def test_get_and_print(monkeypatch):
-    get_and_print_args = (lambda x: x * x, "dummy message", True)
-    monkeypatch.setattr(
-        pyearthtools.data.transforms.normalisation.default, "get_and_print", lambda x: get_and_print_args
-    )
+def test_get_and_print(capsys):
+    print_func = default.get_and_print(lambda: list((1, 2)), "print message")
+    print_func()
+    captured = capsys.readouterr()
+    assert captured.out == "print message\n"
+
+
+def test_get_and_not_print(capsys):
+    print_func = default.get_and_print(lambda: list((1, 2)), "print message", False)
+    print_func()
+    captured = capsys.readouterr()
+    assert captured.out == ""
 
 
 def test_Normaliser(monkeypatch):
