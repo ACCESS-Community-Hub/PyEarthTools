@@ -28,6 +28,7 @@ An indexer takes some
 from __future__ import annotations
 
 import functools
+import xarray as xr
 from pathlib import Path
 from typing import Any, Literal
 
@@ -77,7 +78,7 @@ class HadISDIndex(ArchiveIndex):
 
     def __init__(
         self,
-        station: str,
+        station: str | list[str] | None = None,  # Allow single station, multiple stations, or None
         variables: list[str] | str | None = None,  # Ensure this is defined
         *,
         transforms: Transform | TransformCollection | None = None,  # Ensure this is keyword-only
@@ -89,7 +90,7 @@ class HadISDIndex(ArchiveIndex):
             station (str): Station ID to retrieve data for.
             transforms (optional): Base transforms to apply.
         """
-        self.station = station
+        self.station = [station] if isinstance(station, str) else station
         self.variables = [variables] if isinstance(variables, str) else variables
 
         # Define the base transforms
@@ -110,21 +111,24 @@ class HadISDIndex(ArchiveIndex):
         self.record_initialisation()
 
 
-    def filesystem(self, *args, **kwargs) -> Path:
+    def filesystem(self, station_ids: str | list[str], *args, **kwargs) -> dict[str, Path]:
         """
-        Map a query (station ID) to the corresponding file.
+        Map a stations ID or list of station IDs to their corresponding file paths.
+
+        Args:
+            station (str | list[str]): Station ID or list of station IDs.
 
         Returns:
-            Path: Path to the corresponding file.
+            dict[str, Path]: A dictionary mapping station IDs to their corresponding file paths.
 
         Raises:
-            DataNotFoundError: If the file is not found.
+            DataNotFoundError: If a file is not found for any station ID.
         """
         HADISD_HOME = self.ROOT_DIRECTORIES["hadisd"]
 
-        # Determine the parent folder based on the station ID
-        station_id = self.station
-        wmo_number = station_id[:6]  # Extract the first 6 digits of the station ID for determining the WMO number and parent folder
+        # If string is given, convert to list for simpler/consistent handling
+        if isinstance(station_ids, str):
+            station_ids = [station_ids]
 
         # Define the station ranges and corresponding folders
         STATION_RANGES = [
@@ -161,43 +165,129 @@ class HadISDIndex(ArchiveIndex):
             (950000, 999999, "WMO_950000-999999"),
         ]
 
-        # Find the parent folder dynamically
-        parent_folder = None
-        station_numeric = int(wmo_number)  # Convert the WMO number to an integer (I think WMO is just first 6 digitis of station ID?)
-        for start, end, folder in STATION_RANGES:
-            if start <= station_numeric <= end:
-                parent_folder = folder
-                break
+        # Map station IDs to their file paths
+        paths = {}
+        for station_id in station_ids:
+            wmo_number = station_id[:6]  # Extract the first 6 digits of the station ID
+            station_numeric = int(wmo_number)  # Convert the WMO number to an integer
 
-        if parent_folder is None:
-            raise ValueError(f"Station ID {station_id} does not fall within any defined range.")
+            # Find the parent folder dynamically
+            parent_folder = None
+            for start, end, folder in STATION_RANGES:
+                if start <= station_numeric <= end:
+                    parent_folder = folder
+                    break
 
-        # Construct the expected filename
-        date_range = "19310101-20240101"  # Hardcoded for now; adjust if dataset is updated
-        version = "hadisd.3.4.0.2023f"
-        filename = f"{version}_{date_range}_{station_id}.nc"
+            if parent_folder is None:
+                raise ValueError(f"Station ID {station_id} does not fall within any defined range.")
 
-        # Construct the full path
-        file_path = Path(HADISD_HOME) / parent_folder / filename
+            # Construct the expected filename
+            date_range = "19310101-20240101"  # Hardcoded for now; adjust if dataset is updated
+            version = "hadisd.3.4.0.2023f"
+            filename = f"{version}_{date_range}_{station_id}.nc"
 
-        # Check if the file exists
-        if not file_path.exists():
-            raise DataNotFoundError(
-                f"File not found for station: {station_id}, path: {file_path}"
-            )
+            # Construct the full path
+            file_path = Path(HADISD_HOME) / parent_folder / filename
 
-        # Return the constructed file path
-        return file_path
+            # Check if the file exists
+            if not file_path.exists():
+                raise DataNotFoundError(
+                    f"File not found for station: {station_id}, path: {file_path}"
+                )
+
+            # Add the file path to the dictionary
+            paths[station_id] = file_path
+
+        return paths
 
     @property
     def _import(self):
         """module to import for to load this step in an Pipeline"""
         return "pyearthtools.tutorial"
 
+def load(
+        self,
+        files: dict[str, Path] | Path | list[str | Path] | tuple[str | Path],
+        combine: str = "by_coords",  # Default combine method
+        **kwargs,
+    ) -> Any:
+        """
+        Custom load method for HadISDIndex.
 
+        Args:
+            files (dict[str, Path] | Path | list[str | Path] | tuple[str | Path]):
+                Files to load.
+            combine (str, optional):
+                Combine method for NetCDF files. Defaults to "by_coords".
+                Options:
+                    - "by_coords": Combine datasets by aligning coordinates.
+                    - "nested": Combine datasets by concatenating along a new dimension.
+            **kwargs:
+                Additional arguments passed to the parent class's load method.
+
+        Returns:
+            Any:
+                Loaded data.
+        """
+        # Pass the combine argument as part of **kwargs
+        kwargs["combine"] = combine
+
+        # Call the parent class's load method
+        return super().load(files, **kwargs)
 
 # Notes to Joel
 # - Does PET have the ability to check a NetCDF file for the variables it contains?
 # - If not, we should add that to PET so that a user can be given suggestions for what variables to select, should they give an incorrect variable name
 # - # Convert querytime to Petdt for consistency. Useful for other classes that may not have the same conversion
        # querytime = Petdt(querytime)
+
+
+# # New load method, not sure I like it:
+#     def load(
+#         self,
+#         files: dict[str, Path] | Path | list[str | Path] | tuple[str | Path],
+#         combine: str = "nested",  # Default to "nested" for station-specific data
+#         **kwargs,
+#     ) -> Any:
+#         """
+#         Custom load method for HadISDIndex.
+
+#         Args:
+#             files (dict[str, Path] | Path | list[str | Path] | tuple[str | Path]):
+#                 Files to load.
+#             combine (str, optional):
+#                 Combine method for NetCDF files. Defaults to "nested".
+#             **kwargs:
+#                 Additional arguments passed to the parent class's load method.
+
+#         Returns:
+#             Any:
+#                 Loaded data.
+#         """
+#         datasets = []
+
+#         for station_id, file_path in files.items():
+#             # Open the dataset
+#             ds = xr.open_dataset(file_path, **kwargs)
+
+#             # Add station-specific coordinates
+#             ds = ds.assign_coords(
+#                 {
+#                     "station_id": station_id,
+#                     "longitude": ds.longitude.values if "longitude" in ds else None,
+#                     "latitude": ds.latitude.values if "latitude" in ds else None,
+#                 }
+#             )
+
+#             # Drop conflicting global variables to avoid merge errors
+#             ds = ds.drop_vars(["longitude", "latitude"], errors="ignore")
+#             datasets.append(ds)
+
+#         # Combine datasets along a new "station" dimension
+#         combined_ds = xr.combine_nested(
+#             datasets,
+#             concat_dim="station",  # Concatenate along a new "station" dimension
+#             combine_attrs="override",  # Handle conflicting attributes
+#         )
+
+#         return combined_ds
