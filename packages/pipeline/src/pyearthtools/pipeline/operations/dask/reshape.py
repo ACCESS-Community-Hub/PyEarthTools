@@ -110,16 +110,16 @@ class Rearrange(DaskOperation):
         return self._rearrange(data, pattern)
 
 
-class Squish(DaskOperation):
+class Squeeze(DaskOperation):
     """
-    Operation to Squish one Dimensional axis at 'axis' location
+    Operation to Squeeze one Dimensional axis at 'axis' location
     """
 
     _override_interface = ["Serial"]
-    _numpy_counterpart = "reshape.Squish"
+    _numpy_counterpart = "reshape.Squeeze"
 
     def __init__(self, axis: Union[tuple[int, ...], int]) -> None:
-        """Squish Dimension of Data
+        """Squeeze Dimension of Data
 
         Args:
             axis (Union[tuple[int, ...], int]):
