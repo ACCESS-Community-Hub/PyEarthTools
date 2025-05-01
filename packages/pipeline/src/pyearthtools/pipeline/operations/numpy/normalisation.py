@@ -57,14 +57,14 @@ class numpyNormalisation(Operation):
         return self.normalise(sample)
 
     def undo_func(self, sample: np.ndarray) -> np.ndarray:
-        return self.unnormalise(sample)
+        return self.denormalise(sample)
 
     @abstractmethod
     def normalise(self, sample: np.ndarray) -> np.ndarray:
         return sample
 
     @abstractmethod
-    def unnormalise(self, sample: np.ndarray) -> np.ndarray:
+    def denormalise(self, sample: np.ndarray) -> np.ndarray:
         return sample
 
     def expand(self, factor, sample):
@@ -91,7 +91,7 @@ class Anomaly(numpyNormalisation):
     def normalise(self, sample):
         return sample - self.expand(self.mean, sample)
 
-    def unnormalise(self, sample):
+    def denormalise(self, sample):
         return sample + self.expand(self.mean, sample)
 
 
@@ -110,7 +110,7 @@ class Deviation(numpyNormalisation):
     def normalise(self, sample):
         return (sample - self.expand(self.mean, sample)) / self.expand(self.deviation, sample)
 
-    def unnormalise(self, sample):
+    def denormalise(self, sample):
         return (sample * self.expand(self.deviation, sample)) + self.expand(self.mean, sample)
 
 
@@ -126,7 +126,7 @@ class Division(numpyNormalisation):
     def normalise(self, sample):
         return sample / self.expand(self.division_factor, sample)
 
-    def unnormalise(self, sample):
+    def denormalise(self, sample):
         return sample * self.expand(self.division_factor, sample)
 
 
@@ -169,5 +169,5 @@ class Evaluated(numpyNormalisation):
     def normalise(self, sample):
         return eval(self._normalisation_eval, {"sample": sample, **self._kwargs})
 
-    def unnormalise(self, sample):
+    def denormalise(self, sample):
         return eval(self._unnormalisation_eval, {"sample": sample, **self._kwargs})

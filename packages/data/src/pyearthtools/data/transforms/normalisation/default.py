@@ -78,9 +78,9 @@ class Normaliser:
         """
         Base Normalise Class
 
-        Setup Transformer Class to normalise and unnormalise data
+        Setup Transformer Class to normalise and denormalise data
 
-        Can't be used directly, see `Normalise`, & `Unnormalise`.
+        Can't be used directly, see `Normalise`, & `Denormalise`.
 
         Anomaly, Range, Deviation all require `start`, `end`, and `interval` to be given or `file`.
 
@@ -480,7 +480,7 @@ class Normaliser:
 
     def __call__(self, method: str | dict | tuple, default: str | None = None) -> Transform:
         """
-        Get Transform to Normaliser or UnNormalise based on provided method
+        Get Transform to Normaliser or Denormalise based on provided method
 
         Args:
             method (dict): Dictionary assigning variable names to normalisation methods

@@ -14,7 +14,7 @@
 
 
 """
-A sophisticated [Transform][pyearthtools.data.transforms.Transform] to normalise and unnormalise data.
+A sophisticated [Transform][pyearthtools.data.transforms.Transform] to normalise and denormalise data.
 
 ## Methods
 | Name        | Description |
@@ -30,10 +30,10 @@ A sophisticated [Transform][pyearthtools.data.transforms.Transform] to normalise
 ## Transforms
 [Normalise][pyearthtools.data.transforms.normalisation.normalise] provides the Transforms to normalise incoming data
 
-[UnNormalise][pyearthtools.data.transforms.normalisation.unnormalise] provides the Transforms to unnormalise incoming data
+[Denormalise][pyearthtools.data.transforms.normalisation.denormalise] provides the Transforms to denormalise incoming data
 
 """
 
 from pyearthtools.data.transforms.normalisation import _utils
 from pyearthtools.data.transforms.normalisation.normalise import Normalise
-from pyearthtools.data.transforms.normalisation.unnormalise import Unnormalise
+from pyearthtools.data.transforms.normalisation.denormalise import Denormalise
