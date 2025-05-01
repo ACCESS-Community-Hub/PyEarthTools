@@ -1,3 +1,4 @@
+from pathlib import Path
 import pyearthtools.data.transforms.normalisation
 from pyearthtools.data.transforms.normalisation import default
 from pyearthtools.data.time import Petdt
@@ -5,6 +6,7 @@ import pyearthtools.data.indexes
 import xarray as xr
 import numpy as np
 import pytest
+import tempfile
 
 sample_da = xr.DataArray(
     coords={"latitude": [1, 2, 3, 4], "longitude": [1, 2, 3], "time": ["2023-02"]}, data=np.ones((4, 3, 1))
@@ -54,8 +56,15 @@ def test_Normaliser(monkeypatch):
     start = Petdt("2023-02")
     end = Petdt("2023-03")
 
-    n = default.Normaliser(ati, start, end, "month")
+    n = default.Normaliser(ati, start, end, "month", cache="temp")
     n.check_init_args()
+    
+    # assert n.cache_dir is not None
+    # assert hasattr(n, "temp_dir")
+    # assert isinstance(n.temp_dir, tempfile.TemporaryDirectory)
+    
+    # temp_dir_path = n.temp_dir.name
+    # assert Path(temp_dir_path).exists()
 
     result = n.get_average("temperature")
     assert result == 1

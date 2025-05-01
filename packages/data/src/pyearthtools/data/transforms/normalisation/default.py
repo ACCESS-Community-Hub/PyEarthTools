@@ -122,6 +122,7 @@ class Normaliser:
         kwargs.update(skip_invalid=True)
         self.retrieval_arguments = dict(start=start, end=end, interval=interval, verbose=verbose, **kwargs)
 
+        # TODO - Consider wrapping in a try/except block to catch if TemporaryDirectory() fails
         if cache == "temp":
             temp_dir = tempfile.TemporaryDirectory()
             cache = temp_dir.name
