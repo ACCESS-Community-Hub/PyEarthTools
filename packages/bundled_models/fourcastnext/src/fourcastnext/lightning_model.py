@@ -24,7 +24,7 @@
 # and maintained within the PyEarthTools repository so it can continue to be a useful
 # reference implementation and learning aid.
 
-import pytorch_lightning as pl
+import lightning as pl
 import numpy as np
 import sys
 import torch
@@ -90,6 +90,8 @@ class FourCastNextLM(pl.LightningModule):
         self.model_params = model_params
 
         self.loss_obj = get_loss(loss_function, **loss_kwargs).to(dtype=self._dtype)
+
+    # Can implement def load(file_to_load) here if wanted
 
     def forward(self, x, net):
         value, flow = net(x.to(dtype=self._dtype))
@@ -215,7 +217,8 @@ class FourCastNextLM(pl.LightningModule):
         ]
 
     def validation_step(self, batch, batch_idx):
-        batch, batch_idx, _ = batch  # Issue caused by dataloader needed to replicate training dataloader
+        # batch, batch_idx, _ = batch  # Issue caused by dataloader needed to replicate training dataloader
+        # batch, batch_idx = batch  # Issue caused by dataloader needed to replicate training dataloader
         inp, tar = map(lambda x: x.to(dtype=self._dtype), batch)
         target = tar[:, 0]
         B, T, C, H, W = inp.shape

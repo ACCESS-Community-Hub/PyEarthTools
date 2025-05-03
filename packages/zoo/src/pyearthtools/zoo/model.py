@@ -770,6 +770,8 @@ class BaseForecastModel:
         import pyearthtools.data
         from pyearthtools.zoo import __version__ as VERSION
 
+        kwargs['weights_only'] = False
+
         model, index_kwargs = self.load(**kwargs)  # Load model and trainer
 
         self.log.debug(f"Loading returned {model.__class__ =}")
@@ -834,7 +836,6 @@ class BaseForecastModel:
                 Result of running the index
         """
         import pyearthtools.data
-        import pudb; pudb.set_trace()
 
         excep = None
         try:

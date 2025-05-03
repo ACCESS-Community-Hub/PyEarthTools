@@ -1,5 +1,5 @@
 
-_target_: fourcastnext.model.FourCastNext
+_target_: fourcastnext.lightning_model.FourCastNextLM
 _recursive_: true
 
 
