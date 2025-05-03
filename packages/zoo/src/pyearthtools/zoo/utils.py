@@ -317,7 +317,9 @@ class AvailableModels(CategorisedObjects):
             ValueError:
                 If a model will get overwritten by a duplicate key.
         """
-        super().__init__("Available Models", **self._find_available_models())
+
+        available_models = self._find_available_models()
+        super().__init__("Available Models", **available_models)
 
     def _find_available_models(self) -> dict[str, Any]:
         available_models = {}

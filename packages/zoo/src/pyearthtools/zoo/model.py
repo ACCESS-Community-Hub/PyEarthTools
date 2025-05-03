@@ -834,6 +834,7 @@ class BaseForecastModel:
                 Result of running the index
         """
         import pyearthtools.data
+        import pudb; pudb.set_trace()
 
         excep = None
         try:

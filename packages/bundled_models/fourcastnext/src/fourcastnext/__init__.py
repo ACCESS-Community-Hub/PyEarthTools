@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from fourcastnext.model import FourCastNext
+from fourcastnext.lightning_model import FourCastNextLM
 from fourcastnext import registered_model
 
 __version__ = "0.1.0"

@@ -40,10 +40,10 @@ from pyearthtools.training.modules import get_loss
 torch.set_float32_matmul_precision("medium")
 
 
-class FourCastNext(pl.LightningModule):
+class FourCastNextLM(pl.LightningModule):
     def __init__(
         self,
-        model_params: dict,
+        model_params: dict = {},
         *,
         base_lr=1e-3,
         grad_accum_schedule=None,
