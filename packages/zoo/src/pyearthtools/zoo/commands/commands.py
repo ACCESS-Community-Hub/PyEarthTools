@@ -145,8 +145,6 @@ def run_predict(
     # post migration, and the more appropriate use of the output directory
     # through pipelines will be revisited afterwards
 
-    import pudb; pudb.set_trace()
-
     if output is not None:
         import os
         filename = 'standard_filename.nc'
