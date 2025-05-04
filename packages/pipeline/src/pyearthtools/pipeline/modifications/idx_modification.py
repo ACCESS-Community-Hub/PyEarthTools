@@ -181,8 +181,16 @@ class IdxModifier(PipelineIndex, ParallelEnabledMixin):
         if types[0] not in MERGE_FUNCTIONS:
             warnings.warn(f"Cannot merge samples of type {types[0]}.", PipelineWarning)
             return trim(sample)
+        
+        merge_function = MERGE_FUNCTIONS[types[0]]
 
-        return MERGE_FUNCTIONS[types[0]](sample, **self._merge_kwargs)
+        if merge_function == xr.combine_by_coords:
+            if 'axis' in self._merge_kwargs:
+                # FIXME this is just a debugging workaround
+                self._merge_kwargs.pop('axis')
+
+        result = merge_function(sample, **self._merge_kwargs)
+        return result
 
     def _get_tuple(self, idx, mod: tuple[Any, ...], layer: int) -> Union[tuple[Any], Any]:
         """

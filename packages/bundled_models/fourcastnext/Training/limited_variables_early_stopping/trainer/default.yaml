@@ -1,0 +1,22 @@
+precision: 16-mixed
+max_epochs: 200
+
+checkpointing:
+- monitor: "train_loss"
+  mode: "min"
+  dirpath: "{path}/Checkpoints/Train"
+  filename: "model-{epoch:02d}-{step:02d}"
+  every_n_train_steps: 1000
+  save_top_k: 10
+- monitor: "valid_loss"
+  mode: "min"
+  dirpath: "{path}/Checkpoints/Valid"
+  filename: "model-{epoch:02d}-{step:02d}-{valid_loss}"
+  every_n_train_steps: 5000
+  save_top_k: 10
+- monitor: "epoch"
+  mode: "max"
+  dirpath: "{path}/Checkpoints/Epoch"
+  filename: "model-{epoch:02d}"
+  save_on_train_epoch_end: True
+  save_top_k: 50
