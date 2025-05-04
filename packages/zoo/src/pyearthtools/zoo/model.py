@@ -770,7 +770,7 @@ class BaseForecastModel:
         import pyearthtools.data
         from pyearthtools.zoo import __version__ as VERSION
 
-        kwargs['weights_only'] = False
+        kwargs['weights_only'] = False  # TODO: Remove this, insecure if checkpoint is untrusted, weights_only is preferred
 
         model, index_kwargs = self.load(**kwargs)  # Load model and trainer
 

@@ -130,7 +130,7 @@ def run_predict(
     if "data" in ctx_kwargs:
         raise ValueError("data has been deprecated as an argument for `predict`, use `data`.")
 
-    pyearthtools.zoo.predict(
+    predictions = pyearthtools.zoo.predict(
         model,
         time,
         pipeline=pipeline,
@@ -139,6 +139,20 @@ def run_predict(
         config_path=config_path,
         **ctx_kwargs,
     )
+
+    # FIXME: This is probably very much the wrong way to save data, but something
+    # is needed as a stopgap while the train/predict/save cycle is restored
+    # post migration, and the more appropriate use of the output directory
+    # through pipelines will be revisited afterwards
+
+    import pudb; pudb.set_trace()
+
+    if output is not None:
+        import os
+        filename = 'standard_filename.nc'
+        filename = os.path.join(output, filename)
+        predictions.to_netcdf(filename)
+    
     print(f"Model Predictions saved underneath {output!r}.")
 
 
