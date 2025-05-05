@@ -108,8 +108,8 @@ class ProjErrorStatus(Enum):
         Returns:
             "PES-#" - where # is the integer representation of the enum code
         """
-        str_code = str(es.value)
-        return "PES-" + str_code
+        ret_errcode = PROJECT_ERROR_STATUS_STR_SHORT + "-" + str(es.value)
+        return ret_errcode
 
 
 class ProjKind(Enum):
