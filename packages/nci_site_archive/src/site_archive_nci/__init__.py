@@ -29,6 +29,7 @@ National Computing Infrastructure specific Indexes
 | [BARRA][site_archive_nci.BARRA]              | Bureau of meteorology Atmospheric high-resolution Regional Reanalysis for Australia       |
 | [BARPA][site_archive_nci.BARPA]              | Bureau of Meteorology Atmospheric Regional Projections for Australia       |
 | [BARRA_V2][site_archive_nci.BARRA_V2]        | Bureau of meteorology Atmospheric high-resolution Regional Reanalysis for Australia v2    |
+| [Rainfields3][site_archive_nci._Rainfields3] | Bureau of meteorology Bias Corrected Rainfall Rate Mosiac (Ausm310)    |
 """
 
 import pyearthtools.data
@@ -51,6 +52,7 @@ ROOT_DIRECTORIES = {
     "BARPA": "/g/data/py18/BARPA/",
     "BARRA_V2": "/g/data/ob53/BARRA2/",
     "CMIP5": "/g/data/al33/replicas/CMIP5/combined/",
+    "Rainfields3": "/g/data/rq0/rainfields3/310/",
 }
 
 
@@ -69,6 +71,7 @@ from site_archive_nci.MODIS import MODIS
 from site_archive_nci.OceanMaps import OceanMaps
 from site_archive_nci.Himawari import Himawari
 from site_archive_nci._CMIP5 import CMIP5
+from site_archive_nci._RadarDemo import RadarDemo
 
 register_archive("NCI")(site_archive_nci)
 
