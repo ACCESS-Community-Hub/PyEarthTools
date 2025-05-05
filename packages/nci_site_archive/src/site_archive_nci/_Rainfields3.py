@@ -127,7 +127,7 @@ class RadarProj(SimpleNamespace):
     There are two main "external" functions in this namespace:
         1. `xy_to_lonlat` initiates the conversion routine.
         2. `make_lonlat_meshgrid` is a helper to create a lonlat_meshgrid.
-        
+
         The rest are internal implementations.
 
     See docs on `RadarProj.xy_to_lonlat` for main usage.
@@ -148,7 +148,7 @@ class RadarProj(SimpleNamespace):
         * however, within a multiple of the max x-y grid spacing
           (MAX_XY_EXTRAPOLATE_GRIDSIZE_MULT) away from the x-y boundaries interp,
           extrapolation is allowed. This is to address:
-              a) rounding issues and 
+              a) rounding issues and
               b) preserve the non-NaN grid values
                  e.g. if the same grid sizes are required for x-y and lat-lon.
 
@@ -316,15 +316,10 @@ class RadarProj(SimpleNamespace):
             )
 
             if not test_lonlatmesh:
-                raise ValueError(
-                    "Invalid lonlat_meshgrid specified. See numpy.meshgrid on how to"
-                    " create this"
-                )
+                raise ValueError("Invalid lonlat_meshgrid specified. See numpy.meshgrid on how to" " create this")
 
         if not _scipy_supported() and interp_lonlat:
-            raise ValueError(
-                "`interp_lonlat` not support. Dependency `scipy` is missing"
-            )
+            raise ValueError("`interp_lonlat` not support. Dependency `scipy` is missing")
 
         # ------------------------
         #  1. extract proj object
@@ -366,9 +361,7 @@ class RadarProj(SimpleNamespace):
 
             # only warn and mutate cache if it is specified
             if proj_cache is not None:
-                rp._warn_inconsistent_proj_mut(
-                    pyprojobj, proj_cache, do_warn=warn_on_different_proj
-                )
+                rp._warn_inconsistent_proj_mut(pyprojobj, proj_cache, do_warn=warn_on_different_proj)
 
         # safety - we should have a projection by now or have raised an error.
         assert pyprojobj is not None
@@ -388,9 +381,7 @@ class RadarProj(SimpleNamespace):
 
         # b. interp_lonlat = True => project latlon and interpolate xy to match
         else:
-            _res = rp._interp_xy_grid_from_lonlat_meshgrid(
-                ds, pyprojobj, lonlat_meshgrid, interp_method
-            )
+            _res = rp._interp_xy_grid_from_lonlat_meshgrid(ds, pyprojobj, lonlat_meshgrid, interp_method)
             if _res is None:
                 rp._handle_error_state(ProjErrorStatus.INTERPOLATE_PROJ_FAILED)
             ds_ret, _unused_latlon_grid, _unused_xy_grid = _res
@@ -495,8 +486,8 @@ class RadarProj(SimpleNamespace):
     def _handle_error_state(es: ProjErrorStatus):
         """
         Handles or raises errors with appropriate messages.
-        
-        Currently an error state will always raise an exception 
+
+        Currently an error state will always raise an exception
         i.e. terminates execution
 
         Args:
@@ -511,39 +502,38 @@ class RadarProj(SimpleNamespace):
         proj_kinds = [*map(lambda _p: _p.name, ProjKind)]
 
         # emulating switch case with dict because its more legible than if/else
-        map_projerror_to_str = dict([
-            (
-                ProjErrorStatus.ATTR_MISSING,
-                "Could not find `proj` variable in dataset.",
-            ),
-            (
-                ProjErrorStatus.PROJ_UNSUPPORTED,
-                f"Unsupported projection. Supported: {proj_kinds}.",
-            ),
-            (
-                ProjErrorStatus.ATTR_TO_PYPROJ_CONVERSION_FAILED,
-                "Failed to convert extracted projection from dataset to pyproj object.",
-            ),
-            (
-                ProjErrorStatus.INVERSE_PROJ_FAILED,
+        map_projerror_to_str = dict(
+            [
                 (
-                    "Failed to invert x-y coordinates to lat-lon. Check that the proj"
-                    " in dataset is invertible."
+                    ProjErrorStatus.ATTR_MISSING,
+                    "Could not find `proj` variable in dataset.",
                 ),
-            ),
-            (
-                ProjErrorStatus.INTERPOLATE_PROJ_FAILED,
                 (
-                    "Failed to interpolate x-y grid to match the lat-lon meshgrid. Try"
-                    " other interp methods or check that the meshgrid extents are"
-                    " correct."
+                    ProjErrorStatus.PROJ_UNSUPPORTED,
+                    f"Unsupported projection. Supported: {proj_kinds}.",
                 ),
-            ),
-            (
-                ProjErrorStatus.UNEXPECTED_RUNTIME_ERROR,
-                "Unexpected error - could not compute result - please raise an issue.",
-            ),
-        ])
+                (
+                    ProjErrorStatus.ATTR_TO_PYPROJ_CONVERSION_FAILED,
+                    "Failed to convert extracted projection from dataset to pyproj object.",
+                ),
+                (
+                    ProjErrorStatus.INVERSE_PROJ_FAILED,
+                    ("Failed to invert x-y coordinates to lat-lon. Check that the proj" " in dataset is invertible."),
+                ),
+                (
+                    ProjErrorStatus.INTERPOLATE_PROJ_FAILED,
+                    (
+                        "Failed to interpolate x-y grid to match the lat-lon meshgrid. Try"
+                        " other interp methods or check that the meshgrid extents are"
+                        " correct."
+                    ),
+                ),
+                (
+                    ProjErrorStatus.UNEXPECTED_RUNTIME_ERROR,
+                    "Unexpected error - could not compute result - please raise an issue.",
+                ),
+            ]
+        )
 
         # construct identifiable error code - for dev debugging
         error_str = map_projerror_to_str.get(es, None)
@@ -563,10 +553,7 @@ class RadarProj(SimpleNamespace):
         """
         ret = None
 
-        if (
-            "proj" in ds.variables.keys()
-            and RadarProj.REQUIRED_PROJATTR_GRIDMAPPINGNAME in ds.proj.attrs
-        ):
+        if "proj" in ds.variables.keys() and RadarProj.REQUIRED_PROJATTR_GRIDMAPPINGNAME in ds.proj.attrs:
             ret = ds.proj.attrs
 
         return ret
@@ -586,10 +573,7 @@ class RadarProj(SimpleNamespace):
         projkind_str = projattr.get(RadarProj.REQUIRED_PROJATTR_GRIDMAPPINGNAME, None)
 
         # case sensitivity shouldn't affect the kind of projection.
-        if (
-            projkind_str is not None
-            and projkind_str.lower() == "albers_conical_equal_area"
-        ):
+        if projkind_str is not None and projkind_str.lower() == "albers_conical_equal_area":
             ret = ProjKind.ALBERS_CONICAL_EQUAL_AREA
 
         return ret
@@ -652,12 +636,8 @@ class RadarProj(SimpleNamespace):
         if (approx_unique(lon_1d) == approx_unique(lon_grid)).all() or (
             approx_unique(lat_1d) == approx_unique(lat_grid)
         ).all():
-            da_x = xr.DataArray(
-                x_grid, dims=["lon", "lat"], coords={"lon": lon_1d, "lat": lat_1d}
-            )
-            da_y = xr.DataArray(
-                y_grid, dims=["lon", "lat"], coords={"lon": lon_1d, "lat": lat_1d}
-            )
+            da_x = xr.DataArray(x_grid, dims=["lon", "lat"], coords={"lon": lon_1d, "lat": lat_1d})
+            da_y = xr.DataArray(y_grid, dims=["lon", "lat"], coords={"lon": lon_1d, "lat": lat_1d})
             ret = (da_x, da_y)
         else:
             _e = f"ERROR: provided meshgrid is malformed."
@@ -674,27 +654,27 @@ class RadarProj(SimpleNamespace):
         interp_method: str = "linear",
     ) -> tuple[xr.Dataset, NumpyMeshGrid2D, NumpyMeshGrid2D] | None:
         """
-       Projects lon-lat meshgrid into x-y and interpolates the input dataset,
-       essentially resampling the x-y dimensions to the new interpolated values
-       matched to the lat-lon meshgrid.
+        Projects lon-lat meshgrid into x-y and interpolates the input dataset,
+        essentially resampling the x-y dimensions to the new interpolated values
+        matched to the lat-lon meshgrid.
 
-       Requires scipy for multidimensional interpolation.
+        Requires scipy for multidimensional interpolation.
 
-       .. note::
+        .. note::
 
-          `xr.Dataset.interp` auto inserts lat-lon.
+           `xr.Dataset.interp` auto inserts lat-lon.
 
-       Args:
-           ds: the dataset (in x-y)
-           pyprojobj: the projection
-           lonlat_meshgrid: the lat-lon meshgrid to project to x-y
-           interp_method: the method used by `xarray.Dataset.interp`
+        Args:
+            ds: the dataset (in x-y)
+            pyprojobj: the projection
+            lonlat_meshgrid: the lat-lon meshgrid to project to x-y
+            interp_method: the method used by `xarray.Dataset.interp`
 
-       Returns:
-           Triple (tuple) containing:
-               * interpolated ds (first) - main result
-               * lonlat grid (second) - for debugging
-               * xy grid (third) - for debugging
+        Returns:
+            Triple (tuple) containing:
+                * interpolated ds (first) - main result
+                * lonlat grid (second) - for debugging
+                * xy grid (third) - for debugging
         """
         # should have been already checked
         assert _scipy_supported()
@@ -725,9 +705,7 @@ class RadarProj(SimpleNamespace):
             scipy_kwargs = {"fill_value": None}
 
         # do projection
-        da_xyproj = RadarProj._make_xycoord_from_latlon_meshgrid(
-            x_proj, y_proj, lon_grid, lat_grid
-        )
+        da_xyproj = RadarProj._make_xycoord_from_latlon_meshgrid(x_proj, y_proj, lon_grid, lat_grid)
 
         if da_xyproj is None:
             return None
@@ -781,9 +759,7 @@ class RadarProj(SimpleNamespace):
 
         # compute max allowable grid difference as a ratio of x-y grid area
         xy_maxgridsize = fn_maxgridsize(ds.x.values), fn_maxgridsize(ds.y.values)
-        maxgridsize = (
-            np.prod(xy_maxgridsize) * RadarProj.MAX_XY_EXTRAPOLATE_GRIDSIZE_MULT
-        )
+        maxgridsize = np.prod(xy_maxgridsize) * RadarProj.MAX_XY_EXTRAPOLATE_GRIDSIZE_MULT
 
         # compute grid difference at boundaries
         diffgrid = (
@@ -815,7 +791,7 @@ class RadarProj(SimpleNamespace):
                 * ds with lonlat from proj inverse (first)  - main result
                 * lonlat grid (second)  - for debugging
                 * xy grid (third) - for debugging
-        
+
         .. note::
 
             * Both grids must have the same size (N by M)
@@ -840,9 +816,7 @@ class RadarProj(SimpleNamespace):
         try:
             # NOTE: inverse takes in x-y rather than lat-lon even though docs
             # have the args explicitly set to lat-lon
-            lon_grid, lat_grid = pyprojobj(
-                x_grid, y_grid, inverse=True, errcheck=True, radians=False
-            )
+            lon_grid, lat_grid = pyprojobj(x_grid, y_grid, inverse=True, errcheck=True, radians=False)
         except RadarProj.PYPROJ_EXCEPTION_TRAPS as _e:
             logging.exception(_e)
             return None
@@ -852,9 +826,7 @@ class RadarProj(SimpleNamespace):
 
         # assign lon/lat coordinates
         # NOTE: lon/lat grids map rows to y => y,x
-        ds_inv = ds.assign_coords(
-            lon=(["y", "x"], lon_grid), lat=(["y", "x"], lat_grid)
-        )
+        ds_inv = ds.assign_coords(lon=(["y", "x"], lon_grid), lat=(["y", "x"], lat_grid))
 
         # construct return tuple
         ret = tuple([ds_inv, (lon_grid, lat_grid), (x_grid, y_grid)])
