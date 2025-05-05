@@ -153,9 +153,7 @@ class TestRadarProj:
         #     => no warn, but length still increases
         with pytest.warns(WarnRadarProj):
             print("check proj A'' (1) - WARN:")
-            proj_newish = pyproj.Proj(
-                "+proj=aea +lat_1=-36 +lat_2=0 +lon_0=125 +units=m"
-            )
+            proj_newish = pyproj.Proj("+proj=aea +lat_1=-36 +lat_2=0 +lon_0=125 +units=m")
             RadarProj._warn_inconsistent_proj_mut(proj_newish, proj_cache, do_warn=True)
             assert len(proj_cache) == 4
 
@@ -224,20 +222,11 @@ class TestRadarProj:
                 # Otherwise we are either upsampling or downsampling
                 if num_lon <= DS_TEST.temp.shape[0] or num_lat <= DS_TEST.temp.shape[1]:
                     # downsampling => relax requirements, but still should be within bounds
-                    assert (
-                        np.abs(_ds.temp.mean() - DS_TEST.temp.mean())
-                        <= DS_TEST.temp.std()
-                    )
+                    assert np.abs(_ds.temp.mean() - DS_TEST.temp.mean()) <= DS_TEST.temp.std()
                     # max should be closer to DS_TEST.max than DS_TEST.mean
-                    assert (
-                        _ds.temp.max()
-                        > (DS_TEST.temp.max() - DS_TEST.temp.mean()) * 0.5
-                    )
+                    assert _ds.temp.max() > (DS_TEST.temp.max() - DS_TEST.temp.mean()) * 0.5
                     # min should be closer to DS_TEST.min than DS_TEST.mean
-                    assert (
-                        _ds.temp.min()
-                        < (DS_TEST.temp.mean() - DS_TEST.temp.min()) * 0.5
-                    )
+                    assert _ds.temp.min() < (DS_TEST.temp.mean() - DS_TEST.temp.min()) * 0.5
                 else:
                     # upsampling => should still be roughly close since values should be
                     # stable within the data boundary.
@@ -259,33 +248,23 @@ class TestRadarProj:
             assert _ds.temp.shape == (num_lon, num_lat)
 
         # interp: 6 by 6
-        ds_interp, _, _ = _fn_interp(
-            lonlat_meshgrid=_fn_mesh_lonlat(num_lat=6, num_lon=6)
-        )
+        ds_interp, _, _ = _fn_interp(lonlat_meshgrid=_fn_mesh_lonlat(num_lat=6, num_lon=6))
         _common_asserts(ds_interp, 6, 6)
 
         # downsample: 3 by 3
-        ds_interp, _, _ = _fn_interp(
-            lonlat_meshgrid=_fn_mesh_lonlat(num_lon=3, num_lat=3)
-        )
+        ds_interp, _, _ = _fn_interp(lonlat_meshgrid=_fn_mesh_lonlat(num_lon=3, num_lat=3))
         _common_asserts(ds_interp, 3, 3)
 
         # upsample: 12 by 12
-        ds_interp, _, _ = _fn_interp(
-            lonlat_meshgrid=_fn_mesh_lonlat(num_lon=12, num_lat=12)
-        )
+        ds_interp, _, _ = _fn_interp(lonlat_meshgrid=_fn_mesh_lonlat(num_lon=12, num_lat=12))
         _common_asserts(ds_interp, 12, 12)
 
         # non-square: 9 by 17
-        ds_interp, _, _ = _fn_interp(
-            lonlat_meshgrid=_fn_mesh_lonlat(num_lon=9, num_lat=17)
-        )
+        ds_interp, _, _ = _fn_interp(lonlat_meshgrid=_fn_mesh_lonlat(num_lon=9, num_lat=17))
         _common_asserts(ds_interp, 9, 17)
 
         # non-square-flipped: 18 by 10
-        ds_interp, _, _ = _fn_interp(
-            lonlat_meshgrid=_fn_mesh_lonlat(num_lon=18, num_lat=10)
-        )
+        ds_interp, _, _ = _fn_interp(lonlat_meshgrid=_fn_mesh_lonlat(num_lon=18, num_lat=10))
         _common_asserts(ds_interp, 18, 10)
 
     def test_xy_to_latlon_interp_no_extrap(self):
@@ -317,9 +296,7 @@ class TestRadarProj:
             pyprojobj=projobj,
             interp_method=method,
         )
-        ds_interp, _, _ = _fn_interp(
-            lonlat_meshgrid=_fn_mesh_lonlat(num_lon=6, num_lat=6)
-        )
+        ds_interp, _, _ = _fn_interp(lonlat_meshgrid=_fn_mesh_lonlat(num_lon=6, num_lat=6))
         # check shape retained
         assert ds_interp.temp.shape == DS_TEST.temp.shape
 
@@ -332,10 +309,7 @@ class TestRadarProj:
         assert ds_interp.temp.max() <= DS_TEST.temp.max() + 10
 
         # check still within 1 std since mean shouldn't changed too much
-        assert (
-            np.nanmean(ds_interp.temp.values) - DS_TEST.temp.mean()
-            <= DS_TEST.temp.std()
-        )
+        assert np.nanmean(ds_interp.temp.values) - DS_TEST.temp.mean() <= DS_TEST.temp.std()
 
         # --------------------------------------------
         #  Case 2: latlon okay but method unsupported
@@ -384,9 +358,7 @@ class TestRadarProj:
         assert ds.lat.shape == (6, 6)
 
         # reprojecting gives back roughly the same x-y
-        xgrid, ygrid = PYPROJ_SAMPLE(
-            ds.lon, ds.lat, inverse=False, errcheck=True, radians=False
-        )
+        xgrid, ygrid = PYPROJ_SAMPLE(ds.lon, ds.lat, inverse=False, errcheck=True, radians=False)
         xgrid = xgrid / 1000  # convert to km
         ygrid = ygrid / 1000  # convert to km
         # unique sorts
@@ -422,9 +394,7 @@ class TestRadarProj:
         assert len(lcache) == 1
         # should warn this time
         with pytest.warns(WarnRadarProj):
-            RadarProj.xy_to_lonlat(
-                ds_different_proj, proj_cache=lcache, warn_on_different_proj=True
-            )
+            RadarProj.xy_to_lonlat(ds_different_proj, proj_cache=lcache, warn_on_different_proj=True)
 
         assert len(lcache) == 2
 
@@ -561,17 +531,13 @@ class TestRadarProj:
         ds_badprojattr.proj.attrs["standard_parallel"] = "potato"
         with pytest.raises(ErrorRadarProj, match="PES-103"):
             ds_out = RadarProj.xy_to_lonlat(ds_badprojattr)
-            projobj = RadarProj._transform_projattr_to_pyprojobj(
-                ds_badprojattr.proj.attrs
-            )
+            projobj = RadarProj._transform_projattr_to_pyprojobj(ds_badprojattr.proj.attrs)
 
         # try deleting the whole thing
         del ds_badprojattr.proj.attrs["standard_parallel"]
         with pytest.raises(ErrorRadarProj, match="PES-103"):
             ds_out = RadarProj.xy_to_lonlat(ds_badprojattr)
-            projobj = RadarProj._transform_projattr_to_pyprojobj(
-                ds_badprojattr.proj.attrs
-            )
+            projobj = RadarProj._transform_projattr_to_pyprojobj(ds_badprojattr.proj.attrs)
 
     # FIXME
     # TODO: all error states
@@ -637,9 +603,7 @@ class TestRadarProj:
             endpoint=True,
         )
         with pytest.raises(ErrorRadarProj, match="PES-105"):
-            ds = RadarProj.xy_to_lonlat(
-                DS_TEST, interp_lonlat=True, interp_method="potato", lonlat_meshgrid=mg
-            )
+            ds = RadarProj.xy_to_lonlat(DS_TEST, interp_lonlat=True, interp_method="potato", lonlat_meshgrid=mg)
 
     def test_xy_to_lonlat_projcache_interp_bad_args(self):
         """
@@ -665,9 +629,7 @@ class TestRadarProj:
             lat_extent=(lat0, lat1),
             endpoint=True,
         )
-        monkeypatch.setattr(
-            "site_archive_nci._Rainfields3._scipy_supported", lambda: False
-        )
+        monkeypatch.setattr("site_archive_nci._Rainfields3._scipy_supported", lambda: False)
         with pytest.raises(ValueError, match="scipy"):
             _ = RadarProj.xy_to_lonlat(
                 DS_TEST,
