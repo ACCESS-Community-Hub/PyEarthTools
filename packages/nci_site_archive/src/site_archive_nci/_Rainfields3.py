@@ -842,14 +842,15 @@ class RadarProj(SimpleNamespace):
 
 @register_archive("Rainfields3")
 class Rainfields3(ArchiveIndex):
-    """Index into Australian Community Climate and Earth-System Simulator"""
+    """ArchiveIndex for Rainfields3 Australia-wide radar mosiac 2km^2 (Ausm310)"""
 
     _PROJ_FN_NAME = "_proj_laton"
 
     @property
     def _desc_(self):
         return {
-            "singleline": "Radar Demo Accessor",
+            "singleline": "Rainfields3 Australia-wide radar mosiac 2km^2 (Ausm310)",
+            "Documentation": "https://dx.doi.org/10.25914/DTTK-H476",
         }
 
     @classmethod
