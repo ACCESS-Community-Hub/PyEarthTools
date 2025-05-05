@@ -39,7 +39,6 @@ jobs:
         pip install -e packages/zoo
         pip install -e packages/bundled_models/fourcastnext
         pip install -e packages/tutorial
-        pip install -e packages/utils
         pip install -e packages/nci_site_archive
         pip install -e .[test,docs]
 
