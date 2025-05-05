@@ -69,7 +69,6 @@ class Rearrange(Operation):
         self.skip = skip
 
     def _rearrange(self, data: np.ndarray, pattern: str, catch=True):
-        return einops.rearrange(data, pattern, **self.rearrange_kwargs)
 
         try:
             return einops.rearrange(data, pattern, **self.rearrange_kwargs)
