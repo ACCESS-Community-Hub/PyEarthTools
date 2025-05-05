@@ -5,7 +5,7 @@ import pyproj
 import pytest
 import xarray as xr
 
-from site_archive_nci._RadarDemo import (
+from site_archive_nci._Rainfields3 import (
     ErrorRadarProj,
     ProjErrorStatus,
     ProjKind,
@@ -654,7 +654,7 @@ class TestRadarProj:
         Test guard against scipy dependency not existing
         """
         # trigger import if not already
-        import site_archive_nci._RadarDemo
+        import site_archive_nci._Rainfields3
 
         (lon0, lon1), (lat0, lat1) = APPROX_LATLON_BOUNDS
         # Note: including endpoint, since min/max which are used to compute
@@ -666,7 +666,7 @@ class TestRadarProj:
             endpoint=True,
         )
         monkeypatch.setattr(
-            "site_archive_nci._RadarDemo._scipy_supported", lambda: False
+            "site_archive_nci._Rainfields3._scipy_supported", lambda: False
         )
         with pytest.raises(ValueError, match="scipy"):
             _ = RadarProj.xy_to_lonlat(

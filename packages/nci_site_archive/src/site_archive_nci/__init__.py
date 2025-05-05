@@ -71,7 +71,7 @@ from site_archive_nci.MODIS import MODIS
 from site_archive_nci.OceanMaps import OceanMaps
 from site_archive_nci.Himawari import Himawari
 from site_archive_nci._CMIP5 import CMIP5
-from site_archive_nci._RadarDemo import RadarDemo
+from site_archive_nci._Rainfields3 import Rainfields3
 
 register_archive("NCI")(site_archive_nci)
 

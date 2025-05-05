@@ -7,7 +7,7 @@
 # from the use of the software.
 
 """
-RadarDemo Accessor
+Rainfields3 Accessor
 """
 
 import functools
@@ -59,7 +59,7 @@ PROJECT_ERROR_STATUS_STR_SHORT = "PES"
 
 class ErrorRadarProj(Exception):
     """
-    Derived exception class specific to RadarDemo projections.
+    Derived exception class specific to Rainfields3 projections.
 
     See: ProjErrorStatus
     """
@@ -67,7 +67,7 @@ class ErrorRadarProj(Exception):
 
 class WarnRadarProj(UserWarning):
     """
-    Derived warning class specific to RadarDemo projections.
+    Derived warning class specific to Rainfields3 projections.
     """
 
 
@@ -165,7 +165,7 @@ class RadarProj(SimpleNamespace):
 
         Once we have determined that this namespace is useful we should move it to a
         more generic projection module or directly into PyEarthTools. (Currently
-        only useful for RadarDemo.)
+        only useful for Rainfields3.)
     """
 
     #: Multiplier for km to meters.
@@ -862,8 +862,8 @@ class RadarProj(SimpleNamespace):
         return ret
 
 
-@register_archive("RadarDemo")
-class RadarDemo(ArchiveIndex):
+@register_archive("Rainfields3")
+class Rainfields3(ArchiveIndex):
     """Index into Australian Community Climate and Earth-System Simulator"""
 
     _PROJ_FN_NAME = "_proj_laton"
@@ -901,7 +901,7 @@ class RadarDemo(ArchiveIndex):
 
         see:
             * RadarProj.xy_to_lonlat for documentation on kwargs to use for proj_kwargs
-            * RadarDemo.__init__ for common args for RadarDemo
+            * Rainfields3.__init__ for common args for Rainfields3
         """
         if proj_kwargs is None:
             proj_kwargs = {}
@@ -928,7 +928,7 @@ class RadarDemo(ArchiveIndex):
 
         see: init_with_lonlatproj
         """
-        return getattr(self, RadarDemo._PROJ_FN_NAME, None)
+        return getattr(self, Rainfields3._PROJ_FN_NAME, None)
 
     def __init__(
         self,
