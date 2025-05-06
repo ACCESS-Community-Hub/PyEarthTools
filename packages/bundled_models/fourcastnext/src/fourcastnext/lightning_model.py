@@ -244,8 +244,8 @@ class FourCastNextLM(pl.LightningModule):
     def predict_step(self, batch, batch_idx):
 
         try:
-            inp = batch.to(dtype=self._dtype)
-            # inp, tar = map(lambda x: x.to(dtype=self._dtype), batch)
+            # inp = batch.to(dtype=self._dtype)
+            inp, tar = map(lambda x: x.to(dtype=self._dtype), batch)
         except Exception:
             inp = batch.to(dtype=self._dtype)
 

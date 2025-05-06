@@ -117,7 +117,9 @@ def _initialise_model(  # pylint: disable=R0913
             f"Some required keyword arguments are missing, {list(required.keys())}.\nPlease specify them as keywords."
         )
     
-    import pudb; pudb.set_trace()
+    # import pudb; pudb.set_trace()
+
+    import site_archive_nci  # FIXME: available sites should be preloaded
     return model_class(
         pipeline_name,
         output=output,

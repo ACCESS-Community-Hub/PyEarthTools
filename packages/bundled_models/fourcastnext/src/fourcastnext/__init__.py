@@ -40,5 +40,7 @@ class CropToRectangle(Operation):
 
         return subset_dataset
     
-    def undo_func(self, *args, **kwargs):
-        raise NotImplementedError
+    def undo_func(self, dataset_to_undo, **kwargs):
+
+        # Just return the cropped data, cannot 'undo' this one
+        return dataset_to_undo
