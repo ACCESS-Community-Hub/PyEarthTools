@@ -281,7 +281,7 @@ class BaseForecastModel:
 
         if not self.is_valid_pipeline(pipeline_name, config_path=self._config_path):
             raise ValueError(
-                f"Cannot recognise config: {pipeline}\n. "
+                f"Cannot recognise config: {pipeline_name}\n. "
                 f"Valid items: {list(self._valid_pipeline(config_path=self._config_path).keys())}"
             )
 
