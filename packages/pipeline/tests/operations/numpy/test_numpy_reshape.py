@@ -53,7 +53,7 @@ def test_Rearrange_skip():
     assert np.all(output == wrong_shape_array), "Check skip can leave array unchanged."
 
 def test_Rearrange_not_skip():
-    """Check that the operation is not skipped, if the skip flag is not set to True."""
+    """Check that the operation can raise an error, if the skip flag is not set to True."""
     r = reshape.Rearrange('h l w -> l w h')
     h_dim = 1
     l_dim = 12
@@ -61,24 +61,58 @@ def test_Rearrange_not_skip():
     with pytest.raises(Exception):
         r.apply_func(wrong_shape_array)
 
-
 def test_Squeeze():
-    s = reshape.Squeeze(axis=(2, 3))
-    random_array = np.random.randn(8, 8, 1, 1, 2, 1)
-    assert s.apply_func(random_array).shape == (8, 8, 2, 1), "Squeeze only the correct axes."
-
-def test_undo_Squeeze():
     s = reshape.Squeeze(axis=(2, 3))
     random_array = np.random.randn(8, 8, 1, 1, 2, 1)
     output = s.apply_func(random_array)
     undo_output = s.undo_func(output)
+    assert output.shape == (8, 8, 2, 1), "Squeeze only the correct axes."
     assert random_array.shape == undo_output.shape, "Check Squeeze can correctly undo itself."
-
-def test_Squeeze_error():
-    """Check we get an error if we try to squeeze an axis not of length 1."""
-    s = reshape.Squeeze(axis=(1, 3)) # Note axis 1, below, is not of length 1.
-    random_array = np.random.randn(8, 8, 1, 1, 2, 1)
     with pytest.raises(Exception):
-        s.apply_func(random_array)
+        s.apply_func(output) # Output doesn't have the correct axes of length 1, so we get an error.
+
+
+def test_Expand():
+    e = reshape.Expand(axis=(0, 2))
+    random_array = np.random.randn(4, 3, 5)
+    output = e.apply_func(random_array)
+    undo_output = e.undo_func(output)
+    assert output.shape == (1, 4, 1, 3, 5), "Expand the correct axes."
+    assert undo_output.shape == random_array.shape, "Expand can undo itself."
+    with pytest.raises(Exception):
+        e.undo_func(random_array)
+
+def test_Squeeze_reverses_Expand():
+    e = reshape.Expand(axis=(0, 2))
+    s = reshape.Squeeze(axis=(0, 2))
+    random_array = np.random.randn(4, 3, 5)
+    expand_output = e.apply_func(random_array)
+    squeeze_output = s.apply_func(expand_output)
+    assert squeeze_output.shape == random_array.shape, "Squeeze reverses Expand."
+
+
+def test_Flattener():
+    f = reshape.Flattener()
+    random_array = np.random.randn(4, 3, 5)
+    output = f.apply(random_array)
+    assert len(output.shape) == 1, "Flattener produces a 1D array."
+
+def test_Flatten():
+    f1 = reshape.Flatten(flatten_dims=2)
+    random_array = np.random.randn(4, 3, 5)
+    output = f1.apply_func(random_array)
+    undo_output = f1.undo_func(output)
+    assert output.shape == (4, 3*5), "Flatten acts on the last few dimensions."
+    assert np.all(undo_output == random_array), "Flatten can undo itself."
+
+    f2 = reshape.Flatten(flatten_dims=1)
+    random_array = np.random.randn(4, 3, 5)
+    output = f2.apply_func(random_array)
+    assert np.all(output == random_array), "Flatten 1 dimension does nothing."
+
+    f3 = reshape.Flatten()
+    random_array3 = np.random.randn(6, 7, 5, 2)
+    output = f3.apply_func(random_array3)
+    assert f3.undo_func(output).shape == (6, 7, 5, 2), "Undo Flatten all dimensions."
 
 
