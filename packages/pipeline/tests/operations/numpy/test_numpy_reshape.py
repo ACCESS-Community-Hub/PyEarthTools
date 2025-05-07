@@ -95,6 +95,7 @@ def test_Flattener():
     f = reshape.Flattener()
     random_array = np.random.randn(4, 3, 5)
     output = f.apply(random_array)
+    undo_output = f.undo_func(output)
     assert len(output.shape) == 1, "Flattener produces a 1D array."
 
 def test_Flatten():
