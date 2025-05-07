@@ -290,7 +290,7 @@ class DataIndex(Index):
 
         if self._skip_transforms:
             return self.get(*args, **kwargs)
-        
+
         untransformed = self.get(*args, **kwargs)
         transformed = transforms(untransformed)
         return transformed

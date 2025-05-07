@@ -129,7 +129,6 @@ def run_predict(
 
     if "data" in ctx_kwargs:
         raise ValueError("data has been deprecated as an argument for `predict`, use `data`.")
-    
 
     predictions = pyearthtools.zoo.predict(
         model,
@@ -148,10 +147,11 @@ def run_predict(
 
     if output is not None:
         import os
-        filename = 'standard_filename.nc'
+
+        filename = "standard_filename.nc"
         filename = os.path.join(output, filename)
         predictions.to_netcdf(filename)
-    
+
     print(f"Model Predictions saved underneath {output!r}.")
 
 

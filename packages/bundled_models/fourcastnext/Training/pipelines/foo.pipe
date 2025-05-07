@@ -8,12 +8,12 @@ __args: !!python/tuple
   - msl
   - 10u
   - 10v
-  - 2t  
+  - 2t
 - !pyearthtools@pyearthtools.pipeline.operations.transforms.Transforms
   apply: !pyearthtools@pyearthtools.data.transforms.coordinates.StandardLongitude
     type: -180-180
   transforms: null
-  undo: null  
+  undo: null
 - !pyearthtools@fourcastnext.CropToRectangle
   warn: true
 - !pyearthtools@pyearthtools.pipeline.modifications.idx_modification.TemporalRetrieval

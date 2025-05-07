@@ -79,9 +79,9 @@
     :members:
 
 .. autoclass:: pyearthtools.data.indexes.IntakeIndex
-    :members:                                
+    :members:
 
 .. autoclass:: pyearthtools.data.indexes.IntakeIndexCache
-    :members:                                
+    :members:
 
 ```

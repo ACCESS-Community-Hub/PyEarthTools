@@ -24,6 +24,7 @@ __version__ = "0.1.0"
 # handle any resolution of grid, and so not be limited specifically to this model
 # and the resolution of ERA5 full res
 
+
 class CropToRectangle(Operation):
     """Cut with Bounding box"""
 
@@ -38,11 +39,11 @@ class CropToRectangle(Operation):
 
     def apply_func(self, dataset: xr.Dataset):
         subset_dataset = dataset.isel(
-            latitude=slice(0, -1), 
+            latitude=slice(0, -1),
         )
 
         return subset_dataset
-    
+
     def undo_func(self, dataset_to_undo, **kwargs):
 
         # Just return the cropped data, cannot 'undo' this one

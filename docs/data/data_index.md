@@ -11,7 +11,7 @@ The use of the data package within PyEarthTools includes:
   - Loading that data into memory for efficient use in machine learning
   - Performing scientific operations on that data as part of data pre-processing
 
-These tasks are aided by the API presented by the data package. Users looking for "how-to guides" or worked examples should review the [Tutorial Gallery](https://pyearthtools.readthedocs.io/en/latest/notebooks/Gallery.html). 
+These tasks are aided by the API presented by the data package. Users looking for "how-to guides" or worked examples should review the [Tutorial Gallery](https://pyearthtools.readthedocs.io/en/latest/notebooks/Gallery.html).
 
 The rest of this page contains reference information for the components of the Data package. The entire data API docs can be viewed at [Data API](data_api.md)
 
@@ -38,6 +38,3 @@ The rest of this page contains reference information for the components of the D
 |                  |                                               | - [CachingForecastIndex](data_api.md#pyearthtools.data.indexes.CachingForecastIndex) |
 |                  |                                               | - [IntakeIndex](data_api.md#pyearthtools.data.indexes.IntakeIndex) |
 |                  |                                               | - [IntakeIndexCache](data_api.md#pyearthtools.data.indexes.IntakeIndexCache) |
-
-    
-

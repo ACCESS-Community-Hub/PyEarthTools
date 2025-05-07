@@ -170,7 +170,7 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
 
     def filesystem(self, *args, **kwargs) -> Path | dict[str, str | Path] | list[str | Path]:
         return super().filesystem(*args, **kwargs)
-    
+
     def get(self, *args, **kwargs):
         """
         Base Level `.get` call, used to retrieve data from args

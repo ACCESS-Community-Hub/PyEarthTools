@@ -62,7 +62,7 @@ def train(cfg):
     )
 
     # TODO: The print function caused an exception within library code
-    # print(datamodule)  
+    # print(datamodule)
 
     # cfg.model.model_params.update(cfg.data.model_updates)
     model = instantiate(cfg.model)
