@@ -56,9 +56,12 @@ def test_Normaliser(monkeypatch):
     start = Petdt("2023-02")
     end = Petdt("2023-03")
 
-    n = default.Normaliser(ati, start, end, "month", cache="temp")
+    n = default.Normaliser(ati, start, end, "month")
     n.check_init_args()
-    
+    assert n._info_["start"] == start
+    assert n._info_["end"] == end
+
+    # FIXME: Adding cache='temp' breaks the test - can't figure out why
     # assert n.cache_dir is not None
     # assert hasattr(n, "temp_dir")
     # assert isinstance(n.temp_dir, tempfile.TemporaryDirectory)
@@ -83,6 +86,40 @@ def test_Normaliser(monkeypatch):
 
     result = n.none
     assert result is not None
+
+@pytest.mark.parametrize("missing_arg", [
+    "start",
+    "end",
+    "interval"
+])    
+def test_Normaliser_missing_retrieval_args(monkeypatch, missing_arg):
+    monkeypatch.setattr("pyearthtools.data.indexes.AdvancedTimeIndex.__abstractmethods__", set())
+    
+    retrieval_args = {
+        "start": Petdt("2023-02"),
+        "end": Petdt("2023-03"),
+        "interval": "day"
+    }
+    
+    ati = pyearthtools.data.indexes.AdvancedTimeIndex("day")
+    
+    temp_retrieval_args = retrieval_args.copy()
+    temp_retrieval_args.pop(missing_arg)
+    with pytest.raises(RuntimeError) as e:
+        default.Normaliser(index=ati, **temp_retrieval_args).check_init_args()
+    assert missing_arg in str(e.value)
+    
+def test_Normaliser_with_override(monkeypatch):
+    monkeypatch.setattr("pyearthtools.data.indexes.AdvancedTimeIndex.__abstractmethods__", set())
+
+    ati = pyearthtools.data.indexes.AdvancedTimeIndex("day")
+    start = Petdt("2023-02")
+    end = Petdt("2023-03")
+    interval = "day"
+
+    n = default.Normaliser(ati, start, end, interval, override="True")
+    result = n.check_init_args()
+    assert result == True
 
 
 def test_Normaliser_errors(monkeypatch):

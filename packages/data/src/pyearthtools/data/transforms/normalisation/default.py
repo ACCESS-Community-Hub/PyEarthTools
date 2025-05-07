@@ -130,7 +130,6 @@ class Normaliser:
 
         self.cache_dir = cache
         self.index = index
-
         self._function = function
         self.override = override
         self.verbose = verbose
