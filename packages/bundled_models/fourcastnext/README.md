@@ -1,4 +1,6 @@
-# FourCastNext Model for use with the EDIT Package
+# FourCastNeXt Model for use with the PyEarthTools Package
+
+For more detail regarding the FourCastNeXt model, see [Guo et al. (2024)](https://doi.org/10.48550/arXiv.2401.05584).
 
 ## Installation
 
@@ -67,12 +69,8 @@ pet interactive --model Development/FourCastNeXt --ckpt_path PATH_TO_CHECKPOINT
 
 ## Acknowledgments
 
-# This package extends and is significantly based
-# on the code from https://github.com/nci/FourCastNeXt which is made available
-# under the Apache 2.0 license. That repository in turn extends the code from
-# https://github.com/NVlabs/FourCastNet/, released under the BSD 3-Clause license.
-# The FourCastNet model is described in detail at https://arxiv.org/abs/2202.11214.
-# The FourCastNeXt model is described in detail at https://arxiv.org/abs/2401.05584,
-# and a version of the FourCastNeXt code is bundled, adapted for compatibility
-# and maintained within the PyEarthTools repository so it can continue to be a useful
-# reference implementation and learning aid.
+This package extends and is significantly based on the code from https://github.com/nci/FourCastNeXt which is made available
+under the Apache 2.0 license. That repository in turn extends the code from https://github.com/NVlabs/FourCastNet/, released under the BSD 3-Clause license.
+The FourCastNet model is described in detail at https://doi.org/10.48550/arXiv.2202.11214. The FourCastNeXt model is described in detail at https://doi.org/10.48550/arXiv.2401.05584,
+and a version of the FourCastNeXt code is bundled, adapted for compatibility and maintained within the PyEarthTools repository so it can continue to be a useful
+reference implementation and learning aid.

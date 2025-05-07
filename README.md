@@ -2,9 +2,9 @@
 
 PyEarthTools is a Python framework, containing modules for loading data; pre-processing, normalising and standardising data; defining machine learning (ML) models; training ML models; performing inference with ML models; and evaluating ML models. It contains specialised support for weather and climate data sources and models. It has an emphasis on reproducibility, shareable pipelines, and human-readable low-code pipeline definition.
 
-Source Code: [github.com/ACCESS-Community-Hub/PyEarthTools](https://github.com/ACCESS-Community-Hub/PyEarthTools)
-Documentation: [pyearthtools.readthedocs.io](https://pyearthtools.readthedocs.io)
-Tutorial Gallery: [available here](https://pyearthtools.readthedocs.io/en/latest/notebooks/Gallery.html)
+Source Code: [github.com/ACCESS-Community-Hub/PyEarthTools](https://github.com/ACCESS-Community-Hub/PyEarthTools)  
+Documentation: [pyearthtools.readthedocs.io](https://pyearthtools.readthedocs.io)  
+Tutorial Gallery: [available here](https://pyearthtools.readthedocs.io/en/latest/notebooks/Gallery.html)  
 
 
 > [!NOTE]
@@ -17,16 +17,16 @@ Tutorial Gallery: [available here](https://pyearthtools.readthedocs.io/en/latest
 
 PyEarthTools comprises multiple sub-packages which can be used individually or together.
 
-|  Sub-Package |  Purpose  |
-|--------------|---------------------- |
-|  Data        | Loading and indexing into well-known Earth system data sets to produce ML-ready data structures |
-|  Utils       | Code for common functionality across the sub-packages |
-|  Pipeline    | Definining reproducible sequences of operations with the ability to cache results |
-|  Training    | Code defining the training processes and schedules of a machine learning model |
-|  Tutorial    | Contains helper code for data data sets used in tutorials |
-|  Models      | (Coming soon) Contains code for defining model architectures  |
-|  Registry    | (Coming soon) Contains specific, bundled models which can be easily run |
-|  Evaluation  | (Coming soon) Contains code for producing standard evaluations (such as benchmarks and scorecards)
+|    Sub-Package  |  Purpose  |
+|-----------------|---------------------- |
+|  [Data](https://pyearthtools.readthedocs.io/en/latest/data/data_index.html)           | Loading and indexing into well-known Earth system data sets to produce ML-ready data structures |
+|  Utils          | Code for common functionality across the sub-packages |
+|  Pipeline       | Definining reproducible sequences of operations with the ability to cache results |
+|  Training       | Code defining the training processes and schedules of a machine learning model |
+|  Tutorial       | Contains helper code for data data sets used in tutorials |
+|  Bundled Models | Maintained versions of specific, bundled models which can be easily trained and run |
+|  Zoo            | Contains code for managing registered models (such as the bundled models) |
+|  Evaluation     | (Coming soon) Contains code for producing standard evaluations (such as benchmarks and scorecards) |
 
 [![Coverage Status](https://coveralls.io/repos/github/ACCESS-Community-Hub/PyEarthTools/badge.svg)](https://coveralls.io/github/ACCESS-Community-Hub/PyEarthTools) <-- we are working towards 100% test coverage of PyEarthTools code
 

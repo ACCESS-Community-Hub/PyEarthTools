@@ -1,6 +1,6 @@
-# `edit.archive`'s for the National Computing Infrastructure
+# `pyearthtools.archive`'s for the National Computing Infrastructure
 
-This package contains the `edit.Index`'s for the NCI, which consists of
+This package contains the `pyearthtools.Index`'s for the NCI, which consists of
 
 | Name        | Description |
 | :---        |       ----: |
@@ -50,4 +50,4 @@ BRAN_data
 
 ```
 
-However, as this is a registered archive within `edit.data`, `edit_archive_NCI` doesn't need to be manually imported.
+However, as this is a registered archive within `pyearthtools.data`, `site_archive_NCI` doesn't need to be manually imported.

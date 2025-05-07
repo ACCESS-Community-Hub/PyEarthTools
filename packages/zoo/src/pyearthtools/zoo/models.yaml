@@ -1,8 +1,8 @@
 models:                                   # pyearthtools.zoo configuration
 
   configs: null                           # Extra config location to expose, can be list, path or None
-  assets: ~/.edit/models/assets/          # Location to save assets for models
-  cache: ~/tmp/edit/models/cache/         # Cache of initial conditions, only used if detected a download index
+  assets: ~/.pyearthtools/models/assets/          # Location to save assets for models
+  cache: ~/tmp/pyearthtools/models/cache/         # Cache of initial conditions, only used if detected a download index
   imports: null                           # Extra modules to import from disk, can be list, path or None. Expected syntax 'MODULE_NAME'@PATH
 
   training_data_index:                    # Default kwargs for `pyearthtools.training.trainer.MLDataIndex`
