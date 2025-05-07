@@ -20,6 +20,9 @@ import xarray as xr
 
 __version__ = "0.1.0"
 
+# TODO: Come up with a more elegant regridding approach that ideally can also
+# handle any resolution of grid, and so not be limited specifically to this model
+# and the resolution of ERA5 full res
 
 class CropToRectangle(Operation):
     """Cut with Bounding box"""

@@ -35,7 +35,7 @@ documentation = "https://pyearthtools.readthedocs.io/"
 repository = "https://github.com/ACCESS-Community-Hub/PyEarthTools"
 
 [project.entry-points."pyearthtools.zoo.model"]
-Global_FCN = "fourcastnext.registered_model:FourCastNextRM"
+Global_FCNXT = "fourcastnext.registered_model:FourCastNextRM"
 
 [tool.isort]
 profile = "black"
