@@ -230,7 +230,7 @@ class Flattener:
             raise RuntimeError(f"`flatten_dims` was not set, and this set hasn't been used. Cannot Unflatten.")
 
         data_shape = data.shape
-        parsed_shape = data_shape[: -1 * min(1, (self.flatten_dims - 1))] if len(data_shape) > 1 else data_shape
+        parsed_shape = data_shape[: -1 * min(1, (self.flatten_dims - 1))] if len(data_shape) > 1 else []
         attempts = [
             (*parsed_shape, *self._unflattenshape),
         ]
