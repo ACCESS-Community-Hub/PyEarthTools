@@ -93,6 +93,7 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
             **kwargs (dict, optional):
                 Any keyword arguments to pass to [BaseCacheIndex][pyearthtools.data.BaseCacheIndex]
         """
+
         super().__init__(cache=str(cache), **dict(kwargs))
         self.record_initialisation()
 
@@ -164,10 +165,21 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         if self.data_attributes is not None:
             attrs = yaml.safe_load(open(str(self.data_attributes), "r"))
             predictions = pyearthtools.data.transforms.attributes.set_attributes(attrs, apply_on="dataset")(predictions)
+
         return predictions
 
     def filesystem(self, *args, **kwargs) -> Path | dict[str, str | Path] | list[str | Path]:
         return super().filesystem(*args, **kwargs)
+
+    def get(self, *args, **kwargs):
+        """
+        Base Level `.get` call, used to retrieve data from args
+        """
+
+        dt_sought = args[0]
+
+        data = self._generate(dt_sought)
+        return data
 
     @property
     def data(self):

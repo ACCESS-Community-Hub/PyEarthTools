@@ -47,7 +47,7 @@ Here are the default operations included with `pyearthtools.pipeline`, accessibl
 | filters | Filter data when iterating | `DropAnyNan`, `DropAllNan`, `DropValue`, `Shape` |
 | join | Combine tuples of `np.ndarrays` | `Stack`, `VStack`, `HStack`, `Concatenate` |
 | normalisation | Normalise arrays | `Anomaly`, `Deviation`, `Division`, `Evaluated`  |
-| reshape | Reshape numpy array | `Rearrange`, `Squish`, `Expand`, `Flatten`, `SwapAxis` |
+| reshape | Reshape numpy array | `Rearrange`, `Squeeze`, `Expand`, `Flatten`, `SwapAxis` |
 | select | Select elements from array | `Select`, `Slice` |
 | split  | Split numpy arrays into tuples | `OnAxis`, `OnSlice`, `VSplit`, `HSplit` |
 | values | Modify values of arrays | `FillNan`, `MaskValue`, `ForceNormalised` |
@@ -67,7 +67,7 @@ Here are the default operations included with `pyearthtools.pipeline`, accessibl
 | filters | Filter data when iterating | `DropAnyNan`, `DropAllNan`, `DropValue`, `Shape` |
 | join | Combine tuples of `np.ndarrays` | `Stack`, `VStack`, `HStack`, `Concatenate` |
 | normalisation | Normalise arrays | `Anomaly`, `Deviation`, `Division`, `Evaluated`  |
-| reshape | Reshape numpy array | `Rearrange`, `Squish`, `Expand`, `Flatten`, `SwapAxis` |
+| reshape | Reshape numpy array | `Rearrange`, `Squeeze`, `Expand`, `Flatten`, `SwapAxis` |
 | select | Select elements from array | `Select`, `Slice` |
 | split  | Split numpy arrays into tuples | `OnAxis`, `OnSlice`, `VSplit`, `HSplit` |
 | values | Modify values of arrays | `FillNan`, `MaskValue`, `ForceNormalised` |

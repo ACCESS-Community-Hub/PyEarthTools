@@ -94,21 +94,21 @@ class Rearrange(Operation):
         return self._rearrange(data, pattern)
 
 
-class Squish(Operation):
+class Squeeze(Operation):
     """
-    Operation to Squish one Dimensional axis at 'axis' location
+    Operation to Squeeze one-Dimensional axes at 'axis' location
 
     """
 
     _override_interface = ["Delayed", "Serial"]
-    _interface_kwargs = {"Delayed": {"name": "Squish"}}
+    _interface_kwargs = {"Delayed": {"name": "Squeeze"}}
 
     def __init__(self, axis: Union[tuple[int, ...], int]) -> None:
-        """Squish Dimension of Data
+        """Squeeze Dimension of Data, removing dimensions of length 1.
 
         Args:
             axis (Union[tuple[int, ...], int]):
-                Axis to squish at
+                Axis to squeeze at
         """
         super().__init__(
             split_tuples=True,

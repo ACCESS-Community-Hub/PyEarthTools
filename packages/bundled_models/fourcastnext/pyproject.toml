@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "pyearthtools-bundled-fourcastnext"
+version = "0.1.0"
+description = "FourCastNeXt Bundled Model"
+readme = "README.md"
+requires-python = ">=3.9"
+keywords = ["fourcastnext"]
+maintainers = [
+  {name = "Tennessee Leeuwenburg", email = "tennessee.leeuwenburg@bom.gov.au"}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+ 'pyearthtools.training[lightning]>=0.1.0',
+ 'pyearthtools.zoo>=0.1.0',
+ 'pyearthtools.data>=0.1.0',
+ 'pyearthtools.pipeline>=0.1.0',
+ 'hydra-core',
+ 'torch_optimizer',
+ 'timm',
+]
+
+
+[project.urls]
+homepage = "https://pyearthtools.readthedocs.io/"
+documentation = "https://pyearthtools.readthedocs.io/"
+repository = "https://github.com/ACCESS-Community-Hub/PyEarthTools"
+
+[project.entry-points."pyearthtools.zoo.model"]
+Global_FCNXT = "fourcastnext.registered_model:FourCastNextRM"
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 120
+
+[tool.mypy]
+warn_return_any = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+ignore_missing_imports = true
+
+[tool.hatch.version]
+path = "src/pyearthtools/pipeline/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pyearthtools/"]

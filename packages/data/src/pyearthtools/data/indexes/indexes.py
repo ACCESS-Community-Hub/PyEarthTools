@@ -272,7 +272,9 @@ class DataIndex(Index):
         **kwargs,
     ) -> Any:
         """
-        Retrieve data using `get`, which must be implemented, and apply both base and given transforms
+        Retrieve data for the given time step, applying the suppled transforms
+
+        The untransformed data is obtained using `get`, which must be implemented by the user
 
         Args:
             transforms (Transform | TransformCollection, optional):
@@ -288,7 +290,10 @@ class DataIndex(Index):
 
         if self._skip_transforms:
             return self.get(*args, **kwargs)
-        return transforms(self.get(*args, **kwargs))
+
+        untransformed = self.get(*args, **kwargs)
+        transformed = transforms(untransformed)
+        return transformed
 
     def _get_preprocess(
         self, preprocess: Callable | None
@@ -362,7 +367,7 @@ class SingleTimeIndex(Index):
                 Default value for round when retrieving data.
                 Defaults to False.
         """
-        super().__init__(**kwargs)
+        super().__init__()  # Index takes no kwargs
 
         self.set_interval(data_interval)
         self._round = round
@@ -834,7 +839,7 @@ class AdvancedTimeIndex(TimeIndex):
         except DataNotFoundError as e:
             raise DataNotFoundError(f"No Data found at {querytime}. Ensure data exists.") from e
 
-        time_dim = dimensions.identify_time_dimension(all_data)
+        time_dim = identify_time_dimension(all_data)
         # try:
         #     if time_dim in all_data:
         #         all_data = all_data.sel(time=str(querytime))
@@ -870,7 +875,7 @@ class AdvancedTimeIndex(TimeIndex):
 
         if len(args) >= 1 and isinstance(args[0], (xr.Dataset, xr.DataArray)):
             ds = args[0]
-            ds_time_dim = dimensions.identify_time_dimension(ds)
+            ds_time_dim = identify_time_dimension(ds)
 
             if ds_time_dim not in ds.coords:
                 raise KeyError("If passing dataset to get data at the same time as, it must have a 'time' coordinate.")
@@ -1085,7 +1090,7 @@ class ForecastIndex(TimeIndex, DataFileSystemIndex):
                 Retrieved data
         """
         data = super().retrieve(basetime, *args, select=False, **kwargs)
-        time_dim = dimensions.identify_time_dimension(data)
+        time_dim = identify_time_dimension(data)
 
         if querytime:
             if isinstance(querytime, (tuple, TimeDelta)):

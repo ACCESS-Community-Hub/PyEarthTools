@@ -65,14 +65,15 @@ def multisplit(element: str, splits: tuple[Union[str, int], ...]) -> list[str]:
 
 def find_components(time: str) -> dict[VALID_RESOLUTIONS, bool]:
     """
-    Find Specified Time components in given time str
+    Find Specified Time components in given time str (e.g. indicate which of
+    year, month, day, hour etc set is set in the time string)
 
     Args:
         time (str): String of time, usually in isoformat
-                e.g. '2021-02-03T0000
+                e.g. '2021-02-03T0000'
 
     Returns:
-        dict[str, bool]: Dictionary detailing which components were specified
+        dict[str, bool]: resolution_component -> flag
 
     Examples:
         >>> pyearthtools.data.time.find_components('2020-01')
@@ -80,7 +81,8 @@ def find_components(time: str) -> dict[VALID_RESOLUTIONS, bool]:
     """
 
     # Split days and hours
-    split_time = time.split("T" if "T" in time else " ")
+    sep = "T" if "T" in time else " "
+    split_time = time.split(sep)
 
     seperated_date = split_time[0].split("-")
     if not seperated_date[0].isdigit():
@@ -141,31 +143,31 @@ class TimeResolution:
         Find resolution of Petdt or time string
 
         Args:
-            value (dict[VALID_RESOLUTIONS, bool] | VALID_RESOLUTIONS | str | Petdt | TimeResolution):
-                Value to find components from,
-                If dict, must be True or False for each component
-                If str, must be either date str.
+            value: resolution component dictionary, a TimeResolution, or a date/time string to infer from
 
         Raises:
             TypeError: If unable to parse value
         """
 
-        resolution: VALID_RESOLUTIONS | None = None
+        resolution = None
 
+        # If dictionary, get the finest resolution from it
         if isinstance(value, dict):
             for comp in RESOLUTION_COMPONENTS:
                 if value[comp]:
                     resolution = comp
 
+        # If it's a TimeResolution already
         elif isinstance(value, TimeResolution):
             resolution = value.resolution
 
+        # If it's a string it could bet a Petdr or a res specifier
         elif isinstance(value, str):
-            if strip_to_common_resolution(value) in RESOLUTION_COMPONENTS:
-                resolution = strip_to_common_resolution(value)  # type: ignore
-
-            elif Petdt.is_time(value):
+            if Petdt.is_time(value):
                 value = Petdt(value)
+
+            else:
+                resolution = strip_to_common_resolution(value)  # type: ignore
 
         if isinstance(value, Petdt):
             resolution = value.resolution.resolution
@@ -173,7 +175,7 @@ class TimeResolution:
         if resolution is None:
             raise TypeError(f"Unable to parse {value!r} of type {type(value)}")
 
-        self.resolution: VALID_RESOLUTIONS = resolution
+        self.resolution = resolution
 
     @property
     def components(self) -> dict[str, bool]:
@@ -234,11 +236,6 @@ class TimeResolution:
         if new_index < 0:
             raise ValueError("Cannot set resolution smaller than 'second'")
         return TimeResolution(RESOLUTION_COMPONENTS[new_index])
-
-
-class pyearthtoolsMonthtime:
-    def __init__(self, input_month: str | pyearthtoolsMonthtime | Petdt) -> None:
-        raise NotImplementedError()
 
 
 @functools.total_ordering
@@ -858,7 +855,7 @@ class _MonthTimeDelta(TimeDelta):
             return str(input_delta)
 
 
-def time_delta(time: Any) -> pd.Timedelta:
+def time_delta(time_amount: Any) -> pd.Timedelta:
     """
     Create a pandas timedelta
 
@@ -871,26 +868,23 @@ def time_delta(time: Any) -> pd.Timedelta:
         pd.Timedelta: Discovered pandas timedelta
     """
 
-    if isinstance(time, int):
-        return pd.to_timedelta(time, "m")
-    elif isinstance(time, (list, tuple)):
-        try:
-            return pd.to_timedelta(*time)
-        except TypeError:
-            raise TypeError(f"Cannot parse {type(time)}:{time} to pandas.Timedelta.")
-    elif isinstance(time, pd.Timedelta):
-        return time
-    elif isinstance(time, datetime.timedelta):
-        return pd.to_timedelta(time)
-    elif isinstance(time, str):
-        return pd.to_timedelta(time)
-    elif isinstance(time, TimeDelta):
-        return time._timedelta
+    if isinstance(time_amount, int):
+        return pd.to_timedelta(time_amount, "m")
+    elif isinstance(time_amount, (list, tuple)):
+        return pd.to_timedelta(*time_amount)
+    elif isinstance(time_amount, pd.Timedelta):
+        return time_amount
+    elif isinstance(time_amount, datetime.timedelta):
+        return pd.to_timedelta(time_amount)
+    elif isinstance(time_amount, str):
+        return pd.to_timedelta(time_amount)
+    elif isinstance(time_amount, TimeDelta):
+        return time_amount._timedelta
 
     try:
-        return pd.to_timedelta(*time)
+        return pd.to_timedelta(*time_amount)
     except TypeError:
-        raise TypeError(f"Cannot parse {type(time)}:{time} to pandas.Timedelta.")
+        raise TypeError(f"Cannot parse {type(time_amount)}:{time_amount} to pandas.Timedelta.")
 
 
 def time_delta_resolution(timedelta: pd.Timedelta | TimeDelta) -> TimeResolution:
