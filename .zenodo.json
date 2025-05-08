@@ -39,6 +39,11 @@
             "orcid": "https://orcid.org/0000-0002-1975-0042",
             "affiliation": "Bureau of Meteorology, Australia",
             "name": "de Burgh-Day, Catherine"
+        },
+        {
+            "orcid": "https://orcid.org/0009-0002-7406-7438",
+            "affiliation": "Bureau of Meteorology, Australia",
+            "name": "Ramanathan, Nikeeth"
         }
     ],
     "license": "Apache-2.0"
