@@ -28,8 +28,8 @@ CONFIG_PATH = Path(__file__, "../configs/").resolve()
 LOG = logging.getLogger("pyearthtools.zoo.fourcastnext")
 
 
-@pyearthtools.zoo.register("Development/FourCastNeXt", exists="ignore")
-class FourCastNeXt(pyearthtools.zoo.BaseForecastModel):
+@pyearthtools.zoo.register("Development/FourCastNextRM", exists="ignore")
+class FourCastNextRM(pyearthtools.zoo.BaseForecastModel):
     """
     FourCastNeXt
 
@@ -46,7 +46,7 @@ class FourCastNeXt(pyearthtools.zoo.BaseForecastModel):
             Override for weights path
     """
 
-    _name = "Development/FourCastNeXt"
+    _name = "Development/FourCastNextRM"
     _default_config_path = CONFIG_PATH
     _times = [-6]
     _download_paths = []
@@ -81,6 +81,8 @@ class FourCastNeXt(pyearthtools.zoo.BaseForecastModel):
             self._redownload_each_time = True
             self._download_paths = [(ckpt_path, "weights.ckpt")]  # type: ignore
 
+        self.ckpt_path = ckpt_path
+
         self.interval = interval
 
         super().__init__(pipeline, output, **kwargs)
@@ -104,9 +106,10 @@ class FourCastNeXt(pyearthtools.zoo.BaseForecastModel):
         )
         import pyearthtools.training
 
-        model = fourcastnext.FourCastNext({})
+        model = fourcastnext.FourCastNextLM({})
         model_wrapper = pyearthtools.training.wrapper.lightning.Predict(model, self.pipeline)
-        model_wrapper.load(self.assets / "weights.ckpt")
+        
+        model_wrapper.load(self.ckpt_path)
 
         wrapper = pyearthtools.training.wrapper.predict.TimeSeriesAutoRecurrent(
             model_wrapper, interval=f"{self.interval} hours"

@@ -42,7 +42,7 @@ def _prefunctions():
 
 def _initialise_model(  # pylint: disable=R0913
     model: str,
-    pipeline: str,
+    pipeline_name: str,
     output: Path | str | None,
     data_cache: Path | str | None = None,
     config_path: Path | str | None = None,
@@ -55,8 +55,8 @@ def _initialise_model(  # pylint: disable=R0913
     Args:
         model (str):
             Model name to load
-        pipeline (str):
-            Pipeline config to use
+        pipeline_name (str):
+            Used to determine the filename for loading the pipeline config
         output (Path | str):
             Location to save data
         data_cache (Path | str | None):
@@ -95,9 +95,10 @@ def _initialise_model(  # pylint: disable=R0913
 
     config_path = Path(config_path).resolve() if config_path else config_path
 
+    # Get list of available pipelines from the config path (more than one may be present)
     valid_pipelines = list(model_class._valid_pipeline(config_path=config_path).keys())  # pylint: disable=W0212
-    if not model_class.is_valid_pipeline(pipeline, config_path=config_path):
-        raise ValueError(f"Cannot parse pipeline: {pipeline!r}. Valid: {valid_pipelines}")
+    if not model_class.is_valid_pipeline(pipeline_name, config_path=config_path):
+        raise ValueError(f"Cannot parse pipeline: {pipeline_name!r}. Valid: {valid_pipelines}")
 
     required, _ = utils.get_arguments(model_class)
     for done in set(["pipeline", "output", "data_cache", "kwargs", "config_path", *kwargs.keys()]).intersection(
@@ -105,7 +106,7 @@ def _initialise_model(  # pylint: disable=R0913
     ):
         required.pop(done)
 
-    if any(map(lambda x: x in pipeline.lower(), pyearthtools.zoo.LIVE_SUBSTRINGS)) and data_cache is None:
+    if any(map(lambda x: x in pipeline_name.lower(), pyearthtools.zoo.LIVE_SUBSTRINGS)) and data_cache is None:
         warnings.warn(
             "Downloaded data is specified but the `data_cache` has been left unset. This will use a default location.",
             RuntimeWarning,
@@ -115,8 +116,9 @@ def _initialise_model(  # pylint: disable=R0913
         raise TypeError(
             f"Some required keyword arguments are missing, {list(required.keys())}.\nPlease specify them as keywords."
         )
+
     return model_class(
-        pipeline,
+        pipeline_name,
         output=output,
         data_cache=data_cache,
         config_path=config_path,
@@ -174,7 +176,7 @@ def data(
 def predict(  # pylint: disable=R0913
     model: str,
     time: str,
-    pipeline: str,
+    pipeline_name: str,
     output: Path | str,
     data_cache: Path | str | None = None,
     config_path: Path | str | None = None,
@@ -212,15 +214,16 @@ def predict(  # pylint: disable=R0913
     extra_kwargs_str = " ".join(f"--{key} {value!r}" for key, value in kwargs.items())
     data_cache_str = " " if data_cache is None else f" --data_cache {data_cache}"
 
+    # Add a transform to add the command line to the history attributes
     post_transforms = pyearthtools.data.transforms.attributes.set_attributes(
-        history=f"pyearthtools-models predict {model!r} --pipeline {pipeline!r} --output {output!s}"
+        history=f"pet predict {model!r} --pipeline_name {pipeline_name!r} --output {output!s}"
         f"{f' --config_path {config_path}' if config_path else ''} "
         f"--time {time}{data_cache_str} {extra_kwargs_str}".replace("  ", " ")
     ) + kwargs.pop("post_transforms", pyearthtools.data.TransformCollection())
 
     initialised_model = _initialise_model(
         model,
-        pipeline,
+        pipeline_name,
         output,
         data_cache,
         config_path,

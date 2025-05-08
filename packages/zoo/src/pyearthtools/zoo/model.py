@@ -227,7 +227,7 @@ class BaseForecastModel:
 
     def __init__(  # pylint: disable=R0913
         self,
-        pipeline: str,
+        pipeline_name: str,
         output: os.PathLike | None,
         *,
         config_path: os.PathLike | None = None,
@@ -275,13 +275,13 @@ class BaseForecastModel:
         self._config_path = config_path or self._default_config_path
         import pyearthtools.zoo  # pylint: disable=C0321
 
-        if any(map(lambda x: x in pipeline.lower(), pyearthtools.zoo.LIVE_SUBSTRINGS)) and data_cache is None:
+        if any(map(lambda x: x in pipeline_name.lower(), pyearthtools.zoo.LIVE_SUBSTRINGS)) and data_cache is None:
             ## Must setup a cache for live data
             data_cache = self.get_config("cache")
 
-        if not self.is_valid_pipeline(pipeline, config_path=self._config_path):
+        if not self.is_valid_pipeline(pipeline_name, config_path=self._config_path):
             raise ValueError(
-                f"Cannot recognise config: {pipeline}\n. "
+                f"Cannot recognise config: {pipeline_name}\n. "
                 f"Valid items: {list(self._valid_pipeline(config_path=self._config_path).keys())}"
             )
 
@@ -289,7 +289,7 @@ class BaseForecastModel:
         self._kwargs = kwargs
         self._data_cleanup = data_cleanup
 
-        self._pipeline_name = pipeline
+        self._pipeline_name = pipeline_name
         self.log.debug("Using pipeline: %r", self._pipeline_name)
 
         import pyearthtools.data  # pylint: disable=C0321
@@ -769,6 +769,10 @@ class BaseForecastModel:
         import pyearthtools.training
         import pyearthtools.data
         from pyearthtools.zoo import __version__ as VERSION
+
+        kwargs["weights_only"] = (
+            False  # TODO: Remove this, insecure if checkpoint is untrusted, weights_only is preferred
+        )
 
         model, index_kwargs = self.load(**kwargs)  # Load model and trainer
 

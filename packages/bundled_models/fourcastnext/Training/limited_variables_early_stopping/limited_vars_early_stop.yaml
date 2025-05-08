@@ -2,7 +2,7 @@ defaults:
  - _self_
  - trainer: default
  - model: default
- - data: dummy_data_for_testing
+ - data: example
 
  - data/splits: default
  - data/module: default
