@@ -1,3 +1,4 @@
+import gc
 import pyearthtools.data.transforms.normalisation
 from pyearthtools.data.transforms.normalisation import default
 from pyearthtools.data.time import Petdt
@@ -5,6 +6,8 @@ import pyearthtools.data.indexes
 import xarray as xr
 import numpy as np
 import pytest
+import os
+import tempfile
 
 # Test setup - sample data
 sample_da = xr.DataArray(
@@ -33,15 +36,15 @@ def test_Normaliser_default_setup(monkeypatch):
 
 
 # Test utility functions
-def test_open_file(monkeypatch):
+def test_open_file(monkeypatch): # Note that get_default_transforms() is not mocked here
     monkeypatch.setattr(pyearthtools.data.transforms.normalisation.default, "open_files", lambda x: sample_da)
 
     result = default.open_file("pretend_filename.nc")
-
+    
     assert result is not None
 
 
-def test_open_non_xarray_file(monkeypatch):
+def test_open_non_xarray_file(monkeypatch): # Note that get_default_transforms() is not mocked here
     monkeypatch.setattr(pyearthtools.data.transforms.normalisation.default, "open_files", lambda x: sample_numpy_array)
 
     result = default.open_file("pretend_filename.nc")
@@ -67,6 +70,44 @@ def test_get_and_not_print(capsys):
     assert captured.out == ""
 
 
+# Test abstract methods
+def test_log(test_Normaliser_default_setup):
+    n, ati = test_Normaliser_default_setup
+    with pytest.raises(NotImplementedError):
+        n.log()
+
+
+def test_anomaly(test_Normaliser_default_setup):
+    n, ati = test_Normaliser_default_setup
+    with pytest.raises(NotImplementedError):
+        n.anomaly()
+
+
+def test_deviation(test_Normaliser_default_setup):
+    n, ati = test_Normaliser_default_setup
+    with pytest.raises(NotImplementedError):
+        n.deviation()
+
+
+def test_deviation_spatial(test_Normaliser_default_setup):
+    n, ati = test_Normaliser_default_setup
+    with pytest.raises(NotImplementedError):
+        n.deviation_spatial()
+        
+
+def test_range(test_Normaliser_default_setup):
+    n, ati = test_Normaliser_default_setup
+    with pytest.raises(NotImplementedError):
+        n.range()
+
+
+# Test special methods
+def test_repr(test_Normaliser_default_setup):
+    n, ati = test_Normaliser_default_setup
+    
+    assert repr(n) == "Normalisation Class waiting upon a request for a method, either call with a method or use property."
+
+
 # Test Normaliser abstract base class
 def test_Normaliser_initialisation(test_Normaliser_default_setup):
     n, ati = test_Normaliser_default_setup
@@ -84,6 +125,29 @@ def test_Normaliser_info(test_Normaliser_default_setup):
     assert result is not None
     assert "start" in result
     assert result["start"] == n.retrieval_arguments["start"]
+
+
+def test_Normaliser_check_init_args(test_Normaliser_default_setup):
+    n, ati = test_Normaliser_default_setup
+
+    result = n.check_init_args()
+
+    assert result is True
+    
+    
+@pytest.mark.parametrize("missing_arg", ["start", "end", "interval"])
+def test_Normaliser_check_init_args_missing_retrieval_args(monkeypatch, missing_arg):
+    monkeypatch.setattr("pyearthtools.data.indexes.AdvancedTimeIndex.__abstractmethods__", set())
+
+    retrieval_args = {"start": Petdt("2023-02"), "end": Petdt("2023-03"), "interval": "day"}
+
+    ati = pyearthtools.data.indexes.AdvancedTimeIndex("day")
+
+    temp_retrieval_args = retrieval_args.copy()
+    temp_retrieval_args.pop(missing_arg)
+    with pytest.raises(RuntimeError) as e:
+        default.Normaliser(index=ati, **temp_retrieval_args).check_init_args()
+    assert missing_arg in str(e.value)
 
 
 def test_Normaliser_get_average(test_Normaliser_default_setup, monkeypatch):
@@ -120,21 +184,6 @@ def test_Normaliser_get_anomaly(test_Normaliser_default_setup, monkeypatch):
 
     # result = n.none
     # assert result is not None
-
-
-@pytest.mark.parametrize("missing_arg", ["start", "end", "interval"])
-def test_Normaliser_missing_retrieval_args(monkeypatch, missing_arg):
-    monkeypatch.setattr("pyearthtools.data.indexes.AdvancedTimeIndex.__abstractmethods__", set())
-
-    retrieval_args = {"start": Petdt("2023-02"), "end": Petdt("2023-03"), "interval": "day"}
-
-    ati = pyearthtools.data.indexes.AdvancedTimeIndex("day")
-
-    temp_retrieval_args = retrieval_args.copy()
-    temp_retrieval_args.pop(missing_arg)
-    with pytest.raises(RuntimeError) as e:
-        default.Normaliser(index=ati, **temp_retrieval_args).check_init_args()
-    assert missing_arg in str(e.value)
 
 
 def test_Normaliser_with_override(monkeypatch):
