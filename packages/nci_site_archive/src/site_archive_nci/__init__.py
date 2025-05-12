@@ -19,16 +19,17 @@ National Computing Infrastructure specific Indexes
 
 | Name        | Description |
 | :---        |       ----: |
-| [ERA5][site_archive_nci.ERA5]                | ECWMF ReAnalysis v5       |
-| [ACCESS][site_archive_nci.ACCESS]            | Australian Community Climate and Earth-System Simulator       |
-| [AGCD][site_archive_nci.AGCD]                | Australian Gridded Climate Data        |
-| [BRAN][site_archive_nci.BRAN]                | Bluelink ReANalysis        |
-| [OceanMaps][site_archive_nci.OceanMaps]      | Ocean Modelling and Analysis Prediction System        |
-| [MODIS][site_archive_nci.MODIS]              | MODerate resolution Imaging Spectroradiometer       |
-| [Himawari][site_archive_nci.Himawari]        | Himawari 8/9 satellite data       |
-| [BARRA][site_archive_nci.BARRA]              | Bureau of meteorology Atmospheric high-resolution Regional Reanalysis for Australia       |
-| [BARPA][site_archive_nci.BARPA]              | Bureau of Meteorology Atmospheric Regional Projections for Australia       |
-| [BARRA_V2][site_archive_nci.BARRA_V2]        | Bureau of meteorology Atmospheric high-resolution Regional Reanalysis for Australia v2    |
+| [ERA5][site_archive_nci.ERA5]                | ECWMF ReAnalysis v5                                     |
+| [ACCESS][site_archive_nci.ACCESS]            | Australian Community Climate and Earth-System Simulator |
+| [AGCD][site_archive_nci.AGCD]                | Australian Gridded Climate Data                         |
+| [BRAN][site_archive_nci.BRAN]                | Bluelink ReANalysis                                     |
+| [OceanMaps][site_archive_nci.OceanMaps]      | Ocean Modelling and Analysis Prediction System          |
+| [MODIS][site_archive_nci.MODIS]              | MODerate resolution Imaging Spectroradiometer           |
+| [Himawari][site_archive_nci.Himawari]        | Himawari 8/9 satellite data                             |
+| [Rainfields3][site_archive_nci._Rainfields3] | Rainfields3 Australia-wide radar mosiac 2km^2 (Ausm310) |
+| [BARRA][site_archive_nci.BARRA]              | Bureau of meteorology Atmospheric high-resolution Regional Reanalysis for Australia    |
+| [BARPA][site_archive_nci.BARPA]              | Bureau of meteorology Atmospheric Regional Projections for Australia                   |
+| [BARRA_V2][site_archive_nci.BARRA_V2]        | Bureau of meteorology Atmospheric high-resolution Regional Reanalysis for Australia v2 |
 """
 
 import pyearthtools.data
@@ -51,6 +52,7 @@ ROOT_DIRECTORIES = {
     "BARPA": "/g/data/py18/BARPA/",
     "BARRA_V2": "/g/data/ob53/BARRA2/",
     "CMIP5": "/g/data/al33/replicas/CMIP5/combined/",
+    "Rainfields3": "/g/data/rq0/rainfields3/310/",
 }
 
 
@@ -69,6 +71,7 @@ from site_archive_nci.MODIS import MODIS
 from site_archive_nci.OceanMaps import OceanMaps
 from site_archive_nci.Himawari import Himawari
 from site_archive_nci._CMIP5 import CMIP5
+from site_archive_nci._Rainfields3 import Rainfields3
 
 register_archive("NCI")(site_archive_nci)
 

@@ -1,0 +1,79 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+
+[project]
+name = "pyearthtools-zoo"
+description = "PyEarthTools Models Registry"
+requires-python = ">=3.9"
+keywords = ["pyearthtools"]
+maintainers = [
+  {name = "Tennessee Leeuwenburg", email = "tennessee.leeuwenburg@bom.gov.au"}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "click",
+    "entrypoints",
+    "multiurl",
+    "tqdm",
+    "pyearthtools-pipeline>=0.1.0",
+    "pyearthtools-training>=0.1.0",
+    "pyearthtools-data>=0.1.0",
+    "pyearthtools-utils>=0.1.0",
+
+]
+dynamic = ["version", "readme"]
+
+[project.optional-dependencies]
+testing = [
+  "pytest",
+  "black",
+  "pytest-cov",
+  "coverage",
+]
+
+[project.urls]
+homepage = "https://pyearthtools.readthedocs.io/"
+documentation = "https://pyearthtools.readthedocs.io/"
+repository = "https://github.com/ACCESS-Community-Hub/PyEarthTools"
+
+[project.scripts]
+pet = "pyearthtools.zoo.commands:entry_point"
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 120
+
+[tool.pylint.'MESSAGES CONTROL']
+max-line-length = 120
+disable = "C0415"
+
+[tool.mypy]
+warn_return_any = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+module = "pyearthtools.zoo"
+ignore_missing_imports = true
+
+
+[tool.setuptools.packages.find]
+include = ["pyearthtools.zoo"]
+where = ["src/"]
+
+
+[tool.pytest.ini_options]
+addopts = "--cov='pyearthtools.zoo' --cov-report=html:term-missing"
+
+[tool.hatch.version]
+path = "src/pyearthtools/zoo/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pyearthtools/"]

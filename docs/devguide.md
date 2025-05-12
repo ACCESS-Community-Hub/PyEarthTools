@@ -65,10 +65,8 @@ A code review is responsible for checking the following:
 
 
 ## GitHub Actions - Workflows
-We are using GitHub actions to automate testing and specific workflows. 
+We are using GitHub actions to automate testing and specific workflows.
 1. **Black** - Python code formatting. [https://pypi.org/project/black/](https://pypi.org/project/black/)
 2. **Interrogate** - will check the codebase docstring coverage and create a report. [https://interrogate.readthedocs.io/en/latest/](https://interrogate.readthedocs.io/en/latest/)
     * To use manually run: `interrogate -v [PATH]`
-    * To run with a failing test float, exclusions, output file and badge run: `interrogate -v --fail-under 40 --exclude "*/__init__.py" --exclude "*/__main__.py" --output docstring-coverage.txt --generate-badge interrogate-badge.svg` 
-
-    
+    * To run with a failing test float, exclusions, output file and badge run: `interrogate -v --fail-under 40 --exclude "*/__init__.py" --exclude "*/__main__.py" --output docstring-coverage.txt --generate-badge interrogate-badge.svg`

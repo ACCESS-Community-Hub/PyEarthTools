@@ -1,0 +1,15 @@
+!pyearthtools@pyearthtools.pipeline.controller.Pipeline
+__args: !!python/tuple
+- !pyearthtools@pyearthtools.data.transforms.coordinates.StandardLongitude
+  type: -180-180
+- !pyearthtools@pyearthtools.pipeline.operations.xarray.conversion.ToNumpy
+  reference_dataset: null
+  run_parallel: false
+  saved_records: null
+exceptions_to_ignore: null
+iterator: null
+sampler: null
+
+--CONFIG--
+VERSION: 2024.06.02
+import: []

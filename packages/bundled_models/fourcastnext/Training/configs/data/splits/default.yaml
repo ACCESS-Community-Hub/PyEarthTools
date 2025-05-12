@@ -1,0 +1,10 @@
+random: True
+random_seed: 42
+train:
+  - 1980
+  - 2018
+  - 6 hours
+valid:
+  - 2018
+  - 2020
+  - 6 hours

@@ -96,7 +96,7 @@ INSTITUTIONS = [
     "NSF-DOE-NCAR",
 ]
 
-UNDER_DEV_MSG = """ 
+UNDER_DEV_MSG = """
 Under development. This class currently only allows single values - e.g. one institution, one model, one experiment id etc. Expansion to allowing multiple
 values in under way, which will create a more complex DataSet object containing all relevant data in a single in-memory object.
 """

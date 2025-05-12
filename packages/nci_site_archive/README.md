@@ -1,6 +1,6 @@
-# `edit.archive`'s for the National Computing Infrastructure
+# `pyearthtools.archive`'s for the National Computing Infrastructure
 
-This package contains the `edit.Index`'s for the NCI, which consists of
+This package contains the `pyearthtools.Index`'s for the NCI, which consists of
 
 | Name        | Description |
 | :---        |       ----: |
@@ -38,16 +38,16 @@ BRAN_data
 # BRAN
 #         Description                    Bluelink ReANalysis
 #                  range                          1993-current
-#         Initialisation                 
+#         Initialisation
 #                  resolution                     daily
 #                  transforms                     {}
 #                  depth_value                    None
 #                  variables                      ocean_temp
-#         Transforms                     
+#         Transforms
 #                  ConformNaming                  {'latitude': ['lat', 'Latitude', 'yt_ocean', 'yt'], 'longitude': ['lon', 'Longitude', 'xt_ocean', 'xt'], 'time': ['Time']}
 #                  StandardLongitude180180        {'type': '-180-180'}
 #                  VariableTrim                   {'variables': ['temp']}
 
 ```
 
-However, as this is a registered archive within `edit.data`, `edit_archive_NCI` doesn't need to be manually imported.
+However, as this is a registered archive within `pyearthtools.data`, `site_archive_NCI` doesn't need to be manually imported.

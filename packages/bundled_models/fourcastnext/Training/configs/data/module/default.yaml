@@ -1,0 +1,2 @@
+num_workers: 12
+batch_size: 8

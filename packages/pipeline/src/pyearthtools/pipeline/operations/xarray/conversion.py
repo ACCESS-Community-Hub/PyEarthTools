@@ -44,7 +44,7 @@ class ToNumpy(Operation):
         reference_dataset: Optional[FILE_TYPES] = None,
         saved_records: Optional[FILE_TYPES] = None,
         run_parallel: bool = False,
-        *,
+        # *,  # FIXME: move up after self and re-test ensuring coverage before and after
         warn: bool = True,
     ):
         """DataOperation to convert data to [np.array][numpy.ndarray]

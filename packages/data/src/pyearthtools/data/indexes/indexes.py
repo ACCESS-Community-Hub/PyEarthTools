@@ -272,7 +272,9 @@ class DataIndex(Index):
         **kwargs,
     ) -> Any:
         """
-        Retrieve data using `get`, which must be implemented, and apply both base and given transforms
+        Retrieve data for the given time step, applying the suppled transforms
+
+        The untransformed data is obtained using `get`, which must be implemented by the user
 
         Args:
             transforms (Transform | TransformCollection, optional):
@@ -288,7 +290,10 @@ class DataIndex(Index):
 
         if self._skip_transforms:
             return self.get(*args, **kwargs)
-        return transforms(self.get(*args, **kwargs))
+
+        untransformed = self.get(*args, **kwargs)
+        transformed = transforms(untransformed)
+        return transformed
 
     def _get_preprocess(
         self, preprocess: Callable | None
@@ -362,7 +367,7 @@ class SingleTimeIndex(Index):
                 Default value for round when retrieving data.
                 Defaults to False.
         """
-        super().__init__(**kwargs)
+        super().__init__()  # Index takes no kwargs
 
         self.set_interval(data_interval)
         self._round = round

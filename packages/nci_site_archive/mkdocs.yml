@@ -11,7 +11,7 @@ theme:
   logo: assets/logo.png
   favicon: assets/logo.png
   icon:
-    repo: fontawesome/brands/git-alt 
+    repo: fontawesome/brands/git-alt
   features:
   - content.code.annotate
   - navigation.tabs
@@ -21,7 +21,7 @@ theme:
   - search.suggest
   - content.code.select
   - content.code.copy
-  - content.code.annotate 
+  - content.code.annotate
 
   palette:
   - media: "(prefers-color-scheme: light)"
@@ -91,7 +91,7 @@ markdown_extensions:
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
-      alternate_style: true 
+      alternate_style: true
 
 repo_url: https://github.com/ACCESS-Community-Hub/PyEarthTools
 
