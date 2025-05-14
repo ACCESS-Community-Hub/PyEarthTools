@@ -204,6 +204,7 @@ class CMIP5(ArchiveIndex):
                         # We don't care about directories with no files
                         if files:
                             walk_cache.append((root, dirs, files))
+                            yield (root, dirs, files)                            
 
                     self.walk_cache = walk_cache
 

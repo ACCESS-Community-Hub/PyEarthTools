@@ -28,7 +28,6 @@ PyEarthTools comprises multiple sub-packages which can be used individually or t
 |  Zoo            | Contains code for managing registered models (such as the bundled models) |
 |  Evaluation     | (Coming soon) Contains code for producing standard evaluations (such as benchmarks and scorecards) |
 
-[![Coverage Status](https://coveralls.io/repos/github/ACCESS-Community-Hub/PyEarthTools/badge.svg)](https://coveralls.io/github/ACCESS-Community-Hub/PyEarthTools) <-- we are working towards 100% test coverage of PyEarthTools code
 
 # Overview of documentation
 
