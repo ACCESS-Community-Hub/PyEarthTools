@@ -27,11 +27,14 @@ import pyearthtools.data
 from pyearthtools.data.archive import register_archive
 
 from . import ERA5DataClass
+from . import HadisdDataClass
 
-default_base = "/g/data/wb00/NCI-Weatherbench/5.625deg"  # taken from NCI noteboook on github
+hadisd_base = "/Users/joelmiller/Projects/data/hadisd"
+default_base = "/Users/joelmiller/Projects/data/weatherbench/5.625deg"  # taken from NCI noteboook on github
 lowres_base = os.environ.get("ERA5LOWRES", default_base)
 
 ROOT_DIRECTORIES = {
+    "hadisd": hadisd_base,
     "era5lowres": lowres_base,  # Update this to the base dir, get var from config
 }
 
@@ -44,3 +47,4 @@ register_archive("ROOT_DIRECTORIES")(ROOT_DIRECTORIES)
 # into the pyearthtools namespace. This registered the Python module for the datasets
 # into the pyearthtools archives.
 register_archive("LOW")(ERA5DataClass)
+register_archive("HADISD")(HadisdDataClass)
