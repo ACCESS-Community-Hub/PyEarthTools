@@ -217,6 +217,12 @@ def open_files(
 
     file_extens = check_extension(files_to_load)
 
+
+    # Handle all Zarr directories as a multi-file dataset
+    if len(file_extens) == 1 and file_extens[0] in ZARR_FILE_EXTENSONS:
+        return xr.open_mfdataset(files_to_load, engine="zarr", **kwargs)
+
+
     if len(file_extens) == 1 and file_extens[0] in NETCDF_FILE_EXTENSONS:
         return open_dataset(files_to_load, **kwargs)
 
