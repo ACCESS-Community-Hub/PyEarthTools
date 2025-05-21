@@ -222,8 +222,8 @@ class Flattener:
             raise RuntimeError(f"Shape not set, therefore cannot undo")
 
         def _unflatten(data, shape):
-            while len(data.shape) > len(shape):
-                shape = (data.shape[-len(shape)], *shape)
+            # while len(data.shape) > len(shape):
+            #     shape = (data[-len(shape)], *shape)
             return data.reshape(shape)
 
         if self.flatten_dims is None:
