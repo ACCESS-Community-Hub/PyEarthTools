@@ -134,14 +134,14 @@ def test_Flatten_with_shape_attempt():
     incoming_data = np.zeros((8, 1, 3, 3))
     f = reshape.Flatten(shape_attempt = (2, 1, 1, 1))
     f.apply_func(incoming_data)
-    undo_data = np.zeros((2))
+    undo_data = np.zeros(2)
     assert f.undo_func(undo_data).shape == (2, 1, 1, 1)
 
 def test_Flatten_with_shape_attempt_with_ellipses():
     incoming_data = np.zeros((8, 1, 3, 3))
     f = reshape.Flatten(shape_attempt = (2, '...', 1, 1))
     f.apply_func(incoming_data)
-    undo_data = np.zeros((2))
+    undo_data = np.zeros(2)
     assert f.undo_func(undo_data).shape == (2, 1, 1, 1)
 
 def test_SwapAxis():
