@@ -223,14 +223,15 @@ class Flattener:
 
         def _unflatten(data, shape):
             while len(data.shape) > len(shape):
-                shape = (data[-len(shape)], *shape)
+                shape = (data.shape[-len(shape)], *shape)
             return data.reshape(shape)
 
         if self.flatten_dims is None:
             raise RuntimeError(f"`flatten_dims` was not set, and this set hasn't been used. Cannot Unflatten.")
 
         data_shape = data.shape
-        parsed_shape = data_shape[: -1 * min(1, (self.flatten_dims - 1))] if len(data_shape) > 1 else []
+        # parsed_shape = data_shape[: -1 * min(1, (self.flatten_dims - 1))] if len(data_shape) > 1 else []
+        parsed_shape = data_shape[: -1] if len(data_shape) > 1 else []
         attempts = [
             (*parsed_shape, *self._unflattenshape),
         ]
