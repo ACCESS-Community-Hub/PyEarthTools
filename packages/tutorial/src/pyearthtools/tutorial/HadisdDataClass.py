@@ -1,30 +1,3 @@
-# Copyright Commonwealth of Australia, Bureau of Meteorology 2024.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-
-"""
-ECWMF ReAnalysis v5, Low-Resolution / WeatherBench Example
-
-The purpose of this module is to hold the index class which can be
-registered into the pyearthtools package namespace for easy access.
-
-The code here is the interface between the pyearthtools API and accessing
-files on the filesystem.
-
-An indexer takes some
-"""
-
 from __future__ import annotations
 
 import functools
@@ -33,7 +6,7 @@ import xarray as xr
 from pathlib import Path
 from typing import Any, Literal
 from dask.diagnostics import ProgressBar
-from dask import delayed
+from dask import delayed, compute
 
 import pyearthtools.data
 from pyearthtools.data import Petdt
@@ -66,6 +39,71 @@ def cached_exists(path: Path) -> bool:
     """Run exits but cached"""
     return path.exists()
 
+
+# Helper function to preprocess and save NetCDF files as Zarr stores
+# @delayed
+# def preprocess_and_save(file_path, date_range, zarr_output_dir):
+#     """
+#     Open a NetCDF file, preprocess it, and save as a Zarr store.
+
+#     Steps performed:
+#         - Opens the NetCDF file as an xarray Dataset.
+#         - Drops the 'input_station_id' variable if present (to avoid object dtype issues).
+#         - Assigns a 'station_id' coordinate from the dataset attributes or filename.
+#         - Reindexes the time dimension to a common hourly range.
+#         - Saves the processed Dataset to a Zarr store in the specified output directory.
+
+#     Args:
+#         file_path (str or Path): Path to the NetCDF file.
+#         date_range (tuple of str): (start, end) date strings for reindexing the time dimension.
+#         zarr_output_dir (str or Path): Directory where the Zarr store will be saved.
+
+#     Returns:
+#         str: Path to the saved Zarr store.
+#     """
+    
+#     ds = xr.open_dataset(file_path)
+
+#     if 'input_station_id' in ds:
+#         ds = ds.drop_vars('input_station_id') # dtype "Object" Causes problems with zarr. Don't think input_station_id is needed as a variable.
+
+#     # Assign station ID from attributes
+#     station_id = ds.attrs.get("station_id", file_path.stem)
+#     ds = ds.assign_coords(station_id=station_id)
+
+#     # Reindex time to common range
+#     target_time = pd.date_range(date_range[0], date_range[1], freq='h')
+#     ds = ds.reindex(time=target_time)
+
+#     # Save to Zarr
+#     out_path = Path(zarr_output_dir) / f"{file_path.stem}.zarr"
+#     ds.to_zarr(str(out_path), mode='w')
+
+#     return str(out_path)
+
+
+def preprocess_and_save(file_path, date_range, zarr_output_dir):
+    try:
+        print(f"Preprocessing {file_path} -> {zarr_output_dir}")
+        ds = xr.open_dataset(file_path)
+
+        if 'input_station_id' in ds:
+            ds = ds.drop_vars('input_station_id')
+
+        station_id = ds.attrs.get("station_id", file_path.stem)
+        ds = ds.assign_coords(station_id=station_id)
+
+        target_time = pd.date_range(date_range[0], date_range[1], freq='h')
+        ds = ds.reindex(time=target_time)
+
+        out_path = Path(zarr_output_dir) / f"{file_path.stem}.zarr"
+        print(f"Saving to Zarr: {out_path}")
+        ds.to_zarr(str(out_path), mode='w')
+        print(f"Saved Zarr: {out_path}")
+        return str(out_path)
+    except Exception as e:
+        print(f"Failed to preprocess {file_path}: {e}")
+        raise
 
 @register_archive("hadisd", sample_kwargs=dict(station="010010-99999"))
 class HadISDIndex(ArchiveIndex):
@@ -134,7 +172,7 @@ class HadISDIndex(ArchiveIndex):
         return station_ids
 
 
-    def filesystem(self, *args, **kwargs) -> dict[str, Path]:
+    def filesystem(self, *args, date_range=("1970-01-01T00", "2023-12-31T23"), **kwargs) -> dict[str, Path]:
         """
         Map a station ID or list of station IDs to their corresponding file paths.
 
@@ -149,7 +187,6 @@ class HadISDIndex(ArchiveIndex):
         """
 
         HADISD_HOME = self.ROOT_DIRECTORIES["hadisd"]
-
         station_ids = self.station
 
         # Retrieve all station IDs from the dataset directory
@@ -226,94 +263,58 @@ class HadISDIndex(ArchiveIndex):
             file_path = Path(HADISD_HOME) / parent_folder / filename
             file_path_zarr = Path(HADISD_HOME) / parent_folder / "zarr_cache" / filename_zarr
 
-            # Check if the file exists
-            if not file_path_zarr.exists():
-                raise DataNotFoundError(f"File not found for station: {station_id}, path: {file_path}")
+            # # Check if the file exists (comment out if testing with single netcdf)
+            # if not file_path_zarr.exists():
+            #     raise DataNotFoundError(f"File not found for station: {station_id}, path: {file_path}")
 
             # Add the file path to the dictionary
-            paths[station_id] = file_path_zarr
+            paths[station_id] = file_path # Change to file_path_zarr to test with zarr files
 
         return paths
-    
-    # Helper function to preprocess and save NetCDF files as Zarr stores
-    @delayed
-    def preprocess_and_save(file_path, date_range, zarr_output_dir):
-        """
-        Open a NetCDF file, preprocess it, and save as a Zarr store.
 
-        Steps performed:
-            - Opens the NetCDF file as an xarray Dataset.
-            - Drops the 'input_station_id' variable if present (to avoid object dtype issues).
-            - Assigns a 'station_id' coordinate from the dataset attributes or filename.
-            - Reindexes the time dimension to a common hourly range.
-            - Saves the processed Dataset to a Zarr store in the specified output directory.
+    # def load(
+    #         self,
+    #         files: dict[str, Path] | Path | list[str | Path] | tuple[str | Path],
+    #         combine: str = "nested",  
+    #         concat_dim: str = "station", 
+    #         parallel: bool = True,  
+    #         # engine: Literal["netcdf4", "zarr"] = "zarr",  # Default engine for loading
+    #         **kwargs,
+    #     ) -> Any:
+    #         """
+    #         Custom load method for HadISDIndex.
 
-        Args:
-            file_path (str or Path): Path to the NetCDF file.
-            date_range (tuple of str): (start, end) date strings for reindexing the time dimension.
-            zarr_output_dir (str or Path): Directory where the Zarr store will be saved.
+    #         Args:
+    #             files (dict[str, Path] | Path | list[str | Path] | tuple[str | Path]):
+    #                 Files to load.
+    #             combine (str, optional):
+    #                 Combine method for NetCDF files. Defaults to "by_coords".
+    #                 Options:
+    #                     - "by_coords": Combine datasets by aligning coordinates.
+    #                     - "nested": Combine datasets by concatenating along a new dimension.
+    #             **kwargs:
+    #                 Additional arguments passed to the parent class's load method.
 
-        Returns:
-            str: Path to the saved Zarr store.
-        """
-        
-        ds = xr.open_dataset(file_path)
-
-        if 'input_station_id' in ds:
-            ds = ds.drop_vars('input_station_id') # dtype "Object" Causes problems with zarr. Don't think input_station_id is needed as a variable.
-
-        # Assign station ID from attributes
-        station_id = ds.attrs.get("station_id", file_path.stem)
-        ds = ds.assign_coords(station_id=station_id)
-
-        # Reindex time to common range
-        target_time = pd.date_range(date_range[0], date_range[1], freq='h')
-        ds = ds.reindex(time=target_time)
-
-        # Save to Zarr
-        out_path = Path(zarr_output_dir) / f"{file_path.stem}.zarr"
-        ds.to_zarr(str(out_path), mode='w')
-
-        return str(out_path)
+    #         Returns:
+    #             Any:
+    #                 Loaded data.
+    #         """
+    #         # Pass the combine argument as part of **kwargs
+    #         kwargs["combine"] = combine
+    #         kwargs["concat_dim"] = concat_dim
+    #         kwargs["parallel"] = parallel
+    #         # kwargs["engine"] = engine
 
 
-
-    def load(
-            self,
-            files: dict[str, Path] | Path | list[str | Path] | tuple[str | Path],
-            combine: str = "nested",  # Default combine method
-            concat_dim: str = "station",  # Default dimension for concatenation
-            parallel: bool = True,  # Enable parallel processing with Dask
-            # engine: Literal["netcdf4", "zarr"] = "zarr",  # Default engine for loading
-            **kwargs,
-        ) -> Any:
-            """
-            Custom load method for HadISDIndex.
-
-            Args:
-                files (dict[str, Path] | Path | list[str | Path] | tuple[str | Path]):
-                    Files to load.
-                combine (str, optional):
-                    Combine method for NetCDF files. Defaults to "by_coords".
-                    Options:
-                        - "by_coords": Combine datasets by aligning coordinates.
-                        - "nested": Combine datasets by concatenating along a new dimension.
-                **kwargs:
-                    Additional arguments passed to the parent class's load method.
-
-            Returns:
-                Any:
-                    Loaded data.
-            """
-            # Pass the combine argument as part of **kwargs
-            kwargs["combine"] = combine
-            kwargs["concat_dim"] = concat_dim
-            kwargs["parallel"] = parallel
-            # kwargs["engine"] = engine
+    #         # Call the parent class's load method
+    #         return super().load(files, **kwargs)
 
 
-            # Call the parent class's load method
-            return super().load(files, **kwargs)
+    @property
+    def _import(self):
+        """module to import for to load this step in a Pipeline"""
+        return "pyearthtools.tutorial"
+
 
 
 
@@ -382,10 +383,7 @@ class HadISDIndex(ArchiveIndex):
 
     #     return combined_ds
 
-    @property
-    def _import(self):
-        """module to import for to load this step in a Pipeline"""
-        return "pyearthtools.tutorial"
+
 
 
 
