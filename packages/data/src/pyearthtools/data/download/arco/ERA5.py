@@ -23,7 +23,8 @@ from pyearthtools.data.time import Petdt
 from pyearthtools.data.indexes import AdvancedTimeDataIndex, decorators
 from pyearthtools.data.transforms.transform import Transform, TransformCollection
 
-from pyearthtools.data.download.arco.variables.ERA5 import (
+from pyearthtools.data.download.arco._ERA5 import (
+    ERA5_VARIABLES,
     ERA5_LEVELS,
     ERA_NAME_CHANGE,
 )
@@ -77,7 +78,7 @@ class ARCOERA5(AdvancedTimeDataIndex):
         level=["levels", "level_value"],
     )
     @decorators.check_arguments(
-        variables="pyearthtools.data.download.arco.variables.ERA5.valid",
+        variables=ERA5_VARIABLES,
         level=ERA5_LEVELS,
     )
     @decorators.variable_modifications("variables")
