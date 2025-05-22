@@ -14,7 +14,7 @@ __args: !!python/tuple
     type: -180-180
   transforms: null
   undo: null
-- !pyearthtools@fourcastnext.CropToRectangle
+- !pyearthtools@fourcastnext.CropToRectangleSmall
   warn: true
 - !pyearthtools@pyearthtools.pipeline.modifications.idx_modification.TemporalRetrieval
   concat: true
