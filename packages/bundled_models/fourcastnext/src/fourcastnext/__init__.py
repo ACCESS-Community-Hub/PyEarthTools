@@ -49,6 +49,7 @@ class CropToRectangle(Operation):
         # Just return the cropped data, cannot 'undo' this one
         return dataset_to_undo
 
+
 class CropToRectangleSmall(Operation):
     """Cut with Bounding box"""
 
