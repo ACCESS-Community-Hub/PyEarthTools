@@ -30,6 +30,7 @@ from __future__ import annotations
 import functools
 from pathlib import Path
 from typing import Any, Literal
+import xarray as xr
 
 import pyearthtools.data
 from pyearthtools.data import Petdt
@@ -245,6 +246,7 @@ class ERA5LowResDemoIndex(ArchiveIndex):
         variables = [variables] if isinstance(variables, str) else variables
 
         self.resolution = ERADEMO_RESOLUTION
+        self.dataset = None
 
         self.variables = variables
         base_transform = TransformCollection()
@@ -278,6 +280,21 @@ class ERA5LowResDemoIndex(ArchiveIndex):
         path = Path(ERA5_HOME) / "era5_lowres.nc"  # Everything fits into a single 2 GIG file
 
         return [path]
+    
+    def load(self, *args, **kwargs):
+        '''
+        This particular example has all its data in a single file, so repeatedly
+        loading files is avoided through caching the loaded dataset. This isn't
+        a great general pattern, but works well for the tutorial.
+        '''
+
+        if self.dataset:
+            return self.dataset 
+
+        ds = xr.open_dataset(args[0][0], engine='h5netcdf')
+        self.dataset = ds
+
+        return self.dataset    
 
     @property
     def _import(self):
