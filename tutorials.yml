@@ -10,3 +10,5 @@ dependencies:
     - -e packages/training[lightning]
     - -e packages/tutorial
     - -e packages/utils
+    - -e packages/zoo
+    - -e packages/bundled_models/fourcastnext
