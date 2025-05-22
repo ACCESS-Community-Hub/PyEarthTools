@@ -15,9 +15,6 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-  "pyearthtools.data",
-  "pyearthtools.pipeline",
-  "pyearthtools.training",
   "rich",
   "ipywidgets",
   "scores",

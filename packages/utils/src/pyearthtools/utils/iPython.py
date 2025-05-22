@@ -20,6 +20,7 @@ from PIL.Image import fromarray
 # TODO: Determine if this file should be deleted, or else give an example of its
 # use in a notebook
 
+
 def display_np_arrays_as_images():
     def np_to_png(a):
         if 2 <= len(a.shape) <= 3:

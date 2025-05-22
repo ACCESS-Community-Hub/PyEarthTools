@@ -1,14 +1,15 @@
+---
 defaults:
  - _self_
- - trainer: default
+ - trainer: few_epochs
  - model: default
- - data: example
+ - data: lowres
 
- - data/splits: default
+ - data/splits: short_training_splits
  - data/module: default
 
 experiment_name: ${now:%Y-%m-%d}/${now:%H-%M-%S}
-path: /scratch/kd24/${oc.env:USER}/ML/FourCastNeXt/Training/${experiment_name}
+path: ./Experiments/FourCastNeXt/Training/${experiment_name}
 
 fit: false
 

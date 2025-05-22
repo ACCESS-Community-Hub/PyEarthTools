@@ -66,7 +66,7 @@ class Timer:
     def __exit__(self, *args):
         elapsed = time.time() - self.start
         log = self.logger or LOG
-        log.debug("%s: took %.2f seconds.", self.title, elapsed)
+        # log.debug("%s: took %.2f seconds.", self.title, elapsed)
 
 
 class BaseForecastModel:
@@ -290,7 +290,7 @@ class BaseForecastModel:
         self._data_cleanup = data_cleanup
 
         self._pipeline_name = pipeline_name
-        self.log.debug("Using pipeline: %r", self._pipeline_name)
+        # self.log.debug("Using pipeline: %r", self._pipeline_name)
 
         import pyearthtools.data  # pylint: disable=C0321
 
@@ -380,10 +380,10 @@ class BaseForecastModel:
                     pass
 
                 asset.parent.mkdir(exist_ok=True, parents=True)
-                self.log.info("Retrieving %s", link)
+                # self.log.info("Retrieving %s", link)
 
                 if Path(link).exists():
-                    self.log.debug(f"Copying {link} to {asset}.")
+                    # self.log.debug(f"Copying {link} to {asset}.")
                     shutil.copyfile(link, str(asset) + ".download")
                 else:
                     download(link, str(asset) + ".download")
@@ -436,7 +436,7 @@ class BaseForecastModel:
 
         if len(paths) == 0:
             raise ValueError("No config paths could be established.")
-        cls.log.debug(f"Config paths: {paths}")
+        # cls.log.debug(f"Config paths: {paths}")
         return tuple(paths)
 
     @classmethod
@@ -493,7 +493,7 @@ class BaseForecastModel:
 
             paths: list[str] = list(itertools.chain(*(find_paths(config_path) for config_path in config_paths)))
 
-            cls.log.debug(f"Pipeline paths for {sub_path!r}: {paths}")
+            # cls.log.debug(f"Pipeline paths for {sub_path!r}: {paths}")
 
             def valid(x: str) -> bool:
                 return "-" in str(x) if ancillary else "-" not in str(x)
@@ -544,7 +544,7 @@ class BaseForecastModel:
         if self._delete_cache and cache is not None:
             from pyearthtools.data.indexes.utilities import delete_files
 
-            self.log.debug("Deleting all data in cache at %r", cache)
+            # self.log.debug("Deleting all data in cache at %r", cache)
             delete_files.delete_path(cache)
 
         return pyearthtools.pipeline.modifications.Cache(  # pylint: disable=E0110,E1120
@@ -670,7 +670,7 @@ class BaseForecastModel:
         Get pipeline as configured in the init.
         """
         pipe = self._get_pipeline(self._pipeline_name, cache=self.cache)
-        self.log.debug("Using Pipeline: %r", pipe)
+        # self.log.debug("Using Pipeline: %r", pipe)
         return pipe
 
     @functools.cached_property
@@ -738,9 +738,10 @@ class BaseForecastModel:
                     try:
                         _ = pipeline[data_time]  # type: ignore
                     except Exception as e:  # pylint: disable=W0718
-                        self.log.debug("An error occured when getting data from ancillary %s: %s.", key, e)
+                        raise
+                        # self.log.debug("An error occured when getting data from ancillary %s: %s.", key, e)
                 data.append(d)
-        self.log.debug("Loaded all data.")
+        # self.log.debug("Loaded all data.")
         return data
 
     @abstractmethod
@@ -776,8 +777,8 @@ class BaseForecastModel:
 
         model, index_kwargs = self.load(**kwargs)  # Load model and trainer
 
-        self.log.debug(f"Loading returned {model.__class__ =}")
-        self.log.debug(f"Loading returned {index_kwargs =}")
+        # self.log.debug(f"Loading returned {model.__class__ =}")
+        # self.log.debug(f"Loading returned {index_kwargs =}")
 
         post_transforms = index_kwargs.pop("post_transforms", pyearthtools.data.TransformCollection())
 
@@ -798,7 +799,7 @@ class BaseForecastModel:
             )
             + post_transforms
         )
-        self.log.debug(f"Initialising MLDataIndex with {full_index_kwargs =}")
+        # self.log.debug(f"Initialising MLDataIndex with {full_index_kwargs =}")
 
         return pyearthtools.training.MLDataIndex(
             model,

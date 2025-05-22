@@ -39,7 +39,7 @@ class CropToRectangle(Operation):
 
     def apply_func(self, dataset: xr.Dataset):
         subset_dataset = dataset.isel(
-            latitude=slice(0, -1),
+            latitude=slice(0, -4),
         )
 
         return subset_dataset
