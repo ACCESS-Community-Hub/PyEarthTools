@@ -14,18 +14,14 @@
 
 
 from __future__ import annotations
-import functools
 
 import xarray as xr
-from os import PathLike
 
 import pyearthtools.data
 from pyearthtools.data.time import Petdt
 
-from pyearthtools.data.indexes import AdvancedTimeDataIndex, decorators, CachingIndex
+from pyearthtools.data.indexes import AdvancedTimeDataIndex, decorators
 from pyearthtools.data.transforms.transform import Transform, TransformCollection
-
-from pyearthtools.data.patterns.expanded_date import ExpandedDateVariable
 
 from pyearthtools.data.download.arco.variables.ERA5 import (
     ERA5_LEVELS,
@@ -152,33 +148,3 @@ class ARCOERA5(AdvancedTimeDataIndex):
     @classmethod
     def sample(cls):
         return ARCOERA5("2m_temperature")
-
-
-# class CachingARCOERA5(CachingIndex):
-#     def __init__(self,
-#         cache: PathLike,
-#         variables: str | list[str],
-#         level: int | list[int] | None = None,
-#         transforms: Transform | TransformCollection | None = None,
-#         **kwargs,
-#         ):
-#         super().__init__(cache = str(cache), pattern=ExpandedDateVariable, data_interval = '1 hour', **kwargs)
-#         self._arco = ARCOERA5(variables, level=level, transforms = transforms)
-
-#     def _generate(self, querytime) -> xr.Dataset:
-#         return self._arco[querytime]
-
-#     def get(self, querytime) -> xr.Dataset:
-#         self.cleanup()
-#         self.save_record()
-
-#         if self.cache is None and self.pattern_type is None:
-#             return self._generate(querytime)
-
-#         dataset = self._generate(querytime)
-
-#         return xr.apply_ufunc(
-#             functools.partial(self.pattern.save, querytime = querytime),
-#             dataset,
-#             input_core_dims=[['latitude', 'longitude']],
-#         )
