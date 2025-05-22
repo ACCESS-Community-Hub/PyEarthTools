@@ -66,7 +66,7 @@ class Timer:
     def __exit__(self, *args):
         elapsed = time.time() - self.start
         log = self.logger or LOG
-        # log.debug("%s: took %.2f seconds.", self.title, elapsed)
+        log.debug("%s: took %.2f seconds.", self.title, elapsed)
 
 
 class BaseForecastModel:
@@ -436,7 +436,7 @@ class BaseForecastModel:
 
         if len(paths) == 0:
             raise ValueError("No config paths could be established.")
-        # cls.log.debug(f"Config paths: {paths}")
+        cls.log.debug(f"Config paths: {paths}")
         return tuple(paths)
 
     @classmethod
@@ -493,7 +493,7 @@ class BaseForecastModel:
 
             paths: list[str] = list(itertools.chain(*(find_paths(config_path) for config_path in config_paths)))
 
-            # cls.log.debug(f"Pipeline paths for {sub_path!r}: {paths}")
+            cls.log.debug(f"Pipeline paths for {sub_path!r}: {paths}")
 
             def valid(x: str) -> bool:
                 return "-" in str(x) if ancillary else "-" not in str(x)
