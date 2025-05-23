@@ -24,21 +24,10 @@ from pyearthtools.data.indexes import AdvancedTimeDataIndex, decorators
 from pyearthtools.data.transforms.transform import Transform, TransformCollection
 
 from pyearthtools.data.download.arco._ERA5 import (
-    ERA5_VARIABLES,
     ERA5_LEVELS,
-    ERA_NAME_CHANGE,
+    ERA5_VARIABLES,
+    ERA5_NAME_CHANGE_INV,
 )
-
-
-def get_from_shortname(variables: list[str]) -> list[str]:
-    """Convert from variable short name"""
-
-    def invert_dict(dictionary: dict[str, str]) -> dict[str, str]:
-        return {val: key for key, val in dictionary.items()}
-
-    short_name = invert_dict(ERA_NAME_CHANGE)
-
-    return [short_name[var] if var in short_name else var for var in variables]
 
 
 def open_arco(variables, level=None, chunks="auto", **kwargs):
@@ -107,7 +96,12 @@ class ARCOERA5(AdvancedTimeDataIndex):
         super().__init__(transforms or TransformCollection(), data_interval="1 hour")
         self.record_initialisation()
 
-        variables = get_from_shortname([variables] if not isinstance(variables, list) else variables)
+        if not isinstance(variables, list):
+            variables = [variables]
+
+        # convert variable name if found in short name mapping
+        variables = [ERA5_NAME_CHANGE_INV.get(var, var) for var in variables]
+
         self.variables = variables
         self.level = level
 
