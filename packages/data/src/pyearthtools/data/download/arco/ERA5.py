@@ -29,8 +29,6 @@ from pyearthtools.data.download.arco._ERA5 import (
     ERA_NAME_CHANGE,
 )
 
-ROOT_ARCO_DS = None
-
 
 def convert_vars(variables: list[str]) -> list[str]:
     """Convert variables to dataset names"""
@@ -54,6 +52,23 @@ def get_from_shortname(variables: list[str]) -> list[str]:
     return [short_name[var] if var in short_name else var for var in variables]
 
 
+def open_arco(variables, level=None, chunks="auto", **kwargs):
+    """Open Analysis-Ready Cloud Optimized ERA5 archive from Google Cloud Platform"""
+    ds = xr.open_zarr(
+        "gs://gcp-public-data-arco-era5/ar/full_37-1h-0p25deg-chunk-1.zarr-v3",
+        chunks=chunks,
+        storage_options=dict(token="anon"),
+        **kwargs,
+    )
+    ds = ds[variables]
+
+    if level is not None:
+        ds = pyearthtools.data.transform.coordinates.Select(
+            level=level, ignore_missing=True)(ds)
+
+    return ds
+
+
 class ARCOERA5(AdvancedTimeDataIndex):
     """
     Analysis-Ready, Cloud Optimized ERA5
@@ -70,8 +85,6 @@ class ARCOERA5(AdvancedTimeDataIndex):
         "singleline": "Analysis-Ready, Cloud Optimized ERA5",
         "link": "https://github.com/google-research/arco-era5",
     }
-
-    _ds: xr.Dataset
 
     @decorators.alias_arguments(
         variables=["variable"],
@@ -108,34 +121,9 @@ class ARCOERA5(AdvancedTimeDataIndex):
         variables = get_from_shortname([variables] if not isinstance(variables, list) else variables)
         self.variables = variables
         self.level = level
+
         self._kwargs = kwargs
-
-        self._get_zarr_file()
-
-    def _get_zarr_file(self):
-        global ROOT_ARCO_DS
-
-        if ROOT_ARCO_DS is None:
-            ds = xr.open_zarr(
-                "gs://gcp-public-data-arco-era5/ar/full_37-1h-0p25deg-chunk-1.zarr-v3",
-                chunks=self._kwargs.pop("chunks", "auto"),
-                storage_options=dict(token="anon"),
-                **self._kwargs,
-            )
-            ROOT_ARCO_DS = ds
-        else:
-            ds = ROOT_ARCO_DS
-
-        self._ds = ds[self.variables]
-
-        if self.level is not None:
-            self._ds = pyearthtools.data.transform.coordinates.Select(level=self.level, ignore_missing=True)(self._ds)
-
-    @property
-    def full_ds(self) -> xr.Dataset:
-        """Get full ARCO ds"""
-        assert ROOT_ARCO_DS is not None
-        return ROOT_ARCO_DS
+        self._ds = open_arco(variables, level, **kwargs)
 
     @property
     def dataset(self) -> xr.Dataset:
