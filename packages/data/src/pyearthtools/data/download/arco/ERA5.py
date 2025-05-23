@@ -30,17 +30,6 @@ from pyearthtools.data.download.arco._ERA5 import (
 )
 
 
-def convert_vars(variables: list[str]) -> list[str]:
-    """Convert variables to dataset names"""
-    update_dict = dict(ERA_NAME_CHANGE)
-    return [
-        update_dict[var]
-        for var in set([variables] if not isinstance(variables, list) else variables).intersection(
-            set(update_dict.keys())
-        )
-    ]
-
-
 def get_from_shortname(variables: list[str]) -> list[str]:
     """Convert from variable short name"""
 
