@@ -46,8 +46,7 @@ def open_arco(variables, level=None, chunks="auto", **kwargs):
     )
 
     if level is not None:
-        ds = pyearthtools.data.transform.coordinates.Select(
-            level=level, ignore_missing=True)(ds)
+        ds = pyearthtools.data.transform.coordinates.Select(level=level, ignore_missing=True)(ds)
 
     return ds
 
