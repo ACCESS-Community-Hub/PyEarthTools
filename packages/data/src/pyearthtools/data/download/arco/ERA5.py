@@ -26,19 +26,24 @@ from pyearthtools.data.transforms.transform import Transform, TransformCollectio
 from pyearthtools.data.download.arco._ERA5 import (
     ERA5_LEVELS,
     ERA5_VARIABLES,
+    ERA5_NAME_CHANGE,
     ERA5_NAME_CHANGE_INV,
 )
 
 
 def open_arco(variables, level=None, chunks="auto", **kwargs):
     """Open Analysis-Ready Cloud Optimized ERA5 archive from Google Cloud Platform"""
+
+    # skip parsing unused variables, this can make loading much faster
+    drop_variables = [var for var in ERA5_NAME_CHANGE if var not in variables]
+
     ds = xr.open_zarr(
         "gs://gcp-public-data-arco-era5/ar/full_37-1h-0p25deg-chunk-1.zarr-v3",
         chunks=chunks,
         storage_options=dict(token="anon"),
+        drop_variables=drop_variables,
         **kwargs,
     )
-    ds = ds[variables]
 
     if level is not None:
         ds = pyearthtools.data.transform.coordinates.Select(
