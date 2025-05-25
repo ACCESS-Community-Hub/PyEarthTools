@@ -388,14 +388,8 @@ class ARCOERA5(AdvancedTimeDataIndex):
         "link": "https://github.com/google-research/arco-era5",
     }
 
-    @decorators.alias_arguments(
-        variables=["variable"],
-        level=["levels", "level_value"],
-    )
-    @decorators.check_arguments(
-        variables=_VALID_VARIABLES,
-        level=_VALID_LEVELS,
-    )
+    @decorators.alias_arguments(variables=["variable"], level=["levels", "level_value"])
+    @decorators.check_arguments(variables=_VALID_VARIABLES, level=_VALID_LEVELS)
     @decorators.variable_modifications("variables")
     def __init__(
         self,
@@ -443,4 +437,5 @@ class ARCOERA5(AdvancedTimeDataIndex):
 
     @classmethod
     def sample(cls):
+        """Example subset of the dataset"""
         return ARCOERA5("2m_temperature")
