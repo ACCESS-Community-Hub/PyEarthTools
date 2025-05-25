@@ -35,7 +35,7 @@ def open_arco(variables, level=None, chunks="auto", **kwargs):
     """Open Analysis-Ready Cloud Optimized ERA5 archive from Google Cloud Platform"""
 
     # skip parsing unused variables, this can make loading much faster
-    drop_variables = [var for var in ERA5_NAME_CHANGE if var not in variables]
+    drop_variables = [var for var in ERA5_NAME_CHANGE if var not in set(variables)]
 
     ds = xr.open_zarr(
         "gs://gcp-public-data-arco-era5/ar/full_37-1h-0p25deg-chunk-1.zarr-v3",
