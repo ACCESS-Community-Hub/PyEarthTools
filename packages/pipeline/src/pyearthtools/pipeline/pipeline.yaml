@@ -1,15 +1,15 @@
 pipeline:
-  run_parallel: False     # Attempt to run parallel at all, if False, will use Serial Interface
+  run_parallel: false     # Attempt to run parallel at all, if False, will use Serial Interface
 
   parallel:               # Configuration for parallel running
     enabled:              # Which interfaces are enabled
-      Delayed: True
-      Futures: False
+      Delayed: true
+      Futures: false
 
     dask:                 # Configuration for dask
-      start: True
+      start: true
       client:             # Dask client config
-        processes: False
+        processes: false
 
       config: {}          # Dask config to be set after spinning up distributed cluster
 
@@ -21,4 +21,4 @@ pipeline:
     default_ignore: []    # Default exceptions to ignore when iterating
 
   repr:
-    show_graph: True      # Show graph in ipython repr
+    show_graph: true      # Show graph in ipython repr

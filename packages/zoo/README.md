@@ -20,7 +20,7 @@ The `pyearthtools` CLI can be used both in the command line and within a python 
 ### Command line
 
 ```bash
-# To run PanguWeather upon the local copy of ERA5
+# To run a prediction using a local copy of ERA5
 
 [user@potato ~]$ pet predict next --pipeline ERA5 --output /forecasts/next/ --lead_time '14-days' --time 2024-01-06T03
 ```
@@ -66,7 +66,7 @@ temp_dir/2023/01/01/20230101T0000.nc
 
 ### Adding Arguments for Patterns
 
-These patterns can take extra keyword arguments to further control the behaviour and layout of the saved data,
+These patterns can take extra keyword arguments to further control the behaviour and layout of the saved data.
 
 To specify these kwargs, add `--pattern_kwargs` and provide a dictionary in a json form, .i.e.
 

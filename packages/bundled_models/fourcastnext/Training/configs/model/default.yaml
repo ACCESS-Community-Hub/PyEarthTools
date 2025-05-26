@@ -1,10 +1,9 @@
-
+---
 _target_: fourcastnext.lightning_model.FourCastNextLM
 _recursive_: true
 
-
 # Model parameters to init AFNONet
 model_params:
-  img_size : ${data.img_size}
-  in_channels : ${data.in_channels}
-  out_channels : ${data.out_channels}
+  img_size: ${data.img_size}
+  in_channels: ${data.in_channels}
+  out_channels: ${data.out_channels}

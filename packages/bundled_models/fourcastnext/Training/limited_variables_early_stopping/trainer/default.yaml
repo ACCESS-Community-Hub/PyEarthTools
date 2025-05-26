@@ -18,5 +18,5 @@ checkpointing:
   mode: "max"
   dirpath: "{path}/Checkpoints/Epoch"
   filename: "model-{epoch:02d}"
-  save_on_train_epoch_end: True
+  save_on_train_epoch_end: true
   save_top_k: 50
