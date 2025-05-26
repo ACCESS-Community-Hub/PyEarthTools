@@ -25,8 +25,7 @@ from pyearthtools.data.transforms.transform import Transform, TransformCollectio
 
 
 # valid ARCO-ERA5 level values
-_VALID_LEVELS = [
-    None,
+LEVELS = [
     1,
     2,
     3,
@@ -66,9 +65,8 @@ _VALID_LEVELS = [
     1000,
 ]
 
-
 # mapping from long variable names to short variable names
-_LONGNAME_MAPPING = {
+LONG_NAMES = {
     "100m_u_component_of_wind": "u100",
     "100m_v_component_of_wind": "v100",
     "10m_u_component_of_neutral_wind": "u10n",
@@ -345,17 +343,14 @@ _LONGNAME_MAPPING = {
 }
 
 # mapping from short variable names to long variable names
-_SHORTNAME_MAPPING = {val: key for key, val in _LONGNAME_MAPPING.items()}
-
-# all valid variables, short and long names
-_VALID_VARIABLES = list(_LONGNAME_MAPPING) + list(_SHORTNAME_MAPPING)
+SHORT_NAMES = {val: key for key, val in LONG_NAMES.items()}
 
 
 def open_arco(variables, level=None, chunks="auto", **kwargs):
     """Open Analysis-Ready Cloud Optimized ERA5 archive from Google Cloud Platform"""
 
     # skip parsing unused variables, this can make loading much faster
-    drop_variables = [var for var in _LONGNAME_MAPPING if var not in set(variables)]
+    drop_variables = [var for var in LONG_NAMES if var not in set(variables)]
 
     ds = xr.open_zarr(
         "gs://gcp-public-data-arco-era5/ar/full_37-1h-0p25deg-chunk-1.zarr-v3",
@@ -369,6 +364,10 @@ def open_arco(variables, level=None, chunks="auto", **kwargs):
         ds = pyearthtools.data.transform.coordinates.Select(level=level, ignore_missing=True)(ds)
 
     return ds
+
+
+_VALID_LEVELS = [None] + LEVELS
+_VALID_VARIABLES = [None] + list(LONG_NAMES) + list(SHORT_NAMES)
 
 
 class ARCOERA5(AdvancedTimeDataIndex):
@@ -393,7 +392,7 @@ class ARCOERA5(AdvancedTimeDataIndex):
     @decorators.variable_modifications("variables")
     def __init__(
         self,
-        variables: str | list[str],
+        variables: str | list[str] | None = None,
         level: int | list[int] | None = None,
         transforms: Transform | TransformCollection | None = None,
         **kwargs,
@@ -404,21 +403,26 @@ class ARCOERA5(AdvancedTimeDataIndex):
         Allows for access to a cloud ERA5 archive.
 
         Args:
-            variables (str | list[str]):
-                Variables to retrieve, can be either short_name or long_name
+            variables (str | list[str] | None, optional):
+                Variables to retrieve, can be either short_name or long_name.
+                Default to None, to retrieve all variables.
             level (int | list[int] | None, optional):
-                Pressure levels to select. Defaults to None.
+                Pressure levels to select. Defaults to None, to select all levels.
             transforms (Transform | TransformCollection | None, optional):
                 Transforms to apply to dataset. Defaults to None.
         """
         super().__init__(transforms or TransformCollection(), data_interval="1 hour")
         self.record_initialisation()
 
+        # load all variables by default
+        if variables is None:
+            variables = list(LONG_NAMES)
+
         if not isinstance(variables, list):
             variables = [variables]
 
         # convert variable name if found in short name mapping
-        variables = [_SHORTNAME_MAPPING.get(var, var) for var in variables]
+        variables = [SHORT_NAMES.get(var, var) for var in variables]
 
         self.variables = variables
         self.level = level
