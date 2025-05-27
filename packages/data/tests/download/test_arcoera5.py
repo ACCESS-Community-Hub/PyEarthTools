@@ -82,4 +82,13 @@ def test_load_1level(variables, level, sample_time):
 
 
 def test_renamed_vars():
-    pass
+    sample = _load_sample("msshf", 850, "20161030T17")
+    assert "mean_surface_sensible_heat_flux" in sample.data_vars
+
+
+def test_mixed_vars():
+    sample = _load_sample(["p140129", "mn2t", "sea_ice_cover"], 1000, "20190715T21")
+    assert "mean_wave_period_of_third_swell_partition" in sample.data_vars
+    assert "minimum_2m_temperature_since_previous_post_processing" in sample.data_vars
+    assert "sea_ice_cover" in sample.data_vars
+    assert len(sample.data_vars) == 3
