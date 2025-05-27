@@ -91,3 +91,6 @@ addopts = [
     '--junitxml=report.xml',
     '-n 4',
 ]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')"
+]
