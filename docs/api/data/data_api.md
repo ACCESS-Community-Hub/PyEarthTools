@@ -38,6 +38,11 @@
 ```{eval-rst}
 .. autoclass:: pyearthtools.data.download.arcoera5.ARCOERA5
     :members:
+.. autodata:: pyearthtools.data.download.arcoera5.LEVELS
+.. autodata:: pyearthtools.data.download.arcoera5.LONG_NAMES
+    :no-value:
+.. autodata:: pyearthtools.data.download.arcoera5.SHORT_NAMES
+    :no-value:
 ```
 
 ## `data.indexes`

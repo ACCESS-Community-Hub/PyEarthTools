@@ -24,7 +24,7 @@ from pyearthtools.data.indexes import AdvancedTimeDataIndex, decorators
 from pyearthtools.data.transforms.transform import Transform, TransformCollection
 
 
-# valid ARCO-ERA5 level values
+#: valid ARCO-ERA5 level values
 LEVELS = [
     1,
     2,
@@ -65,7 +65,7 @@ LEVELS = [
     1000,
 ]
 
-# mapping from long variable names to short variable names
+#: mapping from long variable names to short variable names
 LONG_NAMES = {
     "100m_u_component_of_wind": "u100",
     "100m_v_component_of_wind": "v100",
@@ -342,7 +342,7 @@ LONG_NAMES = {
     "zero_degree_level": "deg0l",
 }
 
-# mapping from short variable names to long variable names
+#: mapping from short variable names to long variable names
 SHORT_NAMES = {val: key for key, val in LONG_NAMES.items()}
 
 
