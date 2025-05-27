@@ -33,6 +33,13 @@
 
 ```
 
+## `data.download`
+
+```{eval-rst}
+.. autoclass:: pyearthtools.data.download.arcoera5.ARCOERA5
+    :members:
+```
+
 ## `data.indexes`
 
 ```{eval-rst}

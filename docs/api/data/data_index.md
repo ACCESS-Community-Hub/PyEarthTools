@@ -27,6 +27,7 @@ The rest of this page contains reference information for the components of the D
 |                  |                                               | - [TimeDerivedValue](data_api.md#pyearthtools.data.derived.TimeDerivedValue) |
 |                  |                                               | - [AdvancedTimeDerivedValue](data_api.md#pyearthtools.data.derived.AdvancedTimeDerivedValue) |
 |                  |                                               | - [Insolation](data_api.md#pyearthtools.data.derived.Insolation) |
+| `data.download`  | Publicly available datasets                   | - [ARCOERA5](data_api.md#pyearthtools.data.download.arcoera5.ARCOERA5) |
 | `data.indexes`   |                                               | - [Index](data_api.md#pyearthtools.data.indexes.Index) |
 |                  |                                               | - [DataIndex](data_api.md#pyearthtools.data.indexes.DataIndex) |
 |                  |                                               | - [FileSystemIndex](data_api.md#pyearthtools.data.indexes.FileSystemIndex) |
