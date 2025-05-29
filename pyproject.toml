@@ -75,6 +75,7 @@ docs = [
   "nbsphinx",
   "sphinx_gallery",
   "sphinx-design",
+  "sphinx-togglebutton",
 ]
 
 [project.urls]
