@@ -31,6 +31,7 @@ extensions = [
     "nbsphinx",
     "sphinx_gallery.load_style",
     "sphinx_design",
+    "sphinx_togglebutton",
 ]
 source_suffix = [".rst", ".md"]
 
