@@ -4,7 +4,7 @@ Welcome new user! This document will continue to be updated based on user feedba
 
 ## Installation
 
-If you have not already done so, follow these simplified installation instructions:
+From within a suitable [virtual environment](installation.md#virtual-environments), run the following commands:
 
 ```
 git clone git@github.com:ACCESS-Community-Hub/PyEarthTools.git

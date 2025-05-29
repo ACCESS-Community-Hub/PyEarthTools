@@ -10,15 +10,19 @@ These installation instructions have been tested on Linux, maxOS and Windows. If
 
 ## Virtual Environments
 
-Users installing PyEarthTools for themselves (such as on their own workstation or laptop) are recommended to use a virtual environment. The instructions below proceed on this assumption.
-
-Users in shared computing environments (as is common in HPC and other research facilities) may or may not be able to use virtual environments easily, and may or may not be able to utilise `conda`. The instructions below are based on initially creating a virtual environment with `conda` and then installing the packages using `pip`. Notes are included in this section about the additional steps required if using `pipenv` or `venv` to create the virtual environment.
+Users installing PyEarthTools for themselves (such as on their own workstation or laptop) are recommended to use a virtual environment.
 
 Virtual environments are isolated, dedicated copies of Python, which are separate from the version of Python which may be present and used by other software or your operating system. Using a virtual environment avoids the need for `root` or `Administrator` access, and also lowers the risk of corrupting the system if there are any problems with the installation. Industry standard practice for software development is to use virtual environments in this way.
 
-For those wishing to use `pipenv` or `venv` instead of `conda`, you will need to install two additional packages into your system which are not supplied by `pip`. These are `graphviz` and `pandoc`. While there is a package called `graphviz` in pip, it only supplies Python wrappers around the core package which must be installed separately. The `conda` framework does allow the full installation of `graphviz`. Neither of these two packages are completely essential. `graphviz` is used for the display of pipelines, but is not core to the functionality and its absence will not result in unhandled exceptions. `pandoc` is only required for building the documentation locally.
+We recommend using `conda` to create a virtual environment.
+
+You can also use `virtualenv` (also referred to as `pipenv` and `venv`) to create a virtual environment. However, if you use `virtualenv` you will most likely want to manually install `graphviz`. While there is a package called `graphviz` in pip, it only supplies Python wrappers around the core package which must be installed separately. Note, `graphviz` is used for the display of pipelines, but is not core to PyEarthTools functionality, so choosing not to install `graphviz` should not result in unhandled exceptions. Additionally, if you wish to build your own copy of the documentation locally you will also need to manually install `pandoc`.  
+
+Users in shared computing environments (as is common in HPC and other research facilities) may or may not be able to use virtual environments easily, regardless of the choice between `conda` and `virtualenv`, and you may need to use or set up a `modules` environment.  
 
 ## Creating a Virtual Environment 
+
+**We recommend using `conda` to create a virtual environment.**
 
 Here is a command to create and activate a new virtual environment with *conda*:
 ```py
@@ -32,6 +36,8 @@ conda create -p <path_to_environment> python
 conda activate -p <path_to_environment>
 ```
 
+You can also use `virtualenv` to create a virtual environment, but please see the [virtual environments](#virtual-environments) section above for information about dependencies you may then wish to install manually.
+
 Here is a command to create and activate a new virtual environment with *venv*:
 ```py
 python -m venv <path_to_environment>
@@ -42,14 +48,14 @@ These approaches will all create a new virtual environment, with the Python inte
 
 ## Using or Developing PyEarthTools at NCI
 
-A very large number of the users of PyEarthTools work on the NCI supercomputing environment. Users here should request access to project code `dk92`. The modules environment `/g/data/dk92/apps/Modules/modulefiles` can then be specified, and the module `pet/2025.05` can be used (noting this module name will change with each new update). This will make the most recent update of PyEarthTools available. 
+Many of the users of PyEarthTools work on the NCI supercomputing environment. Users here should request access to project code `dk92`. The modules environment `/g/data/dk92/apps/Modules/modulefiles` can then be specified, and the module `pet/2025.05` can be used (noting this module name will change with each new update). This will make the most recent update of PyEarthTools available. 
 
-For developers of PyEarthTools at NCI, this is the recommended approach, nt a virtual environment. Users can then use `pip install -e` to check out the latest code from the repository, and Python will install the development packages into a userspace install directory.
+For developers of PyEarthTools at NCI, this is the recommended approach, not a virtual environment. Users can then use `pip install -e` to check out the latest code from the repository, and Python will install the development packages into a userspace install directory.
 
 
 ## Installation of PyEarthTools (including tutorials)
 
-This section details how to install PyEarthTools to be able run notebooks from the [](notebooks/Gallery.ipynb). It assumed that users want to run PyEarthTools but don't wish to change its core code.
+This section details how to install PyEarthTools to be able run notebooks from the [](notebooks/Gallery.ipynb). It assumes that users want to run PyEarthTools but don't wish to change its core code.
 
 First, make sure to have [Git](https://git-scm.com/) and [Conda](https://conda-forge.org/download/) installed on your system.
 
@@ -83,20 +89,20 @@ conda run -p ./venv --no-capture-output \
 See the [IPython documentation](https://ipython.readthedocs.io/en/stable/install/kernel_install.html) for additional information regarding the IPython kernel installation.
 ````
 
-## Installing Individual Packages
+## Installing Individual PyEarthTools Sub-Packages
 
-PyEarthTools comprises multiple, modular packages within a shared namespace that inter-operate in order to provide the overall functionality of the framework.
+PyEarthTools comprises multiple, modular sub-packages within a shared namespace that inter-operate in order to provide the overall functionality of the framework.
 
 It is not necessary to install all of them, and it is envisioned that many users are likely to want only some parts of the framework.
 
-Each PyEarthTools package can be installed separately using `pip`, directly from GitHub.
+Each PyEarthTools sub-package can be installed separately using `pip`, directly from GitHub.
 For example, to install the `utils` sub-package, use:
 
 ```
 pip install "pyearthtools[utils] @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git"
 ```
 
-Other available packages are `data`, `pipeline`, `training`, `tutorial` and `zoo`.
+Other available sub-packages are `data`, `pipeline`, `training`, `tutorial` and `zoo`.
 
 To install all PyEarthTools packages, including all their optional dependencies, use:
 
