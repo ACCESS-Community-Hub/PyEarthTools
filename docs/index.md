@@ -28,11 +28,23 @@ Tutorial Gallery: [available here](./notebooks/Gallery)
 
 **Here is the quickest way to install the complete framework and get started:**
 
-From within a suitable [virtual environment](installation.md#virtual-environments), run the following commands:
+We strongly recommend using a [virtual environment](installation.md#virtual-environments), either a Conda or a Python virtual environments.
+
+To install it in *Conda environment*, run the following commands:
 ```
 git clone git@github.com:ACCESS-Community-Hub/PyEarthTools.git
-pip install -r requirements-dev.txt
-conda install graphviz
+conda env create -p ./venv -f environment.yml
+conda activate ./venv
+cd notebooks
+jupyter lab
+```
+
+As an alternative, to install it in a *Python virtual environment*, use:
+```
+git clone git@github.com:ACCESS-Community-Hub/PyEarthTools.git
+python3 -m venv ./venv
+source venv/bin/activate
+pip install -r requirements.txt
 cd notebooks
 jupyter lab
 ```
