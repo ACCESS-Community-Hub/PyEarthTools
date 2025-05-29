@@ -25,13 +25,13 @@ Users in shared computing environments (as is common in HPC and other research f
 **We recommend using `conda` to create a virtual environment.**
 
 Here is a command to create and activate a new virtual environment with *conda*:
-```py
+```shell
 conda create --name <my-env> python
 conda activate <my-env>
 ```
 
 Here is a command to create and activate a new virtual environment with *conda*, into a specified directory (often required when on shared computing facilities):
-```py
+```shell
 conda create -p <path_to_environment> python
 conda activate -p <path_to_environment>
 ```
@@ -39,7 +39,7 @@ conda activate -p <path_to_environment>
 You can also use `virtualenv` to create a virtual environment, but please see the [virtual environments](#virtual-environments) section above for information about dependencies you may then wish to install manually.
 
 Here is a command to create and activate a new virtual environment with *venv*:
-```py
+```shell
 python -m venv <path_to_environment>
 source <path_to_environment>/bin/activate
 ```
@@ -61,29 +61,36 @@ First, make sure to have [Git](https://git-scm.com/) and [Conda](https://conda-f
 
 Then, clone the PyEarthTools repository:
 
-```
+```shell
 git clone https://github.com/ACCESS-Community-Hub/PyEarthTools.git
 cd PyEarthTools
 ```
 
-and create a Conda environment to install tutorials dependencies:
+Create a Conda environment including Python and Graphviz, and activate it:
 
-```
-conda env create -f tutorials.yml -p ./venv
+```shell
+conda create -y -p ./venv python graphviz
+conda activate ./venv
 ```
 
-You can start a JupyterLab instance to run the example notebooks:
+Next, install PyEarthTools and all its dependencies:
 
+```shell
+pip install -r requirements.txt
 ```
-conda run -p ./venv --no-capture-output jupyter-lab notebooks/
+
+Finally, start a JupyterLab instance to run the example notebooks:
+
+```shell
+jupyter-lab notebooks/
 ```
 
 ````{Note}
 Alternatively, you can install a Jupyter kernel to run notebooks in a pre-existing JupyterLab installation:
 
-```
-conda run -p ./venv --no-capture-output \
-    python -m ipykernel install --user --name PET-tutorial
+```shell
+# after activating the Conda environment
+python -m ipykernel install --user --name PET-tutorial
 ```
 
 See the [IPython documentation](https://ipython.readthedocs.io/en/stable/install/kernel_install.html) for additional information regarding the IPython kernel installation.
@@ -98,7 +105,7 @@ It is not necessary to install all of them, and it is envisioned that many users
 Each PyEarthTools sub-package can be installed separately using `pip`, directly from GitHub.
 For example, to install the `utils` sub-package, use:
 
-```
+```shell
 pip install "pyearthtools[utils] @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git"
 ```
 
@@ -106,7 +113,7 @@ Other available sub-packages are `data`, `pipeline`, `training`, `tutorial` and 
 
 To install all PyEarthTools packages, including all their optional dependencies, use:
 
-```
+```shell
 pip install "pyearthtools[all] @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git"
 ```
 
@@ -124,20 +131,19 @@ Each sub-package is versioned separately, so bugfixes or updates in a single sub
 
 First clone the PyEarthTools repository:
 
-```
+```shell
 git clone https://github.com/ACCESS-Community-Hub/PyEarthTools.git
 cd PyEarthTools
 ```
 
 and install all packages in "editable" mode with
 
-```
-pip install -r requirements-dev.txt
+```shell
+pip install -r requirements.txt
 ```
 
 or install a specific package `<package-name>` in editable mode using
 
-```
+```shell
 pip install -e packages/<package-name>
 ```
-
