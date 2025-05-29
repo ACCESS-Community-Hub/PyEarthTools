@@ -1,8 +1,0 @@
-channels:
-  - conda-forge
-dependencies:
-  - graphviz
-  - python>=3.12
-  - pip
-  - pip:
-    - -r requirements.txt
