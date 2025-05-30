@@ -263,51 +263,51 @@ class HadISDIndex(ArchiveIndex):
             file_path = Path(HADISD_HOME) / parent_folder / filename
             file_path_zarr = Path(HADISD_HOME) / parent_folder / "zarr_cache" / filename_zarr
 
-            # # Check if the file exists (comment out if testing with single netcdf)
-            # if not file_path_zarr.exists():
-            #     raise DataNotFoundError(f"File not found for station: {station_id}, path: {file_path}")
+            # Check if the file exists (comment out if testing with single netcdf)
+            if not file_path_zarr.exists():
+                raise DataNotFoundError(f"File not found for station: {station_id}, path: {file_path}")
 
             # Add the file path to the dictionary
-            paths[station_id] = file_path # Change to file_path_zarr to test with zarr files
+            paths[station_id] = file_path_zarr # Change to file_path_zarr to test with zarr files
 
         return paths
 
-    # def load(
-    #         self,
-    #         files: dict[str, Path] | Path | list[str | Path] | tuple[str | Path],
-    #         combine: str = "nested",  
-    #         concat_dim: str = "station", 
-    #         parallel: bool = True,  
-    #         # engine: Literal["netcdf4", "zarr"] = "zarr",  # Default engine for loading
-    #         **kwargs,
-    #     ) -> Any:
-    #         """
-    #         Custom load method for HadISDIndex.
+    def load(
+            self,
+            files: dict[str, Path] | Path | list[str | Path] | tuple[str | Path],
+            combine: str = "nested",  
+            concat_dim: str = "station", 
+            parallel: bool = True,  
+            # engine: Literal["netcdf4", "zarr"] = "zarr",  # Default engine for loading
+            **kwargs,
+        ) -> Any:
+            """
+            Custom load method for HadISDIndex.
 
-    #         Args:
-    #             files (dict[str, Path] | Path | list[str | Path] | tuple[str | Path]):
-    #                 Files to load.
-    #             combine (str, optional):
-    #                 Combine method for NetCDF files. Defaults to "by_coords".
-    #                 Options:
-    #                     - "by_coords": Combine datasets by aligning coordinates.
-    #                     - "nested": Combine datasets by concatenating along a new dimension.
-    #             **kwargs:
-    #                 Additional arguments passed to the parent class's load method.
+            Args:
+                files (dict[str, Path] | Path | list[str | Path] | tuple[str | Path]):
+                    Files to load.
+                combine (str, optional):
+                    Combine method for NetCDF files. Defaults to "by_coords".
+                    Options:
+                        - "by_coords": Combine datasets by aligning coordinates.
+                        - "nested": Combine datasets by concatenating along a new dimension.
+                **kwargs:
+                    Additional arguments passed to the parent class's load method.
 
-    #         Returns:
-    #             Any:
-    #                 Loaded data.
-    #         """
-    #         # Pass the combine argument as part of **kwargs
-    #         kwargs["combine"] = combine
-    #         kwargs["concat_dim"] = concat_dim
-    #         kwargs["parallel"] = parallel
-    #         # kwargs["engine"] = engine
+            Returns:
+                Any:
+                    Loaded data.
+            """
+            # Pass the combine argument as part of **kwargs
+            kwargs["combine"] = combine
+            kwargs["concat_dim"] = concat_dim
+            kwargs["parallel"] = parallel
+            # kwargs["engine"] = engine
 
 
-    #         # Call the parent class's load method
-    #         return super().load(files, **kwargs)
+            # Call the parent class's load method
+            return super().load(files, **kwargs)
 
 
     @property
