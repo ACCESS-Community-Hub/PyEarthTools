@@ -19,7 +19,7 @@ Tutorial Gallery: [available here](https://pyearthtools.readthedocs.io/en/latest
 From within a suitable [virtual environment](https://pyearthtools.readthedocs.io/en/latest/installation.html#virtual-environments), run the following commands:
 ```
 git clone git@github.com:ACCESS-Community-Hub/PyEarthTools.git
-pip install -r requirements-dev.txt
+pip install -r requirements.txt
 conda install graphviz
 cd notebooks
 jupyter lab
