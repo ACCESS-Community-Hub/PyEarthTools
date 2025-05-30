@@ -18,14 +18,29 @@ Tutorial Gallery: [available here](https://pyearthtools.readthedocs.io/en/latest
 
 **Here is the quickest way to install the complete framework and get started:**
 
-From within a suitable [virtual environment](https://pyearthtools.readthedocs.io/en/latest/installation.html#virtual-environments), run the following commands:
-```
+We strongly recommend using a [virtual environment](https://pyearthtools.readthedocs.io/en/latest/installation.html#virtual-environments), either a Conda or a Python virtual environments.
+
+Run the following commands to install PyEarthTools in a Conda environment:
+```shell
 git clone git@github.com:ACCESS-Community-Hub/PyEarthTools.git
+conda create -y -p ./venv python graphviz
+conda activate ./venv
 pip install -r requirements.txt
-conda install graphviz
 cd notebooks
 jupyter lab
 ```
+
+Alternatively, run the following commands to install PyEarthTools in a Python virtual environment:
+```shell
+git clone git@github.com:ACCESS-Community-Hub/PyEarthTools.git
+python3 -m venv ./venv
+source venv/bin/activate
+pip install -r requirements.txt
+cd notebooks
+jupyter lab
+```
+> [!TIP]
+> (Optional) Install [Graphviz](https://graphviz.org/download/) (not installable via pip) to display pipelines.
 
 PyEarthTools comprises multiple sub-packages which may be installed and used separately. See the [installation guide](https://pyearthtools.readthedocs.io/en/latest/installation.html) for more details.
 
