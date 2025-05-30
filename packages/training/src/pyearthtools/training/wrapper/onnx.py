@@ -19,8 +19,6 @@ from pathlib import Path
 import logging
 from typing import Optional
 
-import onnxruntime as ort
-
 from pyearthtools.pipeline.controller import Pipeline
 
 from pyearthtools.training.wrapper.wrapper import ModelWrapper
@@ -52,6 +50,7 @@ class ONNXWrapper(ModelWrapper):
             model (Optional[ort.InferenceSession], optional):
                 Preloaded onnx session to use, will be saved under `self.model_name`. Defaults to None.
         """
+        import onnxruntime as ort
         super().__init__(None, data)
         self.record_initialisation()
 

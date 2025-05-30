@@ -32,10 +32,13 @@ from . import HadisdDataClass
 hadisd_base = "/Users/joelmiller/Projects/data/hadisd"
 default_base = "/Users/joelmiller/Projects/data/weatherbench/5.625deg"  # taken from NCI noteboook on github
 lowres_base = os.environ.get("ERA5LOWRES", default_base)
+USER_HOME = os.path.expanduser("~")
+lowresdemo_base = os.environ.get("ERA5LOWRESDEMO", USER_HOME)
 
 ROOT_DIRECTORIES = {
     "hadisd": hadisd_base,
     "era5lowres": lowres_base,  # Update this to the base dir, get var from config
+    "era5lowresdemo": lowresdemo_base,  # Update this to the base dir, get var from config
 }
 
 # Register archive returns a callable which can be used to register an object

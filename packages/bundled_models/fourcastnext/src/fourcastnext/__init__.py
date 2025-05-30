@@ -48,3 +48,28 @@ class CropToRectangle(Operation):
 
         # Just return the cropped data, cannot 'undo' this one
         return dataset_to_undo
+
+
+class CropToRectangleSmall(Operation):
+    """Cut with Bounding box"""
+
+    def __init__(self, warn=True):
+        """
+        Default ERA5 is 721x1440. FourCastNeXt needs to be able to use 2x2 kernels, so needs an even number grid
+        dimension. For now, this class just disposes of the surplus pixels. In future the cropping strategy
+        from the paper could be implemented, or a complex regrid could be performed to resample to an even grid
+        """
+        super().__init__()
+        self.record_initialisation()
+
+    def apply_func(self, dataset: xr.Dataset):
+        subset_dataset = dataset.isel(
+            latitude=slice(0, -4),
+        )
+
+        return subset_dataset
+
+    def undo_func(self, dataset_to_undo, **kwargs):
+
+        # Just return the cropped data, cannot 'undo' this one
+        return dataset_to_undo

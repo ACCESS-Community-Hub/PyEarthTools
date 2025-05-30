@@ -1,8 +1,8 @@
-random: True
+random: true
 random_seed: 42
 train:
-  - 2000
-  - 2015
+  - 1980
+  - 2018
   - 6 hours
 valid:
   - 2018

@@ -3,7 +3,7 @@
 The default configuration file location is ~/.config/pyearthtools. This directory may contain multiple .yaml files which control different aspects of the configuration. The directory is known as the configuration directory.
 
 ```{Note}
-The rest of this document describes the **intended** functionality of the configuration system and served to capture requirements only. The current behaviour is not documented and should be considered deprecated. Once the indended functionality is sufficiently well-documented, work will commence towards implementing the requirements.
+The rest of this document describes the **intended** functionality of the configuration system and serves to capture requirements only. The current behaviour is not documented and should be considered deprecated. Once the intended functionality is sufficiently well-documented, work will commence towards implementing the requirements.
 ```
 
 - By default, the configuration directory is ~/.config/pyearthtools

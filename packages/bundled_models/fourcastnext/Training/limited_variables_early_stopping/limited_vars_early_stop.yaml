@@ -10,7 +10,7 @@ defaults:
 experiment_name: ${now:%Y-%m-%d}/${now:%H-%M-%S}
 path: /scratch/kd24/${oc.env:USER}/ML/FourCastNeXt/Training/${experiment_name}
 
-fit: False
+fit: false
 
 hydra:
   verbose: false

@@ -1,4 +1,4 @@
-random: True
+random: true
 random_seed: 42
 train:
   - 1980
