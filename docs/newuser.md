@@ -8,7 +8,7 @@ From within a suitable [virtual environment](installation.md#virtual-environment
 
 ```
 git clone git@github.com:ACCESS-Community-Hub/PyEarthTools.git
-pip install -r requirements-dev.txt
+pip install -r requirements.txt
 conda install graphviz
 cd notebooks
 jupyter lab
