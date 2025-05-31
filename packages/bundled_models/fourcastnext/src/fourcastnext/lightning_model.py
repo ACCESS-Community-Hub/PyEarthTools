@@ -75,6 +75,9 @@ class FourCastNextLM(pl.LightningModule):
         super().__init__()
         self.save_hyperparameters()
 
+        print("Setting up PyTorch Lightning Model")
+        print(model_params)
+
         self.spatial_size = model_params.get("img_size", (128, 128))
         self.out_channels = model_params.get("out_channels", 10)
 
@@ -94,6 +97,7 @@ class FourCastNextLM(pl.LightningModule):
     # Can implement def load(file_to_load) here if wanted
 
     def forward(self, x, net):
+
         value, flow = net(x.to(dtype=self._dtype))
 
         x = x[:, -self.out_channels :]  # B, [t-1, t], H, W

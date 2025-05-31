@@ -263,35 +263,47 @@ class BaseForecastModel:
             ValueError:
                 If `pipeline` not in `._valid_pipeline()` and a valid loaded pipeline is not supplied
         """
+
         if download_assets:
             with self.timer("Downloading assets"):
                 self.download_assets()  # Download assets
 
         self._config_path = config_path
+        logger = self.log()
         import pyearthtools.zoo  # pylint: disable=C0321
 
+        if pipeline is not None and pipeline_name is not None:
+            raise ValueError("Cannot initialise with both a named pipeline and an im-memory pipeline")
+        
+        if pipeline is None and pipeline_name is None:
+            raise ValueError("Cannot initialise, require either a named pipeline or an in-memory pipeline")
+        
+        # Using an in-memory pipeline
         if pipeline is not None:
             self._pipeline = pipeline
-            self._pipeline_name = pipeline_name
+            self._pipeline_name = "User-supplied pipeline"
 
-
+        # Establishing pipeline from configuration
         else:
 
+            # Sort out data access as specified in the pipeline
             if any(map(lambda x: x in pipeline_name.lower(), pyearthtools.zoo.LIVE_SUBSTRINGS)) and data_cache is None:
                 ## Must setup a cache for live data
                 data_cache = self.get_config("cache")                
 
+            # Validate the pipeline file
             if not self.is_valid_pipeline(pipeline_name, config_path=self._config_path):
                 raise ValueError(
                     f"Cannot find config: {pipeline_name} in {config_path}\n. "
                     f"Valid items: {list(self._valid_pipeline(config_path=self._config_path).keys())}"
                 )
 
-
-            message = ("Using pipeline: %r", self._pipeline_name)
-            logger = self.log()
-            logger.debug(message)                
+            # Validation and init passed, log success and carry on
             self._pipeline_name = pipeline_name
+            self._pipeline = None
+            message = f"Using pipeline: {self._pipeline_name}"                
+            logger.debug(message)                
+            
 
         self.output = output
         self._kwargs = kwargs
@@ -493,13 +505,14 @@ class BaseForecastModel:
 
             paths: list[str] = [p for p in paths if valid(p)]
             return paths
-
-        return create_mapping(
-            find_elements("Data"), find_elements("Pipeline")
-        )  # Create the mapping between Data & Pipeline
+    
+        data_elements = find_elements("Data")  # Find configs from the Data directory
+        pipeline_elements = find_elements("Pipeline")  # Find configs from the Pipelines directory
+        mappings = create_mapping(data_elements, pipeline_elements)
+        return mappings
 
     @classmethod
-    def is_valid_pipeline(cls, pipeline: str, config_path: os.PathLike | None = None) -> bool:
+    def is_valid_pipeline(cls, pipeline_name: str, config_path: os.PathLike | None = None) -> bool:
         """
         Check if `pipeline` is a valid pipeline
 
@@ -510,10 +523,16 @@ class BaseForecastModel:
         Returns:
             (bool):
                 If `pipeline` is valid.
-        """
+        """        
         valid_pipelines = cls._valid_pipeline(config_path=config_path)
-        pipeline, _ = split_name_assignment(pipeline)
-        return pipeline in valid_pipelines
+        pipeline, _ = split_name_assignment(pipeline_name)
+        found_it = pipeline in valid_pipelines
+
+        if found_it:
+            print(f"Valid {pipeline_name} found in path {config_path}")
+        else:
+            print(f"Could not find/validate {pipeline_name} in path {config_path}")
+        return found_it
 
     @functools.cache  # pylint: disable=W1518
     def _get_cache(self, cache: os.PathLike):
@@ -662,9 +681,11 @@ class BaseForecastModel:
 
         if self._pipeline:
             return self._pipeline
+        
+        logger = self.log()
 
         pipe = self._get_pipeline(self._pipeline_name, cache=self.cache)
-        self.log.debug("Using Pipeline: %r", pipe)
+        logger.debug("Using Pipeline: %r", pipe)
         return pipe
 
     @functools.cached_property

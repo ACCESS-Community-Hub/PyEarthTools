@@ -256,7 +256,7 @@ class ERA5LowResDemoIndex(ArchiveIndex):
         base_transform = TransformCollection()
 
         base_transform += pyearthtools.data.transforms.attributes.Rename(ERA5DEMO_RENAME)
-        # base_transform += pyearthtools.data.transforms.variables.variable_trim(variables)
+        base_transform += pyearthtools.data.transforms.variables.variable_trim(variables)
 
         self.level_value = level_value
 
@@ -312,3 +312,10 @@ class ERA5LowResDemoIndex(ArchiveIndex):
     def _import(self):
         """module to import for to load this step in an Pipeline"""
         return "pyearthtools.tutorial"
+
+
+    def retrieve(self, *args, transforms=None, **kwargs):
+        transforms = self.base_transforms + TransformCollection(transforms)
+        transforms += pyearthtools.data.transforms.variables.variable_trim(self.variables)
+        # kwargs.update(self._get_preprocess(kwargs.pop("preprocess", None)))  # type: ignore
+        return transforms(super().retrieve(*args, **kwargs))

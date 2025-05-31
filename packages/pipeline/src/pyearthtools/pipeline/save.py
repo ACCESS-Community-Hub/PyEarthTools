@@ -131,5 +131,6 @@ def load(stream: Union[str, Path], **kwargs: Any) -> "pyearthtools.pipeline.Pipe
     LOG.debug(f"Loaded pipeline object: {loaded_obj = }")
 
     if not isinstance(loaded_obj, pyearthtools.pipeline.Pipeline):
+        print(loaded_obj)        
         raise FileNotFoundError(f"Cannot load {stream!r}, is it a valid Pipeline?")
     return loaded_obj
