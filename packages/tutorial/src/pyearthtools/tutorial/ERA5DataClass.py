@@ -319,3 +319,7 @@ class ERA5LowResDemoIndex(ArchiveIndex):
         transforms += pyearthtools.data.transforms.variables.variable_trim(self.variables)
         # kwargs.update(self._get_preprocess(kwargs.pop("preprocess", None)))  # type: ignore
         return transforms(super().retrieve(*args, **kwargs))
+    
+    @classmethod
+    def sample(cls):
+        return ERA5LowResDemoIndex("2m_temperature")    
