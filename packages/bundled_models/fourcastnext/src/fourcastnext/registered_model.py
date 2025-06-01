@@ -53,12 +53,12 @@ class FourCastNextRM(pyearthtools.zoo.BaseForecastModel):
         self,
         *,
         pipeline_name: str = None,
-        pipeline = None,
+        pipeline=None,
         output: str | Path,
         lead_time: int | str,
         ckpt_path: str | None = None,
         interval: int = 6,
-        lightning_model_params = {},
+        lightning_model_params={},
         **kwargs,
     ) -> None:
         """
@@ -75,10 +75,10 @@ class FourCastNextRM(pyearthtools.zoo.BaseForecastModel):
         if ckpt_path:
             self._redownload_each_time = True
             self._download_paths = [(ckpt_path, "weights.ckpt")]  # type: ignore
-    
+
         self.ckpt_path = ckpt_path
         self.lightning_model_params = lightning_model_params
-        self.lightning_model = fourcastnext.FourCastNextLM(self.lightning_model_params)        
+        self.lightning_model = fourcastnext.FourCastNextLM(self.lightning_model_params)
 
         self.interval = interval
 

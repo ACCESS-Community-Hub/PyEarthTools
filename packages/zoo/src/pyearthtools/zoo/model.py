@@ -225,10 +225,10 @@ class BaseForecastModel:
     _default_assignments: dict[str, Any] = {}  # Class attribute assignments
 
     def __init__(  # pylint: disable=R0913
-        self,        
+        self,
         *,
         pipeline_name: Optional[str] = None,
-        pipeline = None,
+        pipeline=None,
         output: Optional[os.PathLike] = None,
         config_path: Optional[os.PathLike] = None,
         data_cache: Optional[os.PathLike] = None,
@@ -274,10 +274,10 @@ class BaseForecastModel:
 
         if pipeline is not None and pipeline_name is not None:
             raise ValueError("Cannot initialise with both a named pipeline and an im-memory pipeline")
-        
+
         if pipeline is None and pipeline_name is None:
             raise ValueError("Cannot initialise, require either a named pipeline or an in-memory pipeline")
-        
+
         # Using an in-memory pipeline
         if pipeline is not None:
             self._pipeline = pipeline
@@ -289,7 +289,7 @@ class BaseForecastModel:
             # Sort out data access as specified in the pipeline
             if any(map(lambda x: x in pipeline_name.lower(), pyearthtools.zoo.LIVE_SUBSTRINGS)) and data_cache is None:
                 ## Must setup a cache for live data
-                data_cache = self.get_config("cache")                
+                data_cache = self.get_config("cache")
 
             # Validate the pipeline file
             if not self.is_valid_pipeline(pipeline_name, config_path=self._config_path):
@@ -301,9 +301,8 @@ class BaseForecastModel:
             # Validation and init passed, log success and carry on
             self._pipeline_name = pipeline_name
             self._pipeline = None
-            message = f"Using pipeline: {self._pipeline_name}"                
-            logger.debug(message)                
-            
+            message = f"Using pipeline: {self._pipeline_name}"
+            logger.debug(message)
 
         self.output = output
         self._kwargs = kwargs
@@ -505,7 +504,7 @@ class BaseForecastModel:
 
             paths: list[str] = [p for p in paths if valid(p)]
             return paths
-    
+
         data_elements = find_elements("Data")  # Find configs from the Data directory
         pipeline_elements = find_elements("Pipeline")  # Find configs from the Pipelines directory
         mappings = create_mapping(data_elements, pipeline_elements)
@@ -523,7 +522,7 @@ class BaseForecastModel:
         Returns:
             (bool):
                 If `pipeline` is valid.
-        """        
+        """
         valid_pipelines = cls._valid_pipeline(config_path=config_path)
         pipeline, _ = split_name_assignment(pipeline_name)
         found_it = pipeline in valid_pipelines
@@ -681,7 +680,7 @@ class BaseForecastModel:
 
         if self._pipeline:
             return self._pipeline
-        
+
         logger = self.log()
 
         pipe = self._get_pipeline(self._pipeline_name, cache=self.cache)

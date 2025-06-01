@@ -260,7 +260,9 @@ class FourCastNextLM(pl.LightningModule):
         else:
             input1 = inp[:, 0]
 
-        n_pred_steps = 4 # tar.shape[1]
+        # FIXME: this wasn't autodetecting correctly. Current set to match tutorial.
+        # If it's too hard to autodetect, set it in the init
+        n_pred_steps = 4  # tar.shape[1]
 
         if n_pred_steps == 1:
             predictions = self.forward(input1, self.model)

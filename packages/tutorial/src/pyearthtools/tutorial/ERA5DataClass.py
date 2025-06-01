@@ -226,7 +226,7 @@ class ERA5LowResDemoIndex(ArchiveIndex):
         *,
         level_value: int | float | list[int | float] | tuple[list | int, ...] | None = None,
         transforms: Transform | TransformCollection | None = None,
-        filename_override = None,
+        filename_override=None,
         product=None,
     ):
         """
@@ -313,13 +313,12 @@ class ERA5LowResDemoIndex(ArchiveIndex):
         """module to import for to load this step in an Pipeline"""
         return "pyearthtools.tutorial"
 
-
     def retrieve(self, *args, transforms=None, **kwargs):
         transforms = self.base_transforms + TransformCollection(transforms)
         transforms += pyearthtools.data.transforms.variables.variable_trim(self.variables)
         # kwargs.update(self._get_preprocess(kwargs.pop("preprocess", None)))  # type: ignore
         return transforms(super().retrieve(*args, **kwargs))
-    
+
     @classmethod
     def sample(cls):
-        return ERA5LowResDemoIndex("2m_temperature")    
+        return ERA5LowResDemoIndex("2m_temperature")
