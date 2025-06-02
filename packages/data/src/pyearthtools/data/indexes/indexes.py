@@ -368,8 +368,8 @@ class SingleTimeIndex(Index):
                 Defaults to False.
         """
 
-        # super().__init__(**kwargs)
-        super().__init__()
+        super().__init__(**kwargs)
+        # super().__init__()
 
         self.set_interval(data_interval)
         self._round = round
