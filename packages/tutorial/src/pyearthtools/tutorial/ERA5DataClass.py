@@ -143,10 +143,9 @@ class ERA5LowResIndex(ArchiveIndex):
 
         self.level_value = level_value
 
-        # Apply level selection if level_value is provided
         if level_value:
             base_transform += pyearthtools.data.transforms.coordinates.Select(
-                {coord: level_value for coord in ["level"]}, ignore_missing=True # Handles case where level is not present eg 2m_temperature
+                {coord: level_value for coord in ["level"]}, ignore_missing=True
             )
 
         super().__init__(
