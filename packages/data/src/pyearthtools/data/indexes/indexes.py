@@ -367,7 +367,9 @@ class SingleTimeIndex(Index):
                 Default value for round when retrieving data.
                 Defaults to False.
         """
-        super().__init__()  # Index takes no kwargs
+
+        # super().__init__(**kwargs)
+        super().__init__()
 
         self.set_interval(data_interval)
         self._round = round

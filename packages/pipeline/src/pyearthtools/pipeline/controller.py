@@ -469,11 +469,13 @@ class Pipeline(_Pipeline, Index):
         if len(self.steps) == 0:
             raise ValueError("Cannot get data if no steps are given.")
 
+        # Reverse search to find caching points, I think
         for index, step in enumerate(self.steps[::-1]):
             if isinstance(step, PipelineIndex):
                 LOG.debug(f"Getting initial sample from {step} at {idx}")
                 return step[idx], len(self.steps) - (index + 1)
 
+        # Confirm that the start of the pipeline is an accessor, and then fetch from it
         if isinstance(self.steps[0], (_Pipeline, Index)):
             LOG.debug(f"Getting initial sample from {self.steps[0]} at {idx}")
             return self.steps[0][idx], 0

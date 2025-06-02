@@ -16,6 +16,7 @@
 from abc import abstractmethod
 from pathlib import Path
 from typing import TypeVar, Union
+import os
 
 import xarray as xr
 
@@ -73,6 +74,83 @@ class Anomaly(xarrayNormalisation):
 
     def unnormalise(self, sample):
         return sample + self.mean
+
+
+class MagicNorm(xarrayNormalisation):
+    """
+    Automatically normalise any variables
+
+    For every data variable in any xarray passing through
+    Based on some sample period (20 samples by default)
+    Calculate the mean and standard deviation for that data variable
+    Once sufficient samples are observed, cache the mean and standard devation together with the reference period
+    By default will use the first 20 samples it sees
+    Apply the normalisation to all data
+    Denormalise accordingly
+    """
+
+    def __init__(self, cache_dir=".", samples_needed=20):
+        super().__init__()
+        self.record_initialisation()
+        self.vars = {}
+        # import random
+        # myid = random.randint(0, 20)
+        # print(f"Initialising {myid}")
+
+        self.means_filename = os.path.join(cache_dir, "magic_means.nc")
+        self.deviation_filename = os.path.join(cache_dir, "magic_std.nc")
+        self.samples_needed = samples_needed
+        self.sample_count = 0
+        self.samples = []
+        self.mean = None
+        self.deviation = None
+
+        if os.path.exists(self.means_filename):
+            # print(f"Found file for {myid})")
+            self.mean = xr.load_dataset(self.means_filename)
+            self.deviation = xr.load_dataset(self.deviation_filename)
+            self.samples_needed = 0
+
+    def update_norms(self, sample):
+
+        # Return early if norms already well calculated
+        if self.sample_count >= self.samples_needed:
+            return
+
+        # This can happen in a multithreading situation
+        # Throw out own weights and all use the same pls
+        if os.path.exists(self.means_filename):
+            self.mean = xr.load_dataset(self.means_filename)
+            self.deviation = xr.load_dataset(self.deviation_filename)
+            self.samples_needed = 0
+
+        # Update the calculations
+        self.samples.append(sample)
+        self.sample_count = len(self.samples)
+        ds = xr.concat(self.samples, dim="samples")
+        self.mean = ds.mean()
+        self.deviation = ds.std()
+
+        # Cache to disk once we have enough data
+        if self.sample_count >= self.samples_needed:
+            if os.path.exists(self.means_filename):
+                self.mean = xr.load_dataset(self.means_filename)
+                self.deviation = xr.load_dataset(self.deviation_filename)
+                self.samples_needed = 0
+            else:
+                self.mean.to_netcdf(self.means_filename)
+                self.deviation.to_netcdf(self.deviation_filename)
+
+    def normalise(self, sample):
+
+        if self.sample_count < self.samples_needed:
+            self.update_norms(sample)
+
+        return (sample - self.mean) / self.deviation
+
+    def unnormalise(self, sample):
+
+        return (sample * self.deviation) + self.mean
 
 
 class Deviation(xarrayNormalisation):

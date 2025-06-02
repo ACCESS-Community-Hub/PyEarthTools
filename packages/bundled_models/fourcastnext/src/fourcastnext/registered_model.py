@@ -35,7 +35,6 @@ class FourCastNextRM(pyearthtools.zoo.BaseForecastModel):
 
     Developed by NCI
 
-    \b
     Arguments:
         lead_time (int | str | pyearthtools.data.TimeDelta):
             Lead time to predict to. If int will be given as hours.
@@ -47,34 +46,30 @@ class FourCastNextRM(pyearthtools.zoo.BaseForecastModel):
     """
 
     _name = "Development/FourCastNextRM"
-    _default_config_path = CONFIG_PATH
     _times = [-6]
     _download_paths = []
 
     def __init__(
         self,
-        pipeline: str,
-        output: str | Path,
         *,
+        pipeline_name: str = None,
+        pipeline=None,
+        output: str | Path,
         lead_time: int | str,
         ckpt_path: str | None = None,
         interval: int = 6,
+        lightning_model_params={},
         **kwargs,
     ) -> None:
         """
         Create FourCastNeXt Model
 
         Args:
-            pipeline (str):
-                Pipeline name to use
-            output (str | Path):
-                Output location
-            lead_time (int | str | pyearthtools.data.TimeDelta, optional):
-                Lead time of forecast (hours).
-            interval (int):
-                Data interval in hours. Defaults to 6.
-            ckpt_path (str, optional):
-                Override for weights path
+            pipeline_name: Pipeline name to use
+            output: Output location
+            lead_time: Lead time of forecast (hours).
+            interval: Data interval in hours. Defaults to 6.
+            ckpt_path: Override for weights path
         """
         self.lead_time = pyearthtools.zoo.utils.delta_conversion(lead_time, "hour")
         if ckpt_path:
@@ -82,10 +77,12 @@ class FourCastNextRM(pyearthtools.zoo.BaseForecastModel):
             self._download_paths = [(ckpt_path, "weights.ckpt")]  # type: ignore
 
         self.ckpt_path = ckpt_path
+        self.lightning_model_params = lightning_model_params
+        self.lightning_model = fourcastnext.FourCastNextLM(self.lightning_model_params)
 
         self.interval = interval
 
-        super().__init__(pipeline, output, **kwargs)
+        super().__init__(pipeline_name=pipeline_name, pipeline=pipeline, output=output, **kwargs)
 
     def load(self, **kwargs) -> tuple[Any, dict[str, Any]]:
         """Load model
@@ -106,8 +103,7 @@ class FourCastNextRM(pyearthtools.zoo.BaseForecastModel):
         )
         import pyearthtools.training
 
-        model = fourcastnext.FourCastNextLM({})
-        model_wrapper = pyearthtools.training.wrapper.lightning.Predict(model, self.pipeline)
+        model_wrapper = pyearthtools.training.wrapper.lightning.Predict(self.lightning_model, self.pipeline)
 
         model_wrapper.load(self.ckpt_path)
 

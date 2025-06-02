@@ -1,0 +1,9 @@
+# Use the ERA5 limited variable pipeline
+
+pipelines: /g/data/kd24/tjl/src/PyEarthTools/notebooks/tutorial/minimax_configs/minimax.pipe
+
+img_size:
+  - 64
+  - 28
+in_channels: 6
+out_channels: 6
