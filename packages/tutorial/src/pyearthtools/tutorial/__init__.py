@@ -29,8 +29,8 @@ from pyearthtools.data.archive import register_archive
 from . import ERA5DataClass
 from . import HadisdDataClass
 
-hadisd_base = "/Users/joelmiller/Projects/data/hadisd"
-default_base = "/Users/joelmiller/Projects/data/weatherbench/5.625deg"  # taken from NCI noteboook on github
+hadisd_base = "/Users/username/Projects/data/hadisd"
+default_base = "/Users/usernameProjects/data/weatherbench/5.625deg"  # taken from NCI noteboook on github
 lowres_base = os.environ.get("ERA5LOWRES", default_base)
 USER_HOME = os.path.expanduser("~")
 lowresdemo_base = os.environ.get("ERA5LOWRESDEMO", USER_HOME)
