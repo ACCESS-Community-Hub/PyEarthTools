@@ -1,0 +1,9 @@
+# Use the ERA5 limited variable pipeline
+
+pipelines: pipelines/limited_variables.pipe
+
+img_size:
+  - 720
+  - 1440
+in_channels: 4
+out_channels: 4

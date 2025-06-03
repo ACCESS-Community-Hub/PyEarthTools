@@ -3,4 +3,6 @@
 -e packages/training
 -e packages/pipeline
 -e packages/tutorial
+-e packages/zoo
+-e packages/bundled_models/fourcastnext
 -e .[docs]

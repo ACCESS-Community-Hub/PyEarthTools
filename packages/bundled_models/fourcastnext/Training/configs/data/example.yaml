@@ -1,0 +1,9 @@
+# Fake Data Module
+
+pipelines: pipelines/example.pipe
+
+img_size:
+  - 128
+  - 128
+in_channels: 2
+out_channels: 2

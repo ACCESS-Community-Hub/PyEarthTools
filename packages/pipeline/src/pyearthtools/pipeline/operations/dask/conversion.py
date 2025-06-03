@@ -141,8 +141,8 @@ class ToXarray(DaskOperation):
         Convert xarray to dask array
         """
         if isinstance(sample, xr.DataArray):
-            return sample.data
-        if isinstance(sample, xr.Dataset):
+            return sample.data  # TODO: should this be a dask array
+        else:  # isinstance(sample, xr.Dataset):
             return da.stack([sample[var].data for var in sample], axis=0)
 
     @classmethod

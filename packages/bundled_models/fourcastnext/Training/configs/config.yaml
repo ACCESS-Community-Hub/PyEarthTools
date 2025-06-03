@@ -1,0 +1,18 @@
+defaults:
+ - _self_
+ - trainer: default
+ - model: default
+ - data: dummy_data_for_testing
+
+ - data/splits: default
+ - data/module: default
+
+experiment_name: ${now:%Y-%m-%d}/${now:%H-%M-%S}
+path: /scratch/kd24/${oc.env:USER}/ML/FourCastNeXt/Training/${experiment_name}
+
+fit: false
+
+hydra:
+  verbose: false
+  run:
+    dir: ${path}

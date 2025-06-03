@@ -1,0 +1,19 @@
+!pyearthtools@pyearthtools.pipeline.controller.Pipeline
+__args: !!python/tuple
+- !pyearthtools@pyearthtools.data.indexes.fake.FakeIndex
+  data_size: !!python/tuple
+  - __Dimensionality:128__
+  - __Dimensionality:128__
+  interval: !!python/tuple
+  - 1
+  - hour
+  max_value: __MaxValue:10__
+  random: true
+  variable: data
+exceptions_to_ignore: null
+iterator: null
+sampler: null
+
+--CONFIG--
+VERSION: 2024.06.02
+import: []

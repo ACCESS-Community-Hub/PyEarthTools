@@ -1,0 +1,46 @@
+!pyearthtools@pyearthtools.pipeline.controller.Pipeline
+__args: !!python/tuple
+- !pyearthtools@pyearthtools.data.archive.ERA5
+  level_value: null
+  product: reanalysis
+  transforms: null
+  variables:
+  - msl
+  - 10u
+  - 10v
+  - 2t
+- !pyearthtools@pyearthtools.pipeline.operations.transforms.Transforms
+  apply: !pyearthtools@pyearthtools.data.transforms.coordinates.StandardLongitude
+    type: -180-180
+  transforms: null
+  undo: null
+- !pyearthtools@fourcastnext.CropToRectangle
+  warn: true
+- !pyearthtools@pyearthtools.pipeline.modifications.idx_modification.TemporalRetrieval
+  concat: true
+  delta_unit: null
+  merge_function: null
+  merge_kwargs:
+    axis: 1
+  samples: !!python/tuple
+  - !!python/tuple
+    - -6
+    - 1
+  - !!python/tuple
+    - 6
+    - 2
+    - 6
+- !pyearthtools@pyearthtools.pipeline.operations.xarray.conversion.ToNumpy
+  warn: true
+- !pyearthtools@pyearthtools.pipeline.operations.numpy.reshape.Rearrange
+  rearrange: c t h w -> t c h w
+  rearrange_kwargs: null
+  reverse_rearrange: null
+  skip: false
+exceptions_to_ignore: null
+iterator: null
+sampler: !pyearthtools@pyearthtools.pipeline.samplers.Default {}
+
+--CONFIG--
+VERSION: 1.0.1
+import: []

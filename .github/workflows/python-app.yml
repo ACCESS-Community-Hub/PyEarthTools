@@ -36,10 +36,13 @@ jobs:
         pip install -e packages/data[all]
         pip install -e packages/training[all]
         pip install -e packages/pipeline[all]
+        pip install -e packages/zoo
+        pip install -e packages/bundled_models/fourcastnext
         pip install -e packages/tutorial
+        pip install -e packages/nci_site_archive
         pip install -e .[test,docs]
 
-        pytest --cov=packages/data --cov=packages/utils --cov=packages/pipeline --cov=packages/training
+        pytest -m="not noci" --cov=packages/data --cov=packages/utils --cov=packages/pipeline --cov=packages/training --cov=packages/zoo --cov=packages/bundled_models/fourcastnext --cov=packages/nci_site_archive
     - name: Coveralls GitHub Action
       uses: coverallsapp/github-action@v2.3.0
       with:

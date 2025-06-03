@@ -1,0 +1,21 @@
+#!/bin/bash
+
+
+#PBS -l ncpus=64
+#PBS -l ngpus=4
+#PBS -l mem=1100GB
+#PBS -l jobfs=100GB
+#PBS -q dgxa100
+#PBS -P dx2
+#PBS -N Training
+#PBS -l walltime=48:00:00
+#PBS -l storage=gdata/hh5+gdata/gb6+scratch/wi09+gdata/wi09+scratch/kd24+gdata/kd24+gdata/rv74+gdata/rt52+gdata/dk92+scratch/er8+scratch/eu56+gdata/eu56+scratch/dx2+gdata/vx53+gdata/dx2+gdata/dx2+scratch/ra02+gdata/ra02
+#PBS -l wd
+#PBS -j oe
+
+module use /scratch/ra02/modules
+module load EDIT
+
+python train.py data=example
+
+echo "Done."

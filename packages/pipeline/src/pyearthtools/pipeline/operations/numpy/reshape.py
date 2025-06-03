@@ -69,7 +69,6 @@ class Rearrange(Operation):
         self.skip = skip
 
     def _rearrange(self, data: np.ndarray, pattern: str, catch=True):
-        return einops.rearrange(data, pattern, **self.rearrange_kwargs)
 
         try:
             return einops.rearrange(data, pattern, **self.rearrange_kwargs)
@@ -94,21 +93,21 @@ class Rearrange(Operation):
         return self._rearrange(data, pattern)
 
 
-class Squish(Operation):
+class Squeeze(Operation):
     """
-    Operation to Squish one Dimensional axis at 'axis' location
+    Operation to Squeeze one-Dimensional axes at 'axis' location
 
     """
 
     _override_interface = ["Delayed", "Serial"]
-    _interface_kwargs = {"Delayed": {"name": "Squish"}}
+    _interface_kwargs = {"Delayed": {"name": "Squeeze"}}
 
     def __init__(self, axis: Union[tuple[int, ...], int]) -> None:
-        """Squish Dimension of Data
+        """Squeeze Dimension of Data, removing dimensions of length 1.
 
         Args:
             axis (Union[tuple[int, ...], int]):
-                Axis to squish at
+                Axis to squeeze at
         """
         super().__init__(
             split_tuples=True,
@@ -223,15 +222,16 @@ class Flattener:
             raise RuntimeError(f"Shape not set, therefore cannot undo")
 
         def _unflatten(data, shape):
-            while len(data.shape) > len(shape):
-                shape = (data[-len(shape)], *shape)
+            # while len(data.shape) > len(shape):
+            #     shape = (data[-len(shape)], *shape)
             return data.reshape(shape)
 
         if self.flatten_dims is None:
             raise RuntimeError(f"`flatten_dims` was not set, and this set hasn't been used. Cannot Unflatten.")
 
         data_shape = data.shape
-        parsed_shape = data_shape[: -1 * min(1, (self.flatten_dims - 1))] if len(data_shape) > 1 else data_shape
+        # parsed_shape = data_shape[: -1 * min(1, (self.flatten_dims - 1))] if len(data_shape) > 1 else []
+        parsed_shape = data_shape[:-1] if len(data_shape) > 1 else []
         attempts = [
             (*parsed_shape, *self._unflattenshape),
         ]

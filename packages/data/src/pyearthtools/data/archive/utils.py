@@ -127,9 +127,9 @@ def auto_import() -> None:
 def post_import():
     """Run post importing of archives"""
     if not hasattr(archive, "ERA5_ARCO"):
-        from pyearthtools.data.download import arco
+        from pyearthtools.data.download import arcoera5
 
-        setattr(archive, "ERA5_ARCO", arco.ERA5)
+        setattr(archive, "ERA5_ARCO", arcoera5.ARCOERA5)
 
 
 __all__ = ["auto_import"]
