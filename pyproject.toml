@@ -92,5 +92,5 @@ addopts = [
     '-n 4',
 ]
 markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')"
+    "noci: marks tests to exclude from CI/CD (deselect with '-m \"not noci\"')"
 ]

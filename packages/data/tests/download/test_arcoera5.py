@@ -23,7 +23,7 @@ def _load_sample(variables, levels, sample_time):
     [
         (["sub_surface_runoff", "peak_wave_period", "snowfall"], None, "20121201"),
         (["normalized_stress_into_ocean", "runoff"], [850, 70], "20360112T05"),
-        pytest.param(None, None, "19000312", marks=pytest.mark.slow),
+        pytest.param(None, None, "19000312", marks=pytest.mark.noci),
     ],
 )
 def test_load_vars(variables, levels, sample_time):
@@ -64,7 +64,7 @@ def test_load_1var(variable, levels, sample_time):
 @pytest.mark.parametrize(
     "variables,level,sample_time",
     [
-        pytest.param(None, 850, "19920327T09", marks=pytest.mark.slow),
+        pytest.param(None, 850, "19920327T09", marks=pytest.mark.noci),
         (["lake_depth", "land_sea_mask"], 1, "20110706"),
     ],
 )
