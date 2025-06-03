@@ -23,10 +23,10 @@ Implemented:
 | `DownloadIndex`  | Base download index. `download` must be implemented. |
 | `cds` | Copernicus Data Store Access |
 | `opendata` | ECMWF Opendata |
-| `arco` | Analysis-Ready, Cloud Optimized by Google |
+| `arcoera5` | Analysis-Ready, Cloud Optimized ERA5 by Google |
 
 """
 
 from pyearthtools.data.download.templates import DownloadIndex
-from pyearthtools.data.download import cds, arco
+from pyearthtools.data.download import cds, arcoera5
 from pyearthtools.data.download import ecmwf_opendata as opendata

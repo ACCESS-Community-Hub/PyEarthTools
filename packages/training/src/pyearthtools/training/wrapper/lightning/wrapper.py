@@ -140,7 +140,7 @@ class LightningWrapper(ModelWrapper):
             self.model.model.load_state_dict(state)  # TODO improve finding of model
 
         try:
-            self.model = self.model.__class__.load_from_checkpoint(file_to_load)
+            self.model = self.model.__class__.load_from_checkpoint(str(file_to_load))
         except (RuntimeError, KeyError):
             warnings.warn(
                 "A KeyError arose when loading from checkpoint, will attempt to load only the model state.",

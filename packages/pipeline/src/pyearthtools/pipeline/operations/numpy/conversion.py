@@ -140,7 +140,7 @@ class ToXarray(Operation):
         """
         if isinstance(sample, xr.DataArray):
             return sample.to_numpy()
-        if isinstance(sample, xr.Dataset):
+        else:  # isinstance(sample, xr.Dataset):
             return np.stack([sample[var].to_numpy() for var in sample], axis=0)
 
     @classmethod

@@ -1,6 +1,6 @@
 # New Project Guide
 
-This guide offers a simple, repeatable process for undertaking a machine learning project. Experts in machine learning will recognise this as a standard approach, but course it can be adapted as required in the project. Completing a project (whether using PyEarthTools or not) comprises the following steps:
+This guide offers a simple, repeatable process for undertaking a machine learning project. Experts in machine learning will recognise this as a standard approach, but of course it can be adapted as required in the project. Completing a project (whether using PyEarthTools or not) comprises the following steps:
 
 1. Identify the sources of data that you wish to work with
 2. Fetch the training, testing and validation data
@@ -11,7 +11,7 @@ This guide offers a simple, repeatable process for undertaking a machine learnin
 7. Test the data using out-of-sample test data
 8. Evaluate the model using an evaluation scorecard
 
-Note this is a work in progress! This page should be completed soon. In time, a tutorial for each step of this process will be added for a sample problem showing with worked examples and functioning code how to do each step in its entirety.
+Note this page is a work in progress! In time, a tutorial for each step of this process will be added.
 
 ## Identifying sources of data
 
@@ -31,7 +31,7 @@ Connecting PyEarthTools to data sources is a significant part of the functionali
 
 - ERA5
 - Himawari 8
-- CMIP5 and 6 (coming very soon)
+- CMIP5
 - ACCESS model data
 
 In addition to simple loading of data, PyEarthTools undertakes the following services:
@@ -45,7 +45,7 @@ In addition to simple loading of data, PyEarthTools undertakes the following ser
 
 This step is often considered to be part of the "model" in a machine learning project. Neural networks generally prefer input data which ranges between approximately -1 to +1, with some caveats and variations applying. An example of a common approach to this would be to divide all temperature values observed by the maximum observed temperature, applying a normalisation approach which can be easily reversed (so long as you keep track of that max observed temperature). A more statistical approach might be to subtract the mean from each value and divide the result by the standard deviation.
 
-These simply approaches may not always be suitable for a variety of reasons, and may result in incompatibilities or simply undesirable and arbitrary differences between models resulting from whatever choices happen to have been made. PyEarthTools seeks to remove the arbitrary nature of many of these choices, offering standardised normalisation factors which can then improve interoperability between data sources and model architectures.
+These approaches may not always be suitable for a variety of reasons, and may result in incompatibilities or undesirable and arbitrary differences between models resulting from whatever choices happen to have been made. PyEarthTools seeks to remove the arbitrary nature of many of these choices, offering standardised normalisation factors which can then improve interoperability between data sources and model architectures.
 
 For users working with standard data sources which are already supported by PyEarthTools, this is an out-of-the-box experience, saving a significant amount of time and difficulty which is not always apparent at the start of a project. For users wishing to connect a new data source, or publish a new benchmark data set, integrating the normalisation code into PyEarthTools will allow all users to easily adopt new data sources for machine learning.
 
