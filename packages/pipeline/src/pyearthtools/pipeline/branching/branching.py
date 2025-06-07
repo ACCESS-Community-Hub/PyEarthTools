@@ -127,12 +127,18 @@ class PipelineBranchPoint(_Pipeline, Operation):
         self.sub_pipelines = list(map(lambda x: Pipeline(*x), __incoming_steps))
 
     def __getitem__(self, idx: Any) -> tuple:
-        """Get result from each branch"""
-        results = []
+        """
+        Go through each upstream sub-pipeline, fetch their results, and return them as a tuple
+        """
+        queries = []
+        query_interface = self.parallel_interface  # This is a property and might be a serial interface
+        
         for pipe in self.sub_pipelines:
-            results.append(self.parallel_interface.submit(pipe.__getitem__, idx))
+            query = query_interface.submit(pipe.__getitem__, idx)
+            queries.append(query)
 
-        return tuple(self.parallel_interface.collect(results))
+        samples = self.parallel_interface.collect(queries)
+        return tuple(samples)
 
     def apply(self, sample):
         """Apply each branch on the sample"""

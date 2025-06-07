@@ -163,8 +163,13 @@ class CMIP5(ArchiveIndex):
 
         warnings.warn(UNDER_DEV_MSG)
 
+        base_transforms = TransformCollection()
+        base_transforms += pyearthtools.data.transforms.variables.variable_trim(variables)
+        base_transforms += pyearthtools.data.transforms.coordinates.Drop(coordinates='height')
+
         super().__init__(
-            transforms=TransformCollection(),
+            transforms=base_transforms,
+            data_interval= (1, "month")
         )
 
         self.record_initialisation()
@@ -208,6 +213,9 @@ class CMIP5(ArchiveIndex):
 
                     self.walk_cache = walk_cache
 
+
+
+
     def filesystem(self, query_dictionary={}):
         """
         Given the supplied query, return all filenames which contain the data necessary to extract the data
@@ -248,7 +256,7 @@ class CMIP5(ArchiveIndex):
         if path["model"] not in self.models:
             match = False
 
-        if path["interval"] not in self.interval:
+        if path["interval"] not in self.interval[0]:
             match = False
 
         if path["scenario"] not in self.scenarios:

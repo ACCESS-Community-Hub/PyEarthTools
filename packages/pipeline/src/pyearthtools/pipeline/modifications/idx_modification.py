@@ -189,30 +189,46 @@ class IdxModifier(PipelineIndex, ParallelEnabledMixin):
                 # FIXME this is just a debugging workaround
                 self._merge_kwargs.pop("axis")
 
+        # import pudb; pudb.set_trace()
         result = merge_function(sample, **self._merge_kwargs)
+        
         return result
 
     def _get_tuple(self, idx, mod: tuple[Any, ...], layer: int) -> Union[tuple[Any], Any]:
         """
-        Collect all elements from tuple of modification
+        Given a sequence of modifications (e.g. temporal retrievals), go through
+        and unpack them, then ultimately call the parent pipeline's getitem method against 
+        each modification request.
 
         Will descend through nested tuples.
         """
         super_get = self.parent_pipeline().__getitem__
+        query_interface = self.parallel_interface  # Dynamically fetches via property
 
-        samples = []
+        queries = []
+        if len(mod) > 1:
+            import pudb; pudb.set_trace()
+
+        # If using the parallel interface, this will prepare the queries
+        # If using the serial interface, the actual results will be fetched up-front
+        # and stored on the queries with a ResultCache                
         for m in mod:
             if isinstance(m, tuple):
-                samples.append(self.parallel_interface.submit(self._get_tuple, idx, m, layer + 1))
+                # Tuple-unpacking pathway
+                query = query_interface.submit(self._get_tuple, idx, m, layer + 1)
             else:
-                samples.append(self.parallel_interface.submit(super_get, idx + m))
+                # Retrieve from pipeline pathway
+                # THIS MAY BE WHERE THE BUG IS HAPPENING
+                query = query_interface.submit(super_get, idx + m)
+            queries.append(query)
 
-        samples = tuple(self.parallel_interface.collect(samples))
+        # Retrieve the results of the queries, either in parallel or in series
+        samples = tuple(query_interface.collect(queries))
 
-        # def trim(s):
-        #     if isinstance(s, tuple) and len(s) == 1:
-        #         return s[0]
-        #     return s
+        # If the whole thing just fetched one sample, return it without any merging
+        if isinstance(samples, tuple):
+            if len(samples) == 1:
+                return samples[0]
 
         if layer >= self._merge:
             return self._run_merge(samples)
@@ -220,10 +236,15 @@ class IdxModifier(PipelineIndex, ParallelEnabledMixin):
 
     def __getitem__(self, idx: Any):
 
+        # If we do not have any unpacking to do, get the upstream sample
+        # and apply our modification
         if not isinstance(self._modification, tuple):
-            return self.parent_pipeline()[idx + self._modification]
+            result = self.parent_pipeline()[idx + self._modification]
+            return result
 
-        return self._get_tuple(idx, self._modification, 0)
+        # Do unpacking of the tuple
+        result = self._get_tuple(idx, self._modification, 0)
+        return result
 
 
 class TimeIdxModifier(IdxModifier):
@@ -458,15 +479,20 @@ class TemporalRetrieval(SequenceRetrieval):
         def map_to_tuple(mod):
             if isinstance(mod, tuple):
                 return tuple(map(map_to_tuple, mod))
+            
             return pyearthtools.data.TimeDelta((mod, delta_unit))
 
         if delta_unit is not None:
             self._modification = map_to_tuple(self._modification)
 
     def __getitem__(self, idx: Any):
+
+        # Try to convert the index to a datetime for temporal retrievals
         if not isinstance(idx, pyearthtools.data.Petdt):
             if not pyearthtools.data.Petdt.is_time(idx):
                 raise TypeError(f"Cannot convert {idx!r} to `pyearthtools.data.Petdt`.")
             idx = pyearthtools.data.Petdt(idx)
 
-        return super().__getitem__(idx)
+        # Fetch the item using a Petdt index
+        result = super().__getitem__(idx)
+        return result

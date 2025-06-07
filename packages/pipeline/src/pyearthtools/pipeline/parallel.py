@@ -67,13 +67,17 @@ disable = ParallelToggle("disable")
 PARALLEL_INTERFACES = Literal["Futures", "Delayed", "Serial"]
 
 
-class FutureFaker:
+class ResultCache:
+    '''
+    This is a small in-memory class, which can be used to substitue for
+    anything which calculates a result. 
+    '''
+
     def __init__(self, obj):
         self._obj = obj
 
     def result(self, *args):
         return self._obj
-
 
 class ParallelInterface:
     """
@@ -125,13 +129,14 @@ class SerialInterface(ParallelInterface):
         return self._interface_kwargs.get("Serial", {})
 
     def submit(self, func, *args, **kwargs):
-        return FutureFaker(func(*args, **kwargs))
+        result = func(*args, **kwargs)
+        return ResultCache(result)
 
     def map(self, func, iterables, *iter, **kwargs) -> Future:
-        return tuple(map(lambda i: FutureFaker(func(i, **kwargs)), iterables, *iter))  # type: ignore
+        return tuple(map(lambda i: ResultCache(func(i, **kwargs)), iterables, *iter))  # type: ignore
 
     def gather(self, futures, *args, **kwargs):
-        if isinstance(futures, FutureFaker):
+        if isinstance(futures, ResultCache):
             return futures.result()
         return type(futures)(map(lambda x: x.result(), futures))
 
@@ -139,7 +144,7 @@ class SerialInterface(ParallelInterface):
         return futures
 
     def collect(self, futures):
-        if isinstance(futures, FutureFaker):
+        if isinstance(futures, ResultCache):
             return futures.result()
         return type(futures)(map(lambda x: x.result(), futures))
 
@@ -264,13 +269,13 @@ class DaskDelayedInterface(ParallelInterface):
         return delayed(func, name=name, pure=pure)(*args, **kwargs)
 
     def submit(self, func, *args, **kwargs):
-        return FutureFaker(self.run_delayed(func, *args, **kwargs))
+        return ResultCache(self.run_delayed(func, *args, **kwargs))
 
     def map(self, func, iterables, *iter, **kwargs) -> Future:
-        return tuple(map(lambda i: FutureFaker(self.run_delayed(func, i, **kwargs)), iterables, *iter))  # type: ignore
+        return tuple(map(lambda i: ResultCache(self.run_delayed(func, i, **kwargs)), iterables, *iter))  # type: ignore
 
     def gather(self, futures):
-        if isinstance(futures, FutureFaker):
+        if isinstance(futures, ResultCache):
             return futures.result()
         return type(futures)(map(lambda x: x.result(), futures))
 
@@ -278,7 +283,7 @@ class DaskDelayedInterface(ParallelInterface):
         return futures
 
     def collect(self, futures):
-        if isinstance(futures, FutureFaker):
+        if isinstance(futures, ResultCache):
             return futures.result()
         return type(futures)(map(lambda x: x.result(), futures))
 
