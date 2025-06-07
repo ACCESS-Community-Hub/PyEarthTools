@@ -459,8 +459,6 @@ class Petdt:
         If int, add to last level of resolution
         """
 
-        # import pudb; pudb.set_trace()
-
         resolution = TimeResolution("year")
         if isinstance(other, _MonthTimeDelta):
             if isinstance(other, int):
@@ -648,7 +646,6 @@ class TimeDelta:
             0 days 00:10:00
         """
         resolution = None
-        # import pudb; pudb.set_trace()
         if args:
             timedelta = (timedelta, *args)
         self._input_timedelta = timedelta
@@ -816,7 +813,6 @@ class _MonthTimeDelta(TimeDelta):
             _resolution = TimeResolution("year")
             modified_time_delta[0] = int(modified_time_delta[0]) * 12
 
-        # import pudb; pudb.set_trace()
         super().__init__((int(modified_time_delta[0]) * 30, "days"))
         self._input_timedelta = timedelta
 

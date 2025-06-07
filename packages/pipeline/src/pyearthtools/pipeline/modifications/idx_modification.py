@@ -189,7 +189,6 @@ class IdxModifier(PipelineIndex, ParallelEnabledMixin):
                 # FIXME this is just a debugging workaround
                 self._merge_kwargs.pop("axis")
 
-        # import pudb; pudb.set_trace()
         result = merge_function(sample, **self._merge_kwargs)
         
         return result
@@ -206,8 +205,6 @@ class IdxModifier(PipelineIndex, ParallelEnabledMixin):
         query_interface = self.parallel_interface  # Dynamically fetches via property
 
         queries = []
-        if len(mod) > 1:
-            import pudb; pudb.set_trace()
 
         # If using the parallel interface, this will prepare the queries
         # If using the serial interface, the actual results will be fetched up-front

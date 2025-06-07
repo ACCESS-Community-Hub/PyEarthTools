@@ -72,7 +72,6 @@ class GeospatialTimeSeriesMerge(Joiner):
         self.interpolation_method = interpolation_method
         self.time_dimension = time_dimension
         self._merge_kwargs = merge_kwargs
-        import pudb; pudb.set_trace()
 
     def _join_two_datasets(self, sample_a: xr.Dataset, sample_b: xr.Dataset) -> xr.Dataset:
         """
@@ -87,25 +86,25 @@ class GeospatialTimeSeriesMerge(Joiner):
             raise ValueError(f"Time dimension missing from {str(sample_b)}")
         
         # We need to make interp_like ignore the time dimension
+        # TODO - work out if we want some options here to specify which dims to preserve
+        if 'time' in self.reference_dataset.coords:
+            reference_dataset = self.reference_dataset.isel(time=0).drop_vars('time')
 
-        if sample_a is self.reference_dataset:
+        if sample_a is reference_dataset:
             interped_a = sample_a
         else:
-            interped_a = sample_a.interp_like(self.reference_dataset, method="nearest")
+            interped_a = sample_a.interp_like(reference_dataset, method="nearest")
 
-        if sample_b is self.reference_dataset:
+        if sample_b is reference_dataset:
             interped_b = sample_b
         else:
-            interped_b = sample_b.interp_like(self.reference_dataset, method="nearest")
+            interped_b = sample_b.interp_like(reference_dataset, method="nearest")
 
         merged = xr.merge([interped_a, interped_b])
-        # import pudb; pudb.set_trace()
         return merged
 
     def join(self, sample: tuple[Union[xr.Dataset, xr.DataArray], ...]) -> xr.Dataset:
         """Join sample"""
-
-        import pudb; pudb.set_trace()
 
         # Obtain the reference dataset
         if self.reference_dataset is None:
