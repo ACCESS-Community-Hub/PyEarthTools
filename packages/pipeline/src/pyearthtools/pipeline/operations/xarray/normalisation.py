@@ -93,9 +93,6 @@ class MagicNorm(xarrayNormalisation):
         super().__init__()
         self.record_initialisation()
         self.vars = {}
-        # import random
-        # myid = random.randint(0, 20)
-        # print(f"Initialising {myid}")
 
         self.means_filename = os.path.join(cache_dir, "magic_means.nc")
         self.deviation_filename = os.path.join(cache_dir, "magic_std.nc")
@@ -106,7 +103,6 @@ class MagicNorm(xarrayNormalisation):
         self.deviation = None
 
         if os.path.exists(self.means_filename):
-            # print(f"Found file for {myid})")
             self.mean = xr.load_dataset(self.means_filename)
             self.deviation = xr.load_dataset(self.deviation_filename)
             self.samples_needed = 0

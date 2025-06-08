@@ -91,6 +91,9 @@ class PipelineStep(PipelineRecordingMixin, ParallelEnabledMixin, metaclass=ABCMe
     ):
         """
         Split `sample` if it is a tuple and apply `_function` of `self` to each.
+        This is mainly for the purposes of allowing multiprocessing of pipelines,
+        which may be relevant if a merged pipeline is drawing from two sources which
+        could each be doing data processing in parallel for each time step
         """
 
         if allow_parallel:
@@ -115,7 +118,9 @@ class PipelineStep(PipelineRecordingMixin, ParallelEnabledMixin, metaclass=ABCMe
             )
             return tuple(parallel_interface.collect(parallel_interface.map(func, sample)))
 
-        return parallel_interface.collect(parallel_interface.submit(func, sample))
+        query = parallel_interface.submit(func, sample)
+        result = parallel_interface.collect(query)
+        return result
 
     def check_type(
         self,

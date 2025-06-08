@@ -37,6 +37,8 @@ from abc import abstractmethod, ABCMeta
 from pathlib import Path
 from typing import Any, Callable, Iterable, Literal, Optional
 
+import pandas as pd
+import cftime
 import xarray as xr
 
 import pyearthtools.data
@@ -482,15 +484,26 @@ class SingleTimeIndex(Index):
         if time_dim not in data.dims and time_dim in data.coords:
             data = data.expand_dims(time_dim)
 
+        time_query = str(Petdt(querytime))
+        if isinstance(data.coords[time_dim].values[0], cftime.datetime):
+            time_query = cftime.datetime(querytime.year, 
+                                         querytime.month, 
+                                         querytime.day, 
+                                         calendar='noleap',
+                                         has_year_zero=True)
+            self._round = True
+            round = True     
+            # time_query = pd.to_datetime(time_query)
+
         if select and time_dim in data:
             try:
                 data = data.sel(
-                    **{time_dim: str(Petdt(querytime))},
+                    **{time_dim: time_query},
                     method="nearest" if round else None,
                 )
             except KeyError:
                 warnings.warn(
-                    f"Could not find time in dataset to select on. {querytime!r}",
+                    f"Could not find time in dataset to select on. {time_query!r}",
                     IndexWarning,
                 )
 
@@ -535,14 +548,14 @@ class TimeIndex(SingleTimeIndex):
                 Loaded series of data
         """
 
-        interval = self._get_interval(interval)
+        _interval = self._get_interval(interval)
         tolerance = kwargs.pop("tolerance", getattr(self, "data_interval", None))
 
         return index_routines.series(
             self,
             start,
             end,
-            interval,
+            _interval,
             transforms=transforms,
             tolerance=tolerance,
             **kwargs,

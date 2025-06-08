@@ -55,7 +55,7 @@ class RecodeCalendar(Operation):
                 Sorted dataset
         """
 
-        recoded = data.indexes["time"].to_datetimeindex()
+        recoded = data.indexes["time"].to_datetimeindex(time_unit='us')
         data["time"] = recoded
 
         return data

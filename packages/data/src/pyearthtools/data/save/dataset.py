@@ -209,6 +209,4 @@ def to_zarr(
         save_kwargs.pop("append_dim", None)
         save_kwargs.pop("region", None)
 
-    # print(save_kwargs)
-    # print(dataset)
     dataset.to_zarr(zarr_file, **save_kwargs)
