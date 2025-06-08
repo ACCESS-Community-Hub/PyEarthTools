@@ -1,5 +1,56 @@
 # New Project Guide
 
+## Simple Guide
+
+1. Write down a simple, broad, statement of the problem you are trying to solve.
+2. Ensure you have data accessors for all data you wish to work with. Read [fetching and adding data](ap/data/howto.md) for more information.
+3. Define a suitable processing pipeline for your input data. Read [api/pipeline/howto.md](api/pipeline/howto.md) for more information.
+4. Train an initial model to establish a baseline. Read [api/models/howto.md](api/models/howto.md) for more information.
+5. Review the standard evaluation scorecard for your baseline. Read [api/evaluation/howto.md](api/evaluation/howto.md) for more information.
+
+Your project may be to add a new data source, improve the processing pipeline, train a new model, or explore model verification techniques. The how-to guide for each of the four steps above goes into more detail on how to do new projects in any of these areas. That said, it is expected that most people will be most interested in training new end-to-end model solutions, incorporating their own data, optimal processing, refining the model architecture, training or fine-tuning as necessary, and proving it with a scorecard. In this case, all four steps may undergo significant work in an end-to-end project.
+
+## Walkthrough of Setting Up a Sample Project
+
+This section will outline a step-by-step approach to a new project which aims to produce a new model predicting the temperature at capital cities in your country using model data. This example can be set up on a home workstation using low-resolution data and a computationally efficent gradient boosting model. HPC users can utilise a high-resolution model and a neural network for the same purpose. 
+
+Here is the summary of the five steps. We will next show how to achieve these things technically.
+
+1. Broad Problem Statement. Improve the prediction of temperature at your location.
+2. ERA5 gridded data and Hadley ISD point observations will be needed.
+3. We will need to write a new simple pipeline to match the grid and point data for the location of interest.
+4. We will use a simple gradient boosting decision tree model.
+5. The point based standard scorecard from PyEarthTools will be used.
+
+### Setting up a New Environment
+
+We're going to use [Cookie Cutter Data Science](https://cookiecutter-data-science.drivendata.org) to manage and lay out our project. This will give all of your projects a consistent layout and structure regardless of what kind of data science project is done. Install this and use their instructions to start a new project. It's fine to do things differently, but this is a way to get started consistently with a documentated approach.
+
+This will get you going with a layout on disk to manage the data, code and documentation for your project. Create a new virtual environment, and then run `pip install -e .` to install your new data science project, and then install PyEarthTools as normal into that virtual environment. You now have a separation between the PyEarthTools Framework, and your data science project. 
+
+### Downloading the Data
+
+You can generally fetch the raw data any way you please, including a manual download. In this case, we will rely on the fetching code in the PyEarthTools tutorials to fetch the ERA5 data that's required, and then manually download the relevant station data from the NOAA website. These files should go into `data/raw` and should never be changed.  For point data, got here [https://www.ncei.noaa.gov/products/global-historical-climatology-network-hourly](https://www.ncei.noaa.gov/products/global-historical-climatology-network-hourly) and find a weather station of interest, and download a time-series of information. A year will do, but the standard file will ha
+
+### Setting up Data Accessors
+
+TBD
+
+### Setting up a Pipeline
+
+TBD
+
+### Training a Benchmark Model
+
+TBD
+
+### Reviewing the Scorecard
+
+TBD
+
+## Overview of General Considerations
+
+
 This guide offers a simple, repeatable process for undertaking a machine learning project. Experts in machine learning will recognise this as a standard approach, but of course it can be adapted as required in the project. Completing a project (whether using PyEarthTools or not) comprises the following steps:
 
 1. Identify the sources of data that you wish to work with
