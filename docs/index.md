@@ -80,7 +80,6 @@ newproject
 projectideas
 installation
 notebooks/Gallery
-catalogue
 config
 api/api
 roadmap
