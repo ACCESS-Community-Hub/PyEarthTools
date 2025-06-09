@@ -1,3 +1,5 @@
+from abc import ABC, abstractmethod
+
 import xarray as xr
 
 import pyearthtools.data
@@ -7,7 +9,7 @@ from pyearthtools.data.indexes import AdvancedTimeDataIndex, decorators
 from pyearthtools.data.transforms.transform import Transform, TransformCollection
 
 
-class WeatherBench2(AdvancedTimeDataIndex):
+class WeatherBench2(ABC, AdvancedTimeDataIndex):
     """WeatherBench2 cloud-optimized ground truth and baseline datasets
 
     https://github.com/google-research/weatherbench2
@@ -26,7 +28,7 @@ class WeatherBench2(AdvancedTimeDataIndex):
         super().__init_subclass__()
 
         # enforce some class attributes in sub-classes
-        for attr in ["URL", "LEVELS", "LONG_NAMES"]:
+        for attr in ["LEVELS", "LONG_NAMES"]:
             if not hasattr(cls, attr):
                 raise TypeError(f"Class '{cls.__name__}' must define class property '{attr}'")
 
@@ -44,9 +46,9 @@ class WeatherBench2(AdvancedTimeDataIndex):
         cls.SHORT_NAMES = {val: key for key, val in cls.LONG_NAMES.items() if val is not None}
 
         # attach validation to the constructor for variable and level names
-        cls._VALID_LEVELS = [None] + cls.LEVELS
-        cls._VALID_VARIABLES = [None] + list(cls.LONG_NAMES) + list(cls.SHORT_NAMES)
-        args_validator = decorators.check_arguments(variables=cls._VALID_VARIABLES, level=cls._VALID_LEVELS)
+        valid_levels = [None] + cls.LEVELS
+        valid_variables = [None] + list(cls.LONG_NAMES) + list(cls.SHORT_NAMES)
+        args_validator = decorators.check_arguments(variables=valid_variables, level=valid_levels)
         cls.__init__ = args_validator(cls.__init__)
 
     @decorators.alias_arguments(variables=["variable"], level=["levels", "level_value"])
@@ -90,17 +92,21 @@ class WeatherBench2(AdvancedTimeDataIndex):
         self._kwargs = kwargs
         self._ds = self.open_weatherbench2(variables, level, **kwargs)
 
-    @classmethod
-    def open_weatherbench2(cls, variables, level=None, chunks="auto", **kwargs):
+    @property
+    @abstractmethod
+    def url(self):
+        pass
+
+    def open_weatherbench2(self, variables, level=None, chunks="auto", **kwargs):
         """Open a WeatherBench2 dataset from Google Cloud Platform"""
 
         # skip parsing unused variables, this can make loading much faster
-        drop_variables = [var for var in cls.LONG_NAMES if var not in set(variables)]
+        drop_variables = [var for var in self.LONG_NAMES if var not in set(variables)]
 
         ds = xr.open_zarr(
-            cls.URL,
+            self.url,
             chunks=chunks,
-            storage_options=dict(token="anon"),
+            storage_options=dict(token="anon"),  # TODO double check if needed
             drop_variables=drop_variables,
             **kwargs,
         )
@@ -135,7 +141,12 @@ class WB2ERA5(WeatherBench2):
     https://doi.org/10.1029/2023MS004019
     """
 
-    URL = "gs://weatherbench2/datasets/era5/1959-2023_01_10-wb13-6h-1440x721_with_derived_variables.zarr"
+    DATASETS = {
+        #"full": "1959-2023_01_10-full_37-1h-0p25deg-chunk-1.zarr",
+        "1440x721": "1959-2023_01_10-wb13-6h-1440x721_with_derived_variables.zarr",
+        "240x121": "1959-2023_01_10-6h-240x121_equiangular_with_poles_conservative.zarr",
+        "64x32": "1959-2023_01_10-6h-64x32_equiangular_conservative.zarr",
+    }
 
     #: valid WeatherBench level values
     LEVELS = [50, 100, 150, 200, 250, 300, 400, 500, 600, 700, 850, 925, 1000]
@@ -205,6 +216,21 @@ class WB2ERA5(WeatherBench2):
         "vorticity": None,
         "wind_speed": None,
     }
+
+    def __init__(
+        self,
+        resolution: str,
+        variables: str | list[str] | None = None,
+        level: int | list[int] | None = None,
+        transforms: Transform | TransformCollection | None = None,
+        **kwargs
+    ):
+        self.resolution = resolution
+        super().__init__(variables, level, transforms, **kwargs)
+
+    @property
+    def url(self):
+        return f"gs://weatherbench2/datasets/era5/{self.DATASETS[self.resolution]}"
 
     @classmethod
     def sample(cls):
