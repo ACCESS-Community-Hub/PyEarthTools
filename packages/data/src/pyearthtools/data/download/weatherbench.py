@@ -45,14 +45,12 @@ class WeatherBench2(ABC, AdvancedTimeDataIndex):
         # mapping from short variable names to long variable names
         cls.SHORT_NAMES = {val: key for key, val in cls.LONG_NAMES.items() if val is not None}
 
-        # attach validation to the constructor for variable and level names
+        # attach validation to the constructor for variables and level names
         valid_levels = [None] + cls.LEVELS
         valid_variables = [None] + list(cls.LONG_NAMES) + list(cls.SHORT_NAMES)
         args_validator = decorators.check_arguments(variables=valid_variables, level=valid_levels)
         cls.__init__ = args_validator(cls.__init__)
 
-    @decorators.alias_arguments(variables=["variable"], level=["levels", "level_value"])
-    @decorators.variable_modifications("variables")
     def __init__(
         self,
         variables: str | list[str] | None = None,
@@ -129,6 +127,10 @@ class WeatherBench2(ABC, AdvancedTimeDataIndex):
 class WB2ERA5(WeatherBench2):
     """WeatherBench2 cloud-optimized ground truth ERA5 dataset
 
+    ERA5 datasets downloaded from the Copernicus Climate Data Store with a time
+    range from 1959 to 2023 (incl.). The data have been downsampled to 6h and
+    13 levels.
+
     https://weatherbench2.readthedocs.io/en/latest/data-guide.html#era5
 
     Stephan Rasp, Stephan Hoyer, Alexander Merose, Ian Langmore, Peter Battaglia,
@@ -142,7 +144,6 @@ class WB2ERA5(WeatherBench2):
     """
 
     DATASETS = {
-        #"full": "1959-2023_01_10-full_37-1h-0p25deg-chunk-1.zarr",
         "1440x721": "1959-2023_01_10-wb13-6h-1440x721_with_derived_variables.zarr",
         "240x121": "1959-2023_01_10-6h-240x121_equiangular_with_poles_conservative.zarr",
         "64x32": "1959-2023_01_10-6h-64x32_equiangular_conservative.zarr",
@@ -217,13 +218,15 @@ class WB2ERA5(WeatherBench2):
         "wind_speed": None,
     }
 
+    @decorators.alias_arguments(variables=["variable"], level=["levels", "level_value"])
+    @decorators.variable_modifications("variables")
     def __init__(
         self,
         resolution: str,
         variables: str | list[str] | None = None,
         level: int | list[int] | None = None,
         transforms: Transform | TransformCollection | None = None,
-        **kwargs
+        **kwargs,
     ):
         self.resolution = resolution
         super().__init__(variables, level, transforms, **kwargs)
@@ -235,4 +238,138 @@ class WB2ERA5(WeatherBench2):
     @classmethod
     def sample(cls):
         """Example subset of the dataset"""
-        return WeatherBench2("2m_temperature")
+        return WB2ERA5("64x32", "2m_temperature")
+
+
+class WB2ERA5FULL(WeatherBench2):
+    """WeatherBench2 cloud-optimized ground truth ERA5 raw hourly dataset
+
+    ERA5 datasets downloaded from the Copernicus Climate Data Store with a time
+    range from 1959 to 2023 (incl.). This is the raw hourly dataset with 37 levels.
+
+    https://weatherbench2.readthedocs.io/en/latest/data-guide.html#era5
+
+    Stephan Rasp, Stephan Hoyer, Alexander Merose, Ian Langmore, Peter Battaglia,
+    Tyler Russel, Alvaro Sanchez-Gonzalez, Vivian Yang, Rob Carver, Shreya Agrawal,
+    Matthew Chantry, Zied Ben Bouallegue, Peter Dueben, Carla Bromberg, Jared Sisk,
+    Luke Barrington, Aaron Bell and Fei Sha (2024):
+    WeatherBench 2: A benchmark for the next generation of data-driven global
+    weather models
+    Journal of Advances in Modeling Earth Systems, 16, e2023MS004019
+    https://doi.org/10.1029/2023MS004019
+    """
+
+    #: valid WeatherBench level values
+    LEVELS = [
+        1,
+        2,
+        3,
+        5,
+        7,
+        10,
+        20,
+        30,
+        50,
+        70,
+        100,
+        125,
+        150,
+        175,
+        200,
+        225,
+        250,
+        300,
+        350,
+        400,
+        450,
+        500,
+        550,
+        600,
+        650,
+        700,
+        750,
+        775,
+        800,
+        825,
+        850,
+        875,
+        900,
+        925,
+        950,
+        975,
+        1000,
+    ]
+
+    #: mapping from long variable names to short variable names
+    LONG_NAMES = {
+        "10m_u_component_of_wind": "u10",
+        "10m_v_component_of_wind": "v10",
+        "2m_dewpoint_temperature": "d2m",
+        "2m_temperature": "t2m",
+        "angle_of_sub_gridscale_orography": "anor",
+        "anisotropy_of_sub_gridscale_orography": "isor",
+        "boundary_layer_height": "blh",
+        "geopotential": "z",
+        "geopotential_at_surface": "z",
+        "high_vegetation_cover": "cvh",
+        "lake_cover": "cl",
+        "land_sea_mask": "lsm",
+        "leaf_area_index_high_vegetation": "lai_hv",
+        "leaf_area_index_low_vegetation": "lai_lv",
+        "low_vegetation_cover": "cvl",
+        "mean_sea_level_pressure": "msl",
+        "mean_surface_latent_heat_flux": "mslhf",
+        "mean_surface_net_long_wave_radiation_flux": "msnlwrf",
+        "mean_surface_net_short_wave_radiation_flux": "msnswrf",
+        "mean_surface_sensible_heat_flux": "msshf",
+        "mean_top_downward_short_wave_radiation_flux": "mtdwswrf",
+        "mean_top_net_long_wave_radiation_flux": "mtnlwrf",
+        "mean_top_net_short_wave_radiation_flux": "mtnswrf",
+        "mean_vertically_integrated_moisture_divergence": "mvimd",
+        "potential_vorticity": "pv",
+        "sea_ice_cover": "siconc",
+        "sea_surface_temperature": "sst",
+        "slope_of_sub_gridscale_orography": "slor",
+        "snow_depth": "sd",
+        "soil_type": "slt",
+        "specific_humidity": "q",
+        "standard_deviation_of_filtered_subgrid_orography": "sdfor",
+        "standard_deviation_of_orography": "sdor",
+        "surface_pressure": "sp",
+        "temperature": "t",
+        "total_cloud_cover": "tcc",
+        "total_column_water": "tcw",
+        "total_column_water_vapour": "tcwv",
+        "total_precipitation": "tp",
+        "type_of_high_vegetation": "tvh",
+        "type_of_low_vegetation": "tvl",
+        "u_component_of_wind": "u",
+        "v_component_of_wind": "v",
+        "vertical_velocity": "w",
+        "volumetric_soil_water_layer_1": "swvl1",
+        "volumetric_soil_water_layer_2": "swvl2",
+        "volumetric_soil_water_layer_3": "swvl3",
+        "volumetric_soil_water_layer_4": "swvl4",
+    }
+
+    @decorators.alias_arguments(variables=["variable"], level=["levels", "level_value"])
+    @decorators.variable_modifications("variables")
+    def __init__(
+        self,
+        resolution: str,
+        variables: str | list[str] | None = None,
+        level: int | list[int] | None = None,
+        transforms: Transform | TransformCollection | None = None,
+        **kwargs,
+    ):
+        self.resolution = resolution
+        super().__init__(variables, level, transforms, **kwargs)
+
+    @property
+    def url(self):
+        return "gs://weatherbench2/datasets/era5/1959-2023_01_10-full_37-1h-0p25deg-chunk-1.zarr"
+
+    @classmethod
+    def sample(cls):
+        """Example subset of the dataset"""
+        return WB2ERA5FULL("2m_temperature")
