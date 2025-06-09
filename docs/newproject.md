@@ -1,129 +1,27 @@
 # New Project Guide
 
-## Simple Guide
+## Overview
 
-1. Write down a simple, broad, statement of the problem you are trying to solve.
-2. Ensure you have data accessors for all data you wish to work with. Read [fetching and adding data](ap/data/howto.md) for more information.
-3. Define a suitable processing pipeline for your input data. Read [api/pipeline/howto.md](api/pipeline/howto.md) for more information.
-4. Train an initial model to establish a baseline. Read [api/models/howto.md](api/models/howto.md) for more information.
-5. Review the standard evaluation scorecard for your baseline. Read [api/evaluation/howto.md](api/evaluation/howto.md) for more information.
+**Step One:** Set up a place for your project. Use [Cookie Cutter Data Science](https://cookiecutter-data-science.drivendata.org). This will give all of your projects a consistent layout and structure regardless of what kind of data science project is done. Install this and use their instructions to start a new project. It's fine to do things differently, but this is a way to get started consistently with a documentated approach. 
 
-Your project may be to add a new data source, improve the processing pipeline, train a new model, or explore model verification techniques. The how-to guide for each of the four steps above goes into more detail on how to do new projects in any of these areas. That said, it is expected that most people will be most interested in training new end-to-end model solutions, incorporating their own data, optimal processing, refining the model architecture, training or fine-tuning as necessary, and proving it with a scorecard. In this case, all four steps may undergo significant work in an end-to-end project.
+**Step Two:** Load and visualise your data. Read [the data API how-to](./api/data/howto.md) for more information fetching and adding data.
 
-## Walkthrough of Setting Up a Sample Project
+**Step Three:** Set up a data pipeline to load things, get them onto a common grid, and normalise them. Read [the pipeline API how-to](./api/pipeline/howto.md) for more information.
 
-This section will outline a step-by-step approach to a new project which aims to produce a new model predicting the temperature at capital cities in your country using model data. This example can be set up on a home workstation using low-resolution data and a computationally efficent gradient boosting model. HPC users can utilise a high-resolution model and a neural network for the same purpose. 
+**Step Four:** Train an initial model to establish a baseline. There are several reference architectures bundled in the framework and one of them should do for starters. Read [api/models/howto.md](api/models/howto.md) for more information.
 
-Here is the summary of the five steps. We will next show how to achieve these things technically.
+**Step Five:** Review the standard evaluation scorecard for your baseline. Read [api/evaluation/howto.md](api/evaluation/howto.md) for more information.
 
-1. Broad Problem Statement. Improve the prediction of temperature at your location.
-2. ERA5 gridded data and Hadley ISD point observations will be needed.
-3. We will need to write a new simple pipeline to match the grid and point data for the location of interest.
-4. We will use a simple gradient boosting decision tree model.
-5. The point based standard scorecard from PyEarthTools will be used.
+## An Example
 
-### Setting up a New Environment
+Let's imagine you want to improve the temperature predictions at your local. You will train the model using historical model data and historical point data, and predict from the real-time model data. If you are working at NCI, these things are available from the standard data accessors in the NCI site archive. If you haven't obtained any data yet, check out [https://herbie.readthedocs.io/en/stable/](https://herbie.readthedocs.io/en/stable/) for the means to download historical model data, and see [https://www.ncei.noaa.gov/products/global-historical-climatology-network-hourly](https://www.ncei.noaa.gov/products/global-historical-climatology-network-hourly) or [https://www.metoffice.gov.uk/hadobs/hadisd/](https://www.metoffice.gov.uk/hadobs/hadisd/) for access to weather station data. If you don't have the data on disk yet, put it into your data/raw directory. Take note, there is a lot of data here, so you will probably want to work out how to download only what you need.
 
-We're going to use [Cookie Cutter Data Science](https://cookiecutter-data-science.drivendata.org) to manage and lay out our project. This will give all of your projects a consistent layout and structure regardless of what kind of data science project is done. Install this and use their instructions to start a new project. It's fine to do things differently, but this is a way to get started consistently with a documentated approach.
+From there, configure the data accessors. The PyEarthTools accessors are currently being extended so that there are a range of accessors for fetching cloud data and working with standard datasets, but for now look at the examples in the tutorial for how to create one for your own data.
 
-This will get you going with a layout on disk to manage the data, code and documentation for your project. Create a new virtual environment, and then run `pip install -e .` to install your new data science project, and then install PyEarthTools as normal into that virtual environment. You now have a separation between the PyEarthTools Framework, and your data science project. 
+Then, make a pipeline. Work out which variables you want, subset the grid points you want, and normlise the data. Take a look at the tutorial on [Working with Multiple Data Sources](notebooks/tutorial/MultipleSources.md) and [MLX Demo](notebooks/tutorial/ML_Demo_CustomArch.md) to see how to approach constructing the pipeline, and refer to [api/pipeline/howto.md](api/pipeline/howto.md) for a more in-depth how-to guide on this process.
 
-### Downloading the Data
+Visualise some of the samples from the pipeline, and make sure the data looks right. Maybe do a plot of the historical difference between the gridded value and the point value, to see how the two things are different. 
 
-You can generally fetch the raw data any way you please, including a manual download. In this case, we will rely on the fetching code in the PyEarthTools tutorials to fetch the ERA5 data that's required, and then manually download the relevant station data from the NOAA website. These files should go into `data/raw` and should never be changed.  For point data, got here [https://www.ncei.noaa.gov/products/global-historical-climatology-network-hourly](https://www.ncei.noaa.gov/products/global-historical-climatology-network-hourly) and find a weather station of interest, and download a time-series of information. A year will do, but the standard file will ha
+There are a number of ways to train the baseline model. One of the easiest is to use the XGBoost framework, because it's robust and computationally lightweight. There is no tutorial example of this yet, but you might like to look at the [MLX Demo](notebooks/tutorial/ML_Demo_CustomArch.md) and the [CNN Demo](notebooks/tutorial/CNN_Model_Training.md) for inspiration. There are a lot of nuances here for how to manage a large project where you might be running dozens or hundreds of experiments, but the easiest place to start is a single model trained in a Jupyter Notebook. Experiment management information will be added later.
 
-### Setting up Data Accessors
-
-TBD
-
-### Setting up a Pipeline
-
-TBD
-
-### Training a Benchmark Model
-
-TBD
-
-### Reviewing the Scorecard
-
-TBD
-
-## Overview of General Considerations
-
-
-This guide offers a simple, repeatable process for undertaking a machine learning project. Experts in machine learning will recognise this as a standard approach, but of course it can be adapted as required in the project. Completing a project (whether using PyEarthTools or not) comprises the following steps:
-
-1. Identify the sources of data that you wish to work with
-2. Fetch the training, testing and validation data
-3. Connect PyEarthTools to local data, forming the data catalog
-4. Transform the data into a normal form suitable for machine learning
-5. Define your neural network (or other machine learning architecture)
-6. Perform network training using the training and validation data
-7. Test the data using out-of-sample test data
-8. Evaluate the model using an evaluation scorecard
-
-Note this page is a work in progress! In time, a tutorial for each step of this process will be added.
-
-## Identifying sources of data
-
-Step 1 is up to you, and will vary enormously by project, with an almost totally open-ended set of possibilities. This includes both input and target data. Many people working in weather model will have in mind a symmetrical model which runs auto-regressively. This is the case for many physical models, whereby the physical initial conditions contain an identical set of variables to the output of the model, but this is not necessarily the case in either physical modelling and even less so in machine learning.
-
-If you aren't sure where to start, work through the tutorials, which will introduce several interesting data sets. If you would like some additional ideas, take a look at the [project ideas](projectideas.md) page and see if anything sparks your creativity.
-
-# Fetch the training, testing and validation data
-
-Machine learning models will typically use all of the data available, and will access that data many times. For that reason, it is usually much more efficient to replicate data onto the local disk of the machine you are working on, rather than relying exclusively on network-accessible data.
-
-Additional functionality will come in time to ease the process of fetching data. Our main user base operates at research facilities with on-site data already in place. However, even in that setting, additional novel data is often required for a new project.
-
-## Connect PyEarthTools to local data, forming the data catalogue
-
-Connecting PyEarthTools to data sources is a significant part of the functionality of the package. For well-known community data sets, PyEarthTools requires only simple configuration and offers a significant benefit to users. The following data sets are well-understood by PyEarthTools:
-
-- ERA5
-- Himawari 8
-- CMIP5
-- ACCESS model data
-
-In addition to simple loading of data, PyEarthTools undertakes the following services:
-
-- Renaming of variables to a standard and compatible naming convention
-- Re-projecting all datasets onto a common latitude and longitude reference grid
-- Derives variables on-the-fly where relevant
-- Provides a common method to access variables from any data source
-
-## Transform the data into a normal form suitable for machine learning
-
-This step is often considered to be part of the "model" in a machine learning project. Neural networks generally prefer input data which ranges between approximately -1 to +1, with some caveats and variations applying. An example of a common approach to this would be to divide all temperature values observed by the maximum observed temperature, applying a normalisation approach which can be easily reversed (so long as you keep track of that max observed temperature). A more statistical approach might be to subtract the mean from each value and divide the result by the standard deviation.
-
-These approaches may not always be suitable for a variety of reasons, and may result in incompatibilities or undesirable and arbitrary differences between models resulting from whatever choices happen to have been made. PyEarthTools seeks to remove the arbitrary nature of many of these choices, offering standardised normalisation factors which can then improve interoperability between data sources and model architectures.
-
-For users working with standard data sources which are already supported by PyEarthTools, this is an out-of-the-box experience, saving a significant amount of time and difficulty which is not always apparent at the start of a project. For users wishing to connect a new data source, or publish a new benchmark data set, integrating the normalisation code into PyEarthTools will allow all users to easily adopt new data sources for machine learning.
-
-## Define your neural network (or other machine learning architecture)
-
-(This section coming soon)
-
-## Perform network training using the training and validation data
-
-(This section coming soon)
-
-## Test the data using out-of-sample test data
-
-(This section coming soon)
-
-The ultimate tests for a machine learning model are its ability to effectively transfer its learned skill onto new data, and maintain its performance over time. For this reason, some data should be reserved for evaluation which is never used for training.
-
-## Evaluate the model using an evaluation scorecard
-
-(This section coming soon)
-
-All physical models should ideally be compared to the following benchmarks:
-
-1. Performance against "persistence"
-2. Performance against "climatology"
-3. Performance against a physical model
-4. Performance against a simple multilayer perceptron or other simplified architecture
-5. Performance against a best-in-class ML model (if one is available)
-
-In addition, a range of evaluative metrics should be used.
+Evaluating the model is up to you at this point. They PyEarthTools roadmap includes the development of standard scorecards for an out-of-the-box experience, but for now check out the [scores](https://scores.readthedocs.io/) framework for verification.
