@@ -218,11 +218,12 @@ class WB2ERA5(WeatherBench2):
         "wind_speed": None,
     }
 
+    @decorators.check_arguments(resolution=["1440x721", "240x121", "64x32"])
     @decorators.alias_arguments(variables=["variable"], level=["levels", "level_value"])
     @decorators.variable_modifications("variables")
     def __init__(
         self,
-        resolution: str,
+        resolution: str = "64x32",
         variables: str | list[str] | None = None,
         level: int | list[int] | None = None,
         transforms: Transform | TransformCollection | None = None,
@@ -245,7 +246,8 @@ class WB2ERA5FULL(WeatherBench2):
     """WeatherBench2 cloud-optimized ground truth ERA5 raw hourly dataset
 
     ERA5 datasets downloaded from the Copernicus Climate Data Store with a time
-    range from 1959 to 2023 (incl.). This is the raw hourly dataset with 37 levels.
+    range from 1959 to 2023 (incl.). This is the raw hourly dataset with a
+    0.25 degree spatial resolution and 37 levels.
 
     https://weatherbench2.readthedocs.io/en/latest/data-guide.html#era5
 
@@ -356,13 +358,11 @@ class WB2ERA5FULL(WeatherBench2):
     @decorators.variable_modifications("variables")
     def __init__(
         self,
-        resolution: str,
         variables: str | list[str] | None = None,
         level: int | list[int] | None = None,
         transforms: Transform | TransformCollection | None = None,
         **kwargs,
     ):
-        self.resolution = resolution
         super().__init__(variables, level, transforms, **kwargs)
 
     @property
@@ -373,3 +373,66 @@ class WB2ERA5FULL(WeatherBench2):
     def sample(cls):
         """Example subset of the dataset"""
         return WB2ERA5FULL("2m_temperature")
+
+
+class WB2ERA5Clim(WeatherBench2):
+    """WeatherBench2 cloud-optimized ground truth ERA5 climatology dataset
+
+    For WeatherBench 2, the climatology was computed using a running window for
+    smoothing (see paper and script) for each day of year and sixth hour of day.
+    Climatologies have been computed for 1990-2017 and 1990-2019.
+
+    https://weatherbench2.readthedocs.io/en/latest/data-guide.html#era5-climatology
+
+    Stephan Rasp, Stephan Hoyer, Alexander Merose, Ian Langmore, Peter Battaglia,
+    Tyler Russel, Alvaro Sanchez-Gonzalez, Vivian Yang, Rob Carver, Shreya Agrawal,
+    Matthew Chantry, Zied Ben Bouallegue, Peter Dueben, Carla Bromberg, Jared Sisk,
+    Luke Barrington, Aaron Bell and Fei Sha (2024):
+    WeatherBench 2: A benchmark for the next generation of data-driven global
+    weather models
+    Journal of Advances in Modeling Earth Systems, 16, e2023MS004019
+    https://doi.org/10.1029/2023MS004019
+    """
+
+    DATASETS = {
+        ("1990-2017", "1440x721"): "1990-2017_6h_1440x721.zarr",
+        ("1990-2017", "512x256"): "1990-2017_6h_512x256_equiangular_conservative.zarr",
+        ("1990-2017", "240x121"): "1990-2017_6h_240x121_equiangular_with_poles_conservative.zarr",
+        ("1990-2017", "64x32"): "1990-2017_6h_64x32_equiangular_conservative.zarr",
+        ("1990-2019", "1440x721"): "1990-2019_6h_1440x721.zarr",
+        ("1990-2019", "512x256"): "1990-2019_6h_512x256_equiangular_conservative.zarr",
+        ("1990-2019", "240x121"): "1990-2019_6h_240x121_equiangular_with_poles_conservative.zarr",
+        ("1990-2019", "64x32"): "1990-2019_6h_64x32_equiangular_conservative.zarr",
+    }
+
+    #: valid WeatherBench level values
+    LEVELS = [50, 100, 150, 200, 250, 300, 400, 500, 600, 700, 850, 925, 1000]
+
+    #: mapping from long variable names to short variable names
+    LONG_NAMES = {}
+
+    @decorators.check_arguments(resolution=["1440x721", "240x121", "64x32"], period=["1990-2017", "1990-2019"])
+    @decorators.alias_arguments(variables=["variable"], level=["levels", "level_value"])
+    @decorators.variable_modifications("variables")
+    def __init__(
+        self,
+        resolution: str = "64x32",
+        period: str = "1990-2017",
+        variables: str | list[str] | None = None,
+        level: int | list[int] | None = None,
+        transforms: Transform | TransformCollection | None = None,
+        **kwargs,
+    ):
+        self.resolution = resolution
+        self.period = period
+        super().__init__(variables, level, transforms, **kwargs)
+
+    @property
+    def url(self):
+        fname = self.DATASETS[(self.period, self.resolution)]
+        return f"gs://weatherbench2/datasets/era5-hourly-climatology/{fname}"
+
+    @classmethod
+    def sample(cls):
+        """Example subset of the dataset"""
+        return WB2ERA5Clim("64x32", "1990-2017", "2m_temperature")
