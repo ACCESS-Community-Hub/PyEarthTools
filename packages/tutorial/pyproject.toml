@@ -17,10 +17,15 @@ classifiers = [
 dependencies = [
   "rich",
   "ipywidgets",
+  "hydra-core",
   "scores",
   "dask",
+  "gcsfs",
   "jupyterlab",
-  "ipykernel"
+  "ipykernel",
+  "pyearthtools-pipeline",
+  "pyearthtools-utils",
+  "pyearthtools-training",
 ]
 dynamic = ["version", "readme"]
 

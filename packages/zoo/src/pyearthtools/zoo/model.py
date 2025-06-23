@@ -66,7 +66,7 @@ class Timer:
     def __exit__(self, *args):
         elapsed = time.time() - self.start
         log = self.logger or LOG
-        log.debug("%s: took %.2f seconds.", self.title, elapsed)
+        # log.debug("%s: took %.2f seconds.", self.title, elapsed)
 
 
 class BaseForecastModel:
@@ -217,7 +217,6 @@ class BaseForecastModel:
 
     """
 
-    _default_config_path: os.PathLike | None = None
     _times: list[int] = [0]  # Times to get
     _download_paths: list[str] = []  # Download urls to get
     _redownload_each_time: bool = False
@@ -227,14 +226,15 @@ class BaseForecastModel:
 
     def __init__(  # pylint: disable=R0913
         self,
-        pipeline_name: str,
-        output: os.PathLike | None,
         *,
-        config_path: os.PathLike | None = None,
-        data_cache: os.PathLike | None = None,
+        pipeline_name: Optional[str] = None,
+        pipeline=None,
+        output: Optional[os.PathLike] = None,
+        config_path: Optional[os.PathLike] = None,
+        data_cache: Optional[os.PathLike] = None,
         data_cleanup: dict[str, Any] | str | None = None,
-        delete_cache: bool = False,
-        download_assets: bool = False,
+        delete_cache: Optional[bool] = False,
+        download_assets: Optional[bool] = False,
         **kwargs,
     ) -> None:
         """
@@ -245,18 +245,13 @@ class BaseForecastModel:
         A child must at least implement the `.load` function to pass back a `pyearthtools.training.wrapper.Predictor` wrapper.
 
         Args:
-            pipeline (str):
-                Pipeline name to use, must be in `valid_pipeline`
-            output (os.PathLike | None):
-                Location to save predictions
-            config_path (os.PathLike | None, optional):
-                Override for config path to find Data & Pipelines. Defaults to None.
-            data_cache (os.PathLike | None, optional):
-                Location to set a data cache for, automatically adds model name & pipeline to path. Defaults to None.
-            data_cleanup (dict | str | None, optional):
-                Config for cleanup for data_cache. Defaults to None.
-            delete_cache (bool, optional):
-                Delete all data in cache. Defaults to False.
+            pipeline_name: Pipeline name to use, must be in `valid_pipeline`
+            pipeline: Already-loaded pipeline object (alternative to the pipeline name)
+            output Location to save predictions
+            config_path: Override for config path to find Data & Pipelines. Defaults to None.
+            data_cache: Location to set a data cache for, automatically adds model name & pipeline to path. Defaults to None.
+            data_cleanup: Config for cleanup for data_cache. Defaults to None.
+            delete_cache: Delete all data in cache. Defaults to False.
             download_assets (bool, optional):
                 Whether to download assets.
                 Will be called anyway upon first call to `.index`
@@ -266,31 +261,52 @@ class BaseForecastModel:
 
         Raises:
             ValueError:
-                If `pipeline` not in `._valid_pipeline()`.
+                If `pipeline` not in `._valid_pipeline()` and a valid loaded pipeline is not supplied
         """
+
         if download_assets:
             with self.timer("Downloading assets"):
                 self.download_assets()  # Download assets
 
-        self._config_path = config_path or self._default_config_path
+        self._config_path = config_path
+        logger = self.log()
         import pyearthtools.zoo  # pylint: disable=C0321
 
-        if any(map(lambda x: x in pipeline_name.lower(), pyearthtools.zoo.LIVE_SUBSTRINGS)) and data_cache is None:
-            ## Must setup a cache for live data
-            data_cache = self.get_config("cache")
+        if pipeline is not None and pipeline_name is not None:
+            raise ValueError("Cannot initialise with both a named pipeline and an im-memory pipeline")
 
-        if not self.is_valid_pipeline(pipeline_name, config_path=self._config_path):
-            raise ValueError(
-                f"Cannot recognise config: {pipeline_name}\n. "
-                f"Valid items: {list(self._valid_pipeline(config_path=self._config_path).keys())}"
-            )
+        if pipeline is None and pipeline_name is None:
+            raise ValueError("Cannot initialise, require either a named pipeline or an in-memory pipeline")
+
+        # Using an in-memory pipeline
+        if pipeline is not None:
+            self._pipeline = pipeline
+            self._pipeline_name = "User-supplied pipeline"
+
+        # Establishing pipeline from configuration
+        else:
+
+            # Sort out data access as specified in the pipeline
+            if any(map(lambda x: x in pipeline_name.lower(), pyearthtools.zoo.LIVE_SUBSTRINGS)) and data_cache is None:
+                ## Must setup a cache for live data
+                data_cache = self.get_config("cache")
+
+            # Validate the pipeline file
+            if not self.is_valid_pipeline(pipeline_name, config_path=self._config_path):
+                raise ValueError(
+                    f"Cannot find config: {pipeline_name} in {config_path}\n. "
+                    f"Valid items: {list(self._valid_pipeline(config_path=self._config_path).keys())}"
+                )
+
+            # Validation and init passed, log success and carry on
+            self._pipeline_name = pipeline_name
+            self._pipeline = None
+            message = f"Using pipeline: {self._pipeline_name}"
+            logger.debug(message)
 
         self.output = output
         self._kwargs = kwargs
         self._data_cleanup = data_cleanup
-
-        self._pipeline_name = pipeline_name
-        self.log.debug("Using pipeline: %r", self._pipeline_name)
 
         import pyearthtools.data  # pylint: disable=C0321
 
@@ -307,8 +323,8 @@ class BaseForecastModel:
         return str(getattr(cls, "_name", None) or cls.__name__)
 
     @classmethod
-    @property
-    @functools.cache
+    # @property
+    # @functools.cache
     def log(cls) -> logging.Logger:
         """Model specific logger"""
         # model_specific = logging.getLogger(f"pyearthtools.zoo.{self.get_name()}")
@@ -380,10 +396,10 @@ class BaseForecastModel:
                     pass
 
                 asset.parent.mkdir(exist_ok=True, parents=True)
-                self.log.info("Retrieving %s", link)
+                # self.log.info("Retrieving %s", link)
 
                 if Path(link).exists():
-                    self.log.debug(f"Copying {link} to {asset}.")
+                    # self.log.debug(f"Copying {link} to {asset}.")
                     shutil.copyfile(link, str(asset) + ".download")
                 else:
                     download(link, str(asset) + ".download")
@@ -400,13 +416,8 @@ class BaseForecastModel:
         """
         Get all config paths associated with this model.
 
-        Combines `_default_config_path`, and any path in config `pyearthtools.zoo.configs/model__name__`
-        Therefore can be configured by the user in `~/.config/pyearthtools/models.yaml`,
-        or by setting `pyearthtools_MODELS__CONFIGS` in the environment. If str, will be split by ':'.
-
         Args:
-            config_path (os.PathLike | None):
-                Defined Config path to add.
+            config_path: Defined Config path to add.
 
         Returns:
             (tuple[Path, ...]):
@@ -421,9 +432,6 @@ class BaseForecastModel:
         if config_path is not None:
             paths.append(Path(config_path))
 
-        if not config_path == cls._default_config_path and cls._default_config_path is not None:
-            paths.append(Path(cls._default_config_path))
-
         env_path = cls.get_config("configs")
 
         if env_path is not None:
@@ -436,7 +444,7 @@ class BaseForecastModel:
 
         if len(paths) == 0:
             raise ValueError("No config paths could be established.")
-        cls.log.debug(f"Config paths: {paths}")
+        cls.log().debug(f"Config paths: {paths}")
         return tuple(paths)
 
     @classmethod
@@ -459,12 +467,8 @@ class BaseForecastModel:
         Setting `config_path` allows checking of user defined directories.
 
         Args:
-            ancillary (bool, optional):
-                Whether to get only ancillary pipelines. Defaults to False.
-            config_path (os.PathLike | None, optional):
-                Override for `cls._default_config_path`.
-                Allows a user to find all valid configs from both default and user defined.
-                Defaults to None
+            ancillary: Whether to get only ancillary pipelines. Defaults to False.
+            config_path: Allows a user to find all valid configurations.
 
         Returns:
             (dict[str, str | None]):
@@ -493,7 +497,7 @@ class BaseForecastModel:
 
             paths: list[str] = list(itertools.chain(*(find_paths(config_path) for config_path in config_paths)))
 
-            cls.log.debug(f"Pipeline paths for {sub_path!r}: {paths}")
+            cls.log().debug(f"Pipeline paths for {sub_path!r}: {paths}")
 
             def valid(x: str) -> bool:
                 return "-" in str(x) if ancillary else "-" not in str(x)
@@ -501,29 +505,33 @@ class BaseForecastModel:
             paths: list[str] = [p for p in paths if valid(p)]
             return paths
 
-        return create_mapping(
-            find_elements("Data"), find_elements("Pipeline")
-        )  # Create the mapping between Data & Pipeline
+        data_elements = find_elements("Data")  # Find configs from the Data directory
+        pipeline_elements = find_elements("Pipeline")  # Find configs from the Pipelines directory
+        mappings = create_mapping(data_elements, pipeline_elements)
+        return mappings
 
     @classmethod
-    def is_valid_pipeline(cls, pipeline: str, config_path: os.PathLike | None = None) -> bool:
+    def is_valid_pipeline(cls, pipeline_name: str, config_path: os.PathLike | None = None) -> bool:
         """
         Check if `pipeline` is a valid pipeline
 
         Args:
-            pipeline (str):
-                Pipeline name to check if valid
-            config_path (os.PathLike | None, optional):
-                Override for `cls._default_config_path`.
-                Defaults to None.
+            pipeline: Pipeline name to check if valid
+            config_path: Path to search for configuration
 
         Returns:
             (bool):
                 If `pipeline` is valid.
         """
         valid_pipelines = cls._valid_pipeline(config_path=config_path)
-        pipeline, _ = split_name_assignment(pipeline)
-        return pipeline in valid_pipelines
+        pipeline, _ = split_name_assignment(pipeline_name)
+        found_it = pipeline in valid_pipelines
+
+        if found_it:
+            print(f"Valid {pipeline_name} found in path {config_path}")
+        else:
+            print(f"Could not find/validate {pipeline_name} in path {config_path}")
+        return found_it
 
     @functools.cache  # pylint: disable=W1518
     def _get_cache(self, cache: os.PathLike):
@@ -641,7 +649,7 @@ class BaseForecastModel:
                 ancillary=ancillary,
                 **(assignment if assignment else {}),
                 pyearthtools_ASSETS=self.assets,
-                pyearthtools_MODELS_DEFAULT_CONFIG=self._default_config_path or self._config_path,
+                pyearthtools_MODELS_DEFAULT_CONFIG=self._config_path,
                 OUTPUT_DIR=self.output,
             )
 
@@ -669,8 +677,14 @@ class BaseForecastModel:
         """
         Get pipeline as configured in the init.
         """
+
+        if self._pipeline:
+            return self._pipeline
+
+        logger = self.log()
+
         pipe = self._get_pipeline(self._pipeline_name, cache=self.cache)
-        self.log.debug("Using Pipeline: %r", pipe)
+        logger.debug("Using Pipeline: %r", pipe)
         return pipe
 
     @functools.cached_property
@@ -776,8 +790,8 @@ class BaseForecastModel:
 
         model, index_kwargs = self.load(**kwargs)  # Load model and trainer
 
-        self.log.debug(f"Loading returned {model.__class__ =}")
-        self.log.debug(f"Loading returned {index_kwargs =}")
+        # self.log.debug(f"Loading returned {model.__class__ =}")
+        # self.log.debug(f"Loading returned {index_kwargs =}")
 
         post_transforms = index_kwargs.pop("post_transforms", pyearthtools.data.TransformCollection())
 
@@ -798,7 +812,7 @@ class BaseForecastModel:
             )
             + post_transforms
         )
-        self.log.debug(f"Initialising MLDataIndex with {full_index_kwargs =}")
+        # self.log.debug(f"Initialising MLDataIndex with {full_index_kwargs =}")
 
         return pyearthtools.training.MLDataIndex(
             model,

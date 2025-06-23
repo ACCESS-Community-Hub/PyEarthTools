@@ -1,0 +1,18 @@
+defaults:
+ - _self_
+ - trainer: default
+ - model: default
+ - data: example
+
+ - data/splits: default
+ - data/module: default
+
+experiment_name: ${now:%Y-%m-%d}/${now:%H-%M-%S}
+path: /scratch/kd24/tjl548/ML/MiniMax/Training/${experiment_name}
+
+fit: false
+
+hydra:
+  verbose: false
+  run:
+    dir: ${path}

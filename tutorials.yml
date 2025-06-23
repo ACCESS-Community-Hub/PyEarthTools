@@ -5,8 +5,10 @@ dependencies:
   - python=3.11
   - pip
   - pip:
-    - -e packages/data
+    - -e packages/data[download]
     - -e packages/pipeline
     - -e packages/training[lightning]
     - -e packages/tutorial
     - -e packages/utils
+    - -e packages/zoo
+    - -e packages/bundled_models/fourcastnext

@@ -37,11 +37,28 @@ training = [
   "pyearthtools-pipeline @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/pipeline",
   "pyearthtools-training @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/training"
 ]
+zoo = [
+  "pyearthtools-utils @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/utils",
+  "pyearthtools-data @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/data",
+  "pyearthtools-pipeline @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/pipeline",
+  "pyearthtools-training @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/training",
+  "pyearthtools-zoo @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/zoo"
+]
+bundled-fourcastnext = [
+  "pyearthtools-utils @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/utils",
+  "pyearthtools-data @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/data",
+  "pyearthtools-pipeline @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/pipeline",
+  "pyearthtools-training[lightning] @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/training",
+  "pyearthtools-zoo @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/zoo",
+  "pyearthtools-bundled-fourcastnext @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/bundled_models/fourcastnext"
+]
 all = [
   "pyearthtools-utils @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/utils",
   "pyearthtools-data[all] @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/data",
   "pyearthtools-pipeline[all] @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/pipeline",
-  "pyearthtools-training[all] @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/training"
+  "pyearthtools-training[all] @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/training",
+  "pyearthtools-zoo @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/zoo",
+  "pyearthtools-bundled-fourcastnext @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/bundled_models/fourcastnext"
 ]
 test = ["pytest", "pytest-cov", "pytest-xdist", "pudb"]
 dev = ["pre-commit", "black==25.1.0", "interrogate"]
@@ -90,4 +107,7 @@ addopts = [
     '--cov-report=html',
     '--junitxml=report.xml',
     '-n 4',
+]
+markers = [
+    "noci: marks tests to exclude from CI/CD (deselect with '-m \"not noci\"')"
 ]

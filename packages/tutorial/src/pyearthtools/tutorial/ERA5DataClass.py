@@ -31,6 +31,7 @@ import functools
 from pathlib import Path
 from typing import Any, Literal
 import xarray as xr
+import os.path
 
 import pyearthtools.data
 from pyearthtools.data import Petdt
@@ -49,9 +50,16 @@ ERA_RESOLUTION = (1, "hour")
 ERADEMO_RESOLUTION = (6, "hour")
 
 # This dictionary tells pyearthtools what variable renames to apply during load
-ERA5_RENAME = {"t2m": "2t", "u10": "10u", "v10": "10v", "siconc": "ci"}
+ERA5_RENAME = {"t2m": "2t", 
+               "u10": "10u", 
+               "v10": "10v", 
+               "siconc": "ci"}
 
-ERA5DEMO_RENAME = {"t2m": "2t", "10u": "10m_u_component_of_wind", "v10": "10v"}
+ERA5DEMO_RENAME = {"t2m": "2t", 
+                   "10m_u_component_of_wind": "10u", 
+                   "10m_v_component_of_wind": "10v",
+                   "mean_sea_level_pressure": "mslp"
+                   }
 
 V_TO_PATH = {
     "10m_u_component_of_wind": "10m_u_component_of_wind",
@@ -137,7 +145,7 @@ class ERA5LowResIndex(ArchiveIndex):
         self.variables = variables
         base_transform = TransformCollection()
 
-        base_transform += pyearthtools.data.transforms.attributes.Rename(ERA5_RENAME)
+        # base_transform += pyearthtools.data.transforms.attributes.Rename(ERA5_RENAME)
         # base_transform += pyearthtools.data.transforms.variables.variable_trim(variables)
 
         self.level_value = level_value
@@ -212,8 +220,7 @@ class ERA5LowResDemoIndex(ArchiveIndex):
 
     @decorators.alias_arguments(
         level_value=["pressure"],
-        variables=["variable"],
-        product=["resolution"],
+        variables=["variables"],
     )
     @decorators.variable_modifications(variable_keyword="variables", remove_variables=False)
     @decorators.deprecated_arguments(
@@ -225,6 +232,7 @@ class ERA5LowResDemoIndex(ArchiveIndex):
         *,
         level_value: int | float | list[int | float] | tuple[list | int, ...] | None = None,
         transforms: Transform | TransformCollection | None = None,
+        filename_override=None,
         product=None,
     ):
         """
@@ -248,21 +256,27 @@ class ERA5LowResDemoIndex(ArchiveIndex):
         self.resolution = ERADEMO_RESOLUTION
         self.dataset = None
 
-        self.variables = variables
-        base_transform = TransformCollection()
+        self.filename_override = filename_override
 
-        base_transform += pyearthtools.data.transforms.attributes.Rename(ERA5DEMO_RENAME)
-        # base_transform += pyearthtools.data.transforms.variables.variable_trim(variables)
+        self.variables = variables
+        base_transforms = TransformCollection()
+
+        # base_transforms += pyearthtools.data.transforms.attributes.Rename(ERA5DEMO_RENAME)
+        base_transforms += pyearthtools.data.transforms.variables.variable_trim(variables)
 
         self.level_value = level_value
 
         if level_value:
-            base_transform += pyearthtools.data.transforms.coordinates.Select(
+            base_transforms += pyearthtools.data.transforms.coordinates.Select(
                 {coord: level_value for coord in ["level"]}, ignore_missing=True
             )
 
+        # Add in any user-supplied transforms
+        if transforms is not None:
+            base_transforms += transforms            
+
         super().__init__(
-            transforms=base_transform + (transforms or TransformCollection()),
+            base_transforms,
             data_interval=ERADEMO_RESOLUTION,
         )
         self.record_initialisation()
@@ -277,7 +291,15 @@ class ERA5LowResDemoIndex(ArchiveIndex):
         This tells pyearthtools how to go from a request for a date/time to a path containing the files
         which will match that request.
         """
-        path = Path(ERA5_HOME) / "era5_lowres.nc"  # Everything fits into a single 2 GIG file
+
+        if self.filename_override is not None:
+            path = self.filename_override
+
+        else:
+            path = Path(ERA5_HOME) / "era5_lowres.nc"  # Everything fits into a single 2 GIG file
+
+        if not os.path.exists(path):
+            raise ValueError(f"Could not find a matching input file at {path}")
 
         return [path]
 
@@ -300,3 +322,7 @@ class ERA5LowResDemoIndex(ArchiveIndex):
     def _import(self):
         """module to import for to load this step in an Pipeline"""
         return "pyearthtools.tutorial"
+
+    @classmethod
+    def sample(cls):
+        return ERA5LowResDemoIndex("2m_temperature")

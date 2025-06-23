@@ -74,7 +74,7 @@ class Index(CallRedirectMixin, CatalogMixin, metaclass=ABCMeta):
     To use, subclass and define the `.get` function, any calls, shall be passed through.
     """
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         super().__init__()
 
     @abstractmethod
@@ -367,7 +367,9 @@ class SingleTimeIndex(Index):
                 Default value for round when retrieving data.
                 Defaults to False.
         """
-        super().__init__()  # Index takes no kwargs
+
+        super().__init__(**kwargs)
+        # super().__init__()
 
         self.set_interval(data_interval)
         self._round = round
