@@ -13,12 +13,19 @@
 # limitations under the License.
 
 
-"""
-Translation and default values for `cds.ERA5`
-"""
+from __future__ import annotations
 
-ERA5_LEVELS = [
-    None,
+import xarray as xr
+
+import pyearthtools.data
+from pyearthtools.data.time import Petdt
+
+from pyearthtools.data.indexes import AdvancedTimeDataIndex, decorators
+from pyearthtools.data.transforms.transform import Transform, TransformCollection
+
+
+#: valid ARCO-ERA5 level values
+LEVELS = [
     1,
     2,
     3,
@@ -58,7 +65,8 @@ ERA5_LEVELS = [
     1000,
 ]
 
-ERA_NAME_CHANGE = {
+#: mapping from long variable names to short variable names
+LONG_NAMES = {
     "100m_u_component_of_wind": "u100",
     "100m_v_component_of_wind": "v100",
     "10m_u_component_of_neutral_wind": "u10n",
@@ -333,3 +341,105 @@ ERA_NAME_CHANGE = {
     "wave_spectral_skewness": "wss",
     "zero_degree_level": "deg0l",
 }
+
+#: mapping from short variable names to long variable names
+SHORT_NAMES = {val: key for key, val in LONG_NAMES.items()}
+
+
+def open_arco(variables, level=None, chunks="auto", **kwargs):
+    """Open Analysis-Ready Cloud Optimized ERA5 archive from Google Cloud Platform"""
+
+    # skip parsing unused variables, this can make loading much faster
+    drop_variables = [var for var in LONG_NAMES if var not in set(variables)]
+
+    ds = xr.open_zarr(
+        "gs://gcp-public-data-arco-era5/ar/full_37-1h-0p25deg-chunk-1.zarr-v3",
+        chunks=chunks,
+        storage_options=dict(token="anon"),
+        drop_variables=drop_variables,
+        **kwargs,
+    )
+
+    if level is not None:
+        ds = pyearthtools.data.transform.coordinates.Select(level=level, ignore_missing=True)(ds)
+
+    return ds
+
+
+_VALID_LEVELS = [None] + LEVELS
+_VALID_VARIABLES = [None] + list(LONG_NAMES) + list(SHORT_NAMES)
+
+
+class ARCOERA5(AdvancedTimeDataIndex):
+    """
+    Analysis-Ready, Cloud Optimized ERA5
+
+    https://github.com/google-research/arco-era5
+
+    Carver, Robert W, and Merose, Alex. (2023):
+    ARCO-ERA5: An Analysis-Ready Cloud-Optimized Reanalysis Dataset.
+    22nd Conf. on AI for Env. Science, Denver, CO, Amer. Meteo. Soc, 4A.1,
+    https://ams.confex.com/ams/103ANNUAL/meetingapp.cgi/Paper/415842
+    """
+
+    _desc_ = {
+        "singleline": "Analysis-Ready, Cloud Optimized ERA5",
+        "link": "https://github.com/google-research/arco-era5",
+    }
+
+    @decorators.alias_arguments(variables=["variable"], level=["levels", "level_value"])
+    @decorators.check_arguments(variables=_VALID_VARIABLES, level=_VALID_LEVELS)
+    @decorators.variable_modifications("variables")
+    def __init__(
+        self,
+        variables: str | list[str] | None = None,
+        level: int | list[int] | None = None,
+        transforms: Transform | TransformCollection | None = None,
+        **kwargs,
+    ):
+        """
+        Analysis-Ready, Cloud Optimized ERA5 integrated within `pyearthtools`.
+
+        Allows for access to a cloud ERA5 archive.
+
+        Args:
+            variables (str | list[str] | None, optional):
+                Variables to retrieve, can be either short_name or long_name.
+                Default to None, to retrieve all variables.
+            level (int | list[int] | None, optional):
+                Pressure levels to select. Defaults to None, to select all levels.
+            transforms (Transform | TransformCollection | None, optional):
+                Transforms to apply to dataset. Defaults to None.
+        """
+        super().__init__(transforms or TransformCollection(), data_interval="1 hour")
+        self.record_initialisation()
+
+        # load all variables by default
+        if variables is None:
+            variables = list(LONG_NAMES)
+
+        if not isinstance(variables, list):
+            variables = [variables]
+
+        # convert variable name if found in short name mapping
+        variables = [SHORT_NAMES.get(var, var) for var in variables]
+
+        self.variables = variables
+        self.level = level
+
+        self._kwargs = kwargs
+        self._ds = open_arco(variables, level, **kwargs)
+
+    @property
+    def dataset(self) -> xr.Dataset:
+        """Get full dataset for this obj"""
+        return self._ds
+
+    def get(self, time: str):
+        """Get timestep from dataset"""
+        return self._ds.sel(time=Petdt(time).datetime64())
+
+    @classmethod
+    def sample(cls):
+        """Example subset of the dataset"""
+        return ARCOERA5("2m_temperature")

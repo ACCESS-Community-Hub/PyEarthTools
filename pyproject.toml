@@ -108,3 +108,6 @@ addopts = [
     '--junitxml=report.xml',
     '-n 4',
 ]
+markers = [
+    "noci: marks tests to exclude from CI/CD (deselect with '-m \"not noci\"')"
+]
