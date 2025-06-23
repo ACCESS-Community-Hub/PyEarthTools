@@ -1,3 +1,5 @@
+import textwrap
+from pathlib import Path
 from typing import Literal
 
 import xarray as xr
@@ -9,92 +11,46 @@ from pyearthtools.data.indexes.utilities import spellcheck
 from pyearthtools.data.transforms.transform import Transform, TransformCollection
 from pyearthtools.data.transforms.coordinates import Select
 
-#: infos for each dataset, mapping urls to 2 elements tuples made of
-#: - a mapping from long variable names to short variable names
-#: - valide level values
-DATASETS_INFOS = {
-    "gs://weatherbench2/datasets/era5/1959-2023_01_10-wb13-6h-1440x721_with_derived_variables.zarr": (
-        {
-            "10m_u_component_of_wind": "u10",
-            "10m_v_component_of_wind": "v10",
-            "10m_wind_speed": None,
-            "2m_dewpoint_temperature": "d2m",
-            "2m_temperature": "t2m",
-            "above_ground": None,
-            "ageostrophic_wind_speed": None,
-            "angle_of_sub_gridscale_orography": "anor",
-            "anisotropy_of_sub_gridscale_orography": "isor",
-            "boundary_layer_height": "blh",
-            "divergence": None,
-            "eddy_kinetic_energy": None,
-            "geopotential": "z",
-            "geopotential_at_surface": "z",
-            "geostrophic_wind_speed": None,
-            "high_vegetation_cover": "cvh",
-            "integrated_vapor_transport": None,
-            "lake_cover": "cl",
-            "land_sea_mask": "lsm",
-            "lapse_rate": None,
-            "leaf_area_index_high_vegetation": "lai_hv",
-            "leaf_area_index_low_vegetation": "lai_lv",
-            "low_vegetation_cover": "cvl",
-            "mean_sea_level_pressure": "msl",
-            "mean_surface_latent_heat_flux": "mslhf",
-            "mean_surface_net_long_wave_radiation_flux": "msnlwrf",
-            "mean_surface_net_short_wave_radiation_flux": "msnswrf",
-            "mean_surface_sensible_heat_flux": "msshf",
-            "mean_top_downward_short_wave_radiation_flux": "mtdwswrf",
-            "mean_top_net_long_wave_radiation_flux": "mtnlwrf",
-            "mean_top_net_short_wave_radiation_flux": "mtnswrf",
-            "mean_vertically_integrated_moisture_divergence": "mvimd",
-            "potential_vorticity": "pv",
-            "relative_humidity": None,
-            "sea_ice_cover": "siconc",
-            "sea_surface_temperature": "sst",
-            "slope_of_sub_gridscale_orography": "slor",
-            "snow_depth": "sd",
-            "soil_type": "slt",
-            "specific_humidity": "q",
-            "standard_deviation_of_filtered_subgrid_orography": "sdfor",
-            "standard_deviation_of_orography": "sdor",
-            "surface_pressure": "sp",
-            "temperature": "t",
-            "total_cloud_cover": "tcc",
-            "total_column_vapor": None,
-            "total_column_water": "tcw",
-            "total_column_water_vapour": "tcwv",
-            "total_precipitation_12hr": "tp",
-            "total_precipitation_24hr": "tp",
-            "total_precipitation_6hr": "tp",
-            "type_of_high_vegetation": "tvh",
-            "type_of_low_vegetation": "tvl",
-            "u_component_of_wind": "u",
-            "v_component_of_wind": "v",
-            "vertical_velocity": "w",
-            "volumetric_soil_water_layer_1": "swvl1",
-            "volumetric_soil_water_layer_2": "swvl2",
-            "volumetric_soil_water_layer_3": "swvl3",
-            "volumetric_soil_water_layer_4": "swvl4",
-            "vorticity": None,
-            "wind_speed": None,
-        },
-        [
-            50,
-            100,
-            150,
-            200,
-            250,
-            300,
-            400,
-            500,
-            600,
-            700,
-            850,
-            925,
-            1000,
-        ],
-    )
-}
+
+def _extract_dataset_infos(url: str) -> tuple[dict[str, str | None], list[int]]:
+    """helper function to extract variable mapping and levels from a given dataset"""
+    dset = xr.open_zarr(url)
+    long_names = {vname: dset[vname].attrs.get("short_name") for vname in dset}
+    levels = sorted(set(dset.level.values.tolist()))
+    return long_names, levels
+
+
+def create_dataset_mapping(module_path: str):
+    """generate dataset infos mapping for a set of urls and save it as a module"""
+    urls = [
+        "gs://weatherbench2/datasets/era5/1959-2023_01_10-full_37-1h-0p25deg-chunk-1.zarr",
+        "gs://weatherbench2/datasets/era5/1959-2023_01_10-wb13-6h-1440x721_with_derived_variables.zarr",
+        "gs://weatherbench2/datasets/era5/1959-2023_01_10-6h-240x121_equiangular_with_poles_conservative.zarr",
+        "gs://weatherbench2/datasets/era5/1959-2023_01_10-6h-64x32_equiangular_conservative.zarr",
+        "gs://weatherbench2/datasets/era5-hourly-climatology/1990-2017_6h_1440x721.zarr",
+        "gs://weatherbench2/datasets/era5-hourly-climatology/1990-2017_6h_512x256_equiangular_conservative.zarr",
+        "gs://weatherbench2/datasets/era5-hourly-climatology/1990-2017_6h_240x121_equiangular_with_poles_conservative.zarr",
+        "gs://weatherbench2/datasets/era5-hourly-climatology/1990-2017_6h_64x32_equiangular_conservative.zarr",
+        "gs://weatherbench2/datasets/era5-hourly-climatology/1990-2019_6h_1440x721.zarr",
+        "gs://weatherbench2/datasets/era5-hourly-climatology/1990-2019_6h_512x256_equiangular_conservative.zarr",
+        "gs://weatherbench2/datasets/era5-hourly-climatology/1990-2019_6h_240x121_equiangular_with_poles_conservative.zarr",
+        "gs://weatherbench2/datasets/era5-hourly-climatology/1990-2019_6h_64x32_equiangular_conservative.zarr",
+    ]
+    dataset_infos = {url: _extract_dataset_infos(url) for url in urls}
+    module_txt = f"""\
+    \"\"\"WeatherBench2 datasets validation information
+
+    This module has been generated automatically using the function
+    `pyearthtools.data.download.weatherbench.create_dataset_mapping`.
+    Do not modify manually.
+    \"\"\"
+
+    #: infos for WeatherBench2 datasets, mapping urls to 2 elements tuples made of
+    #: - a mapping from long variable names to short variable names
+    #: - valid level values
+    DATASETS_INFOS = {dataset_infos!r}
+    """
+    Path(module_path).write_text(textwrap.dedent(module_txt))
 
 
 class WeatherBench2(AdvancedTimeDataIndex):
@@ -146,6 +102,8 @@ class WeatherBench2(AdvancedTimeDataIndex):
         self.record_initialisation()
 
         # retrieve variables name mapping and levels for the dataset
+        from pyearthtools.data.download._weatherbench import DATASETS_INFOS
+
         long_names, valid_levels = DATASETS_INFOS[url]
 
         # create short variables name mappings
