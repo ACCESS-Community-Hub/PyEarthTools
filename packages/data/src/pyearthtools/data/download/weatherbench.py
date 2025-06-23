@@ -1,159 +1,17 @@
-from abc import ABC, abstractmethod
+from typing import Literal
 
 import xarray as xr
 
-import pyearthtools.data
 from pyearthtools.data.time import Petdt
 
 from pyearthtools.data.indexes import AdvancedTimeDataIndex, decorators
+from pyearthtools.data.indexes.utilities import spellcheck
 from pyearthtools.data.transforms.transform import Transform, TransformCollection
+from pyearthtools.data.transforms.coordinates import Select
 
 
-class WeatherBench2(ABC, AdvancedTimeDataIndex):
-    """WeatherBench2 cloud-optimized ground truth and baseline datasets
-
-    https://github.com/google-research/weatherbench2
-
-    Stephan Rasp, Stephan Hoyer, Alexander Merose, Ian Langmore, Peter Battaglia,
-    Tyler Russel, Alvaro Sanchez-Gonzalez, Vivian Yang, Rob Carver, Shreya Agrawal,
-    Matthew Chantry, Zied Ben Bouallegue, Peter Dueben, Carla Bromberg, Jared Sisk,
-    Luke Barrington, Aaron Bell and Fei Sha (2024):
-    WeatherBench 2: A benchmark for the next generation of data-driven global
-    weather models
-    Journal of Advances in Modeling Earth Systems, 16, e2023MS004019
-    https://doi.org/10.1029/2023MS004019
-    """
-
-    def __init_subclass__(cls):
-        super().__init_subclass__()
-
-        # enforce some class attributes in sub-classes
-        for attr in ["LEVELS", "LONG_NAMES"]:
-            if not hasattr(cls, attr):
-                raise TypeError(f"Class '{cls.__name__}' must define class property '{attr}'")
-
-        # generate mandatory description based on the class docstring first line
-        if cls.__doc__ is None or not cls.__doc__.strip():
-            raise TypeError(f"Class '{cls.__name__}' must define a non-empty docstring")
-
-        singleline = next((line.strip() for line in cls.__doc__.strip().splitlines() if line.strip()))
-        cls._desc_ = {
-            "singleline": singleline,
-            "link": "https://github.com/google-research/weatherbench2",
-        }
-
-        # mapping from short variable names to long variable names
-        cls.SHORT_NAMES = {val: key for key, val in cls.LONG_NAMES.items() if val is not None}
-
-        # attach validation to the constructor for variables and level names
-        valid_levels = [None] + cls.LEVELS
-        valid_variables = [None] + list(cls.LONG_NAMES) + list(cls.SHORT_NAMES)
-        args_validator = decorators.check_arguments(variables=valid_variables, level=valid_levels)
-        cls.__init__ = args_validator(cls.__init__)
-
-    def __init__(
-        self,
-        variables: str | list[str] | None = None,
-        level: int | list[int] | None = None,
-        transforms: Transform | TransformCollection | None = None,
-        **kwargs,
-    ):
-        """WeatherBench2 cloud-optimized datasets integrated within `pyearthtools`
-
-        Allows for access to a dataset for WeatherBench2 collection.
-
-        Args:
-            variables (str | list[str] | None, optional):
-                Variables to retrieve, can be either short_name or long_name.
-                Default to None, to retrieve all variables.
-            level (int | list[int] | None, optional):
-                Pressure levels to select. Defaults to None, to select all levels.
-            transforms (Transform | TransformCollection | None, optional):
-                Transforms to apply to dataset. Defaults to None.
-        """
-        super().__init__(transforms or TransformCollection(), data_interval="1 hour")
-        self.record_initialisation()
-
-        # load all variables by default
-        if variables is None:
-            variables = list(self.LONG_NAMES)
-
-        if not isinstance(variables, list):
-            variables = [variables]
-
-        # convert variable name if found in short name mapping
-        variables = [self.SHORT_NAMES.get(var, var) for var in variables]
-
-        self.variables = variables
-        self.level = level
-
-        self._kwargs = kwargs
-        self._ds = self.open_weatherbench2(variables, level, **kwargs)
-
-    @property
-    @abstractmethod
-    def url(self):
-        pass
-
-    def open_weatherbench2(self, variables, level=None, chunks="auto", **kwargs):
-        """Open a WeatherBench2 dataset from Google Cloud Platform"""
-
-        # skip parsing unused variables, this can make loading much faster
-        drop_variables = [var for var in self.LONG_NAMES if var not in set(variables)]
-
-        ds = xr.open_zarr(
-            self.url,
-            chunks=chunks,
-            storage_options=dict(token="anon"),  # TODO double check if needed
-            drop_variables=drop_variables,
-            **kwargs,
-        )
-
-        if level is not None:
-            ds = pyearthtools.data.transform.coordinates.Select(level=level, ignore_missing=True)(ds)
-
-        return ds
-
-    @property
-    def dataset(self) -> xr.Dataset:
-        """Get full dataset for this obj"""
-        return self._ds
-
-    def get(self, time: str):
-        """Get timestep from dataset"""
-        return self._ds.sel(time=Petdt(time).datetime64())
-
-
-class WB2ERA5(WeatherBench2):
-    """WeatherBench2 cloud-optimized ground truth ERA5 dataset
-
-    ERA5 datasets downloaded from the Copernicus Climate Data Store with a time
-    range from 1959 to 2023 (incl.). The data have been downsampled to 6h and
-    13 levels.
-
-    https://weatherbench2.readthedocs.io/en/latest/data-guide.html#era5
-
-    Stephan Rasp, Stephan Hoyer, Alexander Merose, Ian Langmore, Peter Battaglia,
-    Tyler Russel, Alvaro Sanchez-Gonzalez, Vivian Yang, Rob Carver, Shreya Agrawal,
-    Matthew Chantry, Zied Ben Bouallegue, Peter Dueben, Carla Bromberg, Jared Sisk,
-    Luke Barrington, Aaron Bell and Fei Sha (2024):
-    WeatherBench 2: A benchmark for the next generation of data-driven global
-    weather models
-    Journal of Advances in Modeling Earth Systems, 16, e2023MS004019
-    https://doi.org/10.1029/2023MS004019
-    """
-
-    DATASETS = {
-        "1440x721": "1959-2023_01_10-wb13-6h-1440x721_with_derived_variables.zarr",
-        "240x121": "1959-2023_01_10-6h-240x121_equiangular_with_poles_conservative.zarr",
-        "64x32": "1959-2023_01_10-6h-64x32_equiangular_conservative.zarr",
-    }
-
-    #: valid WeatherBench level values
-    LEVELS = [50, 100, 150, 200, 250, 300, 400, 500, 600, 700, 850, 925, 1000]
-
-    #: mapping from long variable names to short variable names
-    LONG_NAMES = {
+DATASETS_LONG_NAMES = {
+    "gs://weatherbench2/datasets/era5/1959-2023_01_10-wb13-6h-1440x721_with_derived_variables.zarr": {
         "10m_u_component_of_wind": "u10",
         "10m_v_component_of_wind": "v10",
         "10m_wind_speed": None,
@@ -217,36 +75,126 @@ class WB2ERA5(WeatherBench2):
         "vorticity": None,
         "wind_speed": None,
     }
+}
 
-    @decorators.check_arguments(resolution=["1440x721", "240x121", "64x32"])
+DATASETS_LEVELS = {
+    "gs://weatherbench2/datasets/era5/1959-2023_01_10-wb13-6h-1440x721_with_derived_variables.zarr": [
+        50,
+        100,
+        150,
+        200,
+        250,
+        300,
+        400,
+        500,
+        600,
+        700,
+        850,
+        925,
+        1000,
+    ]
+}
+
+
+class WeatherBench2(AdvancedTimeDataIndex):
+    """WeatherBench2 cloud-optimized ground truth and baseline datasets
+
+    https://github.com/google-research/weatherbench2
+
+    Stephan Rasp, Stephan Hoyer, Alexander Merose, Ian Langmore, Peter Battaglia,
+    Tyler Russel, Alvaro Sanchez-Gonzalez, Vivian Yang, Rob Carver, Shreya Agrawal,
+    Matthew Chantry, Zied Ben Bouallegue, Peter Dueben, Carla Bromberg, Jared Sisk,
+    Luke Barrington, Aaron Bell and Fei Sha (2024):
+    WeatherBench 2: A benchmark for the next generation of data-driven global
+    weather models
+    Journal of Advances in Modeling Earth Systems, 16, e2023MS004019
+    https://doi.org/10.1029/2023MS004019
+    """
+
+    _desc_ = {
+        "singleline": "WeatherBench2 cloud-optimized ground truth and baseline datasets",
+        "link": "https://github.com/google-research/weatherbench2",
+    }
+
     @decorators.alias_arguments(variables=["variable"], level=["levels", "level_value"])
     @decorators.variable_modifications("variables")
     def __init__(
         self,
-        resolution: str = "64x32",
+        url: str,
+        *,
         variables: str | list[str] | None = None,
         level: int | list[int] | None = None,
         transforms: Transform | TransformCollection | None = None,
+        chunks: int | dict | Literal["auto"] | None = "auto",
         **kwargs,
     ):
-        self.resolution = resolution
-        super().__init__(variables, level, transforms, **kwargs)
+        """WeatherBench2 cloud-optimized datasets integrated within `pyearthtools`
+
+        Allows for access to a dataset for WeatherBench2 collection.
+
+        Args:
+            variables (str | list[str] | None, optional):
+                Variables to retrieve, can be either short_name or long_name.
+                Default to None, to retrieve all variables.
+            level (int | list[int] | None, optional):
+                Pressure levels to select. Defaults to None, to select all levels.
+            transforms (Transform | TransformCollection | None, optional):
+                Transforms to apply to dataset. Defaults to None.
+        """
+        super().__init__(transforms or TransformCollection(), data_interval="1 hour")
+        self.record_initialisation()
+
+        # retrieve long and short variables name mappings
+        long_names = DATASETS_LONG_NAMES[url]
+        short_names = {val: key for key, val in long_names.items() if val is not None}
+
+        # check variables and level values
+        if variables is not None:
+            valid_variables = list(long_names) + list(short_names)
+            spellcheck.check_prompt(variables, valid_variables, name="variables")
+
+        if level is not None:
+            valid_levels = DATASETS_LEVELS[url]
+            spellcheck.check_prompt(level, valid_levels, name="level")
+
+        # load all variables by default
+        if variables is None:
+            variables = list(long_names)
+
+        if not isinstance(variables, list):
+            variables = [variables]
+
+        # convert variable name if found in short name mapping
+        variables = [short_names.get(var, var) for var in variables]
+
+        self.variables = variables
+        self.level = level
+
+        # skip parsing unused variables, this can make loading much faster
+        drop_variables = [var for var in long_names if var not in set(variables)]
+        ds = xr.open_zarr(url, chunks=chunks, drop_variables=drop_variables, **kwargs)
+        if level is not None:
+            ds = Select(level=level, ignore_missing=True)(ds)
+
+        self._ds = ds
+        self._kwargs = kwargs
 
     @property
-    def url(self):
-        return f"gs://weatherbench2/datasets/era5/{self.DATASETS[self.resolution]}"
+    def dataset(self) -> xr.Dataset:
+        """Get full dataset for this obj"""
+        return self._ds
 
-    @classmethod
-    def sample(cls):
-        """Example subset of the dataset"""
-        return WB2ERA5("64x32", "2m_temperature")
+    def get(self, time: str):
+        """Get timestep from dataset"""
+        return self._ds.sel(time=Petdt(time).datetime64())
 
 
-class WB2ERA5FULL(WeatherBench2):
-    """WeatherBench2 cloud-optimized ground truth ERA5 raw hourly dataset
+class WB2ERA5(WeatherBench2):
+    """WeatherBench2 cloud-optimized ground truth ERA5 dataset
 
     ERA5 datasets downloaded from the Copernicus Climate Data Store with a time
-    range from 1959 to 2023 (incl.). This is the raw hourly dataset with a
+    range from 1959 to 2023 (incl.). The data have been downsampled to 6h and
+    13 levels, except for the "raw" dataset. The raw dataset is hourly with a
     0.25 degree spatial resolution and 37 levels.
 
     https://weatherbench2.readthedocs.io/en/latest/data-guide.html#era5
@@ -261,118 +209,28 @@ class WB2ERA5FULL(WeatherBench2):
     https://doi.org/10.1029/2023MS004019
     """
 
-    #: valid WeatherBench level values
-    LEVELS = [
-        1,
-        2,
-        3,
-        5,
-        7,
-        10,
-        20,
-        30,
-        50,
-        70,
-        100,
-        125,
-        150,
-        175,
-        200,
-        225,
-        250,
-        300,
-        350,
-        400,
-        450,
-        500,
-        550,
-        600,
-        650,
-        700,
-        750,
-        775,
-        800,
-        825,
-        850,
-        875,
-        900,
-        925,
-        950,
-        975,
-        1000,
-    ]
-
-    #: mapping from long variable names to short variable names
-    LONG_NAMES = {
-        "10m_u_component_of_wind": "u10",
-        "10m_v_component_of_wind": "v10",
-        "2m_dewpoint_temperature": "d2m",
-        "2m_temperature": "t2m",
-        "angle_of_sub_gridscale_orography": "anor",
-        "anisotropy_of_sub_gridscale_orography": "isor",
-        "boundary_layer_height": "blh",
-        "geopotential": "z",
-        "geopotential_at_surface": "z",
-        "high_vegetation_cover": "cvh",
-        "lake_cover": "cl",
-        "land_sea_mask": "lsm",
-        "leaf_area_index_high_vegetation": "lai_hv",
-        "leaf_area_index_low_vegetation": "lai_lv",
-        "low_vegetation_cover": "cvl",
-        "mean_sea_level_pressure": "msl",
-        "mean_surface_latent_heat_flux": "mslhf",
-        "mean_surface_net_long_wave_radiation_flux": "msnlwrf",
-        "mean_surface_net_short_wave_radiation_flux": "msnswrf",
-        "mean_surface_sensible_heat_flux": "msshf",
-        "mean_top_downward_short_wave_radiation_flux": "mtdwswrf",
-        "mean_top_net_long_wave_radiation_flux": "mtnlwrf",
-        "mean_top_net_short_wave_radiation_flux": "mtnswrf",
-        "mean_vertically_integrated_moisture_divergence": "mvimd",
-        "potential_vorticity": "pv",
-        "sea_ice_cover": "siconc",
-        "sea_surface_temperature": "sst",
-        "slope_of_sub_gridscale_orography": "slor",
-        "snow_depth": "sd",
-        "soil_type": "slt",
-        "specific_humidity": "q",
-        "standard_deviation_of_filtered_subgrid_orography": "sdfor",
-        "standard_deviation_of_orography": "sdor",
-        "surface_pressure": "sp",
-        "temperature": "t",
-        "total_cloud_cover": "tcc",
-        "total_column_water": "tcw",
-        "total_column_water_vapour": "tcwv",
-        "total_precipitation": "tp",
-        "type_of_high_vegetation": "tvh",
-        "type_of_low_vegetation": "tvl",
-        "u_component_of_wind": "u",
-        "v_component_of_wind": "v",
-        "vertical_velocity": "w",
-        "volumetric_soil_water_layer_1": "swvl1",
-        "volumetric_soil_water_layer_2": "swvl2",
-        "volumetric_soil_water_layer_3": "swvl3",
-        "volumetric_soil_water_layer_4": "swvl4",
+    _desc_ = {
+        "singleline": "WeatherBench2 cloud-optimized ground truth ERA5 dataset",
+        "link": "https://github.com/google-research/weatherbench2",
     }
 
-    @decorators.alias_arguments(variables=["variable"], level=["levels", "level_value"])
-    @decorators.variable_modifications("variables")
-    def __init__(
-        self,
-        variables: str | list[str] | None = None,
-        level: int | list[int] | None = None,
-        transforms: Transform | TransformCollection | None = None,
-        **kwargs,
-    ):
-        super().__init__(variables, level, transforms, **kwargs)
+    DATASETS = {
+        "raw": "1959-2023_01_10-full_37-1h-0p25deg-chunk-1.zarr",
+        "1440x721": "1959-2023_01_10-wb13-6h-1440x721_with_derived_variables.zarr",
+        "240x121": "1959-2023_01_10-6h-240x121_equiangular_with_poles_conservative.zarr",
+        "64x32": "1959-2023_01_10-6h-64x32_equiangular_conservative.zarr",
+    }
 
-    @property
-    def url(self):
-        return "gs://weatherbench2/datasets/era5/1959-2023_01_10-full_37-1h-0p25deg-chunk-1.zarr"
+    @decorators.check_arguments(resolution=["1440x721", "240x121", "64x32"])
+    def __init__(self, resolution: str = "64x32", **kwargs):
+        url = f"gs://weatherbench2/datasets/era5/{self.DATASETS[resolution]}"
+        super().__init__(url, **kwargs)
+        self.resolution = resolution
 
     @classmethod
     def sample(cls):
         """Example subset of the dataset"""
-        return WB2ERA5FULL("2m_temperature")
+        return WB2ERA5("64x32", variables="2m_temperature")
 
 
 class WB2ERA5Clim(WeatherBench2):
@@ -405,32 +263,13 @@ class WB2ERA5Clim(WeatherBench2):
         ("1990-2019", "64x32"): "1990-2019_6h_64x32_equiangular_conservative.zarr",
     }
 
-    #: valid WeatherBench level values
-    LEVELS = [50, 100, 150, 200, 250, 300, 400, 500, 600, 700, 850, 925, 1000]
-
-    #: mapping from long variable names to short variable names
-    LONG_NAMES = {}
-
     @decorators.check_arguments(resolution=["1440x721", "240x121", "64x32"], period=["1990-2017", "1990-2019"])
-    @decorators.alias_arguments(variables=["variable"], level=["levels", "level_value"])
-    @decorators.variable_modifications("variables")
-    def __init__(
-        self,
-        resolution: str = "64x32",
-        period: str = "1990-2017",
-        variables: str | list[str] | None = None,
-        level: int | list[int] | None = None,
-        transforms: Transform | TransformCollection | None = None,
-        **kwargs,
-    ):
-        self.resolution = resolution
-        self.period = period
-        super().__init__(variables, level, transforms, **kwargs)
-
-    @property
-    def url(self):
+    def __init__(self, resolution: str = "64x32", period: str = "1990-2017", **kwargs):
         fname = self.DATASETS[(self.period, self.resolution)]
-        return f"gs://weatherbench2/datasets/era5-hourly-climatology/{fname}"
+        url = f"gs://weatherbench2/datasets/era5-hourly-climatology/{fname}"
+        super().__init__(url, **kwargs)
+        self.period = period
+        self.resolution = resolution
 
     @classmethod
     def sample(cls):
