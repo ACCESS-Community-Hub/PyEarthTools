@@ -25,8 +25,6 @@ varname_val_map = {
         "mid_cloud_cover": -999.,
         "high_cloud_cover": -999.
     }
-# TODO:
-# Check that these values actually represent missing values in the dataset (Possibly saw -888 as well)
 
 
 @functools.lru_cache()
@@ -41,7 +39,6 @@ def cached_exists(path: Path) -> bool:
     return path.exists()
 
 # TODO:
-# - Preprocessing not currently pipelined, so it needs to be run manually before using the HadISDIndex.
 # - In the future it would be good to add the possibility to have this preprocessing step as part of a pipeline of other preprocessing steps.
 # - Other similarly process heavy steps could be added to the pipeline, such as calculation of climatologies, or other derived variables.
 
@@ -125,6 +122,7 @@ class HadISDIndex(ArchiveIndex):
             base_transform += pyearthtools.data.transforms.variables.Select(self.variables)
             print(f"Variables selected: {self.variables}")
 
+        # Possibly remove this transform if not needed
         base_transform += SetMissingToNaN(varname_val_map)
 
         super().__init__(
