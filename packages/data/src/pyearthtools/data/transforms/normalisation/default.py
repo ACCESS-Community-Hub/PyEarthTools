@@ -156,7 +156,7 @@ class Normaliser:
         for arg in ["start", "end", "interval"]:
             if not self.retrieval_arguments[arg]:
                 raise RuntimeError(
-                    f"`override`, or (`start`, `end` and `interval`) was not given in `__init__`."
+                    "`override`, or (`start`, `end` and `interval`) was not given in `__init__`."
                     "These must be given in order to find the normalisation values."
                 )
         return True
@@ -356,7 +356,7 @@ class Normaliser:
         return {variable_name: range[variable_name]}
 
     def _find_user_normaliser(self, key: str):
-        if not "Normaliser" in key:
+        if "Normaliser" not in key:
             raise AttributeError(f"{key!r} does not contain 'Normaliser', so is being ignored")
         try:
             return dynamic_import(key)(self)

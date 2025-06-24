@@ -1,13 +1,16 @@
 import gc
-import pyearthtools.data.transforms.normalisation
-from pyearthtools.data.transforms.normalisation import default
-from pyearthtools.data.time import Petdt
-import pyearthtools.data.indexes
-import xarray as xr
-import numpy as np
-import pytest
 import os
 import tempfile
+from unittest.mock import MagicMock, patch
+
+import numpy as np
+import pytest
+import xarray as xr
+
+import pyearthtools.data.indexes
+import pyearthtools.data.transforms.normalisation
+from pyearthtools.data.time import Petdt
+from pyearthtools.data.transforms.normalisation import default
 
 # Test setup - sample data
 sample_da = xr.DataArray(
@@ -40,7 +43,7 @@ def test_open_file(monkeypatch): # Note that get_default_transforms() is not moc
     monkeypatch.setattr(pyearthtools.data.transforms.normalisation.default, "open_files", lambda x: sample_da)
 
     result = default.open_file("pretend_filename.nc")
-    
+
     assert result is not None
 
 
@@ -93,7 +96,7 @@ def test_deviation_spatial(test_Normaliser_default_setup):
     n, ati = test_Normaliser_default_setup
     with pytest.raises(NotImplementedError):
         n.deviation_spatial()
-        
+
 
 def test_range(test_Normaliser_default_setup):
     n, ati = test_Normaliser_default_setup
@@ -104,17 +107,45 @@ def test_range(test_Normaliser_default_setup):
 # Test special methods
 def test_repr(test_Normaliser_default_setup):
     n, ati = test_Normaliser_default_setup
-    
+
     assert repr(n) == "Normalisation Class waiting upon a request for a method, either call with a method or use property."
 
 
 # Test Normaliser abstract base class
-def test_Normaliser_initialisation(test_Normaliser_default_setup):
+def test_Normaliser_initialisation_no_cache(test_Normaliser_default_setup):
     n, ati = test_Normaliser_default_setup
 
     assert n.retrieval_arguments["start"] == Petdt("2023-02")
     assert n.retrieval_arguments["end"] == Petdt("2023-03")
     assert n.retrieval_arguments["interval"] == "month"
+
+
+def test_Normaliser_initialisation_non_temp_cache(monkeypatch):
+    monkeypatch.setattr("pyearthtools.data.indexes.AdvancedTimeIndex.__abstractmethods__", set())
+    data_interval = "day"
+    ati = pyearthtools.data.indexes.AdvancedTimeIndex(data_interval)
+    start = Petdt("2023-02")
+    end = Petdt("2023-03")
+    interval = "month"
+    cache = "path/to/dummy_cache"
+
+    n = default.Normaliser(ati, start, end, interval, cache=cache)
+
+    assert n.cache_dir == cache
+
+
+def test_Normaliser_initialisation_temp_cache(monkeypatch):
+    monkeypatch.setattr("pyearthtools.data.indexes.AdvancedTimeIndex.__abstractmethods__", set())
+    data_interval = "day"
+    ati = pyearthtools.data.indexes.AdvancedTimeIndex(data_interval)
+    start = Petdt("2023-02")
+    end = Petdt("2023-03")
+    interval = "month"
+    cache = "temp"
+
+    n = default.Normaliser(ati, start, end, interval, cache=cache)
+
+    assert n.cache_dir == cache
 
 
 def test_Normaliser_info(test_Normaliser_default_setup):
@@ -133,8 +164,8 @@ def test_Normaliser_check_init_args(test_Normaliser_default_setup):
     result = n.check_init_args()
 
     assert result is True
-    
-    
+
+
 @pytest.mark.parametrize("missing_arg", ["start", "end", "interval"])
 def test_Normaliser_check_init_args_missing_retrieval_args(monkeypatch, missing_arg):
     monkeypatch.setattr("pyearthtools.data.indexes.AdvancedTimeIndex.__abstractmethods__", set())
@@ -196,7 +227,7 @@ def test_Normaliser_with_override(monkeypatch):
 
     n = default.Normaliser(ati, start, end, interval, override="True")
     result = n.check_init_args()
-    assert result == True
+    assert result
 
 
 def test_Normaliser_errors(monkeypatch):
