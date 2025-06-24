@@ -1,5 +1,7 @@
 # Bundled Models API Docs
 
+Note - at some point, "bundled models" will become simply "models", and each model will be added to that namespace.
+
 ## `fourcastnext`
 
 ```{eval-rst}

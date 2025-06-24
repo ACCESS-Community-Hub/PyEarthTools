@@ -262,7 +262,7 @@ class ERA5LowResDemoIndex(ArchiveIndex):
         base_transforms = TransformCollection()
 
         # base_transforms += pyearthtools.data.transforms.attributes.Rename(ERA5DEMO_RENAME)
-        # base_transforms += pyearthtools.data.transforms.variables.variable_trim(variables)
+        base_transforms += pyearthtools.data.transforms.variables.variable_trim(variables)
 
         self.level_value = level_value
 

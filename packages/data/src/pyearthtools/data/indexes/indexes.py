@@ -74,7 +74,7 @@ class Index(CallRedirectMixin, CatalogMixin, metaclass=ABCMeta):
     To use, subclass and define the `.get` function, any calls, shall be passed through.
     """
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         super().__init__()
 
     @abstractmethod

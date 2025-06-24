@@ -55,10 +55,10 @@ PyEarthTools comprises multiple sub-packages which can be used individually or t
 
 |    Sub-Package                                         |  Purpose  |
 |--------------------------------------------------------|---------------------- |
-|  [Data](api/data/data_index.md)                        | Loading and indexing into well-known Earth system data sets to produce ML-ready data structures |
+|  [Data](api/data/data_index.md)                        | Loading and indexing Earth system data into xarray |
 |  [Utils](api/utils/utils_index.md)                     | Code for common functionality across the sub-packages |
-|  [Pipeline](api/pipeline/pipeline_index.md)            | Definining reproducible sequences of operations with the ability to cache results |
-|  [Training](api/training/training_index)               | Code defining the training processes and schedules of a machine learning model |
+|  [Pipeline](api/pipeline/pipeline_index.md)            | Process and normalise Earth system data ready for machine learning |
+|  [Training](api/training/training_index)               | Training processes for machine learning modelsl |
 |  [Tutorial](api/tutorial/tutorial_index.md)            | Contains helper code for data sets used in tutorials |
 |  [Bundled Models](api/bundled_models/bundled_index.md) | Maintained versions of specific, bundled models which can be easily trained and run |
 |  [Zoo](api/zoo/zoo_index.md)                           | Contains code for managing registered models (such as the bundled models) |
@@ -80,7 +80,6 @@ newproject
 projectideas
 installation
 notebooks/Gallery
-catalogue
 config
 api/api
 roadmap
