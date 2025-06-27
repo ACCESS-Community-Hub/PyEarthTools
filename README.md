@@ -16,7 +16,7 @@ Tutorial Gallery: [available here](https://pyearthtools.readthedocs.io/en/latest
 
 **Here is the quickest way to install the complete framework and get started:**
 
-We strongly recommend using a [virtual environment](https://pyearthtools.readthedocs.io/en/latest/installation.html#virtual-environments), either a Conda or a Python virtual environments.
+We strongly recommend using either a Conda or Python [virtual environment](https://pyearthtools.readthedocs.io/en/latest/installation.html#virtual-environments).
 
 Run the following commands to install PyEarthTools in a Conda environment:
 ```shell
