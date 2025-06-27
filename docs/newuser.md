@@ -4,7 +4,7 @@ Welcome new user! This document will continue to be updated based on user feedba
 
 ## Installation
 
-We strongly recommend using a [virtual environment](installation.md#virtual-environments), either a Conda or a Python virtual environments.
+We strongly recommend using either a Conda or Python [virtual environment](installation.md#virtual-environments).
 
 :::::{tab-set}
 ::::{tab-item} Conda environment
