@@ -30,7 +30,7 @@ Tutorial Gallery: [available here](./notebooks/Gallery)
 
 **Here is the quickest way to install the complete framework and get started:**
 
-We strongly recommend using a [virtual environment](installation.md#virtual-environments), either a Conda or a Python virtual environments.
+We strongly recommend using either a Conda or Python [virtual environment](installation.md#virtual-environments).
 
 :::::{tab-set}
 ::::{tab-item} Conda environment
