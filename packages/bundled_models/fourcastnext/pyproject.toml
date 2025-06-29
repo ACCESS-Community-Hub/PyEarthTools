@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyearthtools-bundled-fourcastnext"
-version = "0.1.0"
+version = "0.2.0"
 description = "FourCastNeXt Bundled Model"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -19,10 +19,10 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
- 'pyearthtools.training[lightning]>=0.1.0',
- 'pyearthtools.zoo>=0.1.0',
- 'pyearthtools.data>=0.1.0',
- 'pyearthtools.pipeline>=0.1.0',
+ 'pyearthtools.training[lightning]>=0.2.0',
+ 'pyearthtools.zoo>=0.2.0',
+ 'pyearthtools.data>=0.2.0',
+ 'pyearthtools.pipeline>=0.2.0',
  'hydra-core',
  'torch_optimizer',
  'timm',

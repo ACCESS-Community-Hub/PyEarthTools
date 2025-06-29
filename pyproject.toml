@@ -15,7 +15,8 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
-version = "0.1.0"
+
+version = "0.2.0"
 
 # FIXME replace with minimum versions once PyEarthTools is on PyPI
 # FIXME remove redundant dependencies once PyEarthTools is on PyPI
@@ -72,7 +73,9 @@ docs = [
   "scipy",
   "bottleneck",
   "nbsphinx",
-  "sphinx_gallery"
+  "sphinx_gallery",
+  "sphinx-design",
+  "sphinx-togglebutton",
 ]
 
 [project.urls]

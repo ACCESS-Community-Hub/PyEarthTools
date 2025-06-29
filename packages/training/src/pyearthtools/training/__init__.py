@@ -28,7 +28,7 @@ from pyearthtools.training import data, wrapper, manage
 from pyearthtools.training.wrapper import *  # type: ignore # noqa: F403
 from pyearthtools.training.dataindex import MLDataIndex
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 # try:
 #     from pyearthtools.training import modules

@@ -18,7 +18,7 @@ from fourcastnext import registered_model
 from pyearthtools.pipeline.operation import Operation
 import xarray as xr
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 # TODO: Come up with a more elegant regridding approach that ideally can also
 # handle any resolution of grid, and so not be limited specifically to this model

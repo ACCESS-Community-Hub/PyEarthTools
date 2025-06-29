@@ -17,7 +17,7 @@ classifiers = [
 ]
 dependencies = [
     "pyearthtools-pipeline",
-    "pyearthtools-utils>=0.1.0",
+    "pyearthtools-utils>=0.2.0",
     "einops",
     "scikit-learn",
     "scipy",

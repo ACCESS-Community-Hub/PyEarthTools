@@ -41,7 +41,7 @@ pipeline['2000-01-01T00']
 
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 import pyearthtools.pipeline.logger
 
@@ -94,4 +94,3 @@ __all__ = [
     "modifications",
 ]
 
-__version__ = "0.1.0"

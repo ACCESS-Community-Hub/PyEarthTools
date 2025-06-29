@@ -93,7 +93,7 @@ Models = utils.AvailableModels()
 from pyearthtools.zoo.predict import predict, data, interactive  # pylint: disable=C0413  # noqa: E402
 from pyearthtools.zoo.commands import commands  # pylint: disable=C0413 # noqa: E402
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 
 def available_models() -> tuple[str, ...]:
