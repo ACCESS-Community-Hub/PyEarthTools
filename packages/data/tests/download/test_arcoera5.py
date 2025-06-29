@@ -2,6 +2,7 @@ import pytest
 
 from pyearthtools.data.download import arcoera5
 
+# FIXME: Skip slow downloads unless chosen specifically
 
 def _load_sample(variables, levels, sample_time):
     arco = arcoera5.ARCOERA5(variables, levels=levels)
