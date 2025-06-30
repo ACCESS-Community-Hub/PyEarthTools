@@ -44,6 +44,11 @@
             "orcid": "https://orcid.org/0000-0002-1975-0042",
             "affiliation": "Bureau of Meteorology, Australia",
             "name": "de Burgh-Day, Catherine"
+        },
+        {
+            "orcid": "https://orcid.org/0009-0000-5048-4240",
+            "affiliation": "Met Office, United Kingdom",
+            "name": "Sullivan, Ben"
         }
     ],
     "license": "Apache-2.0",
