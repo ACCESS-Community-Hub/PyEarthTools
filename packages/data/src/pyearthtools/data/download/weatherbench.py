@@ -97,6 +97,8 @@ class WeatherBench2(AdvancedTimeDataIndex):
                 Pressure levels to select. Defaults to None, to select all levels.
             transforms (Transform | TransformCollection | None, optional):
                 Transforms to apply to dataset. Defaults to None.
+            chunks (int | dict | Literal["auto"], optional):
+                Chunking used to load data into Dask arrays. Defaults to "auto".
         """
         super().__init__(transforms or TransformCollection(), data_interval="1 hour")
         self.record_initialisation()
