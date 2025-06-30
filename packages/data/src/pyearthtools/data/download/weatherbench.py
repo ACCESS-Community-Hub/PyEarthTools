@@ -1,4 +1,5 @@
 import textwrap
+import hashlib
 from pathlib import Path
 from typing import Literal
 
@@ -53,6 +54,41 @@ def create_dataset_mapping(module_path: str):
     Path(module_path).write_text(textwrap.dedent(module_txt))
 
 
+def download_dataset(dset: xr.Dataset, url: str, download_dir: str | Path) -> xr.Dataset:
+    url_hash = hashlib.sha256(url.encode()).hexdigest()
+    download_folder = Path(download_dir) / url_hash
+
+    download_folder.mkdir(parents=True, exist_ok=True)
+    Path(download_folder / "url").write_text(url)
+
+    new_dsets = []
+    for varname in dset.data_vars:
+        dset_var = dset[varname]
+
+        if "level" in dset_var.dims:
+            filelist = []
+            for level in dset_var.level.values:
+                filepath = download_folder / f"{varname}_level-{level}.nc"
+                if not filepath.is_file():
+                    # TODO save as zarr?
+                    dset_var.sel(level=level).to_netcdf(str(filepath))
+                filelist.append(filepath)
+            # TODO reopen with right chunking
+            new_dset_var = xr.open_mfdataset(filelist, concat_dim="level", combine="nested")
+            new_dsets.append(new_dset_var)
+
+        else:
+            filepath = download_folder / f"{varname}.nc"
+            if not filepath.is_file():
+                # TODO save as zarr?
+                dset_var.to_netcdf(str(filepath))
+            # TODO reopen with right chunking
+            new_dset_var = xr.open_dataset(filepath)
+            new_dsets.append(new_dset_var)
+
+    return new_dsets
+
+
 class WeatherBench2(AdvancedTimeDataIndex):
     """WeatherBench2 cloud-optimized ground truth and baseline datasets
 
@@ -83,6 +119,7 @@ class WeatherBench2(AdvancedTimeDataIndex):
         level: int | list[int] | None = None,
         transforms: Transform | TransformCollection | None = None,
         chunks: int | dict | Literal["auto"] | None = "auto",
+        download_dir: str | Path | None = None,
         **kwargs,
     ):
         """WeatherBench2 cloud-optimized datasets integrated within `pyearthtools`
@@ -137,6 +174,9 @@ class WeatherBench2(AdvancedTimeDataIndex):
         ds = xr.open_zarr(url, chunks=chunks, drop_variables=drop_variables, **kwargs)
         if level is not None:
             ds = Select(level=level, ignore_missing=True)(ds)
+
+        if download_dir is not None:
+            ds = download_dataset(ds, url, download_dir)
 
         self._ds = ds
         self._kwargs = kwargs
