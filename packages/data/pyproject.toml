@@ -38,6 +38,7 @@ download = [
   "ecmwf-opendata",
   "eccodes",
   "gcsfs",
+  "zarr==2.*"
 ]
 intake = [
   "intake-esm",

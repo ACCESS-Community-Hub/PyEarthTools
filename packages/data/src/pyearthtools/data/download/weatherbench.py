@@ -4,9 +4,9 @@ from pathlib import Path
 from typing import Literal
 
 import xarray as xr
+from numcodecs.blosc import Blosc
 
 from pyearthtools.data.time import Petdt
-
 from pyearthtools.data.indexes import AdvancedTimeDataIndex, decorators
 from pyearthtools.data.indexes.utilities import spellcheck
 from pyearthtools.data.transforms.transform import Transform, TransformCollection
@@ -55,27 +55,29 @@ def create_dataset_mapping(module_path: str):
 
 
 def save_local_dataset(path: Path, dset: xr.Dataset):
-    """save a dataset as a set of local netcdf files, one per variable and level
+    """save a dataset as a set of local .zarr folders, one per variable and level
 
     Note: Variables already saved in `path` are skipped.
     """
-    # TODO save files as zarr?
+    # TODO add logging
 
     path.mkdir(parents=True, exist_ok=True)
 
     for varname in dset.data_vars:
         dset_var = dset[varname]
+        compressor = {"compressor": Blosc(cname="zstd", clevel=6)}
+        zarr_kwargs = {"encoding": {varname: compressor}, "consolidated": False}
 
         if "level" in dset_var.dims:
             for level in dset_var.level.values:
-                filepath = path / f"{varname}_level-{level}.nc"
-                if not filepath.is_file():
-                    dset_var.sel(level=level).to_netcdf(filepath)
+                zarrpath = path / f"{varname}_level-{level}.zarr"
+                if not zarrpath.is_dir():
+                    dset_var.sel(level=level).to_zarr(zarrpath, **zarr_kwargs)
 
         else:
-            filepath = path / f"{varname}.nc"
-            if not filepath.is_file():
-                dset_var.to_netcdf(filepath)
+            zarrpath = path / f"{varname}.zarr"
+            if not zarrpath.is_dir():
+                dset_var.to_zarr(zarrpath, **zarr_kwargs)
 
 
 class MissingVariableFile(FileNotFoundError):
@@ -88,15 +90,15 @@ def open_local_dataset(path: Path, variables: list[str], level: list[int]) -> xr
     dsets = []
 
     for varname in variables:
-        filepath = path / f"{varname}.nc"
+        filepath = path / f"{varname}.zarr"
 
-        if filepath.is_file():
-            dset = xr.open_dataset(filepath)
+        if filepath.is_dir():
+            dset = xr.open_zarr(filepath, consolidated=False)
         else:
-            filelist = [path / f"{varname}_level-{lvl}.nc" for lvl in level]
-            if any(not fpath.is_file() for fpath in filelist):
-                raise MissingVariableFile("Missing netcdf file for some variables")
-            dset = xr.open_mfdataset(filelist, concat_dim="level", combine="nested")
+            filelist = [path / f"{varname}_level-{lvl}.zarr" for lvl in level]
+            if any(not fpath.is_dir() for fpath in filelist):
+                raise MissingVariableFile("Missing .zarr folder for some variables")
+            dset = xr.open_mfdataset(filelist, concat_dim="level", combine="nested", consolidated=False)
 
         dsets.append(dset)
 
