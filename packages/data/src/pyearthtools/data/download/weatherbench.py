@@ -54,39 +54,54 @@ def create_dataset_mapping(module_path: str):
     Path(module_path).write_text(textwrap.dedent(module_txt))
 
 
-def download_dataset(dset: xr.Dataset, url: str, download_dir: str | Path) -> xr.Dataset:
-    url_hash = hashlib.sha256(url.encode()).hexdigest()
-    download_folder = Path(download_dir) / url_hash
+def save_local_dataset(path: Path, dset: xr.Dataset):
+    """save a dataset as a set of local netcdf files, one per variable and level
 
-    download_folder.mkdir(parents=True, exist_ok=True)
-    Path(download_folder / "url").write_text(url)
+    Note: Variables already saved in `path` are skipped.
+    """
+    # TODO save files as zarr?
 
-    new_dsets = []
+    path.mkdir(parents=True, exist_ok=True)
+
     for varname in dset.data_vars:
         dset_var = dset[varname]
 
         if "level" in dset_var.dims:
-            filelist = []
             for level in dset_var.level.values:
-                filepath = download_folder / f"{varname}_level-{level}.nc"
+                filepath = path / f"{varname}_level-{level}.nc"
                 if not filepath.is_file():
-                    # TODO save as zarr?
-                    dset_var.sel(level=level).to_netcdf(str(filepath))
-                filelist.append(filepath)
-            # TODO reopen with right chunking
-            new_dset_var = xr.open_mfdataset(filelist, concat_dim="level", combine="nested")
-            new_dsets.append(new_dset_var)
+                    dset_var.sel(level=level).to_netcdf(filepath)
 
         else:
-            filepath = download_folder / f"{varname}.nc"
+            filepath = path / f"{varname}.nc"
             if not filepath.is_file():
-                # TODO save as zarr?
-                dset_var.to_netcdf(str(filepath))
-            # TODO reopen with right chunking
-            new_dset_var = xr.open_dataset(filepath)
-            new_dsets.append(new_dset_var)
+                dset_var.to_netcdf(filepath)
 
-    return new_dsets
+
+class MissingVariableFile(FileNotFoundError):
+    pass
+
+
+def open_local_dataset(path: Path, variables: list[str], level: list[int]) -> xr.Dataset:
+    # TODO reopen with right chunking
+
+    dsets = []
+
+    for varname in variables:
+        filepath = path / f"{varname}.nc"
+
+        if filepath.is_file():
+            dset = xr.open_dataset(filepath)
+        else:
+            filelist = [path / f"{varname}_level-{lvl}.nc" for lvl in level]
+            if any(not fpath.is_file() for fpath in filelist):
+                raise MissingVariableFile("Missing netcdf file for some variables")
+            dset = xr.open_mfdataset(filelist, concat_dim="level", combine="nested")
+
+        dsets.append(dset)
+
+    dset_full = xr.merge(dsets)
+    return dset_full
 
 
 class WeatherBench2(AdvancedTimeDataIndex):
@@ -169,14 +184,31 @@ class WeatherBench2(AdvancedTimeDataIndex):
         self.variables = variables
         self.level = level
 
-        # skip parsing unused variables, this can make loading much faster
-        drop_variables = [var for var in long_names if var not in set(variables)]
-        ds = xr.open_zarr(url, chunks=chunks, drop_variables=drop_variables, **kwargs)
-        if level is not None:
-            ds = Select(level=level, ignore_missing=True)(ds)
+        def open_online_dataset():
+            # skip parsing unused variables, this can make loading much faster
+            drop_variables = [var for var in long_names if var not in set(variables)]
+            ds = xr.open_zarr(url, chunks=chunks, drop_variables=drop_variables, **kwargs)
+            if level is not None:
+                ds = Select(level=level, ignore_missing=True)(ds)
+            return ds
 
-        if download_dir is not None:
-            ds = download_dataset(ds, url, download_dir)
+        if download_dir is None:
+            ds = open_online_dataset()
+
+        else:
+            # use a hash of the url to identify the dataset subfolder
+            url_hash = hashlib.sha256(url.encode()).hexdigest()
+            download_path = Path(download_dir) / url_hash
+
+            # try to open dataset from download dir if defined
+            # download missing variables and levels if this fails
+            try:
+                ds = open_local_dataset(download_path, variables, level)
+            except MissingVariableFile:
+                ds_remote = open_online_dataset()
+                save_local_dataset(download_path, ds_remote)
+                (download_path / "dataset_url").write_text(url)
+                ds = open_local_dataset(download_path, variables, level)
 
         self._ds = ds
         self._kwargs = kwargs
