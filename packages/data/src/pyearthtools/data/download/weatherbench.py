@@ -327,8 +327,7 @@ class WB2ERA5Clim(WeatherBench2):
 
     @decorators.check_arguments(resolution=["1440x721", "240x121", "64x32"], period=["1990-2017", "1990-2019"])
     def __init__(self, resolution: str = "64x32", period: str = "1990-2017", **kwargs):
-        fname = self.DATASETS[(self.period, self.resolution)]
-        url = f"gs://weatherbench2/datasets/era5-hourly-climatology/{fname}"
+        url = f"gs://weatherbench2/datasets/era5-hourly-climatology/{self.DATASETS[(period, resolution)]}"
         super().__init__(url, **kwargs)
         self.period = period
         self.resolution = resolution
@@ -336,4 +335,4 @@ class WB2ERA5Clim(WeatherBench2):
     @classmethod
     def sample(cls):
         """Example subset of the dataset"""
-        return WB2ERA5Clim("64x32", "1990-2017", "2m_temperature")
+        return WB2ERA5Clim("64x32", "1990-2017", variables="2m_temperature")
