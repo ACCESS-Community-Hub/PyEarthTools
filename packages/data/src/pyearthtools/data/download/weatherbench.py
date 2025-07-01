@@ -169,6 +169,16 @@ class WeatherBench2(AdvancedTimeDataIndex):
 
         Allows for access to a dataset for WeatherBench2 collection.
 
+        If a `download_dir` folder is provided, the selected subset (i.e. variables
+        and levels) of the dataset will be first downloaded into the folder, in a
+        subfolder named with the hash of the url. In this subfolder, each variable
+        and level is saved as a separate compressed zarr dataset. Once downloaded,
+        any subsequent access will use the local version.
+
+        Later, if you select a different set of variables and levels, make sure to
+        use the same folder, as only the missing variables and levels will then be
+        downloaded.
+
         Args:
             variables (str | list[str] | None, optional):
                 Variables to retrieve, can be either short_name or long_name.
@@ -179,6 +189,8 @@ class WeatherBench2(AdvancedTimeDataIndex):
                 Transforms to apply to dataset. Defaults to None.
             chunks (int | dict | Literal["auto"], optional):
                 Chunking used to load data into Dask arrays. Defaults to "auto".
+            download_dir (str | Path, optional):
+                Folder where to save a copy of the dataset. Defaults to None.
         """
         super().__init__(transforms or TransformCollection(), data_interval="1 hour")
         self.record_initialisation()
