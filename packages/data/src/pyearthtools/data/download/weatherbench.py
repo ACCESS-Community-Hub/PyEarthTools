@@ -1,3 +1,4 @@
+import logging
 import textwrap
 import hashlib
 from pathlib import Path
@@ -59,7 +60,7 @@ def save_local_dataset(path: Path, dset: xr.Dataset):
 
     Note: Variables already saved in `path` are skipped.
     """
-    # TODO add logging
+    logger = logging.getLogger("pyearthtools.data")
 
     path.mkdir(parents=True, exist_ok=True)
 
@@ -72,12 +73,18 @@ def save_local_dataset(path: Path, dset: xr.Dataset):
             for level in dset_var.level.values:
                 zarrpath = path / f"{varname}_level-{level}.zarr"
                 if not zarrpath.is_dir():
+                    logger.info(f"Saving {varname} variable (level {level}) under {zarrpath}.")
                     dset_var.sel(level=level).to_zarr(zarrpath, **zarr_kwargs)
+                else:
+                    logger.debug(f"Skip saving {varname} variable (level {level}), folder {zarrpath} already exists.")
 
         else:
             zarrpath = path / f"{varname}.zarr"
             if not zarrpath.is_dir():
+                logger.info(f"Saving {varname} under {zarrpath}")
                 dset_var.to_zarr(zarrpath, **zarr_kwargs)
+            else:
+                logger.debug(f"Skip saving {varname}, folder {zarrpath} already exists.")
 
 
 class MissingVariableFile(FileNotFoundError):
@@ -85,21 +92,21 @@ class MissingVariableFile(FileNotFoundError):
 
 
 def open_local_dataset(path: Path, variables: list[str], level: list[int]) -> xr.Dataset:
-    # TODO reopen with right chunking
+    """Open a locally saved dataset made of 1 zarr folder per variable and level"""
+    logger = logging.getLogger("pyearthtools.data")
 
     dsets = []
-
     for varname in variables:
         filepath = path / f"{varname}.zarr"
-
         if filepath.is_dir():
+            logger.debug(f"Loading {varname} variable from folder {filepath}.")
             dset = xr.open_zarr(filepath, consolidated=False)
         else:
             filelist = [path / f"{varname}_level-{lvl}.zarr" for lvl in level]
             if any(not fpath.is_dir() for fpath in filelist):
                 raise MissingVariableFile("Missing .zarr folder for some variables")
+            logger.debug(f"Loading {varname} variable from folders {[str(p) for p in filelist]}.")
             dset = xr.open_mfdataset(filelist, concat_dim="level", combine="nested", consolidated=False)
-
         dsets.append(dset)
 
     dset_full = xr.merge(dsets)
