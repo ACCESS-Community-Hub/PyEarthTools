@@ -55,6 +55,22 @@ def create_dataset_mapping(module_path: str):
     Path(module_path).write_text(textwrap.dedent(module_txt))
 
 
+def _human_readable_size(nbytes: int) -> tuple[float, str]:
+    """convert byte size in human readable format"""
+    size = nbytes / 1_000_000
+    unit = "megabytes"
+    if size > 1_000:
+        size /= 1_000
+        unit = "gigabytes"
+    if size > 1_000:
+        size /= 1_000
+        unit = "terabytes"
+    if size > 1_000:
+        size /= 1_000
+        unit = "petabytes"
+    return size, unit
+
+
 def save_local_dataset(path: Path, dset: xr.Dataset):
     """save a dataset as a set of local .zarr folders, one per variable and level
 
@@ -63,6 +79,9 @@ def save_local_dataset(path: Path, dset: xr.Dataset):
     logger = logging.getLogger("pyearthtools.data")
 
     path.mkdir(parents=True, exist_ok=True)
+
+    dset_size, unit = _human_readable_size(dset.nbytes)
+    logger.warn(f"Saving dataset, it will take at most {dset_size:.2f} {unit} of storage space.")
 
     for varname in dset.data_vars:
         dset_var = dset[varname]
