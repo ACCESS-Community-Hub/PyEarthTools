@@ -131,26 +131,64 @@ class HadISDIndex(ArchiveIndex):
        
         self.record_initialisation()
 
-    def get_all_station_ids(self, root_directory: Path | str) -> list[str]:
+    # def get_all_station_ids(self, root_directory: Path | str) -> list[str]:
+    #     """
+    #     Retrieve all station IDs by scanning the dataset directory.
+
+    #     Args:
+    #         root_directory (Path | str): The root directory containing station data.
+
+    #     Returns:
+    #         list[str]: A list of all station IDs.
+    #     """
+    #     root_directory = Path(root_directory)
+    #     station_ids = []
+    #     for folder in cached_iterdir(root_directory):
+    #         if folder.is_dir():
+    #             for file in cached_iterdir(folder):
+    #                 if file.suffix == ".nc":  # Check for NetCDF files
+    #                     # Extract the station ID from the filename
+    #                     station_id = file.stem.split("_")[-1]  # Assuming station ID is the last part of the filename
+    #                     station_ids.append(station_id)
+    #     return station_ids
+    
+
+    def get_all_station_ids(self, root_directory: Path | str = None) -> list[str]:
         """
         Retrieve all station IDs by scanning the dataset directory.
 
         Args:
-            root_directory (Path | str): The root directory containing station data.
+            root_directory (Path | str, optional): The root directory containing station data.
+                Defaults to HADISD_HOME/netcdf.
 
         Returns:
             list[str]: A list of all station IDs.
         """
-        root_directory = Path(root_directory)
-        station_ids = []
-        for folder in cached_iterdir(root_directory):
-            if folder.is_dir():
-                for file in cached_iterdir(folder):
-                    if file.suffix == ".nc":  # Check for NetCDF files
-                        # Extract the station ID from the filename
-                        station_id = file.stem.split("_")[-1]  # Assuming station ID is the last part of the filename
-                        station_ids.append(station_id)
-        return station_ids
+
+        HADISD_HOME = self.ROOT_DIRECTORIES["hadisd"]
+        if root_directory is None:
+            # Search all WMO folders for netcdf subfolders
+            wmo_folders = [f for f in Path(HADISD_HOME).iterdir() if f.is_dir() and f.name.startswith("WMO_")]
+            station_ids = []
+            for wmo_folder in wmo_folders:
+                netcdf_dir = wmo_folder / "netcdf"
+                if cached_exists(netcdf_dir):
+                    for file in cached_iterdir(netcdf_dir):
+                        if file.suffix == ".nc":
+                            station_id = file.stem.split("_")[-1]
+                            station_ids.append(station_id)
+            return station_ids
+        else:
+            root_directory = Path(root_directory)
+            if not cached_exists(root_directory):
+                raise DataNotFoundError(f"Root directory does not exist: {root_directory}")
+            station_ids = []
+            for file in cached_iterdir(root_directory):
+                if file.suffix == ".nc":
+                    station_id = file.stem.split("_")[-1]
+                    station_ids.append(station_id)
+            return station_ids
+
 
 
     def filesystem(self, *args, date_range=("1970-01-01T00", "2023-12-31T23"), **kwargs) -> dict[str, Path]:
@@ -237,11 +275,11 @@ class HadISDIndex(ArchiveIndex):
             # Construct the expected filename
             date_range = "19310101-20240101"  # Hardcoded for now; adjust if dataset is updated
             version = "hadisd.3.4.0.2023f"
-            filename = f"{version}_{date_range}_{station_id}.nc"
+            filename_nc = f"{version}_{date_range}_{station_id}.nc"
             filename_zarr = f"{version}_{date_range}_{station_id}.zarr"
 
             # Construct the full path
-            file_path = Path(HADISD_HOME) / parent_folder / filename
+            file_path_nc = Path(HADISD_HOME) / parent_folder / "netcdf" / filename_nc
             file_path_zarr = Path(HADISD_HOME) / parent_folder / "zarr_cache" / filename_zarr
 
             # Check if the file exists (comment out if testing with single netcdf)
