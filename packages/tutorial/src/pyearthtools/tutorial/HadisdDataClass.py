@@ -280,7 +280,7 @@ class HadISDIndex(ArchiveIndex):
 
             # Construct the full path
             file_path_nc = Path(HADISD_HOME) / parent_folder / "netcdf" / filename_nc
-            file_path_zarr = Path(HADISD_HOME) / parent_folder / "zarr_cache" / filename_zarr
+            file_path_zarr = Path(HADISD_HOME) / parent_folder / "zarr" / filename_zarr
 
             # Check if the file exists (comment out if testing with single netcdf)
             if not file_path_zarr.exists():
