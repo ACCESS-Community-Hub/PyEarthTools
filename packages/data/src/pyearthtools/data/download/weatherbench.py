@@ -77,7 +77,7 @@ def _save_variable(darr: xr.DataArray, path: Path):
 
     This function does nothing if the target zarr folder already exists.
     """
-    logger = logging.getLogger("pyearthtools.data")
+    logger = logging.getLogger(__name__)
 
     if "level" in darr.coords:
         level = darr.coords["level"].item()
@@ -109,7 +109,13 @@ def save_local_dataset(path: Path, dset: xr.Dataset):
 
     Note: Variables already saved in `path` are skipped.
     """
-    logger = logging.getLogger("pyearthtools.data")
+    logger = logging.getLogger(__name__)
+
+    # make logger print to console by default if there is no handler configured
+    if not logger.handlers:
+        handler = logging.StreamHandler()
+        handler.setLevel(logging.INFO)
+        logger.addHandler(handler)
 
     dset_size, unit = _human_readable_size(dset.nbytes)
     logger.warn(f"Saving dataset, it will take at most {dset_size:.2f} {unit} of storage space.")
@@ -131,7 +137,7 @@ class MissingVariableFile(FileNotFoundError):
 
 def open_local_dataset(path: Path, variables: list[str], level: list[int]) -> xr.Dataset:
     """Open a locally saved dataset made of 1 zarr folder per variable and level"""
-    logger = logging.getLogger("pyearthtools.data")
+    logger = logging.getLogger(__name__)
 
     dsets = []
     for varname in variables:
