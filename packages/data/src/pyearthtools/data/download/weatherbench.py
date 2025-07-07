@@ -6,6 +6,7 @@ from typing import Literal
 
 import xarray as xr
 from numcodecs.blosc import Blosc
+from tqdm.dask import TqdmCallback
 
 from pyearthtools.data.time import Petdt
 from pyearthtools.data.indexes import AdvancedTimeDataIndex, decorators
@@ -71,6 +72,38 @@ def _human_readable_size(nbytes: int) -> tuple[float, str]:
     return size, unit
 
 
+def _save_variable(darr: xr.DataArray, path: Path):
+    """helper function to save one variable as a zarr folder inside given folder
+
+    This function does nothing if the target zarr folder already exists.
+    """
+    logger = logging.getLogger("pyearthtools.data")
+
+    if "level" in darr.coords:
+        level = darr.coords["level"].item()
+        zarrpath = path / f"{darr.name}_level-{level}.zarr"
+        varname = f"{darr.name} variable (level {level})"
+    else:
+        zarrpath = path / f"{darr.name}.zarr"
+        varname = f"{darr.name} variable"
+
+    if zarrpath.is_dir():
+        logger.info(f"Skip saving {varname}, folder {zarrpath} already exists.")
+        return
+
+    compressor = {"compressor": Blosc(cname="zstd", clevel=6)}
+    zarr_kwargs = {"encoding": {darr.name: compressor}, "consolidated": False}
+
+    dsarr_size, unit = _human_readable_size(darr.nbytes)
+    logger.info(f"Saving {varname} under {zarrpath}, it will take at most {dsarr_size:.2f} {unit} of storage space.")
+
+    disable_bar = logger.getEffectiveLevel() > logging.INFO
+    with TqdmCallback(desc="Writing", disable=disable_bar):
+        darr.to_zarr(zarrpath, **zarr_kwargs)
+
+    logger.info(f"Saving {varname} finished.")
+
+
 def save_local_dataset(path: Path, dset: xr.Dataset):
     """save a dataset as a set of local .zarr folders, one per variable and level
 
@@ -78,32 +111,18 @@ def save_local_dataset(path: Path, dset: xr.Dataset):
     """
     logger = logging.getLogger("pyearthtools.data")
 
-    path.mkdir(parents=True, exist_ok=True)
-
     dset_size, unit = _human_readable_size(dset.nbytes)
     logger.warn(f"Saving dataset, it will take at most {dset_size:.2f} {unit} of storage space.")
 
+    path.mkdir(parents=True, exist_ok=True)
+
     for varname in dset.data_vars:
         dset_var = dset[varname]
-        compressor = {"compressor": Blosc(cname="zstd", clevel=6)}
-        zarr_kwargs = {"encoding": {varname: compressor}, "consolidated": False}
-
         if "level" in dset_var.dims:
             for level in dset_var.level.values:
-                zarrpath = path / f"{varname}_level-{level}.zarr"
-                if not zarrpath.is_dir():
-                    logger.info(f"Saving {varname} variable (level {level}) under {zarrpath}.")
-                    dset_var.sel(level=level).to_zarr(zarrpath, **zarr_kwargs)
-                else:
-                    logger.debug(f"Skip saving {varname} variable (level {level}), folder {zarrpath} already exists.")
-
+                _save_variable(dset_var.sel(level=level), path)
         else:
-            zarrpath = path / f"{varname}.zarr"
-            if not zarrpath.is_dir():
-                logger.info(f"Saving {varname} under {zarrpath}")
-                dset_var.to_zarr(zarrpath, **zarr_kwargs)
-            else:
-                logger.debug(f"Skip saving {varname}, folder {zarrpath} already exists.")
+            _save_variable(dset_var, path)
 
 
 class MissingVariableFile(FileNotFoundError):
