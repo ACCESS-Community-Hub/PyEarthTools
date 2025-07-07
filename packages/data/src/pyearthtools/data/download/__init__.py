@@ -24,9 +24,10 @@ Implemented:
 | `cds` | Copernicus Data Store Access |
 | `opendata` | ECMWF Opendata |
 | `arcoera5` | Analysis-Ready, Cloud Optimized ERA5 by Google |
+| `weatherbench` | WeatherBench2 cloud-optimized ground truth and baseline datasets |
 
 """
 
 from pyearthtools.data.download.templates import DownloadIndex
-from pyearthtools.data.download import cds, arcoera5
+from pyearthtools.data.download import cds, arcoera5, weatherbench
 from pyearthtools.data.download import ecmwf_opendata as opendata
