@@ -50,14 +50,14 @@ class xarrayNormalisation(Operation):
         return self.normalise(sample)
 
     def undo_func(self, sample: T) -> T:
-        return self.unnormalise(sample)
+        return self.denormalise(sample)
 
     @abstractmethod
     def normalise(self, sample: T) -> T:
         return sample
 
     @abstractmethod
-    def unnormalise(self, sample: T) -> T:
+    def denormalise(self, sample: T) -> T:
         return sample
 
 
@@ -72,7 +72,7 @@ class Anomaly(xarrayNormalisation):
     def normalise(self, sample):
         return sample - self.mean
 
-    def unnormalise(self, sample):
+    def denormalise(self, sample):
         return sample + self.mean
 
 
@@ -165,7 +165,7 @@ class Deviation(xarrayNormalisation):
     def normalise(self, sample):
         return (sample - self.mean) / self.deviation
 
-    def unnormalise(self, sample):
+    def denormalise(self, sample):
         return (sample * self.deviation) + self.mean
 
 
@@ -181,7 +181,7 @@ class Division(xarrayNormalisation):
     def normalise(self, sample):
         return sample / self.division_factor
 
-    def unnormalise(self, sample):
+    def denormalise(self, sample):
         return sample * self.division_factor
 
 
@@ -222,5 +222,5 @@ class Evaluated(xarrayNormalisation):
     def normalise(self, sample):
         return eval(self._normalisation_eval, {"sample": sample, **self._kwargs})
 
-    def unnormalise(self, sample):
+    def denormalise(self, sample):
         return eval(self._unnormalisation_eval, {"sample": sample, **self._kwargs})

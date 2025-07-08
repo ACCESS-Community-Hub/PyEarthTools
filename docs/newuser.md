@@ -4,15 +4,36 @@ Welcome new user! This document will continue to be updated based on user feedba
 
 ## Installation
 
-From within a suitable [virtual environment](installation.md#virtual-environments), run the following commands:
+We strongly recommend using either a Conda or Python [virtual environment](installation.md#virtual-environments).
 
-```
+:::::{tab-set}
+::::{tab-item} Conda environment
+Run the following commands to install PyEarthTools in a Conda environment:
+```shell
 git clone git@github.com:ACCESS-Community-Hub/PyEarthTools.git
-pip install -r requirements-dev.txt
-conda install graphviz
+conda create -y -p ./venv python graphviz
+conda activate ./venv
+pip install -r requirements.txt
 cd notebooks
 jupyter lab
 ```
+::::
+::::{tab-item} Python virtual environment
+Run the following commands to install PyEarthTools in a Python virtual environment:
+```shell
+git clone git@github.com:ACCESS-Community-Hub/PyEarthTools.git
+python3 -m venv ./venv
+source venv/bin/activate
+pip install -r requirements.txt
+cd notebooks
+jupyter lab
+```
+:::{admonition} Optional dependencies
+:class: tip
+Install [Graphviz](https://graphviz.org/download/) (not installable via pip) to display pipelines.
+:::
+::::
+:::::
 
 For other installation options, please refer to the [installation guide](installation.md).
 

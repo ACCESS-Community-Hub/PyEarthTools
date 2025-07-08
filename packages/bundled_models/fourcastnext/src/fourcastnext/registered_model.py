@@ -31,14 +31,14 @@ LOG = logging.getLogger("pyearthtools.zoo.fourcastnext")
 @pyearthtools.zoo.register("Development/FourCastNextRM", exists="ignore")
 class FourCastNextRM(pyearthtools.zoo.BaseForecastModel):
     """
-    FourCastNeXt was originally developed by FourCastNeXt ([Guo et al. 2024](https://doi.org/10.48550/arXiv.2401.05584)) 
+    FourCastNeXt was originally developed by FourCastNeXt ([Guo et al. 2024](https://doi.org/10.48550/arXiv.2401.05584))
 
     This class provides the underlying architecture as a registered model within the framework,
     so that it can be trained according to whatever data and resolution may be of interest.
 
     Users need to train their own model weights.
 
-    
+
 
     Arguments:
         lead_time (int | str | pyearthtools.data.TimeDelta):

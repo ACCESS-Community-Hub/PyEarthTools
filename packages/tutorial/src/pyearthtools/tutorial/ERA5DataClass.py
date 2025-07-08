@@ -50,16 +50,14 @@ ERA_RESOLUTION = (1, "hour")
 ERADEMO_RESOLUTION = (6, "hour")
 
 # This dictionary tells pyearthtools what variable renames to apply during load
-ERA5_RENAME = {"t2m": "2t", 
-               "u10": "10u", 
-               "v10": "10v", 
-               "siconc": "ci"}
+ERA5_RENAME = {"t2m": "2t", "u10": "10u", "v10": "10v", "siconc": "ci"}
 
-ERA5DEMO_RENAME = {"t2m": "2t", 
-                   "10m_u_component_of_wind": "10u", 
-                   "10m_v_component_of_wind": "10v",
-                   "mean_sea_level_pressure": "mslp"
-                   }
+ERA5DEMO_RENAME = {
+    "t2m": "2t",
+    "10m_u_component_of_wind": "10u",
+    "10m_v_component_of_wind": "10v",
+    "mean_sea_level_pressure": "mslp",
+}
 
 V_TO_PATH = {
     "10m_u_component_of_wind": "10m_u_component_of_wind",
@@ -273,7 +271,7 @@ class ERA5LowResDemoIndex(ArchiveIndex):
 
         # Add in any user-supplied transforms
         if transforms is not None:
-            base_transforms += transforms            
+            base_transforms += transforms
 
         super().__init__(
             base_transforms,

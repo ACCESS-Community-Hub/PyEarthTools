@@ -62,14 +62,14 @@ class daskNormalisation(DaskOperation):
         return self.normalise(sample)
 
     def undo_func(self, sample: da.Array) -> da.Array:
-        return self.unnormalise(sample)
+        return self.denormalise(sample)
 
     @abstractmethod
     def normalise(self, sample: da.Array) -> da.Array:
         return sample
 
     @abstractmethod
-    def unnormalise(self, sample: da.Array) -> da.Array:
+    def denormalise(self, sample: da.Array) -> da.Array:
         return sample
 
     def expand(self, factor, sample):
@@ -96,7 +96,7 @@ class Anomaly(daskNormalisation):
     def normalise(self, sample):
         return sample - self.expand(self.mean, sample)
 
-    def unnormalise(self, sample):
+    def denormalise(self, sample):
         return sample + self.expand(self.mean, sample)
 
 
@@ -115,7 +115,7 @@ class Deviation(daskNormalisation):
     def normalise(self, sample):
         return (sample - self.expand(self.mean, sample)) / self.expand(self.deviation, sample)
 
-    def unnormalise(self, sample):
+    def denormalise(self, sample):
         return (sample * self.expand(self.deviation, sample)) + self.expand(self.mean, sample)
 
 
@@ -133,7 +133,7 @@ class Division(daskNormalisation):
     def normalise(self, sample):
         return sample / self.expand(self.division_factor, sample)
 
-    def unnormalise(self, sample):
+    def denormalise(self, sample):
         return sample * self.expand(self.division_factor, sample)
 
 
@@ -176,5 +176,5 @@ class Evaluated(daskNormalisation):
     def normalise(self, sample):
         return eval(self._normalisation_eval, {"sample": sample, **self._kwargs})
 
-    def unnormalise(self, sample):
+    def denormalise(self, sample):
         return eval(self._unnormalisation_eval, {"sample": sample, **self._kwargs})
