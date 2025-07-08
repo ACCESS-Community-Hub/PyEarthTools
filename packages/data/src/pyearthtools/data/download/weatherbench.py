@@ -322,6 +322,13 @@ class WB2ERA5(WeatherBench2):
 
     @decorators.check_arguments(resolution=["1440x721", "240x121", "64x32"])
     def __init__(self, resolution: str = "64x32", **kwargs):
+        """WeatherBench2 cloud-optimized ground truth ERA5 dataset
+
+        Args:
+            resolution (str, optional):
+                Dataset resolution, one of "1440x721", "240x121" and "64x32".
+                Defaults to "64x32".
+        """
         url = f"gs://weatherbench2/datasets/era5/{self.DATASETS[resolution]}"
         super().__init__(url, **kwargs)
         self.resolution = resolution
@@ -364,6 +371,16 @@ class WB2ERA5Clim(WeatherBench2):
 
     @decorators.check_arguments(resolution=["1440x721", "240x121", "64x32"], period=["1990-2017", "1990-2019"])
     def __init__(self, resolution: str = "64x32", period: str = "1990-2017", **kwargs):
+        """WeatherBench2 cloud-optimized ground truth ERA5 climatology dataset
+
+        Args:
+            resolution (str, optional):
+                Dataset resolution, one of "1440x721", "240x121" and "64x32".
+                Defaults to "64x32".
+            period (str, optional):
+                Covered time period, either "1990-2017" or "1990-2019".
+                Defaults to "1990-2017".
+        """
         url = f"gs://weatherbench2/datasets/era5-hourly-climatology/{self.DATASETS[(period, resolution)]}"
         super().__init__(url, **kwargs)
         self.period = period
