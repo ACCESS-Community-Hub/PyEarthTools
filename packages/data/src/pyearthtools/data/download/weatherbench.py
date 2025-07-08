@@ -190,10 +190,7 @@ class WeatherBench2(AdvancedTimeDataIndex):
         download_dir: str | Path | None = None,
         **kwargs,
     ):
-        """WeatherBench2 cloud-optimized datasets integrated within `pyearthtools`
-
-        Allows for access to a dataset for WeatherBench2 collection.
-
+        """
         If a `download_dir` folder is provided, the selected subset (i.e. variables
         and levels) of the dataset will be first downloaded into the folder, in a
         subfolder named with the hash of the url. In this subfolder, each variable
@@ -322,9 +319,8 @@ class WB2ERA5(WeatherBench2):
 
     @decorators.check_arguments(resolution=["raw", "1440x721", "240x121", "64x32"])
     def __init__(self, resolution: str = "64x32", **kwargs):
-        """WeatherBench2 cloud-optimized ground truth ERA5 dataset
-
-        See :ref:`pyearthtools.data.download.weatherbench.WeatherBench2` for additional
+        """
+        See :class:`pyearthtools.data.download.weatherbench.WeatherBench2` for additional
         parameters.
 
         Args:
@@ -377,9 +373,8 @@ class WB2ERA5Clim(WeatherBench2):
         resolution=["1440x721", "512x256", "240x121", "64x32"], period=["1990-2017", "1990-2019"]
     )
     def __init__(self, resolution: str = "64x32", period: str = "1990-2017", **kwargs):
-        """WeatherBench2 cloud-optimized ground truth ERA5 climatology dataset
-
-        See :ref:`pyearthtools.data.download.weatherbench.WeatherBench2` for additional
+        """
+        See :class:`pyearthtools.data.download.weatherbench.WeatherBench2` for additional
         parameters.
 
         Args:
