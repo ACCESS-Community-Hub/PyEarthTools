@@ -13,7 +13,22 @@
 # limitations under the License.
 
 """
-Pipeline Controller
+The "pipeline" module defines the main functionality of the "pipeline" class. A pipeline implements
+the Python iterator interface, allowing it to be traversed using Python loops like
+"while" and "for", and be used by machine learning libraries which rely on that approach.
+
+A pipeline defined a sequence of high-level operations, which can be used to:
+ - Define a data processing pipeline, analagous to a dataset in PyTorch
+ - Define a verification procedure, for model evaluation
+
+In future, it is intended that a pipeline could also represent a training strategy 
+for an ML model, but this is currently not the case.
+
+A pipeline typically commences with a data accessor, and then add various
+tranformsations and operations to that data as required.
+
+The controller module manages the passing of index values to the pipeline steps, 
+managing the execution of pipeline objects to transform the data accordingly.
 """
 
 from __future__ import annotations
@@ -460,7 +475,9 @@ class Pipeline(_Pipeline, Index):
 
     def _get_initial_sample(self, idx: Any) -> tuple[Any, int]:
         """
-        Get sample from first pipeline step or first working back index
+        Get a data sample from the first pipeline step, or an intermediate generator
+         e.g. such as a data accessor, an intermediate cache, 
+              or a temporal retrieval modifier
 
         Returns:
             (tuple[Any, int]):
@@ -473,25 +490,41 @@ class Pipeline(_Pipeline, Index):
         for index, step in enumerate(self.steps[::-1]):
             if isinstance(step, PipelineIndex):
                 LOG.debug(f"Getting initial sample from {step} at {idx}")
-                return step[idx], len(self.steps) - (index + 1)
+                sample = step[idx]
+                whereinthesequence = len(self.steps) - (index + 1)
+                return (sample, whereinthesequence)
 
         # Confirm that the start of the pipeline is an accessor, and then fetch from it
         if isinstance(self.steps[0], (_Pipeline, Index)):
             LOG.debug(f"Getting initial sample from {self.steps[0]} at {idx}")
-            return self.steps[0][idx], 0
+            sample = self.steps[0][idx]
+            whereinthesequence = 0
+            return sample, whereinthesequence
 
         raise TypeError(f"Cannot find an `Index` to get data from. Found {type(self.steps[0]).__qualname__}")
 
     def __getitem__(self, idx: Any):
-        """Retrieve from pipeline at `idx`"""
+        """
+        Retrieve from pipeline at `idx`
+          - Called by users when accessing the pipeline
+          - Also called by modifications (such as temporal retrieval)
+        """
         if isinstance(idx, slice):
             indexes = self.iterator[idx]
             LOG.debug(f"Call pipeline __getitem__ for {indexes = }")
             return map(self.__getitem__, indexes)
 
+
+        # Start the pipeline with the raw/initial data
+        # `idx` here is the index of the sample within the dataset, not the 
+        #  position of the step within the list of steps
+        # `sample` is actual data
+        # `step_index` *is* the index of the sample provier within the list of steps
+        # Initial just means untransformed by the pipeline
         sample, step_index = self._get_initial_sample(idx)
         LOG.debug(f"Call pipeline __getitem__ for {idx = }")
 
+        # Apply each pipeline step to the sample, starting from the latest source
         for step in self.steps[step_index + 1 :]:
             if not isinstance(step, (Pipeline, PipelineStep, Transform, TransformCollection)):
                 raise TypeError(f"When iterating through pipeline steps, found a {type(step)} which cannot be parsed.")
@@ -504,6 +537,8 @@ class Pipeline(_Pipeline, Index):
                     sample = step.apply(sample)
             else:
                 sample = step(sample)  # type: ignore
+
+        # We've done all the pipeline steps, return the value        
         return sample
 
     def __call__(self, obj):

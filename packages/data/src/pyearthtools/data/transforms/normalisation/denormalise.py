@@ -27,15 +27,15 @@ from pyearthtools.data.transforms.transform import FunctionTransform, Transform
 xr.set_options(keep_attrs=True)
 
 
-class Unnormalise(Normaliser):
-    """Unnormalise Incoming Data"""
+class Denormalise(Normaliser):
+    """Denormalise Incoming Data"""
 
     @functools.wraps(Normaliser)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def __getattr__(self, key: str):
-        function = self._find_user_normaliser(key).unnormalise
+        function = self._find_user_normaliser(key).denormalise
         if isinstance(function, Transform):
             return function
         return FunctionTransform(function)
@@ -43,37 +43,37 @@ class Unnormalise(Normaliser):
     @property
     def anomaly(normalise_self):
         """
-        UnNormalise using anomalies
+        Denormalise using anomalies
         """
 
-        class AnomalyUnNormaliser(Transform):
+        class AnomalyDenormaliser(Transform):
             @property
             def _info_(self):
                 return normalise_self._info_
 
             def apply(self, dataset: xr.Dataset):
-                """UnNormalise Dataset by creating anomalies"""
+                """Denormalise Dataset by creating anomalies"""
                 dataset = xr.Dataset(dataset)
                 for variable_name in dataset:
                     average = normalise_self.get_anomaly(variable_name)
                     dataset[variable_name] = dataset[variable_name] + average[variable_name]
                 return dataset
 
-        return AnomalyUnNormaliser()
+        return AnomalyDenormaliser()
 
     @property
     def range(normalise_self):
         """
-        UnNormalise using range
+        Denormalise using range
         """
 
-        class RangeUnNormaliser(Transform):
+        class RangeDenormaliser(Transform):
             @property
             def _info_(self):
                 return normalise_self._info_
 
             def apply(self, dataset: xr.Dataset):
-                """UnNormalise between 0-1 with ranges"""
+                """Denormalise between 0-1 with ranges"""
                 dataset = xr.Dataset(dataset)
                 for variable_name in dataset:
                     range = normalise_self.get_range(variable_name)
@@ -85,7 +85,7 @@ class Unnormalise(Normaliser):
 
                 return dataset
 
-        return RangeUnNormaliser()
+        return RangeDenormaliser()
 
     def manual_range(normalise_self, min: float, max: float):
         warnings.warn(
@@ -116,16 +116,16 @@ class Unnormalise(Normaliser):
     @property
     def deviation(normalise_self):
         """
-        UnNormalise using mean & standard deviation
+        Denormalise using mean & standard deviation
         """
 
-        class DeviationUnNormaliser(Transform):
+        class DeviationDenormaliser(Transform):
             @property
             def _info_(self):
                 return normalise_self._info_
 
             def apply(self, dataset: xr.Dataset):
-                """UnNormalise Dataset using mean & standard deviation"""
+                """Denormalise Dataset using mean & standard deviation"""
                 dataset = xr.Dataset(dataset)
                 for variable_name in dataset:
                     average, deviation = normalise_self.get_deviation(variable_name)
@@ -135,7 +135,7 @@ class Unnormalise(Normaliser):
                     ]
                 return dataset
 
-        return DeviationUnNormaliser()
+        return DeviationDenormaliser()
 
     @property
     def temporal_difference(normalise_self):
@@ -143,7 +143,7 @@ class Unnormalise(Normaliser):
         Normalise datasets using mean & standard deviation
         """
 
-        class TemporalDifferenceUnNormaliser(Transform):
+        class TemporalDifferenceDenormaliser(Transform):
             """Normalise Dataset using mean & standard deviation"""
 
             @property
@@ -159,21 +159,21 @@ class Unnormalise(Normaliser):
 
                 return dataset
 
-        return TemporalDifferenceUnNormaliser()
+        return TemporalDifferenceDenormaliser()
 
     @property
     def deviation_spatial(normalise_self):
         """
-        UnNormalise using mean & standard deviation
+        Denormalise using mean & standard deviation
         """
 
-        class DeviationUnNormaliser(Transform):
+        class DeviationDenormaliser(Transform):
             @property
             def _info_(self):
                 return normalise_self._info_
 
             def apply(self, dataset: xr.Dataset):
-                """UnNormalise Dataset using mean & standard deviation spatially"""
+                """Denormalise Dataset using mean & standard deviation spatially"""
                 dataset = xr.Dataset(dataset)
                 for variable_name in dataset:
                     average, deviation = normalise_self.get_deviation(variable_name, spatial=True)
@@ -183,27 +183,27 @@ class Unnormalise(Normaliser):
                     ]
                 return dataset
 
-        return DeviationUnNormaliser()
+        return DeviationDenormaliser()
 
     @property
     def log(normalise_self):
         """
-        UnNormalise using exp
+        Denormalise using exp
         """
 
-        class LogUnNormaliser(Transform):
+        class LogDenormaliser(Transform):
             @property
             def _info_(self):
                 return normalise_self._info_
 
             def apply(self, dataset: xr.Dataset):
-                """UnNormalise Dataset with exp"""
+                """Denormalise Dataset with exp"""
                 dataset = xr.Dataset(dataset)
                 for variable_name in dataset:
                     dataset[variable_name] = np.exp(dataset[variable_name])
                 return dataset
 
-        return LogUnNormaliser()
+        return LogDenormaliser()
 
     @property
     def function(self) -> FunctionTransform:
@@ -215,4 +215,4 @@ class Unnormalise(Normaliser):
         """
         if self._function is None:
             raise ValueError("Cannot use function transform without a given function.\nTry giving `function` to init")
-        return FunctionTransform(self._function.unnormalise)
+        return FunctionTransform(self._function.denormalise)

@@ -21,10 +21,10 @@ dependencies = [
     "entrypoints",
     "multiurl",
     "tqdm",
-    "pyearthtools-pipeline>=0.1.0",
-    "pyearthtools-training>=0.1.0",
-    "pyearthtools-data>=0.1.0",
-    "pyearthtools-utils>=0.1.0",
+    "pyearthtools-pipeline>=0.2.0",
+    "pyearthtools-training>=0.2.0",
+    "pyearthtools-data>=0.2.0",
+    "pyearthtools-utils>=0.2.0",
 
 ]
 dynamic = ["version", "readme"]
