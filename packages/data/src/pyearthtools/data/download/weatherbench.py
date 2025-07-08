@@ -324,6 +324,9 @@ class WB2ERA5(WeatherBench2):
     def __init__(self, resolution: str = "64x32", **kwargs):
         """WeatherBench2 cloud-optimized ground truth ERA5 dataset
 
+        See :ref:`pyearthtools.data.download.weatherbench.WeatherBench2` for additional
+        parameters.
+
         Args:
             resolution (str, optional):
                 Dataset resolution, one of "raw", "1440x721", "240x121" and "64x32".
@@ -375,6 +378,9 @@ class WB2ERA5Clim(WeatherBench2):
     )
     def __init__(self, resolution: str = "64x32", period: str = "1990-2017", **kwargs):
         """WeatherBench2 cloud-optimized ground truth ERA5 climatology dataset
+
+        See :ref:`pyearthtools.data.download.weatherbench.WeatherBench2` for additional
+        parameters.
 
         Args:
             resolution (str, optional):
