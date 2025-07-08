@@ -320,13 +320,14 @@ class WB2ERA5(WeatherBench2):
         "64x32": "1959-2023_01_10-6h-64x32_equiangular_conservative.zarr",
     }
 
-    @decorators.check_arguments(resolution=["1440x721", "240x121", "64x32"])
+    @decorators.check_arguments(resolution=["raw", "1440x721", "240x121", "64x32"])
     def __init__(self, resolution: str = "64x32", **kwargs):
         """WeatherBench2 cloud-optimized ground truth ERA5 dataset
 
         Args:
             resolution (str, optional):
-                Dataset resolution, one of "1440x721", "240x121" and "64x32".
+                Dataset resolution, one of "raw", "1440x721", "240x121" and "64x32".
+                The "raw" dataset is not subsampled, i.e. is hourly with 36 levels.
                 Defaults to "64x32".
         """
         url = f"gs://weatherbench2/datasets/era5/{self.DATASETS[resolution]}"
@@ -369,13 +370,15 @@ class WB2ERA5Clim(WeatherBench2):
         ("1990-2019", "64x32"): "1990-2019_6h_64x32_equiangular_conservative.zarr",
     }
 
-    @decorators.check_arguments(resolution=["1440x721", "240x121", "64x32"], period=["1990-2017", "1990-2019"])
+    @decorators.check_arguments(
+        resolution=["1440x721", "512x256", "240x121", "64x32"], period=["1990-2017", "1990-2019"]
+    )
     def __init__(self, resolution: str = "64x32", period: str = "1990-2017", **kwargs):
         """WeatherBench2 cloud-optimized ground truth ERA5 climatology dataset
 
         Args:
             resolution (str, optional):
-                Dataset resolution, one of "1440x721", "240x121" and "64x32".
+                Dataset resolution, one of "1440x721", "512x256", "240x121" and "64x32".
                 Defaults to "64x32".
             period (str, optional):
                 Covered time period, either "1990-2017" or "1990-2019".
