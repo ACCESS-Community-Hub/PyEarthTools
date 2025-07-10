@@ -80,7 +80,8 @@ def open_dataset(
 
     if isinstance(location, (tuple, list)):
         try:
-            return xr.open_mfdataset(filter_files(location), **get_config(True))
+            ds = xr.open_mfdataset(filter_files(location), **get_config(True))
+            return ds
 
         except xr.MergeError as e:
             if not soft_fail:

@@ -45,6 +45,7 @@ ROOT_DIRECTORIES = {
     "AGCD": "/g/data/zv2/agcd/v1",
     "ERA5": "/g/data/rt52/era5/{level}-levels/{resolution}/",
     "Himawari": "/g/data/rv74/satellite-products/arc/der/himawari-ahi/solar/p1s/latest/",
+    "HimawariChannels": "/g/data/ra22/satellite-products/arc/obs/himawari-ahi/fldk/latest/",
     "BRAN": "/g/data/gb6/BRAN/BRAN2020/",
     "OceanMaps": "/g/data/rr6/OceanMAPS/",
     "MODIS": "/g/data/fj4/MODIS_LAI/{region}/nc/",
@@ -69,7 +70,8 @@ from site_archive_nci.BARPA import BARPA
 from site_archive_nci.ERA5 import ERA5
 from site_archive_nci.MODIS import MODIS
 from site_archive_nci.OceanMaps import OceanMaps
-from site_archive_nci.Himawari import Himawari
+from site_archive_nci._Himawari import Himawari
+from site_archive_nci._Himawari import HimawariChannels
 from site_archive_nci._CMIP5 import CMIP5
 from site_archive_nci._Rainfields3 import Rainfields3
 
