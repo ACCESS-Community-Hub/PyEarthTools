@@ -42,9 +42,10 @@ def cached_exists(path: Path) -> bool:
 # - In the future it would be good to add the possibility to have this preprocessing step as part of a pipeline of other preprocessing steps.
 # - Other similarly process heavy steps could be added to the pipeline, such as calculation of climatologies, or other derived variables.
 
+
 # Helper function to preprocess and save NetCDF files as Zarr stores
 # @delayed Experimenting with delayed to see if it helps with performance
-def preprocess_and_save(file_path, date_range, zarr_output_dir):
+def preprocess_and_save(file_path, date_range, zarr_output_dir): #TODO Needs to be implemented correctly
     """
     Open a NetCDF file, preprocess it, and save as a Zarr store.
 
@@ -65,22 +66,21 @@ def preprocess_and_save(file_path, date_range, zarr_output_dir):
     """
     try:
         print(f"Preprocessing {file_path} -> {zarr_output_dir}")
-        ds = xr.open_dataset(file_path)
+        with xr.open_dataset(file_path) as ds:
+            if 'input_station_id' in ds:
+                ds = ds.drop_vars('input_station_id')
 
-        if 'input_station_id' in ds:
-            ds = ds.drop_vars('input_station_id')
+            station_id = ds.attrs.get("station_id", file_path.stem)
+            ds = ds.assign_coords(station_id=station_id)
 
-        station_id = ds.attrs.get("station_id", file_path.stem)
-        ds = ds.assign_coords(station_id=station_id)
+            target_time = pd.date_range(date_range[0], date_range[1], freq='h')
+            ds = ds.reindex(time=target_time)
 
-        target_time = pd.date_range(date_range[0], date_range[1], freq='h')
-        ds = ds.reindex(time=target_time)
-
-        out_path = Path(zarr_output_dir) / f"{file_path.stem}.zarr"
-        print(f"Saving to Zarr: {out_path}")
-        ds.to_zarr(str(out_path), mode='w')
-        print(f"Saved Zarr: {out_path}")
-        return str(out_path)
+            out_path = Path(zarr_output_dir) / f"{file_path.stem}.zarr"
+            print(f"Saving to Zarr: {out_path}")
+            ds.to_zarr(str(out_path), mode='w')
+            print(f"Saved Zarr: {out_path}")
+            return str(out_path)
     except Exception as e:
         print(f"Failed to preprocess {file_path}: {e}")
         raise
@@ -125,9 +125,14 @@ class HadISDIndex(ArchiveIndex):
         # Possibly remove this transform if not needed
         base_transform += SetMissingToNaN(varname_val_map)
 
-        super().__init__(
-            transforms=base_transform + (transforms or TransformCollection()),
-        )
+        if transforms is None:
+            super().__init__(
+                transforms=base_transform + TransformCollection(),
+            )
+        else:
+            super().__init__(
+                transforms=base_transform + transforms,
+            )
        
         self.record_initialisation()
 
