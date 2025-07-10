@@ -131,7 +131,7 @@ class AddFlaggedObs(Transform):
             # Replace flagged placeholder values with NaN
             if "flagged_value" in dataset[var_name].attrs:
                 # Compute the boolean condition to avoid Dask-related issues
-                mask = (dataset[var_name] == dataset[var_name].attrs["flagged_value"]).compute()
+                mask = dataset[var_name] == dataset[var_name].attrs["flagged_value"]
                 dataset[var_name] = dataset[var_name].where(~mask, np.nan)
 
         return dataset
