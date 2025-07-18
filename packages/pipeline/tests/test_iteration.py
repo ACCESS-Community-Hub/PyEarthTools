@@ -44,3 +44,34 @@ def test_iterators_many(iterator, length):
     iteration_2 = list(pipe)
 
     assert iteration_1 == iteration_2, "Order is not the same between iterations"
+
+
+def test_DateRange_exclusions():
+    """
+    This tests will set up a 24 hour period with hourly data.
+    dr_basic will sample all 24 hours
+    dr_allow will set the case where hours "6 to 24" are known to be "good"
+    dr_block will set the case where some particular hours are known to be "bad"
+    """
+
+    good_hours = list(range(6, 24))
+    good_date_strings = [f"2020-01-01T{hour:02}" for hour in good_hours]
+
+    bad_hours = [3, 7, 10, 11, 12]
+    bad_date_strings = [f"2020-01-01T{hour:02}" for hour in bad_hours]
+
+    dr_basic = iterators.DateRange("2020-01-01T00", "2020-01-02T00", (1, "hour"))
+    dr_allow = iterators.DateRange("2020-01-01T00", "2020-01-02T00", (1, "hour"), allowlist=good_date_strings)
+    dr_block = iterators.DateRange("2020-01-01T00", "2020-01-02T00", (1, "hour"), blocklist=bad_date_strings)
+
+    pipe_basic = Pipeline(FakeIndex(), iterator=dr_basic, sampler=samplers.Default())
+    pipe_good = Pipeline(FakeIndex(), iterator=dr_allow, sampler=samplers.Default())
+    pipe_bad = Pipeline(FakeIndex(), iterator=dr_block, sampler=samplers.Default())
+
+    iteration_1 = list(pipe_basic)
+    iteration_2 = list(pipe_good)
+    iteration_3 = list(pipe_bad)
+
+    assert len(iteration_1) == 24
+    assert len(iteration_2) == 18
+    assert len(iteration_3) == 19

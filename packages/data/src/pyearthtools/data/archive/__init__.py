@@ -35,7 +35,12 @@ More archives can be added by wrapping a class with [register_archive][pyearthto
 
 """
 
-from pyearthtools.data.archive.extensions import register_archive
+from pyearthtools.data.archive.extensions import (
+    register_archive,
+    set_root_directory,
+    get_root_directories,
+    load_root_directories_from_config,
+)
 from pyearthtools.data.archive.root import set_root, reset_root, config_root
 from pyearthtools.data.archive.zarr import ZarrIndex, ZarrTimeIndex
 

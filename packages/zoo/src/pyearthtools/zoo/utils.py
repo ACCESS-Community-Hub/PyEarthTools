@@ -51,15 +51,15 @@ class CategorisedObjects:
     Key's must be hashable, just like a dictionary.
 
     Examples:
-    ```python
-    record = CategorisedObjects('Example', category_1 = {'sub_cat': 10})
-    record.category_1
-    ─┬ category_1 ──
-        └──sub_cat
-    ```
-    ## Parsing
-        Overriding `_parse` allows custom classes to be parsed when retrieved.
 
+        >>> record = CategorisedObjects('Example', category_1 = {'sub_cat': 10})
+        >>> record.category_1
+        >>> ─┬ category_1 ──
+        >>>   └──sub_cat
+
+    ## Parsing
+
+        Overriding `_parse` allows custom classes to be parsed when retrieved.
         Overriding `_name` allows custom classes names to be retrieved when displaying what is available.
     """
 
@@ -290,16 +290,16 @@ class AvailableModels(CategorisedObjects):
     Categorise with these entry points by seperating layers with `_`.
 
     Examples:
-        ```python
-        # Entrypoints
-        # NESM_modelNAME
-        AvailableModels()
-        ─┬ Available Models ──
-            └─┬ NESM ──
-              └──modelNAME
-        ```
+
+        >>> # Entrypoints
+        >>> # NESM_modelNAME
+        >>> AvailableModels()
+        >>> ─┬ Available Models ──
+        >>>   └─┬ NESM ──
+        >>>      └──modelNAME
+
     Can retrieve model by getting attibute one layer at a time,
-    or by `getattr(self, 'NESM/modelNAME'), or if last name is unique, that name alone.
+    or by `getattr(self, 'NESM/modelNAME')`, or if last name is unique, that name alone.
 
     If `NESM/Model` exists within the AvailableModels, it can be retrieved in the following way,
     ```python
@@ -570,19 +570,16 @@ def get_arguments(function: Callable) -> tuple[dict[str, Any], dict[str, Any]]:
 
 
 class TabCompleter:
+    """
+    A tab completer that can either complete from the filesystem or from a list.
+    """
+    # Partially taken from http://stackoverflow.com/questions/5637124/tab-completion-in-pythons-raw-input
     # From https://gist.github.com/iamatypeofwalrus/5637895
-    """
-    A tab completer that can either complete from
-    the filesystem or from a list.
-
-    Partially taken from:
-    http://stackoverflow.com/questions/5637124/tab-completion-in-pythons-raw-input
-    """
 
     def path_completer(self, text, state):
         """
         This is the tab completer for systems paths.
-        Only tested on *nix systems
+        Only tested on Linux systems
         """
         _ = readline.get_line_buffer().split()
 

@@ -21,13 +21,13 @@ A pipeline defined a sequence of high-level operations, which can be used to:
  - Define a data processing pipeline, analagous to a dataset in PyTorch
  - Define a verification procedure, for model evaluation
 
-In future, it is intended that a pipeline could also represent a training strategy 
+In future, it is intended that a pipeline could also represent a training strategy
 for an ML model, but this is currently not the case.
 
 A pipeline typically commences with a data accessor, and then add various
 tranformsations and operations to that data as required.
 
-The controller module manages the passing of index values to the pipeline steps, 
+The controller module manages the passing of index values to the pipeline steps,
 managing the execution of pipeline objects to transform the data accordingly.
 """
 
@@ -476,7 +476,7 @@ class Pipeline(_Pipeline, Index):
     def _get_initial_sample(self, idx: Any) -> tuple[Any, int]:
         """
         Get a data sample from the first pipeline step, or an intermediate generator
-         e.g. such as a data accessor, an intermediate cache, 
+         e.g. such as a data accessor, an intermediate cache,
               or a temporal retrieval modifier
 
         Returns:
@@ -514,9 +514,8 @@ class Pipeline(_Pipeline, Index):
             LOG.debug(f"Call pipeline __getitem__ for {indexes = }")
             return map(self.__getitem__, indexes)
 
-
         # Start the pipeline with the raw/initial data
-        # `idx` here is the index of the sample within the dataset, not the 
+        # `idx` here is the index of the sample within the dataset, not the
         #  position of the step within the list of steps
         # `sample` is actual data
         # `step_index` *is* the index of the sample provier within the list of steps
@@ -538,7 +537,7 @@ class Pipeline(_Pipeline, Index):
             else:
                 sample = step(sample)  # type: ignore
 
-        # We've done all the pipeline steps, return the value        
+        # We've done all the pipeline steps, return the value
         return sample
 
     def __call__(self, obj):

@@ -100,23 +100,16 @@ class BaseForecastModel:
     ## Config Folder
     The config folder for a model can use the following conventions to ease in setup
 
-    ```txt
-    `Data/`
-        - Location for all data loaders
-    `Pipeline/`
-        - Location for all pipelines
-    ```
+    `Data/` - Location for all data loaders
+    `Pipeline/` - Location for all pipelines
 
     It is assumed that most data configs will have a pipeline name identically to them for
     loading and preparing the data, however, the following exception applies.
-    If a `Data` config has a `()`, with a str inside, it represents a different data source,
-     but the same pipeline,
-    this is can be useful for setting by different sources of the same data, link for downloading,
-     archived data or experiments.
+    If a `Data` config has a `()`, with a str inside, it represents a different data source, but the same pipeline,
+    this is can be useful for setting by different sources of the same data, link for downloading, archived data or experiments.
 
     Additionally, any data with a `-` represents an ancillary source, i.e. forcings and will not be included
-    in the available data sources.
-    Any text prior to the `-` represents the parent source and any after is it's purpose.
+    in the available data sources. Any text prior to the `-` represents the parent source and any after is it's purpose.
 
     Getting `ancillary_pipeline` will give back a dictionary of ancillary pipelines associated with the chosen source.
 
@@ -124,20 +117,18 @@ class BaseForecastModel:
 
     A user can provide a `config_path` during `__init__` to allow access to user defined configs.
     This allows experiments to be easily run, and will follow the conventions outlined above.
-    i.e. Providing a data config with '()' will use the base pipeline.
+    i.e. Providing a data config with `()` will use the base pipeline.
 
     ### Examples
     Consider the following structure.
 
-    ```txt
-    ├── Data
-    │   ├── ERA5-Forcings.yaml
-    │   ├── ERA5(cds)-Forcings.yaml
-    │   ├── ERA5(cds).yaml
-    │   └── ERA5.yaml
-    └── Pipeline
-        └── ERA5.yaml
-    ```
+    >>> ├── Data
+    >>> │   ├── ERA5-Forcings.yaml
+    >>> │   ├── ERA5(cds)-Forcings.yaml
+    >>> │   ├── ERA5(cds).yaml
+    >>> │   └── ERA5.yaml
+    >>> └── Pipeline
+    >>>     └── ERA5.yaml
 
     A user can request either `ERA5` or `ERA5(cds)` as the data source, these two sources are then loaded and use
     `Pipeline/ERA5.yaml` as it's pipeline.

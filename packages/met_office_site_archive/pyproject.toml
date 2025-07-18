@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61", "setuptools-scm>=8.0"]
+
+
+[project]
+name = "PyEarthTools-archive-Met-Office"
+description = "PyEarthTools archive for Met Office"
+requires-python = ">=3.9"
+license = {file = "LICENSE"}
+keywords = ["pyearthtools"]
+maintainers = [
+  {email = "tennessee.leeuwenburg@bom.gov.au", name = "Tennessee Leeuwenburg"}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  "pyearthtools-data>=0.1.0",
+]
+dynamic = ["version", "readme"]
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.md"], content-type = "text/markdown"}
+
+[project.urls]
+homepage = "https://pyearthtools.readthedocs.io/en/latest/"
+documentation = "https://pyearthtools.readthedocs.io/en/latest/"
+repository = "https://github.com/ACCESS-Community-Hub/PyEarthTools"
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 120
+
+[tool.mypy]
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.hatch.version]
+path = "src/pyearthtools/met_office_site_archive/__init__.py"

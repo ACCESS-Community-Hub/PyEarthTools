@@ -12,22 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Utilities for Met Office indexes"""
 
-"""
-Download Based Data Indexes for `pyearthtools.data`
+from __future__ import annotations
 
-Implemented:
+import functools
+from pathlib import Path
 
-| Name | Description |
-| ---- | ----------- |
-| `DownloadIndex`  | Base download index. `download` must be implemented. |
-| `cds` | Copernicus Data Store Access |
-| `opendata` | ECMWF Opendata |
-| `arcoera5` | Analysis-Ready, Cloud Optimized ERA5 by Google |
-| `weatherbench` | WeatherBench2 cloud-optimized ground truth and baseline datasets |
 
-"""
+@functools.lru_cache()
+def cached_iterdir(path: Path) -> list[Path]:
+    """Run iterdir but cached"""
+    return list(path.iterdir())
 
-from pyearthtools.data.download.templates import DownloadIndex
-from pyearthtools.data.download import cds, arcoera5, weatherbench
-from pyearthtools.data.download import ecmwf_opendata as opendata
+
+@functools.lru_cache()
+def cached_exists(path: Path) -> bool:
+    """Run exits but cached"""
+    return path.exists()

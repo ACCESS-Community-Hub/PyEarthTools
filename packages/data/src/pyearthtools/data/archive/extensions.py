@@ -42,6 +42,8 @@ from __future__ import annotations
 from types import ModuleType
 from typing import Callable, Any
 
+import os
+import yaml
 import warnings
 
 import pyearthtools.data
@@ -91,3 +93,53 @@ def register_archive(name: str, *, sample_kwargs: dict[str, Any] | None = None) 
         return archive_index
 
     return decorator
+
+
+def set_root_directory(key: str, path: str):
+    """
+    Set / update the path for a specific key in ROOT_DIRECTORIES.
+
+    Args:
+        key (str): The key to update (e.g., "ERA5lowres").
+        path (str): The new path to set.
+    """
+
+    ROOT_DIRECTORIES = pyearthtools.data.archive.ROOT_DIRECTORIES
+
+    if key not in ROOT_DIRECTORIES:
+        raise KeyError(f"Invalid key '{key}'. Valid keys are: {list(ROOT_DIRECTORIES.keys())}")
+    ROOT_DIRECTORIES[key] = path
+
+
+def get_root_directories():
+    """
+    Get the current ROOT_DIRECTORIES.
+
+    Returns:
+        dict: The current ROOT_DIRECTORIES.
+    """
+
+    return pyearthtools.data.archive.ROOT_DIRECTORIES
+
+
+def load_root_directories_from_config(config_path: str):
+    """
+    Load ROOT_DIRECTORIES from a YAML config file.
+
+    Args:
+        config_path (str):
+            The path to the YAML configuration file containing the root directory mappings.
+    """
+    if config_path is None:
+        raise ValueError("config_path must be provided to load ROOT_DIRECTORIES from a config file.")
+
+    ROOT_DIRECTORIES = pyearthtools.data.archive.ROOT_DIRECTORIES
+
+    if os.path.exists(config_path):
+        with open(config_path, "r") as f:
+            config = yaml.safe_load(f)
+        for key in ROOT_DIRECTORIES:
+            if key in config:
+                ROOT_DIRECTORIES[key] = config[key]
+
+    print("ROOT_DIRECTORIES:", ROOT_DIRECTORIES)

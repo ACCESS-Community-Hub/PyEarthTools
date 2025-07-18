@@ -90,7 +90,7 @@ PyEarthTools comprises multiple sub-packages which can be used individually or t
 
 ## Acknowleging or Citing `PyEarthTools`
 
-If you use PyEarthTools for your work, we would appreciate you citing our software. 
+If you use PyEarthTools for your work, we would appreciate you citing our software as below: 
 
 
 :::::{tab-set}

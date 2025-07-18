@@ -72,7 +72,7 @@ PyEarthTools comprises multiple sub-packages which can be used individually or t
 
 ## Acknowleging or Citing `PyEarthTools`
 
-If you use PyEarthTools for your work, we would appreciate you citing our software. 
+If you use PyEarthTools for your work, we would appreciate you citing our software as below:
 
 Cook, H., Leeuwenburg, T., Rio, M., Miller, J., Mason, G., Ramanathan, N., Pill, J., Haddad, S., & de Burgh-Day, C. (2025). PyEarthTools: Machine learning for Earth system science (0.1.1). Zenodo. https://doi.org/10.5281/zenodo.15760769
 

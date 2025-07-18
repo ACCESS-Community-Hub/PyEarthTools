@@ -148,7 +148,7 @@ class MagicNorm(xarrayNormalisation):
 
         return (sample - self.mean) / self.deviation
 
-    def unnormalise(self, sample):
+    def denormalise(self, sample):
 
         return (sample * self.deviation) + self.mean
 

@@ -43,6 +43,15 @@
     :no-value:
 .. autodata:: pyearthtools.data.download.arcoera5.SHORT_NAMES
     :no-value:
+.. autoclass:: pyearthtools.data.download.weatherbench.WeatherBench2
+    :class-doc-from: both
+    :members:
+.. autoclass:: pyearthtools.data.download.weatherbench.WB2ERA5
+    :class-doc-from: both
+    :members:
+.. autoclass:: pyearthtools.data.download.weatherbench.WB2ERA5Clim
+    :class-doc-from: both
+    :members:
 ```
 
 ## `data.indexes`
