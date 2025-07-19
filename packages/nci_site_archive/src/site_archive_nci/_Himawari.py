@@ -206,31 +206,3 @@ class HimawariChannels(ArchiveIndex):
         return files_that_match_bands
 
 
-    def quick_walk(self, segment):
-        """
-        Walking a large filesystem to find matching filenames can take a long time.
-        This function uses the query dictionary to more effectively walk only
-        the parts of the filesystem actually relevant to the dataset. If performance
-        is not a concern or if the filesystem is small, just use os.walk.
-        """
-
-        RADAR_HOME = self.ROOT_DIRECTORIES["RADAR_LIGHTNING"]
-        basepath = Path(RADAR_HOME)
-
-        # Only walk the filesystem once, use the cache thereafter
-        if segment in self.walk_cache:
-            cache = self.walk_cache[segment]
-            return cache
-
-        # Only walk the filesystem for configured institutions
-        walk_from = os.path.join(basepath, segment)
-        segment_entries = list(os.walk(walk_from))
-        cache = []
-
-        for root, dirs, files in segment_entries:
-            # We don't care about directories with no files
-            if files:
-                cache.append((root, dirs, files))
-
-        self.walk_cache[segment] = cache
-        return cache
