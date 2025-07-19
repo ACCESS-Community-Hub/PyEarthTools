@@ -573,6 +573,7 @@ class TabCompleter:
     """
     A tab completer that can either complete from the filesystem or from a list.
     """
+
     # Partially taken from http://stackoverflow.com/questions/5637124/tab-completion-in-pythons-raw-input
     # From https://gist.github.com/iamatypeofwalrus/5637895
 

@@ -37,20 +37,39 @@ SATELLITE_PATTERN = "{ROOT_DIR}/{FILE_DATE}/{FILE}"
 FILE_REGEX = "*{date_info}*{time_info}*.nc"
 
 VALID_BANDS = [
-    'BRF_B01', 'BRF_B02', 'BRF_B03', 'BRF_B04', 'BRF_B05', 'BRF_B06',
-    'CREFL_B01', 'CREFL_B02', 'CREFL_B03', 'CREFL_B04', 'CREFL_B05', 'CREFL_B06',
-    'OBS_B01', 'OBS_B02', 'OBS_B03', 'OBS_B04', 'OBS_B05', 'OBS_B06', 'OBS_B07',
-    'OBS_B08', 'OBS_B09', 'OBS_B10', 'OBS_B11', 'OBS_B12', 'OBS_B13', 'OBS_B14',
-    'OBS_B15', 'OBS_B16',
+    "BRF_B01",
+    "BRF_B02",
+    "BRF_B03",
+    "BRF_B04",
+    "BRF_B05",
+    "BRF_B06",
+    "CREFL_B01",
+    "CREFL_B02",
+    "CREFL_B03",
+    "CREFL_B04",
+    "CREFL_B05",
+    "CREFL_B06",
+    "OBS_B01",
+    "OBS_B02",
+    "OBS_B03",
+    "OBS_B04",
+    "OBS_B05",
+    "OBS_B06",
+    "OBS_B07",
+    "OBS_B08",
+    "OBS_B09",
+    "OBS_B10",
+    "OBS_B11",
+    "OBS_B12",
+    "OBS_B13",
+    "OBS_B14",
+    "OBS_B15",
+    "OBS_B16",
 ]
 
-RESOLUTIONS = {
-    'B03': 500,
-    'B01': 1000,
-    'B02': 1000
-}
+RESOLUTIONS = {"B03": 500, "B01": 1000, "B02": 1000}
 
-ANC_FILENAME = '/g/data/ra22/satellite-products/arc/obs/himawari-ahi/fldk/latest/ancillary'
+ANC_FILENAME = "/g/data/ra22/satellite-products/arc/obs/himawari-ahi/fldk/latest/ancillary"
 
 
 # 'GEOM_SOLAR-PRJ_GEOS141_1000-HIMAWARI9-AHI.nc
@@ -60,8 +79,8 @@ ANC_FILENAME = '/g/data/ra22/satellite-products/arc/obs/himawari-ahi/fldk/latest
 
 def check_resolution(bands: list[str]):
     default_res = 2000
-    band_numbers = [b.split('_')[1] for b in bands]
-    res = [RESOLUTIONS.get(b, 2000) for b in band_numbers ]
+    band_numbers = [b.split("_")[1] for b in bands]
+    res = [RESOLUTIONS.get(b, 2000) for b in band_numbers]
     return len(set(res))
 
 
@@ -154,26 +173,27 @@ class HimawariChannels(ArchiveIndex):
     def __init__(
         self,
         *,
-        bands: list[str] | None = None,        
-        
+        bands: list[str] | None = None,
         transforms: Transform | TransformCollection | None = None,
     ):
         """
         Setup Satellite Indexer
 
-        Args: 
+        Args:
             bands: Which variables to retrieve, can be None to get all. Defaults to None. e.g. 'OBS_B08'
             transforms (Transform | TransformCollection, optional):
                 Base Transforms to apply. Defaults to TransformCollection().
-        """        
+        """
         check_project(project_code="ra22")
         data_interval = (10, "m")
 
         if not all([b in VALID_BANDS for b in bands]):
-            raise ValueError('Not all specified bands are valid, please review the requested bands')
+            raise ValueError("Not all specified bands are valid, please review the requested bands")
 
         if check_resolution(bands) != 1:
-            raise ValueError('Bands specified are at incompatible resolutions, please request each resolution set separately')
+            raise ValueError(
+                "Bands specified are at incompatible resolutions, please request each resolution set separately"
+            )
 
         self.bands = bands
         base_transform = pyearthtools.data.transforms.variables.Trim(bands) + (transforms or TransformCollection())
@@ -183,26 +203,24 @@ class HimawariChannels(ArchiveIndex):
     def filesystem(
         self,
         basetime: str | datetime.datetime | Petdt,
-        ):
-        '''
+    ):
+        """
         The resolution on disk is per ten minutes, so match the basetime based on that (i.e. no need to match by hour)
-        '''
+        """
         root_dir = self.ROOT_DIRECTORIES["HimawariChannels"]
         basetime = Petdt(basetime)
-        lastbit = f'{basetime.hour}{basetime.minute}'
+        lastbit = f"{basetime.hour}{basetime.minute}"
 
-        segment = f'{basetime.year}/{basetime.month:02}/{basetime.day:02}/{basetime.hour:02}{basetime.minute:02}'        
+        segment = f"{basetime.year}/{basetime.month:02}/{basetime.day:02}/{basetime.hour:02}{basetime.minute:02}"
         files = os.listdir(root_dir + segment)
         files_that_match_bands = [f for f in files if any([b in f for b in self.bands])]
-        files_that_match_bands = [f'{root_dir}/{segment}/{f}' for f in files_that_match_bands]
+        files_that_match_bands = [f"{root_dir}/{segment}/{f}" for f in files_that_match_bands]
 
         # import pudb; pudb.set_trace()
-        
+
         if not files_that_match_bands:
             raise DataNotFoundError(
                 f"Unable to find data for: basetime: {basetime} at {root_dir}\nAttempted to use {resolved_names}"
             )
 
         return files_that_match_bands
-
-

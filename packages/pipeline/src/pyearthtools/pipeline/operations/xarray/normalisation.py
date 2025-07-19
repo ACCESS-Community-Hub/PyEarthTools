@@ -184,6 +184,7 @@ class Division(xarrayNormalisation):
     def denormalise(self, sample):
         return sample * self.division_factor
 
+
 class SingleValueDivision(xarrayNormalisation):
     """Division based Normalisation"""
 
@@ -197,7 +198,7 @@ class SingleValueDivision(xarrayNormalisation):
         return sample / self.division_factor
 
     def denormalise(self, sample):
-        return sample * self.division_factor        
+        return sample * self.division_factor
 
 
 @BackwardsCompatibility(Division)
