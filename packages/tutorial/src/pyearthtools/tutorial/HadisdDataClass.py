@@ -192,66 +192,17 @@ class HadISDIndex(ArchiveIndex):
         if not isinstance(station_ids, list) or not all(isinstance(sid, str) for sid in station_ids):
             raise TypeError(f"Expected station_ids to be a str or list[str], but got: {type(station_ids)}")
 
-        # Define the station ranges and corresponding folders
-        STATION_RANGES = [
-            (0, 29999, "WMO_000000-029999"),
-            (30000, 49999, "WMO_030000-049999"),
-            (50000, 79999, "WMO_050000-079999"),
-            (80000, 99999, "WMO_080000-099999"),
-            (100000, 149999, "WMO_100000-149999"),
-            (150000, 199999, "WMO_150000-199999"),
-            (200000, 249999, "WMO_200000-249999"),
-            (250000, 299999, "WMO_250000-299999"),
-            (300000, 349999, "WMO_300000-349999"),
-            (350000, 399999, "WMO_350000-399999"),
-            (400000, 449999, "WMO_400000-449999"),
-            (450000, 499999, "WMO_450000-499999"),
-            (500000, 549999, "WMO_500000-549999"),
-            (550000, 599999, "WMO_550000-599999"),
-            (600000, 649999, "WMO_600000-649999"),
-            (650000, 699999, "WMO_650000-699999"),
-            (700000, 709999, "WMO_700000-709999"),
-            (710000, 714999, "WMO_710000-714999"),
-            (715000, 719999, "WMO_715000-719999"),
-            (720000, 721999, "WMO_720000-721999"),
-            (722000, 722999, "WMO_722000-722999"),
-            (723000, 723999, "WMO_723000-723999"),
-            (724000, 724999, "WMO_724000-724999"),
-            (725000, 725999, "WMO_725000-725999"),
-            (726000, 726999, "WMO_726000-726999"),
-            (727000, 729999, "WMO_727000-729999"),
-            (730000, 799999, "WMO_730000-799999"),
-            (800000, 849999, "WMO_800000-849999"),
-            (850000, 899999, "WMO_850000-899999"),
-            (900000, 949999, "WMO_900000-949999"),
-            (950000, 999999, "WMO_950000-999999"),
-        ]
-
         # Map station IDs to their file paths
         paths = {}
         for station_id in station_ids:
-            wmo_number = station_id[:6]  # Extract the first 6 digits of the station ID
-            station_numeric = int(wmo_number)  # Convert the WMO number to an integer
-
-            # Find the parent folder dynamically
-            parent_folder = None
-            for start, end, folder in STATION_RANGES:
-                if start <= station_numeric <= end:
-                    parent_folder = folder
-                    break
-
-            if parent_folder is None:
-                raise ValueError(f"Station ID {station_id} does not fall within any defined range.")
-
-            # Construct the expected filename
-            date_range = "19310101-20240101"  # Hardcoded for now; adjust if dataset is updated
+            date_range_str = "19310101-20240101"  # Hardcoded for now; adjust if dataset is updated
             version = "hadisd.3.4.0.2023f"
-            filename_nc = f"{version}_{date_range}_{station_id}.nc"
-            filename_zarr = f"{version}_{date_range}_{station_id}.zarr"
+            filename_nc = f"{version}_{date_range_str}_{station_id}.nc"
+            filename_zarr = f"{version}_{date_range_str}_{station_id}.zarr"
 
             # Construct the full path
-            _file_path_nc = Path(HADISD_HOME) / parent_folder / "netcdf" / filename_nc
-            file_path_zarr = Path(HADISD_HOME) / parent_folder / "zarr" / filename_zarr
+            file_path_nc = Path(HADISD_HOME) / "netcdf" / filename_nc
+            file_path_zarr = Path(HADISD_HOME) / "zarr" / filename_zarr
 
             # Check if the file exists (comment out if testing with single netcdf)
             if not file_path_zarr.exists():
