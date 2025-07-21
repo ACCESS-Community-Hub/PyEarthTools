@@ -136,62 +136,32 @@ class HadISDIndex(ArchiveIndex):
 
         self.record_initialisation()
 
-    # def get_all_station_ids(self, root_directory: Path | str) -> list[str]:
-    #     """
-    #     Retrieve all station IDs by scanning the dataset directory.
-
-    #     Args:
-    #         root_directory (Path | str): The root directory containing station data.
-
-    #     Returns:
-    #         list[str]: A list of all station IDs.
-    #     """
-    #     root_directory = Path(root_directory)
-    #     station_ids = []
-    #     for folder in cached_iterdir(root_directory):
-    #         if folder.is_dir():
-    #             for file in cached_iterdir(folder):
-    #                 if file.suffix == ".nc":  # Check for NetCDF files
-    #                     # Extract the station ID from the filename
-    #                     station_id = file.stem.split("_")[-1]  # Assuming station ID is the last part of the filename
-    #                     station_ids.append(station_id)
-    #     return station_ids
-
     def get_all_station_ids(self, root_directory: Path | str = None) -> list[str]:
         """
-        Retrieve all station IDs by scanning the dataset directory.
+        Retrieve all station IDs by scanning the Zarr directory.
 
         Args:
-            root_directory (Path | str, optional): The root directory containing station data.
-                Defaults to HADISD_HOME/netcdf.
+            root_directory (Path | str, optional): The directory containing Zarr files.
+                Defaults to HADISD_HOME/zarr.
 
         Returns:
             list[str]: A list of all station IDs.
         """
-
         HADISD_HOME = self.ROOT_DIRECTORIES["hadisd"]
         if root_directory is None:
-            # Search all WMO folders for netcdf subfolders
-            wmo_folders = [f for f in Path(HADISD_HOME).iterdir() if f.is_dir() and f.name.startswith("WMO_")]
-            station_ids = []
-            for wmo_folder in wmo_folders:
-                netcdf_dir = wmo_folder / "netcdf"
-                if cached_exists(netcdf_dir):
-                    for file in cached_iterdir(netcdf_dir):
-                        if file.suffix == ".nc":
-                            station_id = file.stem.split("_")[-1]
-                            station_ids.append(station_id)
-            return station_ids
+            zarr_dir = Path(HADISD_HOME) / "zarr"
         else:
-            root_directory = Path(root_directory)
-            if not cached_exists(root_directory):
-                raise DataNotFoundError(f"Root directory does not exist: {root_directory}")
-            station_ids = []
-            for file in cached_iterdir(root_directory):
-                if file.suffix == ".nc":
-                    station_id = file.stem.split("_")[-1]
-                    station_ids.append(station_id)
-            return station_ids
+            zarr_dir = Path(root_directory)
+
+        if not cached_exists(zarr_dir):
+            raise DataNotFoundError(f"Zarr directory does not exist: {zarr_dir}")
+
+        station_ids = []
+        for file in cached_iterdir(zarr_dir):
+            if file.suffix == ".zarr":
+                station_id = file.stem.split("_")[-1]
+                station_ids.append(station_id)
+        return station_ids
 
     def filesystem(self, *args, date_range=("1970-01-01T00", "2023-12-31T23"), **kwargs) -> dict[str, Path]:
         """
