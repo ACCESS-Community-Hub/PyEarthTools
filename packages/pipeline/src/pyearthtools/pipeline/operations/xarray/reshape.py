@@ -44,7 +44,7 @@ class Dimensions(Operation):
 
         Args:
             dimensions (Union[str, list[str]]):
-                Specified order of dimensions to tranpose dataset to
+                Specified order of dimensions to transpose dataset to
             append (bool, optional):
                 Append extra dims, if false, prepend dims. Defaults to True.
             preserve_order (bool, optional):
