@@ -80,7 +80,8 @@ def open_dataset(
 
     if isinstance(location, (tuple, list)):
         try:
-            return xr.open_mfdataset(filter_files(location), **get_config(True))
+            ds = xr.open_mfdataset(filter_files(location), **get_config(True))
+            return ds
 
         except xr.MergeError as e:
             if not soft_fail:
@@ -216,6 +217,10 @@ def open_files(
     files_to_load = [value for _, value in files.items()] if isinstance(files, dict) else list(files)
 
     file_extens = check_extension(files_to_load)
+
+    # Handle all Zarr directories as a multi-file dataset
+    if len(file_extens) == 1 and file_extens[0] in ZARR_FILE_EXTENSONS:
+        return xr.open_mfdataset(files_to_load, engine="zarr", **kwargs)
 
     if len(file_extens) == 1 and file_extens[0] in NETCDF_FILE_EXTENSONS:
         return open_dataset(files_to_load, **kwargs)

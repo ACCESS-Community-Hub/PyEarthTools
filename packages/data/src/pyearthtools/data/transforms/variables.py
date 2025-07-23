@@ -94,5 +94,46 @@ class Drop(Transform):
         return dataset[var_included]
 
 
+class Select(Transform):
+    """Select specific dataset variables"""
+
+    def __init__(self, variables: list[str] | str, *extra_variables):
+        """
+        Select variables from the dataset.
+
+        Args:
+            variables (list[str] | str):
+                List of variables to select.
+        """
+        super().__init__()
+        self.record_initialisation()
+
+        # Ensure variables is always a list
+        variables = variables if isinstance(variables, (list, tuple)) else [variables]
+        self._variables = [*variables, *extra_variables]
+
+    def apply(self, dataset: xr.Dataset) -> xr.Dataset:
+        """
+        Apply the transform to select specific variables.
+
+        Args:
+            dataset (xr.Dataset): The dataset to transform.
+
+        Returns:
+            xr.Dataset: A dataset containing only the selected variables.
+        """
+        if self._variables is None:
+            return dataset
+
+        # Select only the variables that exist in the dataset
+        var_included = set(self._variables) & set(dataset.data_vars)
+
+        if not var_included:
+            # If no variables match, return the original dataset
+            return dataset
+
+        return dataset[list(var_included)]
+
+
 @BackwardsCompatibility(Drop)
 def drop(*args) -> Transform: ...

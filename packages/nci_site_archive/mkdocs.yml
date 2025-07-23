@@ -57,7 +57,7 @@ plugins:
         docstring_style: "google"
         paths: [src]
         members_order: source
-        show_submodules: True
+        show_submodules: true
         options:
           allow_inspection: false
           show_source: false

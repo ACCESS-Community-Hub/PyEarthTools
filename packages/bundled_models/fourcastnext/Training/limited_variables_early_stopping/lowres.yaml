@@ -1,0 +1,19 @@
+---
+defaults:
+ - _self_
+ - trainer: few_epochs
+ - model: default
+ - data: lowres
+
+ - data/splits: short_training_splits
+ - data/module: default
+
+experiment_name: ${now:%Y-%m-%d}/${now:%H-%M-%S}
+path: ./Experiments/FourCastNeXt/Training/${experiment_name}
+
+fit: false
+
+hydra:
+  verbose: false
+  run:
+    dir: ${path}

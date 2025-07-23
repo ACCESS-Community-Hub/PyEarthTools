@@ -93,6 +93,7 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
             **kwargs (dict, optional):
                 Any keyword arguments to pass to [BaseCacheIndex][pyearthtools.data.BaseCacheIndex]
         """
+
         super().__init__(cache=str(cache), **dict(kwargs))
         self.record_initialisation()
 
@@ -143,7 +144,9 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         querytime: str | Petdt,
     ) -> Any:
         """
-        Get Data from given timestep
+        1. Generate the prediction from the model
+        2. Apply post-model transforms
+        3. Return the transformed predictions
         """
         querytime = self.offset_time(querytime)
 
@@ -152,22 +155,37 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
 
         predictions = getattr(self.wrapper, self.prediction_function)(querytime, **self.predict_config)
 
+        # TODO: Figure out why we need to do this and document it
         if isinstance(predictions, (list, tuple)):
             predictions = predictions[1]
 
+        # Apply base transforms to the prediction data
         if hasattr(self, "base_transforms"):
             predictions = self.base_transforms(predictions)
 
+        # Apply post transforms to the predictions
         predictions = self.post_transforms(predictions)
         predictions = ATTRIBUTE_MARK(predictions)
 
+        # Apply attribute marks to the prediction data
         if self.data_attributes is not None:
             attrs = yaml.safe_load(open(str(self.data_attributes), "r"))
             predictions = pyearthtools.data.transforms.attributes.set_attributes(attrs, apply_on="dataset")(predictions)
+
         return predictions
 
     def filesystem(self, *args, **kwargs) -> Path | dict[str, str | Path] | list[str | Path]:
         return super().filesystem(*args, **kwargs)
+
+    def get(self, *args, **kwargs):
+        """
+        Retrieve the prediction data for the request sought
+        """
+
+        dt_sought = args[0]
+
+        data = self._generate(dt_sought)
+        return data
 
     @property
     def data(self):

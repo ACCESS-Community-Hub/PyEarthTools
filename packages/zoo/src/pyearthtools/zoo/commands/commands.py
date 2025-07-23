@@ -102,7 +102,7 @@ HELP_STR = f"""
 @click.pass_context
 @click.argument("model", type=str)
 @click.option("--time", type=str, required=True, help="Basetime to predict from")
-@click.option("--pipeline", type=str, required=True, help="Pipeline config")
+@click.option("--pipeline_name", type=str, required=True, help="Pipeline config")
 @click.option("--output", type=click.Path(file_okay=False), required=True, help="Output directory")
 @click.option(
     "--data_cache",
@@ -121,7 +121,7 @@ def run_predict(
     model: str,
     time: str,
     output: str,
-    pipeline: str,
+    pipeline_name: str,
     data_cache: str,
     config_path: str,
 ):
@@ -130,15 +130,28 @@ def run_predict(
     if "data" in ctx_kwargs:
         raise ValueError("data has been deprecated as an argument for `predict`, use `data`.")
 
-    pyearthtools.zoo.predict(
+    predictions = pyearthtools.zoo.predict(
         model,
         time,
-        pipeline=pipeline,
+        pipeline_name=pipeline_name,
         output=output,
         data_cache=data_cache,
         config_path=config_path,
         **ctx_kwargs,
     )
+
+    # FIXME: This is probably very much the wrong way to save data, but something
+    # is needed as a stopgap while the train/predict/save cycle is restored
+    # post migration, and the more appropriate use of the output directory
+    # through pipelines will be revisited afterwards
+
+    if output is not None:
+        import os
+
+        filename = "standard_filename.nc"
+        filename = os.path.join(output, filename)
+        predictions.to_netcdf(filename)
+
     print(f"Model Predictions saved underneath {output!r}.")
 
 
@@ -166,7 +179,7 @@ INTERACTIVE_HELP_STR = f"""
 @click.pass_context
 @click.option("--model", type=str, required=False, help="Model to use", default=None)
 @click.option("--time", type=str, required=False, help="Basetime to predict from", default=None)
-@click.option("--pipeline", type=str, required=False, help="Pipeline config", default=None)
+@click.option("--pipeline_name", type=str, required=False, help="Pipeline config", default=None)
 @click.option(
     "--output",
     type=click.Path(file_okay=False),
@@ -191,7 +204,7 @@ def interactive(
     ctx,
     model: str,
     time: str,
-    pipeline: str,
+    pipeline_name: str,
     output: Path | str,
     data_cache: Path | str,
     config_path: str | Path,
@@ -206,7 +219,7 @@ def interactive(
     predict_kwargs = _get_predict_kwargs_interactively(
         model=model,
         time=time,
-        pipeline=pipeline,
+        pipeline_name=pipeline_name,
         output=output,
         data_cache=data_cache,
         config_path=config_path,
@@ -250,7 +263,7 @@ DATA_HELP_STR = f"""
 @click.pass_context
 @click.argument("model", type=str)
 @click.option("--time", type=str, required=True, help="Basetime to get data for")
-@click.option("--pipeline", type=str, default=None, required=True, help="Pipeline config")
+@click.option("--pipeline_name", type=str, default=None, required=True, help="Pipeline config")
 @click.option(
     "--data_cache",
     type=click.Path(file_okay=False),

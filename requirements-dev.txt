@@ -1,6 +1,0 @@
--e packages/utils
--e packages/data[all]
--e packages/training[all]
--e packages/pipeline[all]
--e packages/tutorial
--e .[test,dev,docs]

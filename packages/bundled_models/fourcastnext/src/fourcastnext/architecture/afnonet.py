@@ -34,7 +34,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from timm.models.layers import DropPath, trunc_normal_
+from timm.layers import DropPath, trunc_normal_
 import torch.fft
 from torch.nn.modules.container import Sequential
 from einops import rearrange, repeat

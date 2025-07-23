@@ -15,7 +15,7 @@ Information relevant for package maintenance
 ```
 Thank you very much for your contribution.
 
-When we release a new version of PyEarthTools, that version is archived on Zenodo. See: XXXXX
+When we release a new version of PyEarthTools, that version is archived on Zenodo. See: https://doi.org/10.5281/zenodo.15760768
 
 As you have contributed to PyEarthtools, would you like to be listed on Zenodo as an author the next time PyEarthTools is archived?
 

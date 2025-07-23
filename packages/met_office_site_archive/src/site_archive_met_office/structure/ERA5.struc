@@ -1,0 +1,1120 @@
+order:
+- variables
+- product
+100u:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+100v:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+10fg:
+- reanalysis
+10si:
+- monthly-averaged
+- monthly-averaged-by-hour
+10u:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+10v:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+2d:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+2t:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+acwh:
+- reanalysis
+alnid:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+alnip:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+aluvd:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+aluvp:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+anor:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+arrc:
+- reanalysis
+asn:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+awh:
+- reanalysis
+bfi:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+bld:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+blh:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+cape:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+cbh:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+cc:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+cdir:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+cdww:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+chnk:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+ci:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+cin:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+ciwc:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+cl:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+clwc:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+cp:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+crr:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+crwc:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+csf:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+csfr:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+cswc:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+cvh:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+cvl:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+d:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+dctb:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+deg0l:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+dl:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+dndza:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+dndzn:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+dwi:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+dwps:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+dwww:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+e:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+es:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+ewss:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+fal:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+fdir:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+flsr:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+fsr:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+gwd:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+hcc:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+hmax:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+i10fg:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+ie:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+iews:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+ilspf:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+inss:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+ishf:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+isor:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+istl1:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+istl2:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+istl3:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+istl4:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+kx:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+lai-hv:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+lai-lv:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+lblt:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+lcc:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+lgws:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+licd:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+lict:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+lmld:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+lmlt:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+lsf:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+lshf:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+lsm:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+lsp:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+lspf:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+lsrr:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+lssfr:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+ltlt:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+magss:
+- monthly-averaged
+- monthly-averaged-by-hour
+mbld:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mcc:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mcpr:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mcsr:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mdts:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mdww:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+megwss:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mer:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+metss:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mgwd:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mgws:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mlspf:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mlspr:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mlssr:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mmtss:
+- monthly-averaged
+- monthly-averaged-by-hour
+mn2t:
+- reanalysis
+mngwss:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mntpr:
+- reanalysis
+mntss:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mp1:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mp2:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mper:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mpts:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mpww:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mror:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+msdrswrf:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+msdrswrfcs:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+msdwlwrf:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+msdwlwrfcs:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+msdwswrf:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+msdwswrfcs:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+msdwuvrf:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mser:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+msl:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mslhf:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+msmr:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+msnlwrf:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+msnlwrfcs:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+msnswrf:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+msnswrfcs:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+msqs:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+msr:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+msror:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+msshf:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mssror:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mtdwswrf:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mtnlwrf:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mtnlwrfcs:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mtnswrf:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mtnswrfcs:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mtpr:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mvimd:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mwd:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mwd1:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mwd2:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mwd3:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mwp:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mwp1:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mwp2:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mwp3:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+mx2t:
+- reanalysis
+mxtpr:
+- reanalysis
+nsss:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+o3:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+p1ps:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+p1ww:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+p2ps:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+p2ww:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+pev:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+phiaw:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+phioc:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+pp1d:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+ptype:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+pv:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+q:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+r:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+rhoao:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+ro:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+rsn:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+sd:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+sdfor:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+sdor:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+sf:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+shts:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+shww:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+skt:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+slhf:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+slor:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+slt:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+smlt:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+sp:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+src:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+sro:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+sshf:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+ssr:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+ssrc:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+ssrd:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+ssrdc:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+ssro:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+sst:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+stl1:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+stl2:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+stl3:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+stl4:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+str:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+strc:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+strd:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+strdc:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+swh:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+swh1:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+swh2:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+swh3:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+swvl1:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+swvl2:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+swvl3:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+swvl4:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+t:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+tauoc:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+tcc:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+tciw:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+tclw:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+tco3:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+tcrw:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+tcslw:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+tcsw:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+tcw:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+tcwv:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+tisr:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+tmax:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+totalx:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+tp:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+tplb:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+tplt:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+tsn:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+tsr:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+tsrc:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+ttr:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+ttrc:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+tvh:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+tvl:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+u:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+u10n:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+ust:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+uvb:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+v:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+v10n:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+viec:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vigd:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vige:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vign:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+viiwd:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+viiwe:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+viiwn:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vike:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+viked:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vikee:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+viken:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vilwd:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vilwe:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vilwn:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vima:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vimad:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vimae:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+viman:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vimat:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vimd:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+viozd:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vioze:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+viozn:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vipie:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vipile:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vit:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vithe:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vithed:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vithee:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vithen:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vitoe:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vitoed:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vitoee:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vitoen:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+viwvd:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+viwve:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+viwvn:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vo:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+vst:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+w:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+wdw:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+wind:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+wmb:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+wsk:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+wsp:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+wss:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+wstar:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+z:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+z_surface:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis
+zust:
+- monthly-averaged
+- monthly-averaged-by-hour
+- reanalysis

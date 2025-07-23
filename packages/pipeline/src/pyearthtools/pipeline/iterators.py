@@ -23,10 +23,11 @@ from __future__ import annotations
 from functools import cached_property
 from abc import ABCMeta, abstractmethod
 
-from typing import Any, Callable, Generator, Hashable, Iterable, Optional, Union
+from typing import Any, Callable, Generator, Hashable, Iterable, Optional, Union, Set
 from pathlib import Path
 
 import numpy as np
+import random
 
 import pyearthtools.data
 
@@ -171,7 +172,15 @@ class DateRange(Iterator):
     Uses `pyearthtools.data.TimeRange` to create a range of times.
     """
 
-    def __init__(self, start: str, end: str, interval):
+    def __init__(
+        self,
+        start: str,
+        end: str,
+        interval,
+        *,
+        allowlist: Optional[Iterable[str]] = None,
+        blocklist: Optional[Iterable[str]] = None,
+    ):
         """
         Construct DateRange Iterator
 
@@ -185,17 +194,66 @@ class DateRange(Iterator):
             interval (Any):
                 Interval between times. Must be understandable by
                 `pyearthtools.data.TimeDelta`.
+            allowlist: A list of pyearthtools.data.time.Petdt which should be filtered to
+            blocklist: A list of pyearthtools.data.time.Petdt which should be skipped
+
+        Note:
+            You cannot specify both a blocklist and an allowlist.
+
+            The entries in the blocklist and allowlist must be a complete list of exact
+            dates. It is not possible to do fuzzy matching or range-based constraints
+            at this stage. For example, if the underlying data is hourly, and a particular
+            day needs to be skipped entirely, each hour of that day will need to be in the
+            blocklist.
+
+        Examples:
+            >>> known_bad = ['2015-01-01T06']
+            >>> iterator=DateRange(2015, 2016, interval='6 hours', blocklist=known_bad)
+
         """
         super().__init__()
         self.record_initialisation()
 
         import pyearthtools.data
 
+        if allowlist and blocklist:
+            raise ValueError("An allowlist and a blocklist cannot be specified at the same time")
+
+        self.allowlist = allowlist
+        if allowlist:
+            self.allowlist = set(allowlist)
+
+        self.blocklist = blocklist
+        if blocklist: 
+            self.blocklist = set(blocklist)
+
         self._timerange = pyearthtools.data.TimeRange(start, end, interval)
 
+
     def __iter__(self) -> Generator[pyearthtools.data.Petdt, None, None]:
-        for i in self._timerange:
-            yield i
+
+        # If in allowlist mode, yield only samples from the allow list
+        if self.allowlist:
+            print("Processing allow list")
+            for i in self._timerange:
+                if i in self.allowlist:
+                    yield i
+
+        # If in blocklist mode, yield only samples not in the blocklist
+        elif self.blocklist:
+            print("processing block list")
+            for i in self._timerange:
+                if i not in self.blocklist:
+                    yield i
+
+        # If not filtering, yield everything
+        else:
+            for i in self._timerange:
+                yield i              
+
+    def randomise(self, seed: Optional[int] = 42):
+        """Randomise this interator"""
+        return DateRandomise(self, seed=seed)                
 
 
 class DateRangeLimit(DateRange):
@@ -221,6 +279,48 @@ class DateRangeLimit(DateRange):
 
         end = pyearthtools.data.Petdt(start) + (pyearthtools.data.TimeDelta(interval) * num)
         super().__init__(start, str(end), interval)
+
+class DateRandomise(Iterator):
+    """
+    Wrap around another `Iterator` and randomly sample
+    """
+
+    def __init__(self, iterator: DateRange, seed: Union[int, None] = 42):
+        """
+        Randomise `iterator`
+
+        Args:
+            iterator (Iterator):
+                Underlying `Iterator` to randomise.
+            seed (Union[int, None], optional):
+                Random selection seed. If None, will be `random`.
+                Defaults to 42.
+        """
+        super().__init__()
+        self.record_initialisation()
+
+        self.seed = seed
+        self.rng = np.random.default_rng(self.seed)
+        self._iterator = iterator
+        self.valid_times = list(iterator._timerange)
+
+        print("Calculated indexes")
+
+        if getattr(iterator, 'allowlist', None):
+            self.valid_times = [t for t in self.valid_times if t in iterator.allowlist]
+            print(len(self.valid_times))
+
+        if getattr(iterator, 'blocklist', None):
+            self.valid_times = [t for t in self.valid_times if t not in iterator.blocklist]
+            print(len(self.valid_times))
+
+        random.shuffle(self.valid_times)
+
+    def __iter__(self):
+
+        for key in self.valid_times:
+            yield key
+
 
 
 class Randomise(Iterator):

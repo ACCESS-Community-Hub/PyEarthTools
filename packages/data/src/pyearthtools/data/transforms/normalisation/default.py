@@ -78,9 +78,9 @@ class Normaliser:
         """
         Base Normalise Class
 
-        Setup Transformer Class to normalise and unnormalise data
+        Setup Transformer Class to normalise and denormalise data
 
-        Can't be used directly, see `Normalise`, & `Unnormalise`.
+        Can't be used directly, see `Normalise`, & `Denormalise`.
 
         Anomaly, Range, Deviation all require `start`, `end`, and `interval` to be given or `file`.
 
@@ -122,6 +122,7 @@ class Normaliser:
         kwargs.update(skip_invalid=True)
         self.retrieval_arguments = dict(start=start, end=end, interval=interval, verbose=verbose, **kwargs)
 
+        # TODO - Consider wrapping in a try/except block to catch if TemporaryDirectory() fails
         if cache == "temp":
             temp_dir = tempfile.TemporaryDirectory()
             cache = temp_dir.name
@@ -129,7 +130,6 @@ class Normaliser:
 
         self.cache_dir = cache
         self.index = index
-
         self._function = function
         self.override = override
         self.verbose = verbose
@@ -156,7 +156,7 @@ class Normaliser:
         for arg in ["start", "end", "interval"]:
             if not self.retrieval_arguments[arg]:
                 raise RuntimeError(
-                    f"`override`, or (`start`, `end` and `interval`) was not given in `__init__`."
+                    "`override`, or (`start`, `end` and `interval`) was not given in `__init__`."
                     "These must be given in order to find the normalisation values."
                 )
         return True
@@ -356,7 +356,7 @@ class Normaliser:
         return {variable_name: range[variable_name]}
 
     def _find_user_normaliser(self, key: str):
-        if not "Normaliser" in key:
+        if "Normaliser" not in key:
             raise AttributeError(f"{key!r} does not contain 'Normaliser', so is being ignored")
         try:
             return dynamic_import(key)(self)
@@ -480,7 +480,7 @@ class Normaliser:
 
     def __call__(self, method: str | dict | tuple, default: str | None = None) -> Transform:
         """
-        Get Transform to Normaliser or UnNormalise based on provided method
+        Get Transform to Normaliser or Denormalise based on provided method
 
         Args:
             method (dict): Dictionary assigning variable names to normalisation methods
