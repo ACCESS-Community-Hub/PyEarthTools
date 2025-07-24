@@ -412,13 +412,13 @@ def weak_cast_to_int(value):
 
 
 class Flatten(Transform):
-    """Flatten a coordinate in a dataset into seperate variables"""
+    """Flatten a coordinate in a dataset into separate variables"""
 
     def __init__(
         self, coordinate: Hashable | list[Hashable] | tuple[Hashable], *extra_coordinates, skip_missing: bool = False
     ):
         """
-        Flatten a coordinate in a dataset with each point being made a seperate data var
+        Flatten a coordinate in a dataset with each point being made a separate data var
 
         Args:
             coordinate (Hashable | list[Hashable] | tuple[Hashable] | None):
