@@ -427,6 +427,9 @@ class Flatten(Transform):
         Dataset has a variable "t" and it is flattened along the coordinate "pressure_level" which has values
         [100, 200, 500], then the output Dataset will have variables called t100, t200 and t500.
 
+        If more than one coordinate is flattened, the output data variable names will concatenate the values of each
+        coordinate.
+
         Args:
             coordinate (Hashable | list[Hashable] | tuple[Hashable] | None):
                 Coordinates to flatten, either str or list of candidates.
@@ -466,7 +469,7 @@ class Flatten(Transform):
             )
 
         elif len(discovered_coord) > 1:
-            transforms = TransformCollection(*[flatten(coord) for coord in discovered_coord])
+            transforms = TransformCollection(*[Flatten(coord) for coord in discovered_coord])
             return transforms(dataset)
 
         discovered_coord = str(discovered_coord[0])
