@@ -83,5 +83,5 @@ def test_Flatten_skip_missing():
     f = coordinates.Flatten(["scrupulosity"])
     with pytest.raises(ValueError):
         f.apply(SIMPLE_DS1)
-    f2 = coordinates.Flatten(["height"])
+    f2 = coordinates.Flatten(["scrupulosity"], skip_missing=True)
     f2.apply(SIMPLE_DS1)
