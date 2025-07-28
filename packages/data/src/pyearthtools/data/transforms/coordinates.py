@@ -412,13 +412,20 @@ def weak_cast_to_int(value):
 
 
 class Flatten(Transform):
-    """Flatten a coordinate in a dataset into seperate variables"""
+    """Operation to flatten a coordinate in a dataset, putting the data at each value of the coordinate into a separate
+    data variable."""
 
     def __init__(
         self, coordinate: Hashable | list[Hashable] | tuple[Hashable], *extra_coordinates, skip_missing: bool = False
     ):
         """
-        Flatten a coordinate in a dataset with each point being made a seperate data var
+
+        Flatten a coordinate in an xarray Dataset, putting the data at each value of the coordinate into a separate
+        data variable.
+
+        The output data variables will be named "<old variable name><value of coordinate>". For example, if the input
+        Dataset has a variable "t" and it is flattened along the coordinate "pressure_level" which has values
+        [100, 200, 500], then the output Dataset will have variables called t100, t200 and t500.
 
         Args:
             coordinate (Hashable | list[Hashable] | tuple[Hashable] | None):
@@ -431,6 +438,7 @@ class Flatten(Transform):
         Raises:
             ValueError:
                 If invalid number of coordinates found
+
         """
         super().__init__()
         self.record_initialisation()
