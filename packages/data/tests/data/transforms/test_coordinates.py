@@ -15,6 +15,7 @@
 from pyearthtools.data.transforms import coordinates
 import xarray as xr
 import numpy as np
+import pytest
 
 SIMPLE_DA1 = xr.DataArray(
     [
@@ -32,8 +33,22 @@ SIMPLE_DA1 = xr.DataArray(
     coords=[[10, 20], [0, 1, 2], [5, 6, 7]],
     dims=["height", "lat", "lon"],
 )
+
+SIMPLE_DA2 = xr.DataArray(
+    [
+        [0.9, 0.0, 5],
+        [0.7, 1.4, 2.8],
+        [0.4, 0.5, 2.3],
+    ],
+
+    coords=[[0, 1, 2], [5, 6, 7]],
+    dims=["lat", "lon"],
+)
+
 SIMPLE_DS1 = xr.Dataset({"Temperature": SIMPLE_DA1})
 SIMPLE_DS2 = xr.Dataset({"Humidity": SIMPLE_DA1, "Temperature": SIMPLE_DA1, "WombatsPerKm2": SIMPLE_DA1})
+
+COMPLICATED_DS1 = xr.Dataset({"Temperature": SIMPLE_DA1, "MSLP": SIMPLE_DA2})
 
 def test_Flatten():
     f = coordinates.Flatten(["height"])
@@ -46,6 +61,27 @@ def test_Flatten_2_coords():
     f = coordinates.Flatten(["height", "lon"])
     output = f.apply(SIMPLE_DS1)
     variables = list(output.keys())
-    for vbl in ['Temperature510', 'Temperature520', 'Temperature610', 'Temperature620',
-                'Temperature710', 'Temperature720']:
+    # Note that it's hard to predict which coordinate will be processed first.
+    try:
+        for vbl in ['Temperature510', 'Temperature520', 'Temperature610', 'Temperature620',
+                    'Temperature710', 'Temperature720']:
+            assert vbl in variables
+    except AssertionError:
+        for vbl in ['Temperature105', 'Temperature205', 'Temperature106', 'Temperature206',
+                    'Temperature107', 'Temperature207']:
+            assert vbl in variables
+
+def test_Flatten_complicated_dataset():
+    """Check that Flatten still works when the coordinate being flattened does not exist for all variables."""
+    f = coordinates.Flatten(["height"])
+    output = f.apply(COMPLICATED_DS1)
+    variables = list(output.keys())
+    for vbl in ["Temperature10", "Temperature20", "MSLP"]:
         assert vbl in variables
+
+def test_Flatten_skip_missing():
+    f = coordinates.Flatten(["scrupulosity"])
+    with pytest.raises(ValueError):
+        f.apply(SIMPLE_DS1)
+    f2 = coordinates.Flatten(["height"])
+    f2.apply(SIMPLE_DS1)

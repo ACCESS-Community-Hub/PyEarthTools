@@ -436,7 +436,8 @@ class Flatten(Transform):
             *extra_coordinates (optional):
                 Arguments form of `coordinate`.
             skip_missing (bool, optional):
-                Whether to skip data without the dims. Defaults to False
+                Whether to skip data that does not have any of the listed coordinates. If True, will return such data
+                unchanged. Defaults to False.
 
         Raises:
             ValueError:
