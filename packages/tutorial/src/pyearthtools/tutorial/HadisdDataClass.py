@@ -4,17 +4,14 @@ import functools
 import pandas as pd
 import xarray as xr
 from pathlib import Path
-from typing import Any, Literal
-from dask.diagnostics import ProgressBar
-from dask import delayed, compute
+from typing import Any
 
 import pyearthtools.data
-from pyearthtools.data import Petdt
 from pyearthtools.data.archive import register_archive
 from pyearthtools.data.exceptions import DataNotFoundError
-from pyearthtools.data.indexes import ArchiveIndex, decorators
+from pyearthtools.data.indexes import ArchiveIndex
 from pyearthtools.data.transforms import Transform, TransformCollection
-from pyearthtools.data.transforms.variables import Drop, Select
+from pyearthtools.data.transforms.variables import Drop
 from pyearthtools.data.transforms.values import SetMissingToNaN
 
 
