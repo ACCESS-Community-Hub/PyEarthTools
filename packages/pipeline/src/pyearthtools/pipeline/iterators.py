@@ -224,11 +224,10 @@ class DateRange(Iterator):
             self.allowlist = set(allowlist)
 
         self.blocklist = blocklist
-        if blocklist: 
+        if blocklist:
             self.blocklist = set(blocklist)
 
         self._timerange = pyearthtools.data.TimeRange(start, end, interval)
-
 
     def __iter__(self) -> Generator[pyearthtools.data.Petdt, None, None]:
 
@@ -249,11 +248,11 @@ class DateRange(Iterator):
         # If not filtering, yield everything
         else:
             for i in self._timerange:
-                yield i              
+                yield i
 
     def randomise(self, seed: Optional[int] = 42):
         """Randomise this interator"""
-        return DateRandomise(self, seed=seed)                
+        return DateRandomise(self, seed=seed)
 
 
 class DateRangeLimit(DateRange):
@@ -279,6 +278,7 @@ class DateRangeLimit(DateRange):
 
         end = pyearthtools.data.Petdt(start) + (pyearthtools.data.TimeDelta(interval) * num)
         super().__init__(start, str(end), interval)
+
 
 class DateRandomise(Iterator):
     """
@@ -306,11 +306,11 @@ class DateRandomise(Iterator):
 
         print("Calculated indexes")
 
-        if getattr(iterator, 'allowlist', None):
+        if getattr(iterator, "allowlist", None):
             self.valid_times = [t for t in self.valid_times if t in iterator.allowlist]
             print(len(self.valid_times))
 
-        if getattr(iterator, 'blocklist', None):
+        if getattr(iterator, "blocklist", None):
             self.valid_times = [t for t in self.valid_times if t not in iterator.blocklist]
             print(len(self.valid_times))
 
@@ -320,7 +320,6 @@ class DateRandomise(Iterator):
 
         for key in self.valid_times:
             yield key
-
 
 
 class Randomise(Iterator):
