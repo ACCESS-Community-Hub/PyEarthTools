@@ -261,7 +261,7 @@ class Tesselator:
 
         all_patches = []
         for input_patch in input_data:
-            all_patches.append(_patching.reorder.reorder(input_patch, data_format, "TCHW"))
+            all_patches.append(_patching.reorder(input_patch, data_format, "TCHW"))
 
         all_patches = np.array(all_patches)
 

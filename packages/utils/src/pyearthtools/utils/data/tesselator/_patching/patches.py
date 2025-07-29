@@ -29,7 +29,7 @@ from pyearthtools.utils.data.tesselator._patching import (
     DEFAULT_FORMAT_PATCH_AFTER,
     DEFAULT_FORMAT_PATCH_ORGANISE,
 )
-from pyearthtools.utils.data.tesselator._patching.reorder import reorder
+from pyearthtools.utils.data.tesselator._patching._reorder import reorder
 from pyearthtools.utils.data.tesselator._patching.subset import cut_center
 
 

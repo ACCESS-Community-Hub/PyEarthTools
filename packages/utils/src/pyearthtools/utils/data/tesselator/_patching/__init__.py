@@ -15,6 +15,7 @@
 
 """
 Data processing tools for use by the [Tesselator][pyearthtools.utils.data.Tesselator]
+
 """
 DEFAULT_FORMAT_SUBSET: str = "...HW"
 
@@ -22,4 +23,14 @@ DEFAULT_FORMAT_PATCH_ORGANISE: str = "P...HW"
 DEFAULT_FORMAT_PATCH: str = "RP...HW"
 DEFAULT_FORMAT_PATCH_AFTER: str = "...HW"
 
-from . import patches, reorder, subset
+# This needs to be below the string declarations above
+from . import patches, subset
+
+from ._reorder import reorder
+
+
+__all__ = [
+    'patches',
+    'reorder',
+    'subset'
+]

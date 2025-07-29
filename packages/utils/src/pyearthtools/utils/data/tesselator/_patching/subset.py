@@ -25,7 +25,7 @@ from typing import Iterable, Union
 import numpy as np
 
 from pyearthtools.utils.data.tesselator._patching import DEFAULT_FORMAT_SUBSET
-from pyearthtools.utils.data.tesselator._patching.reorder import move_to_end, reorder
+from pyearthtools.utils.data.tesselator._patching._reorder import move_to_end, reorder
 from pyearthtools.utils.exceptions import TesselatorException
 
 
