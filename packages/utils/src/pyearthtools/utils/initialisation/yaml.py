@@ -13,9 +13,8 @@
 # limitations under the License.
 
 
-from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Literal, Optional, Sequence, TypeVar, Union
+from typing import Any, TypeVar, Union
 
 import yaml
 

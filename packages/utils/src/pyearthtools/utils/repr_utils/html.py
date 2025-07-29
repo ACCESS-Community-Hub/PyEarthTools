@@ -16,7 +16,7 @@
 from __future__ import annotations
 
 import uuid
-from functools import lru_cache, partial
+from functools import lru_cache
 from html import escape
 from importlib.resources import read_binary
 

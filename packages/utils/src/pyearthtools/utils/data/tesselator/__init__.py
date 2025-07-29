@@ -245,12 +245,12 @@ class Tesselator:
         if (np.array(self.stride) > np.array(self.kernel_size)).any():
             raise TesselatorException(
                 "Stride is larger than kernel size, incoming data cannot be complete.\n"
-                f"Set stride smaller, or use another tesselator "
+                "Set stride smaller, or use another tesselator "
             )
 
         if self._layout is None:
             raise TesselatorException(
-                f"This tesselator has not be used to patch, therefore it has not recorded the layout, and cannot be used to stitch."
+                "This tesselator has not be used to patch, therefore it has not recorded the layout, and cannot be used to stitch."
             )
 
         if not input_data.shape == self._post_shape and not self.ignore_difference:
@@ -274,7 +274,7 @@ class Tesselator:
             full_prediction = _patching.subset.center(full_prediction, self._initial_shape[-2:])
         except TesselatorException:
             warnings.warn(
-                f"Could not trim to initial_shape, if 'padding' is None, an incomplete patch set is made. Padding with nans",
+                "Could not trim to initial_shape, if 'padding' is None, an incomplete patch set is made. Padding with nans",
                 TesselatorWarning,
             )
             pad_width = [

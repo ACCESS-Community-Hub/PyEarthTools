@@ -456,7 +456,6 @@ class DaskConverter(NumpyConverter):
         raise TypeError(f"Unable to convert data of {type(data)} to `da.array`")
 
     def convert_to_xarray(self, data, pop: bool = True):
-        import dask.array as da
 
         # if isinstance(data, da.Array):
         #     data = data.compute()

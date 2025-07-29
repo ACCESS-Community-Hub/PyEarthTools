@@ -13,7 +13,6 @@
 # limitations under the License.
 
 
-import pytest
 import xarray as xr
 
 from pyearthtools.utils.data import converter
