@@ -195,7 +195,7 @@ class Flattener:
         self.shape_attempt = shape_attempt
 
         if isinstance(flatten_dims, int) and flatten_dims < 1:
-            raise ValueError(f"'flatten_dims' cannot be smaller than 1.")
+            raise ValueError("'flatten_dims' cannot be smaller than 1.")
         self.flatten_dims = flatten_dims
 
     def _prod_shape(self, shape):
@@ -205,8 +205,8 @@ class Flattener:
 
     def _configure_shape_attempt(self) -> tuple[Union[str, int], ...]:
         if not self._fillshape or not self.shape_attempt:
-            raise RuntimeError(f"Cannot find shape to unflatten with, try flattening first.")
-        if not "..." in self.shape_attempt:
+            raise RuntimeError("Cannot find shape to unflatten with, try flattening first.")
+        if "..." not in self.shape_attempt:
             return self.shape_attempt
 
         shape_attempt = list(self.shape_attempt)
@@ -235,7 +235,7 @@ class Flattener:
 
     def undo(self, data: da.Array) -> da.Array:
         if self._unflattenshape is None:
-            raise RuntimeError(f"Shape not set, therefore cannot undo")
+            raise RuntimeError("Shape not set, therefore cannot undo")
 
         def _unflatten(data, shape):
             while len(data.shape) > len(shape):
@@ -243,7 +243,7 @@ class Flattener:
             return data.reshape(shape)
 
         if self.flatten_dims is None:
-            raise RuntimeError(f"`flatten_dims` was not set, and this set hasn't been used. Cannot Unflatten.")
+            raise RuntimeError("`flatten_dims` was not set, and this set hasn't been used. Cannot Unflatten.")
 
         data_shape = data.shape
         parsed_shape = data_shape[: -1 * min(1, (self.flatten_dims - 1))] if len(data_shape) > 1 else data_shape

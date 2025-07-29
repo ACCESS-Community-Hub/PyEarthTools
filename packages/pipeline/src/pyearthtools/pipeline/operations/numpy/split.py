@@ -56,7 +56,7 @@ class OnAxis(Spliter):
     def join(self, sample: tuple[np.ndarray]) -> np.ndarray:
         """Join `sample` together, recovering initial shape"""
         if self.axis_size is None:
-            raise RuntimeError(f"`axis_size` not set.")
+            raise RuntimeError("`axis_size` not set.")
 
         data = np.concatenate(sample, axis=0)
         shape = data.shape

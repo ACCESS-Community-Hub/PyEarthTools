@@ -72,7 +72,7 @@ class DropAnyNan(XarrayFilter):
             sample = sample[self.variables]
 
         if not bool(np.array(list(np.isnan(sample).values())).any()):
-            raise PipelineFilterException(sample, f"Data contained nan's.")
+            raise PipelineFilterException(sample, "Data contained nan's.")
 
 
 class DropAllNan(XarrayFilter):
@@ -109,7 +109,7 @@ class DropAllNan(XarrayFilter):
             sample = sample[self.variables]
 
         if not bool(np.array(list(np.isnan(sample).values())).all()):
-            raise PipelineFilterException(sample, f"Data contained all nan's.")
+            raise PipelineFilterException(sample, "Data contained all nan's.")
 
 
 class DropValue(XarrayFilter):

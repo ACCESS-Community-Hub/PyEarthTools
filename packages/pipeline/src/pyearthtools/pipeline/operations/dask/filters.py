@@ -60,7 +60,7 @@ class DropAnyNan(daskFilter):
                 If sample contains nan's
         """
         if not bool(da.array(list(da.isnan(sample))).any()):
-            raise PipelineFilterException(sample, f"Data contained nan's.")
+            raise PipelineFilterException(sample, "Data contained nan's.")
 
 
 class DropAllNan(daskFilter):
@@ -86,7 +86,7 @@ class DropAllNan(daskFilter):
                 If sample contains nan's
         """
         if not bool(da.array(list(da.isnan(sample))).all()):
-            raise PipelineFilterException(sample, f"Data contained all nan's.")
+            raise PipelineFilterException(sample, "Data contained all nan's.")
 
 
 class DropValue(daskFilter):

@@ -59,7 +59,7 @@ class Unifier(Operation, metaclass=ABCMeta):
                 Which sub_sample to be returned.
                 Return `None` if invalid.
         """
-        raise NotImplementedError(f"Child class must supply `check_validity` function.")
+        raise NotImplementedError("Child class must supply `check_validity` function.")
 
     def unify(self, sample: tuple) -> Any:
         index = self.check_validity(sample)

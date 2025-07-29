@@ -14,7 +14,6 @@
 
 
 from __future__ import annotations
-from typing import Any
 
 import pytest
 
@@ -24,10 +23,9 @@ pyearthtools.utils.config.set({"pipeline.run_parallel": False})
 
 import pyearthtools.data
 
-from pyearthtools.pipeline import Pipeline, exceptions, modifications
+from pyearthtools.pipeline import Pipeline
 from pyearthtools.pipeline.modifications.idx_modification import SequenceRetrieval
 
-from pyearthtools.pipeline import Operation
 from pyearthtools.data import Index
 
 

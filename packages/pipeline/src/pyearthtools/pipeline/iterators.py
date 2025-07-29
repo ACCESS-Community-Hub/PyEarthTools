@@ -23,7 +23,7 @@ from __future__ import annotations
 from functools import cached_property
 from abc import ABCMeta, abstractmethod
 
-from typing import Any, Callable, Generator, Hashable, Iterable, Optional, Union, Set
+from typing import Any, Callable, Generator, Hashable, Iterable, Optional, Union
 from pathlib import Path
 
 import numpy as np
