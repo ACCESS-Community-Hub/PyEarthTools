@@ -15,7 +15,6 @@
 from pyearthtools.data import exceptions as e
 
 
-
 def test_InvalidIndexError():
 
     # I tried setting samples up to parametrise the test but
