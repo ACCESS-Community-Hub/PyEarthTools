@@ -84,4 +84,5 @@ def test_Flatten_skip_missing():
     with pytest.raises(ValueError):
         f.apply(SIMPLE_DS1)
     f2 = coordinates.Flatten(["scrupulosity"], skip_missing=True)
-    f2.apply(SIMPLE_DS1)
+    output2 = f2.apply(SIMPLE_DS1)
+    assert output2 == SIMPLE_DS1, "When skip_missing=True, Datasets without the given coordinate pass unchanged."
