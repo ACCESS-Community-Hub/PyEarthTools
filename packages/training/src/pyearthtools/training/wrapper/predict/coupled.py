@@ -14,22 +14,17 @@
 
 
 from __future__ import annotations
-import functools
 
-from typing import Literal, TypeVar, Any, Optional
+from typing import TypeVar
 
-from abc import abstractmethod
 
 from pyearthtools.data.time import TimeDelta
 import xarray as xr
-import numpy as np
-import tqdm.auto as tqdm
 
 from pyearthtools.pipeline.controller import Pipeline
 from pyearthtools.training.wrapper.wrapper import ModelWrapper
 from pyearthtools.training.wrapper.predict.timeseries import TimeSeriesPredictor
 
-from pyearthtools.training.manage import Variables
 
 XR_TYPE = TypeVar("XR_TYPE", xr.Dataset, xr.DataArray)
 

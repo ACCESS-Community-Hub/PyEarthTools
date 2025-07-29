@@ -46,7 +46,7 @@ class ComponentLoss(nn.Module):
             raise ValueError("Component losses cannot be empty")
 
         if weights is None:
-            raise TypeError(f"Weights must be provided")
+            raise TypeError("Weights must be provided")
             weights = []
             for key, value in loss.items():
                 if not isinstance(value, dict):

@@ -50,7 +50,6 @@ class ONNXWrapper(ModelWrapper):
             model (Optional[ort.InferenceSession], optional):
                 Preloaded onnx session to use, will be saved under `self.model_name`. Defaults to None.
         """
-        import onnxruntime as ort
 
         super().__init__(None, data)
         self.record_initialisation()
