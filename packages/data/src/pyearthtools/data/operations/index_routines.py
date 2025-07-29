@@ -15,7 +15,6 @@
 
 from __future__ import annotations
 
-import functools
 import logging
 from typing import Iterable
 
@@ -129,7 +128,7 @@ def series(
             verbose=verbose,
             **kwargs,
         )
-    except NotImplementedError as e:
+    except NotImplementedError:
         data = _get_series(
             DataFunction,
             start,

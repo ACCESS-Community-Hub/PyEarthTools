@@ -47,7 +47,7 @@ def get_structure(top: str | Path, disallowed: list[str], verbose: bool = False)
         for component in Path(dirpath).relative_to(top).parts:
             if component in disallowed:
                 continue
-            if not component in sub_dict:
+            if component not in sub_dict:
                 sub_dict[component] = {} if filter_disallowed(dirnames, disallowed) else None
             sub_dict = sub_dict[component]
     return structure

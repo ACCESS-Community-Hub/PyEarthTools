@@ -23,4 +23,3 @@ warnings.warn(
     FutureWarning,
 )
 
-from pyearthtools.utils.decorators import alias_arguments

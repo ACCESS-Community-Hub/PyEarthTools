@@ -14,7 +14,6 @@
 
 from pyearthtools.data.transforms import coordinates
 import xarray as xr
-import numpy as np
 import pytest
 
 SIMPLE_DA1 = xr.DataArray(

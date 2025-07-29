@@ -20,15 +20,11 @@ from types import FunctionType
 from typing import Any, Callable, Union, TypeVar
 
 import warnings
-import yaml
 from pyearthtools.data.collection import Collection
 
 import xarray as xr
 
-import pyearthtools.data.transforms
-from pyearthtools.data.transforms.default import get_default_transforms
 
-import pyearthtools.utils
 from pyearthtools.utils import initialisation
 
 XR_TYPES = TypeVar("XR_TYPES", xr.DataArray, xr.Dataset, Union[xr.DataArray, xr.Dataset])
@@ -360,7 +356,7 @@ class TransformCollection(initialisation.InitialisationRecordingMixin):
     def __getitem__(self, index) -> Transform | TransformCollection:
         if isinstance(index, (tuple, str)):
             # TODO Known issue more then one transform with same name / type
-            if not index in self:
+            if index not in self:
                 raise IndexError(f"{index!r} not in TransformCollection. {self._transforms}")
             for trans in self._transforms:
                 if isinstance(index, str) and trans.__class__.__name__ == index:

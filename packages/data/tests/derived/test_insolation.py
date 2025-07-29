@@ -1,5 +1,4 @@
 from pyearthtools.data.derived import insolation
-from pyearthtools.data.time import Petdt
 
 
 def test_array():

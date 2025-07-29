@@ -21,7 +21,6 @@ import xarray as xr
 
 import pyearthtools.data
 from pyearthtools.data.indexes import (
-    alias_arguments,
     check_arguments,
     VariableDefault,
     VARIABLE_DEFAULT,
@@ -188,7 +187,7 @@ class OpenData(DownloadIndex):
     def _get_latest(self) -> str:
         """Get latest datetime from `ecmwf-opendata`"""
         if self._client is None:
-            raise ImportError(f"`ecwmwf.opendata` was not imported, cannot download new data.")
+            raise ImportError("`ecwmwf.opendata` was not imported, cannot download new data.")
         return str(self._client.latest(self._request_base))
 
     def latest(self) -> xr.Dataset:
@@ -198,7 +197,7 @@ class OpenData(DownloadIndex):
     def download(self, querytime: str | pyearthtools.data.Petdt) -> xr.Dataset:
         """Download data from `ecwmf-opendata`"""
         if self._client is None:
-            raise ImportError(f"`ecwmwf.opendata` was not imported, cannot download new data.")
+            raise ImportError("`ecwmwf.opendata` was not imported, cannot download new data.")
 
         if querytime == "l1atest":
             querytime = self._get_latest()

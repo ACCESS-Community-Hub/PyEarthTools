@@ -16,7 +16,6 @@ from pyearthtools.data.save import dask as dasksave
 
 import xarray as xr
 import numpy as np
-import dask
 
 
 def test_save(monkeypatch):

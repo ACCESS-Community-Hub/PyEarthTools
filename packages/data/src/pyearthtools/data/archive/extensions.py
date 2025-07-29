@@ -86,7 +86,7 @@ def register_archive(name: str, *, sample_kwargs: dict[str, Any] | None = None) 
             def sample() -> pyearthtools.data.Index:
                 if sample_kwargs is not None:
                     return archive_index(**sample_kwargs)
-                raise RuntimeError(f"Keyword arguments were not given to create a `sample` index.")
+                raise RuntimeError("Keyword arguments were not given to create a `sample` index.")
 
             setattr(archive_index, "sample", sample)
 

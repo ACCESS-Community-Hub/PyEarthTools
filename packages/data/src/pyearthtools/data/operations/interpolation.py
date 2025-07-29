@@ -125,7 +125,7 @@ def TemporalInterpolation(
         reference_dataset = listed_datasets.pop(0)
 
     if "time" not in reference_dataset:
-        raise ValueError(f"reference dataset contains no dimension 'time'. Cannot interpolate")
+        raise ValueError("reference dataset contains no dimension 'time'. Cannot interpolate")
 
     last_index = None
     aggregation = pyearthtools.data.transforms.aggregation.over(aggregation_function, dimension="time", **kwargs)

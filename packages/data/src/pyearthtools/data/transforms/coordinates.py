@@ -184,7 +184,7 @@ class ReIndex(Transform):
         coordinates.update(coords)
 
         if not coordinates:
-            raise ValueError(f"No coordinates to reindex at, must be given either with `coordinates` or `kwargs`.")
+            raise ValueError("No coordinates to reindex at, must be given either with `coordinates` or `kwargs`.")
         self._coordinates = coordinates
 
     @property
@@ -193,7 +193,7 @@ class ReIndex(Transform):
 
     def apply(self, dataset: xr.Dataset):
         for coord, index_op in self._coordinates.items():
-            if not coord in dataset.coords:
+            if coord not in dataset.coords:
                 continue
 
             if isinstance(index_op, str):

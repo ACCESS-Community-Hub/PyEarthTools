@@ -31,8 +31,10 @@ from pyearthtools.data.transforms.normalisation._utils import format_class_name
 from pyearthtools.data.transforms.transform import (
     FunctionTransform,
     Transform,
-    get_default_transforms,
 )
+
+from pyearthtools.data.transforms.default import get_default_transforms
+
 from pyearthtools.data.indexes.utilities.fileload import open_files
 
 from pyearthtools.utils.initialisation.imports import dynamic_import
@@ -519,7 +521,7 @@ class Normaliser:
         raise TypeError(f"{type(method)!r} for 'method' not understood")
 
     def __repr__(self):
-        return f"Normalisation Class waiting upon a request for a method, either call with a method or use property."
+        return "Normalisation Class waiting upon a request for a method, either call with a method or use property."
 
     def __del__(self):
         if hasattr(self, "temp_dir"):
