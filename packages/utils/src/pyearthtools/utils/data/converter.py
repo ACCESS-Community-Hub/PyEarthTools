@@ -18,6 +18,8 @@
 
 from __future__ import annotations
 
+import dask
+import dask.array as da
 import importlib
 import importlib.util
 import json
@@ -326,10 +328,6 @@ class NumpyConverter(xarrayConverter):
         full_coords.pop("Variables", None)
 
         ar = np
-        try:
-            import dask.array as da
-        except (ImportError, ModuleNotFoundError):
-            ar = da
 
         for i in range(numpy_array.shape[xarray_distill["dims"].index("Variables")]):
             data = ar.take(numpy_array, i, axis=xarray_distill["dims"].index("Variables"))
@@ -436,7 +434,6 @@ class DaskConverter(NumpyConverter):
             (dask.array.Array | tuple[dask.array.Array, ...]):
                 Generated array/s from Dataset/s
         """
-        import dask.array as da
 
         self._set_records(data, replace=replace)
 
