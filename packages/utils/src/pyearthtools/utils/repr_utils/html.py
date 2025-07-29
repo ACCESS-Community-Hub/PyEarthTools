@@ -92,7 +92,7 @@ def summarise_argument(name, var, expand: bool = True):
 
     # TODO: come back later and see if this can be deleted
     # or if it should be put in the repr
-    #dtype = escape(f"({str(type(var).__name__)})")
+    # dtype = escape(f"({str(type(var).__name__)})")
 
     # "unique" ids required to expand/collapse subsections
     # attrs_id = "attrs-" + str(uuid.uuid4())

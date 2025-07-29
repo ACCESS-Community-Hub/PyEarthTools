@@ -16,7 +16,6 @@ import pyearthtools.utils.parameter
 from pyearthtools.utils.parsing import names
 
 
-
 def test_function_name():
     """
     This test just provides coverage of the function_name method

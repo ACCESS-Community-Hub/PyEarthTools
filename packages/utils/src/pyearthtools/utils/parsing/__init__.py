@@ -19,4 +19,4 @@ Utilities for parsing
 
 from pyearthtools.utils.parsing.names import function_name
 
-__all__ = ['function_name']
+__all__ = ["function_name"]

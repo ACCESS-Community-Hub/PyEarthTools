@@ -27,8 +27,4 @@ DEFAULT_FORMAT_PATCH_AFTER: str = "...HW"
 
 from . import patches, subset  # noqa
 
-__all__ = [
-    'patches',
-    'reorder',
-    'subset'
-]
+__all__ = ["patches", "reorder", "subset"]
