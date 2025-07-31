@@ -19,3 +19,5 @@ ECMWF OpenData
 
 from pyearthtools.data.download.ecmwf_opendata.opendata import OpenData
 from pyearthtools.data.download.ecmwf_opendata.convenience import AIFS, IFS
+
+__all__ = ["OpenData", "AIFS", "IFS"]

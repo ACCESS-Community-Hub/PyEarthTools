@@ -623,13 +623,13 @@ class Catalog:
             if loaded_catalog is None:
                 raise ValueError(f"Cannot load file: '{catalog_to_load!s}' as a catalog.")
 
-        elif (catalog_to_load, dict):
+        elif isinstance(catalog_to_load, dict):
             loaded_catalog = catalog_to_load
         else:
             raise TypeError(f"Cannot load {type(catalog_to_load)} as a Catalog.")
 
         direct_load = loaded_catalog.pop("direct_load", direct_load)
-        version = loaded_catalog.pop("VERSION", None)
+        _version = loaded_catalog.pop("VERSION", None)  # TODO: why is this popped
 
         new_catalog = Catalog()
         try:

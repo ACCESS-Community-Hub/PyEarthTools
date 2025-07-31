@@ -19,6 +19,7 @@ Command Line Interface for `pyearthtools.data`
 
 from __future__ import annotations
 from pathlib import Path
+from typing import Any
 
 import click
 

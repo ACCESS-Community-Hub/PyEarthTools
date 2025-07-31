@@ -42,11 +42,11 @@ from pyearthtools.data.operations._aggregation import aggregation
 from pyearthtools.data.operations.binning import binning
 
 __all__ = [
-    'interpolation',
-    'SpatialInterpolation',
-    'TemporalInterpolation',
-    'FullInterpolation',
-    'percentile',
-    'aggregation',
-    'binning'
-]# from pyearthtools.data.operations.index_routines import safe_series, series
+    "interpolation",
+    "SpatialInterpolation",
+    "TemporalInterpolation",
+    "FullInterpolation",
+    "percentile",
+    "aggregation",
+    "binning",
+]  # from pyearthtools.data.operations.index_routines import safe_series, series

@@ -31,5 +31,4 @@ from pyearthtools.data.static._geographic.retrieval import get  # noqa: E402 F40
 from pyearthtools.data.static._geographic import retrieval  # noqa
 
 
-
-__all__ = ['get', 'retrieval']
+__all__ = ["get", "retrieval"]

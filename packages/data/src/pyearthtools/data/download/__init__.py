@@ -31,3 +31,5 @@ Implemented:
 from pyearthtools.data.download.templates import DownloadIndex
 from pyearthtools.data.download import cds, arcoera5, weatherbench
 from pyearthtools.data.download import ecmwf_opendata as opendata
+
+__all__ = ["DownloadIndex", "cds", "arcoera5", "weatherbench", "opendata"]
