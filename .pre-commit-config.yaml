@@ -12,7 +12,7 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.12.7
     hooks:
-      - id: ruff-check
+      - id: ruff
         types_or: [python, pyi]
 # -   repo: https://github.com/pycqa/isort
 #     rev: 6.0.1
