@@ -37,7 +37,7 @@ def test_get_longitude():
         longitude_type = coordinates.get_longitude(da_wrongname, transform=False)
 
     with pytest.raises(ValueError):
-        result = coordinates.get_longitude(da_unclear, transform=False)
+        _result = coordinates.get_longitude(da_unclear, transform=False)
 
 
 def test_StandardLongitude():
@@ -45,13 +45,13 @@ def test_StandardLongitude():
     conform = coordinates.StandardLongitude("0-360")
     fixed = conform.apply(da180)
     assert fixed is not None
-    unchanged = conform.apply(da360)
+    _unchanged = conform.apply(da360)
     # TODO - shouldn't this be true?
     # assert xr.testing.assert_equal(fixed, da360)
 
     conform = coordinates.StandardLongitude("-180-180")
     fixed = conform.apply(da360)
-    unchanged = conform.apply(da180)
+    _unchanged = conform.apply(da180)
     assert fixed is not None
     # TODO - shouldn't this be true?
     # assert xr.testing.assert_equal(fixed, da180)
@@ -75,7 +75,7 @@ def test_Select():
 def test_Drop():
 
     tf_drop = coordinates.Drop("vertical")
-    result = tf_drop.apply(ds_vertical)
+    _result = tf_drop.apply(ds_vertical)
 
     # TODO: Assert that the dimension has been dropped
 
@@ -83,7 +83,7 @@ def test_Drop():
 def test_Flatten():
 
     tf_flatten = coordinates.Flatten("vertical")
-    result = tf_flatten.apply(ds_vertical)
+    _result = tf_flatten.apply(ds_vertical)
 
     # TODO: Assert the flattened data looks correct
 
@@ -91,7 +91,7 @@ def test_Flatten():
 def test_Expand():
 
     tf_expand = coordinates.Expand("vertical")
-    result = tf_expand.apply(ds_vertical)
+    _result = tf_expand.apply(ds_vertical)
 
     # TODO: Assert the expanded dataset has a vertical dimension
 
@@ -101,7 +101,7 @@ def test_SelectFlatten():
     tf_selectflatten = coordinates.SelectFlatten({"longitude": slice(10, 120)})
 
     with pytest.raises(NotImplementedError):
-        result = tf_selectflatten.apply(ds_vertical)
+        _result = tf_selectflatten.apply(ds_vertical)
         # TODO fix the code or avoid the issue
 
     # TODO: Check the values of the resulting dataset
@@ -111,7 +111,7 @@ def test_Assign():
 
     tf_assign = coordinates.Assign({"longitude": list(range(0, 4)), "vertical": list(range(3, 6))})
 
-    result = tf_assign.apply(ds_vertical)
+    _result = tf_assign.apply(ds_vertical)
 
     # TODO: check the values of the vertical coords
 
@@ -120,7 +120,7 @@ def test_Pad():
     tf_pad = coordinates.Pad({"longitude": list(range(0, 4))})
 
     with pytest.raises(ValueError):
-        result = tf_pad.apply(ds_vertical)
+        _result = tf_pad.apply(ds_vertical)
         # TODO: Fix the code or fix the test
 
     # TODO: check the values of the result
@@ -131,6 +131,6 @@ def test_weak_cast_to_int():
     wcti = coordinates.weak_cast_to_int
 
     assert wcti(5.0) == 5
-    assert type(wcti(5.0)) == int
+    assert isinstance(wcti(5.0), int)
 
     assert wcti("hello") == "hello"

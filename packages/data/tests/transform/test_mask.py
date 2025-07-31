@@ -39,4 +39,4 @@ SIMPLE_DS2 = xr.Dataset({"Humidity": SIMPLE_DA1, "Temperature": SIMPLE_DA1, "Wom
 def test_check_operations():
 
     masker = mask.Replace(0.0, "==", np.nan)
-    result = masker.apply(SIMPLE_DA1)
+    _result = masker.apply(SIMPLE_DA1)
