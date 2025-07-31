@@ -26,6 +26,6 @@ jobs:
       - name: pre-commit checks
         run: |
           pre-commit run black --all-files
-          pre-commit run ruff check packages/utils
+          pre-commit run ruff
           # TODO enable once all cyclic imports have been fixed
           # pre-commit run isort --all-files
