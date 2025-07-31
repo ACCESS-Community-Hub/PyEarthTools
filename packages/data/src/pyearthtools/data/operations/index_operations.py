@@ -74,7 +74,7 @@ def split_ds_gen(dataset: xr.Dataset, divisions: int = 1, dim: str = "time") -> 
 
 
 def aggregation(
-    DataFunction: "TimeIndex",
+    DataFunction: "pyearthtools.data.indexes.TimeIndex",
     start: str | datetime.datetime | Petdt,
     end: str | datetime.datetime | Petdt,
     interval: tuple[float, str],
@@ -122,7 +122,7 @@ def aggregation(
     Returns:
         xr.Dataset: Dataset with aggregation applied
     """
-    print = lambda *args, **kwargs: builtins.print(*args, **kwargs) if verbose else None
+    print = lambda *args, **kwargs: builtins.print(*args, **kwargs) if verbose else None  # noqa
 
     # print("Finding Series ...")
     aggregation_func = pyearthtools.data.transforms.aggregation.over(method=aggregation, dimension=aggregation_dim)
@@ -220,7 +220,7 @@ MAX_VALUE = 1e-10
 
 
 def find_range(
-    DataFunction: "TimeIndex",
+    DataFunction: "pyearthtools.data.indexes.TimeIndex",
     start: str | Petdt,
     end: str | Petdt,
     interval: tuple[float, str] | TimeDelta,

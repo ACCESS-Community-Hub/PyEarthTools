@@ -97,6 +97,10 @@ warn_unused_configs = true
 [tool.hatch.metadata]
 allow-direct-references = true
 
+[tool.ruff]
+exclude = ["packages/bundled_models", "notebooks"]
+
+
 [tool.hatch.build.targets.wheel]
 bypass-selection = true
 

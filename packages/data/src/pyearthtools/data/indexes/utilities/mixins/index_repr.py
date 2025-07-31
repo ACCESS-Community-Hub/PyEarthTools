@@ -21,8 +21,8 @@ try:
 except ImportError:
     UTILS_REPR = False
 
-import pyearthtools.data
-import pyearthtools.data.catalog
+import pyearthtools.data  # noqa  # ruff confused by if statement above
+import pyearthtools.data.catalog  # noqa  # ruff confused by if statement above
 
 
 class reprMixin:

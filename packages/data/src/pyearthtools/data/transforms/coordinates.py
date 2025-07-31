@@ -24,9 +24,8 @@ import numpy as np
 import pandas as pd
 
 
-import pyearthtools.data
-
 from pyearthtools.data.transforms.transform import Transform, TransformCollection
+from pyearthtools.data.transforms.attributes import SetType
 from pyearthtools.data.warnings import pyearthtoolsDataWarning
 from pyearthtools.data.exceptions import DataNotFoundError
 
@@ -551,7 +550,7 @@ class Expand(Transform):
                 components.append(var_data)
 
             dataset = xr.combine_by_coords(components)  # type: ignore
-            dataset = pyearthtools.data.transforms.attributes.SetType(**{str(coord): dtype})(dataset)
+            dataset = SetType(**{str(coord): dtype})(dataset)
 
             ## Add stored encoding if there
             if f"{coord}-dtype" in dataset.attrs:

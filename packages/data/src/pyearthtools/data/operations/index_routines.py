@@ -35,12 +35,11 @@ from pyearthtools.data.transforms.transform import Transform, TransformCollectio
 from pyearthtools.data.warnings import IndexWarning
 from pyearthtools.data.operations.utils import identify_time_dimension
 
-
 LOG = logging.getLogger("pyearthtools.data")
 
 
 def series(
-    DataFunction: "AdvancedTimeIndex",
+    DataFunction: "pyearthtools.data.indexes.AdvancedTimeIndex",
     start: str | Petdt,
     end: str | Petdt,
     interval: tuple[float, str] | TimeDelta,
@@ -238,7 +237,7 @@ def series(
 
 
 def _mf_series(
-    DataFunction: "AdvancedTimeIndex",
+    DataFunction: "pyearthtools.data.indexes.AdvancedTimeIndex",
     start: Petdt,
     end: Petdt,
     interval: TimeDelta,
@@ -359,7 +358,7 @@ def _mf_series(
 
 
 def _get_series(
-    DataFunction: "AdvancedTimeIndex",
+    DataFunction: "pyearthtools.data.indexes.AdvancedTimeIndex",
     start: Petdt,
     end: Petdt,
     interval: TimeDelta,
@@ -379,7 +378,7 @@ def _get_series(
     warning_count = 0
     warning_threshold = pyearthtools.utils.config.get("data.series.warning_threshold")
 
-    dim = kwargs.pop("dim", "time")
+    _dim = kwargs.pop("dim", "time")
 
     timesteps = []
 
@@ -436,7 +435,7 @@ def _get_series(
 
 
 def safe_series(
-    DataFunction: "AdvancedTimeIndex",
+    DataFunction: "pyearthtools.data.indexes.AdvancedTimeIndex",
     start: str | Petdt,
     end: str | Petdt,
     interval: TimeDelta,

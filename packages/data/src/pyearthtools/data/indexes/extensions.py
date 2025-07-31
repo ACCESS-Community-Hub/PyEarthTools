@@ -60,7 +60,7 @@ from types import ModuleType
 from typing import Callable
 
 import pyearthtools.data
-from pyearthtools.data.indexes.indexes import Index
+from pyearthtools.data.indexes import Index
 
 
 class _CachedAccessor:

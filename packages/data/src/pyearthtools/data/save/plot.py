@@ -35,7 +35,7 @@ def save(
 
     path.parent.mkdir(parents=True, exist_ok=True)
 
-    suffix = path.suffix
+    # suffix = path.suffix  # TODO: why was this here
 
     if hasattr(plot, "fig"):
         plot = plot.fig
