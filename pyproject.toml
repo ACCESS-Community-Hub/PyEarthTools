@@ -9,7 +9,7 @@ readme = "README.md"
 requires-python = ">=3.9"
 keywords = ["pyearthtools"]
 maintainers = [
-  {name = "Tennessee Leeuwenburg", email = "tennessee.leeuwenburg@bom.gov.au"}
+    { name = "Tennessee Leeuwenburg", email = "tennessee.leeuwenburg@bom.gov.au" },
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -22,60 +22,60 @@ version = "0.2.0"
 # FIXME remove redundant dependencies once PyEarthTools is on PyPI
 [project.optional-dependencies]
 utils = [
-  "pyearthtools-utils @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/utils"
+    "pyearthtools-utils @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/utils",
 ]
 data = [
-  "pyearthtools-data @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/data",
+    "pyearthtools-data @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/data",
 ]
 pipeline = [
-  "pyearthtools-utils @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/utils",
-  "pyearthtools-data @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/data",
-  "pyearthtools-pipeline @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/pipeline"
+    "pyearthtools-utils @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/utils",
+    "pyearthtools-data @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/data",
+    "pyearthtools-pipeline @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/pipeline",
 ]
 training = [
-  "pyearthtools-utils @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/utils",
-  "pyearthtools-data @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/data",
-  "pyearthtools-pipeline @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/pipeline",
-  "pyearthtools-training @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/training"
+    "pyearthtools-utils @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/utils",
+    "pyearthtools-data @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/data",
+    "pyearthtools-pipeline @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/pipeline",
+    "pyearthtools-training @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/training",
 ]
 zoo = [
-  "pyearthtools-utils @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/utils",
-  "pyearthtools-data @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/data",
-  "pyearthtools-pipeline @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/pipeline",
-  "pyearthtools-training @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/training",
-  "pyearthtools-zoo @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/zoo"
+    "pyearthtools-utils @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/utils",
+    "pyearthtools-data @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/data",
+    "pyearthtools-pipeline @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/pipeline",
+    "pyearthtools-training @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/training",
+    "pyearthtools-zoo @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/zoo",
 ]
 bundled-fourcastnext = [
-  "pyearthtools-utils @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/utils",
-  "pyearthtools-data @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/data",
-  "pyearthtools-pipeline @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/pipeline",
-  "pyearthtools-training[lightning] @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/training",
-  "pyearthtools-zoo @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/zoo",
-  "pyearthtools-bundled-fourcastnext @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/bundled_models/fourcastnext"
+    "pyearthtools-utils @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/utils",
+    "pyearthtools-data @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/data",
+    "pyearthtools-pipeline @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/pipeline",
+    "pyearthtools-training[lightning] @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/training",
+    "pyearthtools-zoo @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/zoo",
+    "pyearthtools-bundled-fourcastnext @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/bundled_models/fourcastnext",
 ]
 all = [
-  "pyearthtools-utils @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/utils",
-  "pyearthtools-data[all] @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/data",
-  "pyearthtools-pipeline[all] @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/pipeline",
-  "pyearthtools-training[all] @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/training",
-  "pyearthtools-zoo @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/zoo",
-  "pyearthtools-bundled-fourcastnext @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/bundled_models/fourcastnext"
+    "pyearthtools-utils @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/utils",
+    "pyearthtools-data[all] @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/data",
+    "pyearthtools-pipeline[all] @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/pipeline",
+    "pyearthtools-training[all] @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/training",
+    "pyearthtools-zoo @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/zoo",
+    "pyearthtools-bundled-fourcastnext @ git+https://github.com/ACCESS-Community-Hub/PyEarthTools.git#subdirectory=packages/bundled_models/fourcastnext",
 ]
 test = ["pytest", "pytest-cov", "pytest-xdist", "pudb"]
-dev = ["pre-commit", "black==25.1.0", "interrogate"]
+dev = ["pre-commit", "black==25.1.0", "interrogate", "ruff"]
 docs = [
-  "sphinx",
-  "myst-parser",
-  "sphinx-book-theme",
-  "scores",
-  "xarray",
-  "pandas",
-  "scipy",
-  "bottleneck",
-  "nbsphinx",
-  "sphinx_gallery",
-  "sphinx-design",
-  "sphinx-togglebutton",
+    "sphinx",
+    "myst-parser",
+    "sphinx-book-theme",
+    "scores",
+    "xarray",
+    "pandas",
+    "scipy",
+    "bottleneck",
+    "nbsphinx",
+    "sphinx_gallery",
+    "sphinx-design",
+    "sphinx-togglebutton",
 ]
 
 [project.urls]
@@ -113,5 +113,5 @@ addopts = [
 ]
 markers = [
     "noci: marks tests to exclude from CI/CD (deselect with '-m \"not noci\"')",
-    "slow: mark test as slow (deselect with '-m \"not slow\"')"
+    "slow: mark test as slow (deselect with '-m \"not slow\"')",
 ]
