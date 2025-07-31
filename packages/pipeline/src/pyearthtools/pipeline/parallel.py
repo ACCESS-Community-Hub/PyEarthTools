@@ -221,7 +221,7 @@ class DaskParallelInterface(ParallelInterface):
     def collect(self, futures):
         return DaskParallelInterface.client.gather(futures)  # type: ignore
         type_to_make = type(futures)
-        if type_to_make == type((i for i in [])):
+        if type_to_make == type((i for i in [])):  # noqa
             type_to_make = tuple
         return type_to_make(map(lambda x: x.result(), futures))
 

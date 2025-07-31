@@ -22,7 +22,7 @@ import pytest
 def test_exceptions():
 
     with pytest.raises(ValueError):
-        ton = conversion.ToNumpy(reference_dataset=True, saved_records=True)
+        _ton = conversion.ToNumpy(reference_dataset=True, saved_records=True)
 
 
 def test_Numpy():
@@ -43,6 +43,6 @@ def test_ToDask():
     sample = xr.DataArray(coords=coords, data=data)
 
     tod = conversion.ToDask()
-    da = tod.apply_func(sample)
+    _da = tod.apply_func(sample)
     # orig = tod.undo_func(da)
     # assert (orig == sample).all()

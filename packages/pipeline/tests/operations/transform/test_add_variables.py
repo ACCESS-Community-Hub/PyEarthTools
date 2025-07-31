@@ -29,12 +29,12 @@ def test_TimeOfYear():
     ds = xr.Dataset(coords={"time": times, "level": [1, 2]}, data_vars={"temperature": da})
 
     toy = add_variables.TimeOfYear("dayofyear")
-    result = toy.apply(ds)
+    _result = toy.apply(ds)
     assert toy._info_ == {"method": "dayofyear"}
 
     toy = add_variables.TimeOfYear("monthofyear")
-    result = toy.apply(ds)
+    _result = toy.apply(ds)
     assert toy._info_ == {"method": "monthofyear"}
 
     with pytest.raises(ValueError):
-        toy = add_variables.TimeOfYear("century")
+        _toy = add_variables.TimeOfYear("century")

@@ -18,16 +18,10 @@ from __future__ import annotations
 import pytest
 
 import pyearthtools.utils
-
-pyearthtools.utils.config.set({"pipeline.run_parallel": False})
-
 import pyearthtools.data
-
 from pyearthtools.pipeline import Pipeline
 from pyearthtools.pipeline.modifications.idx_modification import TemporalRetrieval
-
 from pyearthtools.data import Index
-
 
 pyearthtools.utils.config.set({"pipeline.run_parallel": False})
 
