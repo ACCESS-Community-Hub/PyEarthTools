@@ -121,7 +121,7 @@ def test_keys(category, key, result):
 )
 def test_getitem_fail(category, key, expectedError):
     with pytest.raises(expectedError):
-        obj = list_to_category(category)[key]
+        _obj = list_to_category(category)[key]
 
 
 @pytest.mark.parametrize(
@@ -134,4 +134,4 @@ def test_getitem_fail(category, key, expectedError):
 )
 def test_getattr_fail(category, key, expectedError):
     with pytest.raises(expectedError):
-        obj = getattr(list_to_category(category), key)
+        _obj = getattr(list_to_category(category), key)

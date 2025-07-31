@@ -63,9 +63,9 @@ class Timer:
     def __enter__(self):
         return self
 
-    def __exit__(self, *args):
-        elapsed = time.time() - self.start
-        log = self.logger or LOG
+    # def __exit__(self, *args):
+        # elapsed = time.time() - self.start
+        # log = self.logger or LOG  # TODO: Bring this back
         # log.debug("%s: took %.2f seconds.", self.title, elapsed)
 
 
