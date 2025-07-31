@@ -16,7 +16,7 @@
 PET Projection x-y to lon-lat. Rectilinear lon-lat grids. Representable as 1-D
 coordinates for ease of processing.
 
-At the moment this module focuses on the Australian region, and on satellite and radar data 
+At the moment this module focuses on the Australian region, and on satellite and radar data
 in the region. Over time, additional use cases will help to make this more generalisable.
 """
 
@@ -74,7 +74,7 @@ KM_TO_M_MULTIPLIER = 1000  # meters
 MAX_XY_EXTRAPOLATE_GRIDSIZE_MULT = 2000  # meters
 
 #: Tuple containing the reference projections from x[0] to x[1]
-CRSPair= (pyproj.CRS, pyproj.CRS)
+CRSPair = (pyproj.CRS, pyproj.CRS)
 
 #: (CRSPair, Transformer)
 CRSTransformPair = (CRSPair, Transformer)
@@ -91,15 +91,17 @@ PYPROJ_EXCEPTION_TRAPS = (
     KeyError,
 )
 
+
 class ProjKind(StrEnum):
     # standard domain for global lon-lat coordinates
     WGS84 = "ESPG:4326"
-    # 3m accuracy in AUS region 
+    # 3m accuracy in AUS region
     GDA94 = "EPSG:3577"
     # FUTURE-WORK: move these to a config - note: its better NOT to use these defaults if possible
     AEA_AUS = "proj=aea +lat_1=-36 +lat_2=-18 +lon_0=132 +units=m aea_aus"
     GEO141_AUS = "proj=geos +lon_0=140.7 +h=35785863 +x_0=0 y_0=0 +a=6378137 +rf=298.257024882273 +units=m no_defs"
     UNKNOWN = auto()
+
 
 class ProjSource(IntEnum):
     """
@@ -166,6 +168,7 @@ class ProjSource(IntEnum):
     |         - no projection needed, in latlon
     +------------------------------------------------------------------------
     """
+
     # EPSG compliant generic definitions 1024 -> 32767
     # ---
     GDA94 = 3577  # Australias
@@ -202,7 +205,7 @@ class ProjSource(IntEnum):
     def get_default_proj(self) -> pyproj.CRS:
         # FUTURE: use switch-case statements when support for python 3.10 is
         # removed
-        #wgs84
+        # wgs84
         if self == ProjSource.WGS84:
             return pyproj.CRS(str(ProjKind.WGS84))
         if self == ProjSource.GDA94:
@@ -214,7 +217,7 @@ class ProjSource(IntEnum):
         # default
         raise NotImplementedError("Projection unsupported")
 
-    def get_crs_or_default(self, ds: xr.Dataset=None) -> pyproj.CRS:
+    def get_crs_or_default(self, ds: xr.Dataset = None) -> pyproj.CRS:
         """
         Returns the pyproj projection object/CRS for a a particular
         projection kind (`proj_kind`).
@@ -223,7 +226,9 @@ class ProjSource(IntEnum):
         from precanned attributes.
         """
         default_proj = self.get_default_proj()
-        warn_proj_defaulted = f"Failed to resolve projection for {self}, using default projection instead: {str(default_proj)}"
+        warn_proj_defaulted = (
+            f"Failed to resolve projection for {self}, using default projection instead: {str(default_proj)}"
+        )
 
         if ds is None:
             return default_proj
@@ -268,10 +273,11 @@ class CoordUnits(IntEnum):
     UNKNOWN = auto()
 
     @staticmethod
-    def to_km(points: np.ndarray) -> np.ndarray: 
+    def to_km(points: np.ndarray) -> np.ndarray:
         return points / KM_TO_M_MULTIPLIER
 
-class TargetGridAus_Rectilinear():
+
+class TargetGridAus_Rectilinear:
     """
     IMPORTANT:
         This target grid is
@@ -280,6 +286,7 @@ class TargetGridAus_Rectilinear():
         Source units maybe in metres or km - need to be specified so that they
         can be converted to standard units in the interp_info.
     """
+
     # default target grid with 0.01 degree spacing
     lon_minmax: tuple[np.float64, np.float64] = [110.0, 155.0]
     lon_count: np.float64 = 4500
@@ -292,10 +299,10 @@ class TargetGridAus_Rectilinear():
         #: derived from target lonlat projection
         #: give extra boundary gap so that pyproj doesn't complain
         return AreaOfInterest(
-            self.lon_minmax[0] - 5, # west
-            self.lat_minmax[0] - 5, # south
-            self.lon_minmax[1] + 5, # east
-            self.lat_minmax[1] + 5, # north
+            self.lon_minmax[0] - 5,  # west
+            self.lat_minmax[0] - 5,  # south
+            self.lon_minmax[1] + 5,  # east
+            self.lat_minmax[1] + 5,  # north
         )
 
     @functools.cached_property
@@ -306,6 +313,7 @@ class TargetGridAus_Rectilinear():
 
         # NOTE: order matters
         return np.meshgrid(lon_1d, lat_1d)
+
 
 class SourceCRSMapper(NamedTuple):
     """
@@ -322,7 +330,8 @@ class SourceCRSMapper(NamedTuple):
     # TODO: use pyproj.sync.get_transform_grid_list to get a precanned
     # transform grid list
     """
-    # These are static, 
+
+    # These are static,
     projsrc_from: ProjSource
     projsrc_to: ProjSource
 
@@ -345,13 +354,13 @@ class SourceCRSMapper(NamedTuple):
     def transformer(
         proj_from,
         proj_to,
-        area_of_interest: AreaOfInterest=None,
+        area_of_interest: AreaOfInterest = None,
     ) -> Transformer:
         # we always want to map geodetic crs for these
         if (not proj_to.is_geographic) or (proj_to.coordinate_system.name == "cartesian"):
             return pyproj.Proj.from_crs(
-                proj_from.geodetic_crs, # source should be geographic
-                proj_to, # destination should be cartesian
+                proj_from.geodetic_crs,  # source should be geographic
+                proj_to,  # destination should be cartesian
                 always_xy=True,
                 area_of_interest=area_of_interest,
             )
@@ -396,6 +405,7 @@ class ProjLonLatAus_Rectilinear:
     - This is a lossy projector that compresses the target dimensions into 1-D
       coordinates to preserve even spacing.
     """
+
     _: KW_ONLY
 
     #: projection source to projection destination (required)
@@ -475,7 +485,7 @@ class ProjLonLatAus_Rectilinear:
             tgt_grid_lat.T,
             direction=TransformDirection.FORWARD,
             errcheck=False,
-            radians=False, # degrees
+            radians=False,  # degrees
         )
 
         # [T5]
@@ -571,6 +581,7 @@ class Rainfields3ProjAus(ProjLonLatAus_Rectilinear):
 
     see: `ProjSource` for more details
     """
+
     def __init__(self):
         # This flow is FROM latlon TO xy, so from_* is our target grid if our
         # target system is latlon
@@ -580,16 +591,17 @@ class Rainfields3ProjAus(ProjLonLatAus_Rectilinear):
         )
         self.units_xy = CoordUnits.KM
         self.interp_method = "linear"
-        # define any custom initialisation below 
+        # define any custom initialisation below
         # >>>
 
     def __call__(self, ds: xr.Dataset):
-        # <<< 
+        # <<<
         # define any custom pre processing above
         ds_interp = self.interpolate_xy_to_lonlat(ds)
         # define any custom post processing below
-        # >>> 
+        # >>>
         return ds_interp
+
 
 @dataclass
 class HimawariProjAus(ProjLonLatAus_Rectilinear):
@@ -598,6 +610,7 @@ class HimawariProjAus(ProjLonLatAus_Rectilinear):
 
     see: `ProjSource` for more details
     """
+
     def __init__(self):
         self.crs_mapper = SourceCRSMapper(
             projsrc_from=ProjSource.GDA94,
@@ -605,13 +618,13 @@ class HimawariProjAus(ProjLonLatAus_Rectilinear):
         )
         self.units_xy = CoordUnits.METRES
         self.interp_method = "linear"
-        # define any custom initialisation below 
+        # define any custom initialisation below
         # >>>
 
     def __call__(self, ds: xr.Dataset):
-        # <<< 
+        # <<<
         # define any custom pre processing above
         ds_interp = self.interpolate_xy_to_lonlat(ds)
         # define any custom post processing below
-        # >>> 
+        # >>>
         return ds_interp

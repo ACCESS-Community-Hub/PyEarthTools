@@ -287,8 +287,10 @@ class NumpyConverter(xarrayConverter):
                 try:
                     return np.stack([dataset[var].to_numpy() for var in dataset], axis=0)
                 except ValueError as ve:
-                    msg = "Cannot stack all the data variables, it is likely that some of" \
-                          " the data variables in the data set do not share coordinates."
+                    msg = (
+                        "Cannot stack all the data variables, it is likely that some of"
+                        " the data variables in the data set do not share coordinates."
+                    )
                     raise ValueError(msg) from ve
 
         if isinstance(data, (xr.DataArray, xr.Dataset)):
