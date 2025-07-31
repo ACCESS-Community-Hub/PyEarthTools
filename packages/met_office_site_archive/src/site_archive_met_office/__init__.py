@@ -59,8 +59,4 @@ except ImportError:  # pragma: no cover
     __version__ = "999"
 
 
-__all__ = [
-    'MOUKV',
-    'MOGLOBAL',
-    'ERA5lowres'
-]
+__all__ = ["MOUKV", "MOGLOBAL", "ERA5lowres"]
