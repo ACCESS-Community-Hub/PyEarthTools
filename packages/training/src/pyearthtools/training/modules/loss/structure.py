@@ -75,8 +75,10 @@ class SSIMLoss(torch.nn.Module):
         else:
             pattern = f"N {self.format} -> N C H W"
 
-        rearr_func = lambda x: einops.rearrange(x, pattern)
-        return tuple(map(rearr_func, (output, target)))
+        output_rearranged = einops.rearrange(output, pattern)
+        target_rearranged = einops.rearrange(target, pattern)
+
+        return (output_rearranged, target_rearranged)
 
     def forward(self, output: torch.Tensor, target: torch.Tensor):
         if self.normalise:

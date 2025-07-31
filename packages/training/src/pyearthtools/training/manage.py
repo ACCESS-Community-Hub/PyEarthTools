@@ -326,7 +326,7 @@ class Variables:
 
         slices = self.np_slices(order=order)
 
-        if not type(data) == type(incoming):
+        if not type(data) == type(incoming):  # noqa
             raise TypeError(f"`data` and `incoming` must be of the same type, not {type(data)} and {type(incoming)}.")
 
         if isinstance(data, xr.Dataset) and isinstance(incoming, xr.Dataset):

@@ -90,3 +90,12 @@ def get_loss(loss_function: str, **loss_kwargs):
     elif hasattr(modules.loss, loss_function):
         return getattr(modules.loss, loss_function)(**loss_kwargs)
     return _get_callable(loss_function)(**loss_function)
+
+
+__all__ = [
+    'ExtremeLoss',
+    'centre_weighted',
+    'RMSELoss',
+    'SSIMLoss',
+    'ComponentLoss'
+]

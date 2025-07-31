@@ -45,7 +45,7 @@ def gaussian(std_dev, dimensions: tuple[int] = [-2, -1]):
 
         size = (np.max(x), np.max(y))
 
-        dist = (
+        dist = (  # noqa
             lambda x, u: 1
             / (std_dev * math.sqrt(2 * math.pi))
             * np.power(np.e, -1 / 2 * ((x - u) / std_dev) ** 2)
