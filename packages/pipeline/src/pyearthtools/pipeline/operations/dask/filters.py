@@ -125,11 +125,11 @@ class DropValue(daskFilter):
                 If sample contains nan's
         """
         if da.isnan(self._value):
-            function = (
+            function = (  # noqa
                 lambda x: ((da.count_nonzero(da.isnan(x)) / math.prod(x.shape)) * 100) >= self._percentage
             )  # noqa
         else:
-            function = (
+            function = (  # noqa
                 lambda x: ((da.count_nonzero(x == self._value) / math.prod(x.shape)) * 100) >= self._percentage
             )  # noqa
 

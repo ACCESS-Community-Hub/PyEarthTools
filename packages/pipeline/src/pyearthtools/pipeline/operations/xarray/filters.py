@@ -148,11 +148,11 @@ class DropValue(XarrayFilter):
                 If sample contains nan's
         """
         if np.isnan(self._value):
-            function = (
+            function = (  # noqa
                 lambda x: ((np.count_nonzero(np.isnan(x)) / math.prod(x.shape)) * 100) >= self._percentage
             )  # noqa
         else:
-            function = (
+            function = (  # noqa
                 lambda x: ((np.count_nonzero(x == self._value) / math.prod(x.shape)) * 100) >= self._percentage
             )  # noqa
 
