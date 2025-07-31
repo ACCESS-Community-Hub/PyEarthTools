@@ -55,7 +55,7 @@ def test_CatalogEntry():
 
     with pytest.raises(AttributeError):
 
-        error = ce.__getattr__("item_class")
+        _error = ce.__getattr__("item_class")
 
     with pytest.raises(AttributeError):
         ce.nonexisting
@@ -87,7 +87,7 @@ def test_Catalog():
 
     # Saving to file
     output_io = io.StringIO()
-    save_dict = cat.save(output_io)  # Smoke test a save operation
+    _save_dict = cat.save(output_io)  # Smoke test a save operation
 
     # Create and pop
     cat = catalog.Catalog(catalog_name="Test Catalog", entries={"TestEntryKey": ce})

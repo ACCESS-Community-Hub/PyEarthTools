@@ -42,4 +42,4 @@ def test_binning():
         binned = binning(da, "wobbly")
 
     with pytest.raises(AttributeError):
-        binned = binning(da, "daily", dimension="strange")
+        _binned = binning(da, "daily", dimension="strange")

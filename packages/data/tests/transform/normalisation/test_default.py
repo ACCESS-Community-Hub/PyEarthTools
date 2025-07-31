@@ -141,7 +141,7 @@ def test_Normaliser_initialisation_temp_cache(monkeypatch):
     interval = "month"
     cache = "temp"
 
-    n = default.Normaliser(ati, start, end, interval, cache=cache)
+    _n = default.Normaliser(ati, start, end, interval, cache=cache)
 
     # On HPC, the cache dir can be different to that of other platforms
     # TODO: Check the normaliser code and fix the assert statement
