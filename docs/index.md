@@ -22,9 +22,9 @@
     <figcaption>A data processing flow composed for working with climate data.</figcaption>
 </figure>
 
-Source Code: [github.com/ACCESS-Community-Hub/PyEarthTools](https://github.com/ACCESS-Community-Hub/PyEarthTools)  
-Documentation: [pyearthtools.readthedocs.io](https://pyearthtools.readthedocs.io)  
-Tutorial Gallery: [available here](./notebooks/Gallery)  
+Source Code: [github.com/ACCESS-Community-Hub/PyEarthTools](https://github.com/ACCESS-Community-Hub/PyEarthTools)
+Documentation: [pyearthtools.readthedocs.io](https://pyearthtools.readthedocs.io)
+Tutorial Gallery: [available here](./notebooks/Gallery)
 
 ## Installation
 
@@ -66,12 +66,12 @@ PyEarthTools comprises multiple sub-packages which may be installed and used sep
 ## Overview of PyEarthTools
 
 PyEarthTools is a Python framework containing modules for:
- - loading and fetching data; 
- - pre-processing, normalising and standardising data into a normal form suitable for machine learning; 
- - defining machine learning (ML) models; 
+ - loading and fetching data;
+ - pre-processing, normalising and standardising data into a normal form suitable for machine learning;
+ - defining machine learning (ML) models;
  - training ML models and managing experiments;
- - performing inference with ML models; 
- - and evaluating ML models. 
+ - performing inference with ML models;
+ - and evaluating ML models.
 
 ## Overview of the Packages within PyEarthTools
 
@@ -90,7 +90,7 @@ PyEarthTools comprises multiple sub-packages which can be used individually or t
 
 ## Acknowleging or Citing `PyEarthTools`
 
-If you use PyEarthTools for your work, we would appreciate you citing our software as below: 
+If you use PyEarthTools for your work, we would appreciate you citing our software as below:
 
 
 :::::{tab-set}
@@ -124,7 +124,7 @@ Cook, H., Leeuwenburg, T., Rio, M., Miller, J., Mason, G., Ramanathan, N., Pill,
 
 
 
-  
+
 
 ```{toctree}
 :hidden:

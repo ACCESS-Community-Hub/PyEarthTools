@@ -27,5 +27,3 @@ The rest of this page contains reference information for the components of the T
 |                       |                                      | - [TimeSeriesManagedPredictor](training_api.md#pyearthtools.training.wrapper.predict.TimeSeriesManagedPredictor)  |
 |                       |                                      | - [ManualTimeSeriesPredictor](training_api.md#pyearthtools.training.wrapper.predict.ManualTimeSeriesPredictor)  |
 |  `training.wrapper.onnx` |                                   | - [ONNXWrapper](training_api.md#pyearthtools.training.wrapper.onnx.ONNXWrapper)  |
-
-

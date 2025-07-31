@@ -109,57 +109,57 @@
     :members:
 
 .. autoclass:: pyearthtools.data.indexes.cacheIndex.MemCache
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.data.indexes.cacheIndex.FileSystemCacheIndex
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.data.indexes.cacheIndex.CacheFactory
-    :members:        
+    :members:
 .. autoclass:: pyearthtools.data.indexes.cacheIndex.FunctionalCache
-    :members:            
+    :members:
 
 .. autoclass:: pyearthtools.data.indexes.combine.InterpolationIndex
-    :members:                
+    :members:
 
 .. autoclass:: pyearthtools.data.indexes.fake.FakeIndex
-    :members:                
+    :members:
 
-.. autofunction:: pyearthtools.data.indexes.extensions.register_accessor    
+.. autofunction:: pyearthtools.data.indexes.extensions.register_accessor
 ```
 
 ## `data.modifications`
 
 ```{eval-rst}
 .. autoclass:: pyearthtools.data.modifications.Modification
-    :members:                
+    :members:
 
 .. autofunction:: pyearthtools.data.modifications.register_modification
 .. autofunction:: pyearthtools.data.modifications.variable_modifications
 
 .. autoclass:: pyearthtools.data.modifications.aggregations.Aggregation
-    :members:                
+    :members:
 .. autoclass:: pyearthtools.data.modifications.aggregations.AggregationGeneral
-    :members:                
+    :members:
 .. autoclass:: pyearthtools.data.modifications.aggregations.Mean
-    :members:                    
+    :members:
 .. autoclass:: pyearthtools.data.modifications.aggregations.Accumulate
-    :members:                        
+    :members:
 
 .. autoclass:: pyearthtools.data.modifications.constants.Constant
-    :members:                            
+    :members:
 
 .. autoclass:: pyearthtools.data.modifications.decorator.VariableModification
     :members:
 
 .. autoclass:: pyearthtools.data.modifications.decorator.Modifier
-    :members:    
+    :members:
 
 .. autoclass:: pyearthtools.data.modifications.reductions.Reduction
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.data.modifications.reductions.Groupby
     :members:
 .. autofunction:: pyearthtools.data.modifications.reductions.Hourly
 .. autofunction:: pyearthtools.data.modifications.reductions.Daily
-.. autofunction:: pyearthtools.data.modifications.reductions.Monthly    
+.. autofunction:: pyearthtools.data.modifications.reductions.Monthly
 .. autofunction:: pyearthtools.data.modifications.register.register_modification
 ```
 
@@ -199,31 +199,31 @@
     :members:
 
 .. autoclass:: pyearthtools.data.patterns.PatternTimeIndex
-    :members:    
+    :members:
 
 .. autoclass:: pyearthtools.data.patterns.PatternForecastIndex
-    :members:    
+    :members:
 
 .. autoclass:: pyearthtools.data.patterns.PatternVariableAware
-    :members:    
+    :members:
 
 .. autoclass:: pyearthtools.data.patterns.Argument
-    :members:        
+    :members:
 
 .. autoclass:: pyearthtools.data.patterns.ArgumentExpansion
-    :members:    
+    :members:
 
 .. autoclass:: pyearthtools.data.patterns.ArgumentExpansionVariable
-    :members:    
+    :members:
 
 .. autoclass:: pyearthtools.data.patterns.ArgumentExpansionFactory
-    :members:    
+    :members:
 
 .. autoclass:: pyearthtools.data.patterns.Direct
-    :members:    
+    :members:
 
 .. autoclass:: pyearthtools.data.patterns.TemporalDirect
-    :members:    
+    :members:
 
 .. autoclass:: pyearthtools.data.patterns.ForecastDirect
     :members:
@@ -250,41 +250,41 @@
     :members:
 
 .. autoclass:: pyearthtools.data.patterns.ExpandedDateVariable
-    :members:    
-
-.. autoclass:: pyearthtools.data.patterns.ForecastExpandedDateVariable
-    :members:    
-
-.. autoclass:: pyearthtools.data.patterns.TemporalExpandedDateVariable
-    :members:    
-
-.. autoclass:: pyearthtools.data.patterns.ExpandedDateFactory
-    :members:    
-
-.. autoclass:: pyearthtools.data.patterns.Static    
     :members:
 
-.. autoclass:: pyearthtools.data.patterns.ParsingPattern    
-    :members:    
+.. autoclass:: pyearthtools.data.patterns.ForecastExpandedDateVariable
+    :members:
 
-.. autoclass:: pyearthtools.data.patterns.ZarrIndex    
-    :members:    
+.. autoclass:: pyearthtools.data.patterns.TemporalExpandedDateVariable
+    :members:
 
-.. autoclass:: pyearthtools.data.patterns.ZarrTimeIndex    
-    :members:    
+.. autoclass:: pyearthtools.data.patterns.ExpandedDateFactory
+    :members:
+
+.. autoclass:: pyearthtools.data.patterns.Static
+    :members:
+
+.. autoclass:: pyearthtools.data.patterns.ParsingPattern
+    :members:
+
+.. autoclass:: pyearthtools.data.patterns.ZarrIndex
+    :members:
+
+.. autoclass:: pyearthtools.data.patterns.ZarrTimeIndex
+    :members:
 ```
 
 ## `data.save`
 
 ```{eval-rst}
 .. autofunction:: pyearthtools.data.save.save
-.. autoclass:: pyearthtools.data.save.ManageFiles    
-    :members:   
-.. autoclass:: pyearthtools.data.save.ManageTemp    
-    :members:       
+.. autoclass:: pyearthtools.data.save.ManageFiles
+    :members:
+.. autoclass:: pyearthtools.data.save.ManageTemp
+    :members:
 
 .. autofunction:: pyearthtools.data.save.array.save
-.. autofunction:: pyearthtools.data.save.dask.save    
+.. autofunction:: pyearthtools.data.save.dask.save
 .. autofunction:: pyearthtools.data.save.dataset.save
 .. autofunction:: pyearthtools.data.save.dataset.to_netcdf
 .. autofunction:: pyearthtools.data.save.dataset.to_zarr
@@ -294,50 +294,50 @@
 .. autofunction:: pyearthtools.data.save.save_utils.check_if_exists
 .. autofunction:: pyearthtools.data.save.save_utils.make_new_filename
 
-.. autoclass:: pyearthtools.data.save.save_utils.keep_clear    
-    :members:       
+.. autoclass:: pyearthtools.data.save.save_utils.keep_clear
+    :members:
 ```
 
 ## `data.transforms`
 
 ```{eval-rst}
 .. autoclass:: pyearthtools.data.transforms.Transform
-    :members:  
+    :members:
 .. autoclass:: pyearthtools.data.transforms.TransformCollection
-    :members:      
+    :members:
 .. autoclass:: pyearthtools.data.transforms.FunctionTransform
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.data.transforms.Derive
-    :members:        
+    :members:
 
 .. autofunction:: pyearthtools.data.transforms.aggregation.over
-.. autofunction:: pyearthtools.data.transforms.aggregation.leaving    
+.. autofunction:: pyearthtools.data.transforms.aggregation.leaving
 
 .. autoclass:: pyearthtools.data.transforms.aggregation.Aggregate
-    :members:  
+    :members:
 
 .. autoclass:: pyearthtools.data.transforms.attributes.SetAttributes
-    :members:  
+    :members:
 .. autoclass:: pyearthtools.data.transforms.attributes.SetEncoding
-    :members:      
+    :members:
 .. autoclass:: pyearthtools.data.transforms.attributes.SetType
-    :members:          
+    :members:
 .. autoclass:: pyearthtools.data.transforms.attributes.Rename
-    :members:          
+    :members:
 
 .. autofunction:: pyearthtools.data.transforms.coordinates.get_longitude
 .. autofunction:: pyearthtools.data.transforms.coordinates.weak_cast_to_int
 
 .. autoclass:: pyearthtools.data.transforms.coordinates.StandardLongitude
-    :members:  
+    :members:
 .. autoclass:: pyearthtools.data.transforms.coordinates.ReIndex
-    :members:      
+    :members:
 .. autoclass:: pyearthtools.data.transforms.coordinates.StandardCoordinateNames
-    :members:          
+    :members:
 .. autoclass:: pyearthtools.data.transforms.coordinates.Select
-    :members:              
+    :members:
 .. autoclass:: pyearthtools.data.transforms.coordinates.Drop
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.data.transforms.coordinates.Flatten
     :members:
 .. autoclass:: pyearthtools.data.transforms.coordinates.Expand
@@ -345,9 +345,9 @@
 .. autoclass:: pyearthtools.data.transforms.coordinates.SelectFlatten
     :members:
 .. autoclass:: pyearthtools.data.transforms.coordinates.Assign
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.data.transforms.coordinates.Pad
-    :members:        
+    :members:
 
 .. autofunction:: pyearthtools.data.transforms.default.get_default_transforms
 
@@ -355,47 +355,47 @@
 .. autofunction:: pyearthtools.data.transforms.derive.derive_equations
 
 .. autoclass:: pyearthtools.data.transforms.dimensions.StandardDimensionNames
-    :members:  
+    :members:
 
 .. autoclass:: pyearthtools.data.transforms.dimensions.Expand
-    :members:      
+    :members:
 
 .. autoclass:: pyearthtools.data.transforms.interpolation.Interpolate
-    :members:     
+    :members:
 .. autoclass:: pyearthtools.data.transforms.interpolation.XESMF
-    :members:         
+    :members:
 .. autoclass:: pyearthtools.data.transforms.interpolation.InterpolateNan
-    :members:         
+    :members:
 
 .. autofunction:: pyearthtools.data.transforms.interpolation.like
 
 .. autoclass:: pyearthtools.data.transforms.mask.UnderlyingMaskTransform
-    :members:     
+    :members:
 .. autoclass:: pyearthtools.data.transforms.mask.Dataset
     :members:
 .. autoclass:: pyearthtools.data.transforms.mask.Replace
-    :members:             
+    :members:
 
 .. autoclass:: pyearthtools.data.transforms.optimisation.Rechunk
-    :members:     
+    :members:
 
 .. autofunction:: pyearthtools.data.transforms.region.check_shape
 .. autofunction:: pyearthtools.data.transforms.region.order
 .. autofunction:: pyearthtools.data.transforms.region.like
 
 .. autoclass:: pyearthtools.data.transforms.region.Bounding
-    :members: 
+    :members:
 .. autoclass:: pyearthtools.data.transforms.region.Select
-    :members:     
+    :members:
 .. autoclass:: pyearthtools.data.transforms.region.ISelect
-    :members:     
+    :members:
 
 .. autofunction:: pyearthtools.data.transforms.region.PointBox
-.. autofunction:: pyearthtools.data.transforms.region.Lookup   
-.. autofunction:: pyearthtools.data.transforms.region.Geosearch   
+.. autofunction:: pyearthtools.data.transforms.region.Lookup
+.. autofunction:: pyearthtools.data.transforms.region.Geosearch
 
 .. autoclass:: pyearthtools.data.transforms.region.ShapeFile
-    :members:     
+    :members:
 
 .. autofunction:: pyearthtools.data.transforms.utils.parse_dataset
 
@@ -409,7 +409,7 @@
 .. autoclass:: pyearthtools.data.catalog.CatalogEntry
     :members:
 
-.. autofunction:: pyearthtools.data.catalog.get_name    
+.. autofunction:: pyearthtools.data.catalog.get_name
 ```
 
 ## `data.collection`
@@ -418,7 +418,7 @@
 .. autoclass:: pyearthtools.data.collection.Collection
     :members:
 .. autoclass:: pyearthtools.data.collection.LabelledCollection
-    :members:    
+    :members:
 ```
 
 ## `data.exceptions`
@@ -428,7 +428,7 @@
 .. autoclass:: pyearthtools.data.exceptions.InvalidDataError
     :members:
 .. autoclass:: pyearthtools.data.exceptions.DataNotFoundError
-    :members:    
+    :members:
 ```
 
 ## `data.load`
@@ -446,13 +446,13 @@
 .. autofunction:: pyearthtools.data.time.range_samples
 
 .. autoclass:: pyearthtools.data.time.range_samples
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.data.time.Petdt
-    :members:        
+    :members:
 .. autoclass:: pyearthtools.data.time.TimeDelta
-    :members:        
+    :members:
 .. autoclass:: pyearthtools.data.time.TimeRange
-    :members:            
+    :members:
 ```
 
 ## `data.warnings`
@@ -462,6 +462,5 @@
 .. autoclass:: pyearthtools.data.warnings.IndexWarning
     :members:
 .. autoclass:: pyearthtools.data.warnings.AccessorRegistrationWarning
-    :members:    
+    :members:
 ```
-

@@ -92,10 +92,4 @@ def get_loss(loss_function: str, **loss_kwargs):
     return _get_callable(loss_function)(**loss_function)
 
 
-__all__ = [
-    'ExtremeLoss',
-    'centre_weighted',
-    'RMSELoss',
-    'SSIMLoss',
-    'ComponentLoss'
-]
+__all__ = ["ExtremeLoss", "centre_weighted", "RMSELoss", "SSIMLoss", "ComponentLoss"]

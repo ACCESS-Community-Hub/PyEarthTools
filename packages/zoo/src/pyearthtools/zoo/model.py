@@ -64,9 +64,9 @@ class Timer:
         return self
 
     # def __exit__(self, *args):
-        # elapsed = time.time() - self.start
-        # log = self.logger or LOG  # TODO: Bring this back
-        # log.debug("%s: took %.2f seconds.", self.title, elapsed)
+    # elapsed = time.time() - self.start
+    # log = self.logger or LOG  # TODO: Bring this back
+    # log.debug("%s: took %.2f seconds.", self.title, elapsed)
 
 
 class BaseForecastModel:

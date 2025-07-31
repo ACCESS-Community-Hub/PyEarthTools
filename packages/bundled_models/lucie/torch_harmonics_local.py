@@ -41,7 +41,6 @@ if torch.cuda.is_available():
 # limitations under the License.
 
 
-
 @dataclass
 class ModelMetaData:
     """Data class for storing essential meta data needed for all Modulus Models"""
@@ -3195,7 +3194,6 @@ def load_data(fname):
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-
 
 
 def _precompute_grid(n, grid="equidistant", a=0.0, b=1.0, periodic=False):

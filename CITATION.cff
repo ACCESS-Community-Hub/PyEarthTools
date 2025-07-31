@@ -3,7 +3,7 @@ message: "If you use PyEarthTools, please cite it as below."
 authors:
 - family-names: Cook
   given-names: Harrison
-  orcid: "https://orcid.org/0009-0009-3207-4876"    
+  orcid: "https://orcid.org/0009-0009-3207-4876"
 - family-names: Leeuwenburg
   given-names: Tennessee
   orcid: "https://orcid.org/0009-0008-2024-1967"
@@ -24,14 +24,14 @@ authors:
   orcid: "https://orcid.org/0009-0001-6250-3987"
 - family-names: Haddad
   given-names: Stephen
-  orcid: "https://orcid.org/0000-0003-3430-2456"  
+  orcid: "https://orcid.org/0000-0003-3430-2456"
 - family-names: de Burgh-Day
   given-names: Catherine
-  orcid: "https://orcid.org/0000-0002-1975-0042"  
-title: "PyEarthTools: Machine learning for Earth system science"  
+  orcid: "https://orcid.org/0000-0002-1975-0042"
+title: "PyEarthTools: Machine learning for Earth system science"
 version: 0.1.1
 doi: 10.5281/zenodo.15760769
 url: https://doi.org/10.5281/zenodo.15760769
 date-released: 2025-06-28
-publisher: 
+publisher:
   name: "Zenodo"

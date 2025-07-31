@@ -45,7 +45,7 @@
 .. autoclass:: pyearthtools.utils.context.Catch
     :members:
 .. autoclass:: pyearthtools.utils.context.PrintOnError
-    :members:    
+    :members:
 ```
 
 ## `utils.data`
@@ -59,7 +59,7 @@
 .. autoclass:: pyearthtools.utils.data.converter.NumpyConverter
     :members:
 .. autoclass:: pyearthtools.utils.data.converter.DaskConverter
-    :members:    
+    :members:
 ```
 
 ## `utils.decorators`
@@ -70,7 +70,7 @@
 .. autofunction:: pyearthtools.utils.decorators.invert_dictionary_list
 
 .. autoclass:: pyearthtools.utils.decorators.classproperty
-    :members:   
+    :members:
 
 ```
 
@@ -84,13 +84,13 @@
 .. autofunction:: pyearthtools.utils.initialisation.update_contents
 
 .. autoclass:: pyearthtools.utils.initialisation.InitialisationRecordingMixin
-    :members:   
+    :members:
 
 .. autoclass:: pyearthtools.utils.initialisation.Dumper
-    :members:   
+    :members:
 
 .. autoclass:: pyearthtools.utils.initialisation.Loader
-    :members:       
+    :members:
 
 ```
 
@@ -113,7 +113,7 @@
 .. autoclass:: pyearthtools.utils.parameter.ListParameter
     :members:
 .. autoclass:: pyearthtools.utils.parameter.RangeParameter
-    :members:    
+    :members:
 ```
 
 ## `utils.repr_utils`
@@ -124,4 +124,3 @@
 .. autofunction:: pyearthtools.utils.repr_utils.html
 .. autofunction:: pyearthtools.utils.repr_utils.default
 ```
-

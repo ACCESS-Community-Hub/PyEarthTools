@@ -1,6 +1,6 @@
 # New Users Guide
 
-Welcome new user! This document will continue to be updated based on user feedback. 
+Welcome new user! This document will continue to be updated based on user feedback.
 
 ## Installation
 
@@ -48,11 +48,8 @@ If you are working at NCI, then ["Blending Data from Multiple Sources"](./notebo
 A modelling project in PyEarthTools involves the following steps:
 
 1. Fetching and loading data
-2. Processing data for machine learning 
+2. Processing data for machine learning
 3. Training a model
 4. Evaluating the model
 
 The ["Train and run a simplified global weather model"](./notebooks/tutorial/FourCastMini_Demo.ipynb) tutorial demonstrates the first three of these steps. Guidance for new users on model evaluation will be added at a later date.
-
-
-

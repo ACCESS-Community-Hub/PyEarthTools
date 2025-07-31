@@ -25,7 +25,3 @@ The rest of this page contains reference information for the components of the Z
 |                     |                                      | - [get_arguments](zoo_api.md#pyearthtools.zoo.utils.get_arguments)  |
 |                     |                                      | - [split_name_assignment](zoo_api.md#pyearthtools.zoo.utils.split_name_assignment)  |
 |  `zoo.warnings`     |                                      | - [AccessorRegistrationWarning](zoo_api.md#pyearthtools.zoo.warnings.AccessorRegistrationWarning)  |
-
-
-
-
