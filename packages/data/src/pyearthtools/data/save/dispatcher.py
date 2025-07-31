@@ -32,7 +32,7 @@ try:
     from dask.delayed import Delayed
     import dask.array as da
     from pyearthtools.data.save import dask as dask_save
-except (ImportError, ModuleNotFoundError) as e:
+except (ImportError, ModuleNotFoundError):
     DASK_IMPORTED = False
 
 DISPATCH = {

@@ -16,7 +16,6 @@
 from pyearthtools.pipeline.operations.dask.compute import Compute
 
 import xarray as xr
-import dask
 import numpy as np
 
 

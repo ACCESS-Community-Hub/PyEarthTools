@@ -45,9 +45,8 @@ from collections import OrderedDict
 from typing import Optional
 
 import yaml
-import json
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 import types
 import warnings
 from functools import lru_cache
@@ -57,7 +56,7 @@ from pyearthtools.utils.parsing import function_name
 from pyearthtools.utils.initialisation.imports import dynamic_import
 
 import pyearthtools.data
-from pyearthtools.data.collection import Collection, LabelledCollection
+from pyearthtools.data.collection import Collection
 
 from pyearthtools.utils.decorators import alias_arguments
 
@@ -464,7 +463,7 @@ class Catalog:
 
         elif isinstance(other, pyearthtools.data.DataIndex) and not hasattr(other, "catalog"):
             raise AttributeError(
-                f"Object to append appears to be a `pyearthtools.data.DataIndex`, but has no `catalog`.\n"
+                "Object to append appears to be a `pyearthtools.data.DataIndex`, but has no `catalog`.\n"
                 "Ensure, `.record_initialisation()` has been run in the `__init__` of the Index."
             )
 
@@ -560,7 +559,7 @@ class Catalog:
 
         try:
             yaml.dump(save_catalog, fileIO, sort_keys=False)
-        except PermissionError as e:
+        except PermissionError:
             warnings.warn(
                 f"Could not save to {output_file!s}, due to a PermissionError",
                 UserWarning,
@@ -614,7 +613,7 @@ class Catalog:
                 if len(possible_catalogs) > 1:
                     raise FileNotFoundError(f"Multiple catalogs found in {catalog_to_load!s}")
                 raise FileNotFoundError(
-                    f"Given file was actually a directory, and no valid `pyearthtools` catalog was found inside."
+                    "Given file was actually a directory, and no valid `pyearthtools` catalog was found inside."
                     "\nEnsure the catalog ends in '.cat'"
                 )
 
@@ -640,7 +639,7 @@ class Catalog:
 
         if direct_load:
             if len(new_catalog) > 1:
-                raise TypeError(f"Catalog cannot be direct loaded, and 'direct_load' is True")
+                raise TypeError("Catalog cannot be direct loaded, and 'direct_load' is True")
             return new_catalog[0].function
         return new_catalog
 
@@ -686,7 +685,7 @@ class Catalog:
 
     @property
     def _doc_(self):
-        return f"Catalog of Data"
+        return "Catalog of Data"
 
     @property
     def _info_(self):

@@ -359,7 +359,7 @@ class Petdt:
         try:
             Petdt(time_to_parse)
             return True
-        except Exception as e:
+        except Exception:
             return False
 
     def at_resolution(
@@ -993,7 +993,7 @@ class TimeRange:
                     pbar.update(1)
         else:
             if self.kwargs:
-                raise TypeError(f"kwargs given but not using `tqdm`, no execution path for kwargs.")
+                raise TypeError("kwargs given but not using `tqdm`, no execution path for kwargs.")
 
             for i in samples:
                 yield i
@@ -1016,4 +1016,4 @@ def TimeDeltaConstructer(loader: yaml.loader.Loader, tag_suffix: str, node):
 
 
 initialisation.Dumper.add_multi_representer(TimeDelta, TimeDeltaRepresenter)
-initialisation.Loader.add_multi_constructor(f"!TimeDelta", TimeDeltaConstructer)
+initialisation.Loader.add_multi_constructor("!TimeDelta", TimeDeltaConstructer)

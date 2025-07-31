@@ -23,10 +23,8 @@ import datetime
 import builtins
 import os
 from pathlib import Path
-from typing import Callable, Union
 
-import numpy as np
-from tqdm.auto import tqdm, trange
+from tqdm.auto import trange
 import xarray as xr
 
 import pyearthtools.data
@@ -34,8 +32,6 @@ import pyearthtools.data
 from pyearthtools.data.time import Petdt, TimeDelta
 from pyearthtools.data.exceptions import (
     DataNotFoundError,
-    InvalidIndexError,
-    run_and_catch_exception,
 )
 from pyearthtools.data.transforms import Transform, TransformCollection
 
@@ -214,7 +210,7 @@ def aggregation(
 
     if save_file is not None:
         dataset.to_netcdf(save_file, mode="w")
-        for file in (Path(save_location).with_suffix("") / f"components/").glob("temp_file_*.nc"):
+        for file in (Path(save_location).with_suffix("") / "components/").glob("temp_file_*.nc"):
             os.remove(file)
     return dataset
 

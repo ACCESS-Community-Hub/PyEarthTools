@@ -13,8 +13,6 @@
 # limitations under the License.
 
 
-import xarray as xr
-
 import pyearthtools.data
 import pytest
 

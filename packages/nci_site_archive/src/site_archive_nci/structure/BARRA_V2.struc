@@ -609,3 +609,51 @@ output:
                   - hus850
                   - rsus
                   - hus925
+    AUST-04:
+      BOM:
+        ERA5:
+          historical:
+            hres:
+              BARRA-C2:
+                v1:
+                  fx:
+                  - orog
+                  - sftlf
+                  - mrfsos
+                  20min:
+                  - clt
+                  - helicity
+                  - huss
+                  - prga
+                  - prra
+                  - prsn
+                  - psl
+                  - radrefl1km
+                  - rsdsif
+                  - rsdsir
+                  - rss
+                  - tas
+                  - ta50m
+                  - ta100m
+                  - ta150m
+                  - ta200m
+                  - ta250m
+                  - ta1500m
+                  - ts
+                  - uas
+                  - ua50m
+                  - ua100m
+                  - ua150m
+                  - ua200m
+                  - ua250m
+                  - ua1500m
+                  - us
+                  - vas
+                  - va50m
+                  - va100m
+                  - va150m
+                  - va200m
+                  - va250m
+                  - va1500m
+                  - vs
+                  - wsgsmax

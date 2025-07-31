@@ -16,7 +16,6 @@ from pyearthtools.pipeline.operations.xarray import conversion
 
 import numpy as np
 import xarray as xr
-import dask
 import pytest
 
 

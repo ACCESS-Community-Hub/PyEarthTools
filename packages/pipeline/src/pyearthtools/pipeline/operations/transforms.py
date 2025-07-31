@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from typing import Any, TypeVar, Union, Optional
+from typing import TypeVar, Union, Optional
 
 import xarray as xr
 

@@ -42,7 +42,7 @@ def _get_callable(module: str):
     except ModuleNotFoundError:
         module = module.split(".")
         return getattr(_get_callable(".".join(module[:-1])), module[-1])
-    except ValueError as e:
+    except ValueError:
         raise ModuleNotFoundError("End of module definition reached")
 
 

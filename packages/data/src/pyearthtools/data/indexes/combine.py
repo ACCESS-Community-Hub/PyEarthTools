@@ -20,7 +20,6 @@ import xarray as xr
 
 from pyearthtools.data.indexes import Index, AdvancedTimeDataIndex
 from pyearthtools.data import Petdt
-from pyearthtools.data.operations import SpatialInterpolation, TemporalInterpolation
 from pyearthtools.data.transforms.transform import Transform, TransformCollection
 
 

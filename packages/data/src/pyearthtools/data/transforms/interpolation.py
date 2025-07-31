@@ -185,9 +185,9 @@ class XESMF(Transform):
         self.record_initialisation()
 
         if not xESMF_IMPORTED:
-            raise ImportError(f"xesmf could not be imported")
+            raise ImportError("xesmf could not be imported")
         if not reference_dataset and not coords:
-            raise KeyError(f"Either 'reference_dataset' or 'coords' must be given")
+            raise KeyError("Either 'reference_dataset' or 'coords' must be given")
 
         def get_reference(reference_dataset: Optional[xr.Dataset] = None, coords: Optional[dict] = None):
             if reference_dataset:
@@ -195,7 +195,7 @@ class XESMF(Transform):
 
             try:
                 return xr.Dataset(coords)
-            except ValueError as e:
+            except ValueError:
                 pass
 
             if coords:

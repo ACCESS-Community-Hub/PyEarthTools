@@ -34,6 +34,7 @@ temporal_resolution = {
     "3hr": (3, "hour"),
     "1hr": (1, "hour"),
     "day": (1, "day"),
+    "20min": (20, "minute"),
 }
 
 

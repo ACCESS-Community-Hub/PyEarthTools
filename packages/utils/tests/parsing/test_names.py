@@ -15,8 +15,6 @@
 import pyearthtools.utils.parameter
 from pyearthtools.utils.parsing import names
 
-import datetime
-
 
 def test_function_name():
     """
