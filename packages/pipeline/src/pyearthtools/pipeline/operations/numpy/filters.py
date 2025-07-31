@@ -127,9 +127,9 @@ class DropValue(NumpyFilter):
                 If sample contains nan's
         """
         if np.isnan(self._value):
-            function = lambda x: ((np.count_nonzero(np.isnan(x)) / math.prod(x.shape)) * 100) >= self._percentage
+            function = lambda x: ((np.count_nonzero(np.isnan(x)) / math.prod(x.shape)) * 100) >= self._percentage  # noqa
         else:
-            function = lambda x: ((np.count_nonzero(x == self._value) / math.prod(x.shape)) * 100) >= self._percentage
+            function = lambda x: ((np.count_nonzero(x == self._value) / math.prod(x.shape)) * 100) >= self._percentage  # noqa
 
         if not function(sample):
             raise PipelineFilterException(sample, f"Data contained more than {self._percentage}% of {self._value}.")
