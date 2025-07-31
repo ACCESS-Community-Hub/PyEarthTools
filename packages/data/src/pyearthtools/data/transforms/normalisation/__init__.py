@@ -39,6 +39,6 @@ from pyearthtools.data.transforms.normalisation.normalise import Normalise
 from pyearthtools.data.transforms.normalisation.denormalise import Denormalise
 
 __all__ = [
-    'Normalise',
-    'Denormalise',
+    "Normalise",
+    "Denormalise",
 ]

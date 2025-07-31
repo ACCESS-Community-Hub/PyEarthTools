@@ -26,6 +26,7 @@ from pyearthtools.data.transforms.transform import FunctionTransform, Transform
 
 xr.set_options(keep_attrs=True)
 
+
 class Normalise(Normaliser):
     """
     Normalise incoming data.

@@ -1,4 +1,4 @@
-from dataclasses import dataclass  #, field, KW_ONL
+from dataclasses import dataclass  # , field, KW_ONL
 import xarray as xr
 
 from . import _projection_manager as projmanager
@@ -91,7 +91,4 @@ class HimawariProjAus(projmanager.ProjLonLatAus_Rectilinear):
         return ds_interp
 
 
-__all__  = [
-    'Rainfields3ProjAus',
-    'HimawariProjAus'
-]
+__all__ = ["Rainfields3ProjAus", "HimawariProjAus"]
