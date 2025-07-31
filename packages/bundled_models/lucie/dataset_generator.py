@@ -22,7 +22,6 @@
 
 
 import numpy as np
-import torch
 from torch_harmonics_local import *
 from tqdm import tqdm
 

@@ -19,7 +19,7 @@ ECWMF ReAnalysis v5
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Literal
+from typing import Literal
 
 
 import pyearthtools.data

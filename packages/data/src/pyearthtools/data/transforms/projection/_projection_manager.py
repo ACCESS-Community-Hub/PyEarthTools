@@ -39,26 +39,22 @@ in the region. Over time, additional use cases will help to make this more gener
 # --- built-in imports ---
 
 import functools
-import logging
 import warnings
 
-from dataclasses import dataclass, field, KW_ONLY
+from dataclasses import dataclass, KW_ONLY
 from enum import IntEnum, StrEnum, auto
 from typing import NamedTuple
-from types import SimpleNamespace
 
 # --- package imports ---
 
 import numpy as np
 import numpy.typing as npt
-import scipy
 import xarray as xr
 
 import pyproj
 from pyproj.enums import TransformDirection
 from pyproj.transformer import Transformer
 from pyproj.aoi import AreaOfInterest
-from pyproj.aoi import AreaOfUse
 
 
 # -----------------------------------------------------------------------------

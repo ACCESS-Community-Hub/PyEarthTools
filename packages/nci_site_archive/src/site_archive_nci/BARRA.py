@@ -124,7 +124,7 @@ class BARRA(DataIndex):
         self.datatype = datatype
 
         if datatype == "analysis" and not region == "R":
-            raise IndexError(f"Only BARRA-R contains an analysis product. It is suggested to use datatype='forecast'")
+            raise IndexError("Only BARRA-R contains an analysis product. It is suggested to use datatype='forecast'")
 
         self.version = version
         self.variables = variables

@@ -21,33 +21,21 @@
 # SOFTWARE.
 
 
-from math import ceil, sqrt
-from functools import partial
+from math import ceil
 import torch
-import torch.nn as nn
-from torch.utils.checkpoint import checkpoint
-from dataclasses import dataclass
-from typing import Any, Tuple
 
 # import torch_harmonics as th
 # import torch_harmonics.distributed as thd
 
 # from torch_harmonics import *
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
 import torch.fft
-from torch.utils.checkpoint import checkpoint
-from torch.cuda import amp
 from tqdm import tqdm
 
 import torch
 
-from torch.utils.data import Dataset, TensorDataset, DataLoader
 
 from torch_harmonics_local import *
 
-from torch.optim.lr_scheduler import OneCycleLR, CosineAnnealingLR, StepLR
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 if torch.cuda.is_available():

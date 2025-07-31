@@ -16,31 +16,26 @@
 CMIP5 Accessor
 """
 
-import datetime
 import os
 from pathlib import Path
-from typing import Any, Literal
 import warnings
 from collections import namedtuple
 import pandas as pd
-import cftime
 
-import functools
 
 import xarray as xr
 
 import pyearthtools.data
-from pyearthtools.data.exceptions import DataNotFoundError
 from pyearthtools.data.warnings import IndexWarning
-from pyearthtools.data.indexes import ArchiveIndex, ForecastIndex, DataFileSystemIndex, decorators
+from pyearthtools.data.indexes import ArchiveIndex
 from pyearthtools.data.time import Petdt, TimeDelta
 from pyearthtools.data.transforms import Transform, TransformCollection
 
 from pyearthtools.data.archive import register_archive
 
-from site_archive_nci.utilities import check_project, cached_exists, cached_iterdir
+from site_archive_nci.utilities import check_project
 
-from pyearthtools.data.time import Petdt, TimeDelta, time_delta_resolution, TimeRange
+from pyearthtools.data.time import TimeRange
 from pyearthtools.data.operations.utils import identify_time_dimension
 from pyearthtools.data.operations.index_routines import _mf_series
 
@@ -352,7 +347,7 @@ class CMIP5(ArchiveIndex):
                 verbose=verbose,
                 **kwargs,
             )
-        except NotImplementedError as e:
+        except NotImplementedError:
             data = _get_series(
                 DataFunction,
                 start,

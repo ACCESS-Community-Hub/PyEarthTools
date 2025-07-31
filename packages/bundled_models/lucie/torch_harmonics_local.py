@@ -9,13 +9,10 @@ from typing import Any, Tuple
 # import torch_harmonics.distributed as thd
 
 # from torch_harmonics import *
-import torch.nn as nn
 import torch.nn.functional as F
 import torch.fft
-from torch.utils.checkpoint import checkpoint
 from torch.cuda import amp
 import math
-from tqdm import tqdm
 import logging
 
 
@@ -43,7 +40,6 @@ if torch.cuda.is_available():
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from dataclasses import dataclass
 
 
 @dataclass
@@ -78,7 +74,6 @@ class ModelMetaData:
 
 
 import torch
-import logging
 
 from typing import Union
 from pathlib import Path
@@ -105,7 +100,7 @@ class Module(torch.nn.Module):
 
         self.logger = logging.getLogger("core.module")
         handler = logging.StreamHandler()
-        formatter = logging.Formatter(f"[%(asctime)s - %(levelname)s] %(message)s", datefmt="%H:%M:%S")
+        formatter = logging.Formatter("[%(asctime)s - %(levelname)s] %(message)s", datefmt="%H:%M:%S")
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
         self.logger.setLevel(logging.WARNING)
@@ -688,7 +683,7 @@ def get_contract_fun(
         if torch.is_tensor(weight):
             return _contract_dense_pytorch
         elif isinstance(weight, FactorizedTensor):
-            raise ValueError(f"tensorly not found")
+            raise ValueError("tensorly not found")
         else:
             raise ValueError(f"Got unexpected weight type of class {weight.__class__.__name__}")
     else:
@@ -710,7 +705,6 @@ def get_contract_fun(
 # limitations under the License.
 
 import torch
-from torch import nn
 
 
 class ComplexReLU(nn.Module):
@@ -808,7 +802,6 @@ class ComplexActivation(nn.Module):
         return out
 
 
-import math
 import torch
 import warnings
 
@@ -1047,9 +1040,7 @@ class InverseRealFFT2(nn.Module):
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
-from torch.cuda import amp
 
 # import FactorizedTensor from tensorly for tensorized operations
 import tensorly as tl
@@ -1146,7 +1137,7 @@ class SpectralConvS2(nn.Module):
             raise ValueError(f"Unsupported operator type f{self.operator_type}")
 
         if use_tensorly:
-            raise ValueError(f"tensorly not found")
+            raise ValueError("tensorly not found")
         else:
             assert factorization == "ComplexDense"
             self.weight = nn.Parameter(scale * torch.randn(*weight_shape, 2))
@@ -1560,8 +1551,6 @@ class RealSpectralAttentionS2(nn.Module):
 
 
 import torch
-import torch.nn.functional as F
-import torch.distributed as dist
 
 from torch._utils import _flatten_dense_tensors
 
@@ -1578,7 +1567,7 @@ def sync_params(model, mode="broadcast"):  # pragma: no cover
     """Helper routine to ensure shared weights are the same after initialization"""
 
     non_singleton_group_names = [
-        x for x in comm.get_names() if (comm.get_size(x) > 1) and not (x in ["data", "model", "spatial"])
+        x for x in comm.get_names() if (comm.get_size(x) > 1) and x not in ["data", "model", "spatial"]
     ]
 
     with torch.no_grad():
@@ -1740,7 +1729,7 @@ def _gather(input_, dim_, group=None):  # pragma: no cover
 
 
 # torch utils
-from torch._utils import _flatten_dense_tensors, _unflatten_dense_tensors
+from torch._utils import _unflatten_dense_tensors
 
 
 # generalized
@@ -1940,7 +1929,7 @@ def init_gradient_reduction_hooks(
     else:
         # check if there are shared weights, otherwise we can skip
         non_singleton_group_names = [
-            x for x in comm.get_names() if (comm.get_size(x) > 1) and not (x in ["data", "model", "spatial"])
+            x for x in comm.get_names() if (comm.get_size(x) > 1) and x not in ["data", "model", "spatial"]
         ]
         num_shared = {x: 0 for x in non_singleton_group_names}
         num_parameters = 0
@@ -2146,12 +2135,9 @@ class disable_logging(object):
 
 import os
 import logging
-import math
 import torch
-import torch.distributed as dist
 import datetime as dt
 from typing import Union
-import numpy as np
 
 # dummy placeholders
 _COMM_LIST = []
@@ -3210,13 +3196,12 @@ def load_data(fname):
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-import numpy as np
 
 
 def _precompute_grid(n, grid="equidistant", a=0.0, b=1.0, periodic=False):
 
     if (grid != "equidistant") and periodic:
-        raise ValueError(f"Periodic grid is only supported on equidistant grids.")
+        raise ValueError("Periodic grid is only supported on equidistant grids.")
 
     # compute coordinates
     if grid == "equidistant":

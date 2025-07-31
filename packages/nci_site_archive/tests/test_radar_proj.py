@@ -639,6 +639,8 @@ class TestRadarProj:
         """
         # trigger import if not already
         import site_archive_nci._Rainfields3
+        assert site_archive_nci._Rainfields3 is not None
+
 
         (lon0, lon1), (lat0, lat1) = APPROX_LATLON_BOUNDS
         # Note: including endpoint, since min/max which are used to compute

@@ -19,13 +19,12 @@ Rainfields3 Accessor
 import functools
 import logging
 import os
-import sys
 import warnings
 import zipfile
 from enum import Enum
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, Callable, NamedTuple
+from typing import Any, Callable
 
 import numpy as np
 import numpy.typing as npt
@@ -646,7 +645,7 @@ class RadarProj(SimpleNamespace):
             da_y = xr.DataArray(y_grid, dims=["lon", "lat"], coords={"lon": lon_1d, "lat": lat_1d})
             ret = (da_x, da_y)
         else:
-            _e = f"ERROR: provided meshgrid is malformed."
+            _e = "ERROR: provided meshgrid is malformed."
             logging.exception(ValueError(_e))
             return None
 
