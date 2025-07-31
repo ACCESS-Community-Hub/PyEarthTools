@@ -94,5 +94,5 @@ __all__ = [
     "get_default_transform",
     "derive",
     "Derive",
-    "projections",
+    "projection",
 ]

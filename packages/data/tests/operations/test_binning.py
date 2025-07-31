@@ -32,14 +32,17 @@ def test_binning():
 
     # Smoke tests
     binned = binning(da, "daily")
+    assert binned is not None
     binned = binning(da, "daily", expand=False)
+    assert binned is not None
 
     offset = TimeDelta(1, "days")
     binned = binning(da, "daily", offset=offset)
+    assert binned is not None
 
     # Test exceptions
     with pytest.raises(ValueError):
-        binned = binning(da, "wobbly")
+        _binned = binning(da, "wobbly")
 
     with pytest.raises(AttributeError):
         _binned = binning(da, "daily", dimension="strange")

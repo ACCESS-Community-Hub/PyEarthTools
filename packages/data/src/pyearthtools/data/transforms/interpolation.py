@@ -264,7 +264,7 @@ class InterpolateNan(Transform):
             def encode(x):
                 return x
 
-        tr_revert_reindex = pyearthtools.data.transforms.coordinates.ReIndex(dataset.coords)  # type: ignore
+        tf_revert_reindex = pyearthtools.data.transforms.coordinates.ReIndex(dataset.coords)  # type: ignore
         tf_reindex = pyearthtools.data.transforms.coordinates.ReIndex(
             {key: "sorted" for key in dataset.coords if len(np.atleast_1d(dataset.coords[key].values)) > 1}
         )  # type: ignore

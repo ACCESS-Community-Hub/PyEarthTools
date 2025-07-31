@@ -65,7 +65,7 @@ class Aggregate(Transform):
             AttributeError: If method is invalid
         """
         if (
-            method == None
+            method is None
             or isinstance(method, (dict, Callable))
             or method in known_methods
             or hasattr(aggregation, method)

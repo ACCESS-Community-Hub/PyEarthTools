@@ -247,7 +247,7 @@ class ProjSource(IntEnum):
                 warnings.warn(warn_proj_defaulted)
                 return default_proj
 
-            raise NotImplementedError(f"Attribute extraction from {proj_kind} is unsupported")
+            raise NotImplementedError("Attribute extraction from this proj kind is unsupported")
 
 
 class CoordUnits(IntEnum):
@@ -551,7 +551,7 @@ class ProjLonLatAus_Rectilinear:
         # to account for pesky floating point issues - not perfect but good enough
         # if anything, keeping this weak means interpolation can still trigger instead
         # of overzealously raising errors.
-        approx_unique = lambda _v: np.unique(np.round(_v * 1e6) // 1e6)
+        approx_unique = lambda _v: np.unique(np.round(_v * 1e6) // 1e6)  # noqa
 
         # check that the conversion is indeed unique.
         if (approx_unique(lon_1d) == approx_unique(lon_grid)).all() or (

@@ -361,7 +361,7 @@ class TransformCollection(initialisation.InitialisationRecordingMixin):
             for trans in self._transforms:
                 if isinstance(index, str) and trans.__class__.__name__ == index:
                     return trans
-                elif type(trans) == index:
+                elif type(trans) is index:
                     return trans
         elif isinstance(index, int):
             return self._transforms[index]

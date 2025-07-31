@@ -27,6 +27,7 @@ def test_mf_series(monkeypatch):
     monkeypatch.setattr(xr, "open_mfdataset", make_dataset)
 
     result = index_routines._mf_series(data_function, start_time, end_time, interval)
+    assert result is not None
 
 
 def test_safe_series(monkeypatch):
@@ -59,3 +60,4 @@ def test_safe_series(monkeypatch):
     monkeypatch.setattr(index_routines, "series", dummy_series)
 
     result = index_routines.safe_series(data_function, start_time, end_time, interval)
+    assert result is not None

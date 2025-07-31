@@ -31,5 +31,5 @@ def test_repr_mixin():
 
     subject = MixableTestClass()
 
-    r = repr(subject)
-    h = subject._repr_html_()  # Used by Jupyter
+    _r = repr(subject)
+    _h = subject._repr_html_()  # Used by Jupyter

@@ -119,7 +119,7 @@ class StandardLongitude(Transform):
             def _standardise(dataset):
                 if not any(dataset[self._longitude_name] < 0):
                     return dataset
-                func = lambda x: x % 360
+                func = lambda x: x % 360  # noqa
                 dataset = dataset.assign_coords({self._longitude_name: func(dataset[self._longitude_name])})
                 return dataset.sortby(self._longitude_name)
 
@@ -128,7 +128,7 @@ class StandardLongitude(Transform):
             def _standardise(dataset):
                 if not any(dataset[self._longitude_name] > 180):
                     return dataset
-                func = lambda x: ((x + 180) % 360) - 180
+                func = lambda x: ((x + 180) % 360) - 180  # noqa
                 # (180 - abs(x - 180)) * np.sign((x - 180)) * -1
                 dataset = dataset.assign_coords({self._longitude_name: func(dataset[self._longitude_name])})
                 return dataset.sortby(self._longitude_name)
