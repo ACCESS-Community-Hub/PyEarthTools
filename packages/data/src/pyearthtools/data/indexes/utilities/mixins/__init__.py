@@ -21,3 +21,5 @@ Mixins to add functionality to `pyearthtools.data.indexes`
 from pyearthtools.data.indexes.utilities.mixins.index_repr import reprMixin
 from pyearthtools.data.indexes.utilities.mixins.call_redirect import CallRedirectMixin
 from pyearthtools.data.indexes.utilities.mixins.catalogs import CatalogMixin
+
+__all__ = ["reprMixin", "CallRedirectMixin", "CatalogMixin"]

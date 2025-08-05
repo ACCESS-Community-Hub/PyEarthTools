@@ -156,8 +156,3 @@ The rest of this page contains reference information for the components of the P
 | `pipeline.samplers`  |                                      | - [Random](pipeline_api.md#pyearthtools.pipeline.samplers.Random)  |
 | `pipeline.samplers`  |                                      | - [DropOut](pipeline_api.md#pyearthtools.pipeline.samplers.DropOut)  |
 | `pipeline.samplers`  |                                      | - [RandomDropOut](pipeline_api.md#pyearthtools.pipeline.samplers.RandomDropOut)  |
-
-
-
-
-

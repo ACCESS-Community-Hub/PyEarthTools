@@ -986,7 +986,6 @@ class ArchiveIndex(AdvancedTimeDataIndex, FileSystemIndex):
                     return super().search(*args)
 
                 if date.resolution > self.data_resolution:  # Higher Resolution
-
                     warnings.warn(
                         f"Data requested at a higher resolution than available. {date.resolution} > {self.data_resolution}"
                         "You may have over-specified a date time string.",

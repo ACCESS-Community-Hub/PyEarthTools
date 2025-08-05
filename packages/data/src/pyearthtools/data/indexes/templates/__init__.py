@@ -16,3 +16,5 @@
 """Templates for easy data setup"""
 
 from pyearthtools.data.indexes.templates.structured import Structured
+
+__all__ = ["Structured"]

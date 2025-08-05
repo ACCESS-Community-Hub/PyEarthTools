@@ -13,11 +13,11 @@ def test_Pipeline():
     p = controller.Pipeline()
 
     # Smoke test for making a graph from the pipeline
-    graph = p.graph()
+    _graph = p.graph()
 
     # Smoke test for adding two pipelines together
     # TODO: test this with non-empty pipelines
-    pp = p + p
+    _pp = p + p
 
     # Smoke test can't access anything in an empty pipeline
     # TODO: test access with a non-empty pipeline
@@ -28,12 +28,12 @@ def test_Pipeline():
     # TODO: test with a non-empty pipeline
     steps = p.as_steps()
     assert steps is not None
-    s0 = steps[0]  # Should this be an index error (see consistency below with the .steps method)
+    _s0 = steps[0]  # Should this be an index error (see consistency below with the .steps method)
 
     # Test can't access a string-based nonpresent index
     # TODO: test string index with string-indexed values present
     with pytest.raises(ValueError):
-        s0 = steps["first"]
+        _s0 = steps["first"]
 
     # Test the "contains" method
     "first" in p

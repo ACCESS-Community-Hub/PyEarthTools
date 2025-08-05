@@ -51,4 +51,7 @@ __all__ = [
     "values",
     "normalisation",
     "conversion",
+    "Concatenate",
+    "VStack",
+    "HStack",
 ]

@@ -74,6 +74,7 @@ from site_archive_nci._Himawari import Himawari
 from site_archive_nci._Himawari import HimawariChannels
 from site_archive_nci._CMIP5 import CMIP5
 from site_archive_nci._Rainfields3 import Rainfields3
+from site_archive_nci._AusTopo import AusTopo
 
 register_archive("NCI")(site_archive_nci)
 

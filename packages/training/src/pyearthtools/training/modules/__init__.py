@@ -22,3 +22,5 @@ except ImportError as e:
 
 
 from pyearthtools.training.modules.loss import get_loss
+
+__all__ = ["loss", "get_loss"]

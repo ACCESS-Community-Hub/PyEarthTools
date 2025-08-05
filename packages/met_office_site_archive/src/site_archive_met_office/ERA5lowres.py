@@ -19,7 +19,6 @@ ECWMF ReAnalysis v5
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Literal
 
 
 import pyearthtools.data
@@ -34,10 +33,6 @@ from site_archive_met_office.utilities import (
     cached_exists,
     cached_iterdir,
 )  # Could these be moved into a generic module?
-from site_archive_met_office.ancilliary.ERA5 import (
-    ERA5_SINGLE_VARIABLES,
-    ERA5_PRESSURE_VARIABLES,
-)  # NOT NEEDED NOW?   # Could these be moved into a generic module?
 
 ERA_PROD = ["monthly-averaged", "monthly-averaged-by-hour", "reanalysis"]
 ERA_RESOLUTION = (1, "hour")

@@ -4,17 +4,14 @@ import functools
 import pandas as pd
 import xarray as xr
 from pathlib import Path
-from typing import Any, Literal
-from dask.diagnostics import ProgressBar
-from dask import delayed, compute
+from typing import Any
 
 import pyearthtools.data
-from pyearthtools.data import Petdt
 from pyearthtools.data.archive import register_archive
 from pyearthtools.data.exceptions import DataNotFoundError
-from pyearthtools.data.indexes import ArchiveIndex, decorators
+from pyearthtools.data.indexes import ArchiveIndex
 from pyearthtools.data.transforms import Transform, TransformCollection
-from pyearthtools.data.transforms.variables import Drop, Select
+from pyearthtools.data.transforms.variables import Drop
 from pyearthtools.data.transforms.values import SetMissingToNaN
 
 
@@ -283,7 +280,7 @@ class HadISDIndex(ArchiveIndex):
             filename_zarr = f"{version}_{date_range}_{station_id}.zarr"
 
             # Construct the full path
-            file_path_nc = Path(HADISD_HOME) / parent_folder / "netcdf" / filename_nc
+            _file_path_nc = Path(HADISD_HOME) / parent_folder / "netcdf" / filename_nc
             file_path_zarr = Path(HADISD_HOME) / parent_folder / "zarr" / filename_zarr
 
             # Check if the file exists (comment out if testing with single netcdf)

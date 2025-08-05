@@ -20,3 +20,5 @@ Various utilites for `pyearthtools.data.indexes`
 from pyearthtools.data.indexes.utilities import mixins, delete_files
 from pyearthtools.data.indexes.utilities.fileload import open_files, open_static
 from pyearthtools.data.indexes.utilities.spellcheck import check_prompt
+
+__all__ = ["mixins", "delete_files", "open_files", "open_static", "check_prompt"]

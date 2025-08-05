@@ -8,9 +8,3 @@ The rest of this page contains reference information for the components of the T
 |---------------------|--------------------------------------|----------------|
 |  `tutorial`         |                                      | - [ERA5DataClass.ERA5LowResIndex](tutorial_api.md#pyearthtools.tutorial.ERA5DataClass.ERA5LowResIndex)  |
 |                     |                                      | - [ERA5DataClass.ERA5LowResDemoIndex](tutorial_api.md#pyearthtools..tutorial.ERA5DataClass.ERA5LowResDemoIndex)  |
-
-
-
-
-
-

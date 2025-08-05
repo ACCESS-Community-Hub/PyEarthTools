@@ -42,6 +42,3 @@ The API docs for each bundled model will also be presented together in the [Bund
 |  pipelines                     |  Full-resolution pipeline                   | early_stopping.pipe   |
 |                                |  Low-resolution pipeline                    | low_res_demo_subset.pipe   |
 |                                |  General random data for testing            | example.pipe   |
-
-
-

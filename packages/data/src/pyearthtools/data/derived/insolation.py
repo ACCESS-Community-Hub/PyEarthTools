@@ -22,6 +22,7 @@ from __future__ import annotations
 import numpy as np
 import xarray as xr
 import pandas as pd
+from typing import Iterable
 
 from pyearthtools.data.derived.derived import AdvancedTimeDerivedValue
 

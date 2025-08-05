@@ -55,7 +55,7 @@ def test_drop_coords():
 
     coords = {"x": list(range(5)), "y": list(range(5))}
     data = np.ones((5, 5))
-    data1 = np.ones((1, 5, 5))
+    _data1 = np.ones((1, 5, 5))
     sample_da = xr.DataArray(coords=coords, data=data)
     sample_ds = xr.Dataset(coords=coords, data_vars={"z": sample_da})
 

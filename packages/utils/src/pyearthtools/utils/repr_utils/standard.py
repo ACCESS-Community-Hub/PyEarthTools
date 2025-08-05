@@ -99,4 +99,4 @@ def provide_repr(
             )
         )
 
-    return f"\n".join(sections)
+    return "\n".join(sections)

@@ -45,11 +45,11 @@ def dynamic_import(object_path: str) -> Callable | ModuleType:
         pass
 
     if not object_path:
-        raise ImportError(f"object_path cannot be empty")
+        raise ImportError("object_path cannot be empty")
     try:
         return importlib.import_module(object_path)
     except ModuleNotFoundError:
         object_path_list = object_path.split(".")
         return getattr(dynamic_import(".".join(object_path_list[:-1])), object_path_list[-1])
-    except ValueError as e:
+    except ValueError:
         raise ModuleNotFoundError("End of module definition reached")

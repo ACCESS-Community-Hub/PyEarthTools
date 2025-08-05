@@ -86,7 +86,7 @@ class AGCD(ArchiveIndex):
 
         for var in variables:
             if var not in sub_var and "default" not in sub_var:
-                raise KeyError(f"If 'sub_var' is a dict, it most contain entries for all variables")
+                raise KeyError("If 'sub_var' is a dict, it most contain entries for all variables")
 
             valid_args = spellcheck.open_static(AGCD_var_path.format(variable=var))
             spellcheck.check_prompt(

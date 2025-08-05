@@ -16,7 +16,6 @@
 from pyearthtools.pipeline.operations.dask.compute import Compute
 
 import xarray as xr
-import dask
 import numpy as np
 
 
@@ -36,4 +35,4 @@ def test_Compute():
     # It's not so much that this is a numpy array, just that I know it doesn't
     # have a compute attribute which is hard to guarantee for xarrays when dask
     # is installed
-    computed2 = c.apply_func(data)
+    _computed2 = c.apply_func(data)

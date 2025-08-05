@@ -41,4 +41,12 @@ from pyearthtools.data.operations.percentile import percentile
 from pyearthtools.data.operations._aggregation import aggregation
 from pyearthtools.data.operations.binning import binning
 
-# from pyearthtools.data.operations.index_routines import safe_series, series
+__all__ = [
+    "interpolation",
+    "SpatialInterpolation",
+    "TemporalInterpolation",
+    "FullInterpolation",
+    "percentile",
+    "aggregation",
+    "binning",
+]  # from pyearthtools.data.operations.index_routines import safe_series, series

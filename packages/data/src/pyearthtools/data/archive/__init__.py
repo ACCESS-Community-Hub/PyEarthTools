@@ -45,4 +45,14 @@ from pyearthtools.data.archive.root import set_root, reset_root, config_root
 from pyearthtools.data.archive.zarr import ZarrIndex, ZarrTimeIndex
 
 
-__all__ = ["set_root", "reset_root", "config_root", "register_archive", "ZarrIndex", "ZarrTimeIndex"]
+__all__ = [
+    "set_root",
+    "reset_root",
+    "config_root",
+    "register_archive",
+    "set_root_directory",
+    "get_root_directories",
+    "load_root_directories_from_config",
+    "ZarrIndex",
+    "ZarrTimeIndex",
+]

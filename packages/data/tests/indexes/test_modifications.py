@@ -66,7 +66,7 @@ def test_accumulate_manual(period):
         data_size=(2, 2),
     )
     index_manual = FakeIndex(
-        variable=f"data",
+        variable="data",
         interval=(1, "hour"),
         random=False,
         max_value=1,

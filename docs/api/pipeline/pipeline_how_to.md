@@ -1,6 +1,6 @@
 # Pipeline API How-To Guide
 
-A pipeline is a Python iterator with the job of supplying input/output pairs to a machine learning framework, or to a PyEarthTools registered model interface. 
+A pipeline is a Python iterator with the job of supplying input/output pairs to a machine learning framework, or to a PyEarthTools registered model interface.
 
 It is somewhat similar to an IterableDataset in PyTorch, or a DataLoader in PyTorch Lightning. However, it can be used with not only these frameworks, but many others as well. The advantages of using a PyEarthTools pipeline are:
 

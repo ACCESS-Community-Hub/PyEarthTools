@@ -22,5 +22,3 @@ warnings.warn(
     "All decorators once here have been moved from `pyearthtools.data.decorators` to `pyearthtools.utils.decorators`, and will be removed here in the future",
     FutureWarning,
 )
-
-from pyearthtools.utils.decorators import alias_arguments

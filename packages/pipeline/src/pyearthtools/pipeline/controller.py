@@ -99,13 +99,13 @@ class PipelineIndex(PipelineRecordingMixin, metaclass=ABCMeta):
     def parent_pipeline(self) -> Pipeline:
         """Get parent pipeline of this `PipelineIndex`, will not include self"""
         if self._partial_parent is None:
-            raise ValueError(f"Parent record has not been set with `set_parent_record`, cannot get parent pipeline")
+            raise ValueError("Parent record has not been set with `set_parent_record`, cannot get parent pipeline")
         return self._partial_parent(*self._steps)
 
     def as_pipeline(self) -> Pipeline:
         """Get `PipelineIndex` as full pipeline, will include self"""
         if self._partial_parent is None:
-            raise ValueError(f"Parent record has not been set with `set_parent_record`, cannot get step as pipeline")
+            raise ValueError("Parent record has not been set with `set_parent_record`, cannot get step as pipeline")
         return self._partial_parent(*self._steps, self)
 
     @abstractmethod

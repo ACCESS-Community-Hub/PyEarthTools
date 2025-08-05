@@ -53,7 +53,7 @@ def test_TimeResolution():
 
     # Make a TR from a time specified down to the minute
     tr = pet_time.TimeResolution("2021-02-03T00")
-    as_str = repr(tr)
+    _as_str = repr(tr)
 
     # Valid subtration
     tr2 = tr - 1
@@ -81,13 +81,13 @@ def test_find_components(timestr, flagstring):
 
 def test_find_components_exceptions():
 
-    flagstr = "1111100"
+    _flagstr = "1111100"
     brokenstr = "zzzz-02-03T0000"
-    longstr = "2021-02-03T0000"
+    _longstr = "2021-02-03T0000"
 
     with pytest.raises(TypeError):
 
-        components = pet_time.find_components(brokenstr)
+        _components = pet_time.find_components(brokenstr)
 
 
 @pytest.mark.parametrize(

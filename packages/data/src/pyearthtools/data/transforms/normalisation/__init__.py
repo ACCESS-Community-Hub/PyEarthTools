@@ -34,6 +34,11 @@ A sophisticated [Transform][pyearthtools.data.transforms.Transform] to normalise
 
 """
 
-from pyearthtools.data.transforms.normalisation import _utils
+# from pyearthtools.data.transforms.normalisation import _utils
 from pyearthtools.data.transforms.normalisation.normalise import Normalise
 from pyearthtools.data.transforms.normalisation.denormalise import Denormalise
+
+__all__ = [
+    "Normalise",
+    "Denormalise",
+]

@@ -53,10 +53,10 @@ def aggregation(
             Dataset with aggregation method applied
     """
     if not reduce_dims and not preserve_dims:
-        raise ValueError(f"Either 'reduce_dims' or 'preserve_dims' must be given ")
+        raise ValueError("Either 'reduce_dims' or 'preserve_dims' must be given ")
 
     if reduce_dims and preserve_dims:
-        raise ValueError(f"Both 'reduce_dims' and 'preserve_dims' cannot be given ")
+        raise ValueError("Both 'reduce_dims' and 'preserve_dims' cannot be given ")
 
     if reduce_dims:
         aggregation_func = aggr_trans.over(aggregation, reduce_dims)  # type: ignore

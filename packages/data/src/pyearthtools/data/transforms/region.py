@@ -16,7 +16,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Callable, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -253,7 +253,7 @@ class ShapeFile(Transform):
         self.record_initialisation()
 
         if not GEOPANDAS_IMPORTED:
-            raise ImportError(f"geopandas could not be imported")
+            raise ImportError("geopandas could not be imported")
 
         if isinstance(shapefile, (str, Path)):
             shapefile = gpd.read_file(shapefile)
@@ -266,13 +266,12 @@ class ShapeFile(Transform):
 
         if crs is None:
             raise TypeError(
-                f"Coordinate Reference System (CRS) cannot be None. Could not automatically find from shapefile"
+                "Coordinate Reference System (CRS) cannot be None. Could not automatically find from shapefile"
             )
         self._shapefile = shapefile
         self._crs = crs
 
     def apply(self, dataset: xr.Dataset):
-        import rioxarray
 
         dataset.rio.write_crs(self._crs, inplace=True)
         dataset = dataset.rio.clip(self._shapefile)

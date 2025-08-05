@@ -231,7 +231,7 @@ class SetType(Transform):
         self.record_initialisation()
 
         if not dtype and not variables:
-            raise ValueError(f"Either `dtype` or `**variables` must be given.")
+            raise ValueError("Either `dtype` or `**variables` must be given.")
 
         self._dtype = dtype
         self._variables = variables

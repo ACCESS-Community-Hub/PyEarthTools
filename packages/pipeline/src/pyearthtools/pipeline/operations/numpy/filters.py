@@ -58,7 +58,7 @@ class DropAnyNan(NumpyFilter):
                 If sample contains nan's
         """
         if not bool(np.array(list(np.isnan(sample))).any()):
-            raise PipelineFilterException(sample, f"Data contained nan's.")
+            raise PipelineFilterException(sample, "Data contained nan's.")
 
 
 class DropAllNan(NumpyFilter):
@@ -86,7 +86,7 @@ class DropAllNan(NumpyFilter):
                 If sample contains nan's
         """
         if not bool(np.array(list(np.isnan(sample))).all()):
-            raise PipelineFilterException(sample, f"Data contained all nan's.")
+            raise PipelineFilterException(sample, "Data contained all nan's.")
 
 
 class DropValue(NumpyFilter):
@@ -127,9 +127,13 @@ class DropValue(NumpyFilter):
                 If sample contains nan's
         """
         if np.isnan(self._value):
-            function = lambda x: ((np.count_nonzero(np.isnan(x)) / math.prod(x.shape)) * 100) >= self._percentage
+            function = (  # noqa
+                lambda x: ((np.count_nonzero(np.isnan(x)) / math.prod(x.shape)) * 100) >= self._percentage
+            )  # noqa
         else:
-            function = lambda x: ((np.count_nonzero(x == self._value) / math.prod(x.shape)) * 100) >= self._percentage
+            function = (  # noqa
+                lambda x: ((np.count_nonzero(x == self._value) / math.prod(x.shape)) * 100) >= self._percentage
+            )  # noqa
 
         if not function(sample):
             raise PipelineFilterException(sample, f"Data contained more than {self._percentage}% of {self._value}.")

@@ -403,7 +403,7 @@ class FileSystemCacheIndex(BaseCacheIndex, FileSystemIndex):
             if not isinstance(loaded_catalog, PatternIndex):
                 return kwargs
 
-            if type(loaded_catalog) == spec_pattern:
+            if type(loaded_catalog) is spec_pattern:
                 _kwargs = loaded_catalog.initialisation
                 _kwargs.update(**kwargs)
                 _kwargs.pop("__args", None)

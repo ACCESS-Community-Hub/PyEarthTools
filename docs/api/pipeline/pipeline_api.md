@@ -11,13 +11,13 @@
 .. autoclass:: pyearthtools.pipeline.Pipeline
     :members:
 .. autoclass:: pyearthtools.pipeline.Operation
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.PipelineException
-    :members:        
+    :members:
 .. autoclass:: pyearthtools.pipeline.PipelineFilterException
-    :members:        
+    :members:
 .. autoclass:: pyearthtools.pipeline.PipelineRuntimeError
-    :members:        
+    :members:
 .. autoclass:: pyearthtools.pipeline.PipelineTypeError
     :members:
 ```
@@ -42,11 +42,11 @@
 .. autoclass:: pyearthtools.pipeline.filters.Filter
     :members:
 .. autoclass:: pyearthtools.pipeline.filters.FilterCheck
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.filters.FilterWarningContext
     :members:
 .. autoclass:: pyearthtools.pipeline.filters.TypeFilter
-    :members:    
+    :members:
 ```
 
 ## `pipeline.iterators`
@@ -55,21 +55,21 @@
 .. autoclass:: pyearthtools.pipeline.iterators.Iterator
     :members:
 .. autoclass:: pyearthtools.pipeline.iterators.Range
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.iterators.Predefined
     :members:
 .. autoclass:: pyearthtools.pipeline.iterators.File
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.iterators.DateRange
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.iterators.DateRangeLimit
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.iterators.Randomise
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.iterators.SuperIterator
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.iterators.IterateResults
-    :members:                
+    :members:
 ```
 
 ## `pipeline.modifications`
@@ -80,19 +80,19 @@
 .. autoclass:: pyearthtools.pipeline.modifications.StaticCache
     :members:
 .. autoclass:: pyearthtools.pipeline.modifications.MemCache
-    :members:        
+    :members:
 .. autoclass:: pyearthtools.pipeline.modifications.IdxModifier
-    :members:     
+    :members:
 .. autoclass:: pyearthtools.pipeline.modifications.IdxOverride
-    :members:     
+    :members:
 .. autoclass:: pyearthtools.pipeline.modifications.TimeIdxModifier
-    :members:     
+    :members:
 .. autoclass:: pyearthtools.pipeline.modifications.SequenceRetrieval
-    :members:     
+    :members:
 .. autoclass:: pyearthtools.pipeline.modifications.TemporalRetrieval
-    :members:     
+    :members:
 .. autoclass:: pyearthtools.pipeline.modifications.idx_modification
-    :members:    
+    :members:
 ```
 
 ## `pipeline.operations`
@@ -110,51 +110,51 @@
 .. autoclass:: pyearthtools.pipeline.operations.xarray.Merge
     :members:
 .. autoclass:: pyearthtools.pipeline.operations.xarray.Concatenate
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.xarray.Sort
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.xarray.Chunk
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.xarray.RecodeCalendar
     :members:
 .. autoclass:: pyearthtools.pipeline.operations.xarray.AlignDates
-    :members:    
+    :members:
 
 .. autoclass:: pyearthtools.pipeline.operations.xarray.conversion.ToNumpy
-    :members:        
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.xarray.conversion.ToDask
-    :members:            
+    :members:
 
 .. autoclass:: pyearthtools.pipeline.operations.xarray.filters.XarrayFilter
-    :members:        
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.xarray.filters.DropAnyNan
-    :members:        
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.xarray.filters.DropAllNan
-    :members:        
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.xarray.filters.DropValue
-    :members:        
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.xarray.filters.Shape
-    :members:        
+    :members:
 
 .. autoclass:: pyearthtools.pipeline.operations.xarray.reshape.Dimensions
-    :members:            
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.xarray.reshape.CoordinateFlatten
-    :members:                
+    :members:
 
 .. autoclass:: pyearthtools.pipeline.operations.xarray.select.SelectDataset
-    :members:     
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.xarray.select.DropDataset
     :members:
 .. autoclass:: pyearthtools.pipeline.operations.xarray.select.SliceDataset
-    :members:         
+    :members:
 
 .. autoclass:: pyearthtools.pipeline.operations.xarray.split.OnVariables
-    :members:        
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.xarray.split.OnCoordinate
-    :members:        
+    :members:
 
 .. autoclass:: pyearthtools.pipeline.operations.xarray.values.FillNan
-    :members:        
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.xarray.values.MaskValue
     :members:
 .. autoclass:: pyearthtools.pipeline.operations.xarray.values.ForceNormalised
@@ -163,13 +163,13 @@
     :members:
 
 .. autoclass:: pyearthtools.pipeline.operations.xarray.metadata.Rename
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.xarray.metadata.Encoding
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.xarray.metadata.MaintainEncoding
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.xarray.metadata.Attributes
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.xarray.metadata.MaintainAttributes
     :members:
 
@@ -185,22 +185,22 @@
     :members:
 
 .. autoclass:: pyearthtools.pipeline.operations.xarray.remapping.HEALPix
-    :members:    
+    :members:
 ```
 
 ### `pipeline.operations.dask`
 
 ```{eval-rst}
 .. autoclass:: pyearthtools.pipeline.operations.dask.Stack
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.dask.Concatenate
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.dask.VStack
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.dask.HStack
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.dask.Compute
-    :members:    
+    :members:
 
 .. autoclass:: pyearthtools.pipeline.operations.dask.augment.Rotate
     :members:
@@ -210,18 +210,18 @@
     :members:
 
 .. autoclass:: pyearthtools.pipeline.operations.dask.filters.daskFilter
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.dask.filters.DropAnyNan
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.dask.filters.DropAllNan
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.dask.filters.DropValue
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.dask.filters.Shape
-    :members:    
+    :members:
 
 .. autoclass:: pyearthtools.pipeline.operations.dask.reshape.Rearrange
-    :members: 
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.dask.reshape.Squeeze
     :members:
 .. autoclass:: pyearthtools.pipeline.operations.dask.reshape.Flattener
@@ -242,27 +242,27 @@
     :members:
 
 .. autoclass:: pyearthtools.pipeline.operations.dask.values.FillNan
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.dask.values.MaskValue
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.dask.values.ForceNormalised
-    :members:    
+    :members:
 
 .. autoclass:: pyearthtools.pipeline.operations.dask.normalisation.daskNormalisation
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.dask.normalisation.Anomaly
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.dask.normalisation.Deviation
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.dask.normalisation.Division
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.dask.normalisation.Evaluated
-    :members:    
+    :members:
 
 .. autoclass:: pyearthtools.pipeline.operations.dask.conversion.ToXarray
-    :members:        
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.dask.conversion.ToNumpy
-    :members:        
+    :members:
 
 ```
 
@@ -270,14 +270,14 @@
 ### `pipeline.operations.numpy`
 ```{eval-rst}
 .. autoclass:: pyearthtools.pipeline.operations.numpy.Stack
-    :members:        
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.numpy.Concatenate
     :members:
 
 .. autoclass:: pyearthtools.pipeline.operations.numpy.augment.Rotate
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.numpy.augment.Flip
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.numpy.augment.Transform
     :members:
 .. autoclass:: pyearthtools.pipeline.operations.numpy.filters.NumpyFilter
@@ -292,43 +292,43 @@
     :members:
 
 .. autoclass:: pyearthtools.pipeline.operations.numpy.reshape.Rearrange
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.numpy.reshape.Squeeze
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.numpy.reshape.Expand
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.numpy.reshape.Flattener
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.numpy.reshape.Flatten
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.numpy.reshape.SwapAxis
-    :members:    
+    :members:
 
 .. autoclass:: pyearthtools.pipeline.operations.numpy.select.Select
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.numpy.select.Slice
-    :members:    
+    :members:
 
 .. autoclass:: pyearthtools.pipeline.operations.numpy.split.OnAxis
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.numpy.split.OnSlice
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.numpy.split.VSplit
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.numpy.split.HSplit
-    :members:    
+    :members:
 
 .. autoclass:: pyearthtools.pipeline.operations.numpy.values.FillNan
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.numpy.values.MaskValue
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.numpy.values.ForceNormalised
-    :members:    
+    :members:
 
 .. autoclass:: pyearthtools.pipeline.operations.numpy.normalisation.numpyNormalisation
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.numpy.normalisation.Anomaly
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.operations.numpy.normalisation.Deviation
     :members:
 .. autoclass:: pyearthtools.pipeline.operations.numpy.normalisation.Division
@@ -343,7 +343,7 @@
 .. autoclass:: pyearthtools.pipeline.operations.transform.TimeOfYear
     :members:
 .. autoclass:: pyearthtools.pipeline.operations.transform.AddCoordinates
-    :members:    
+    :members:
 ```
 
 ## `pipeline.samplers`
@@ -364,7 +364,3 @@
 .. autoclass:: pyearthtools.pipeline.samplers.RandomDropOut
     :members:
 ```
-
-
-
-

@@ -60,7 +60,7 @@ class DropAnyNan(daskFilter):
                 If sample contains nan's
         """
         if not bool(da.array(list(da.isnan(sample))).any()):
-            raise PipelineFilterException(sample, f"Data contained nan's.")
+            raise PipelineFilterException(sample, "Data contained nan's.")
 
 
 class DropAllNan(daskFilter):
@@ -86,7 +86,7 @@ class DropAllNan(daskFilter):
                 If sample contains nan's
         """
         if not bool(da.array(list(da.isnan(sample))).all()):
-            raise PipelineFilterException(sample, f"Data contained all nan's.")
+            raise PipelineFilterException(sample, "Data contained all nan's.")
 
 
 class DropValue(daskFilter):
@@ -125,9 +125,13 @@ class DropValue(daskFilter):
                 If sample contains nan's
         """
         if da.isnan(self._value):
-            function = lambda x: ((da.count_nonzero(da.isnan(x)) / math.prod(x.shape)) * 100) >= self._percentage
+            function = (  # noqa
+                lambda x: ((da.count_nonzero(da.isnan(x)) / math.prod(x.shape)) * 100) >= self._percentage
+            )  # noqa
         else:
-            function = lambda x: ((da.count_nonzero(x == self._value) / math.prod(x.shape)) * 100) >= self._percentage
+            function = (  # noqa
+                lambda x: ((da.count_nonzero(x == self._value) / math.prod(x.shape)) * 100) >= self._percentage
+            )  # noqa
 
         if not function(sample):
             raise PipelineFilterException(sample, f"Data contained more than {self._percentage}% of {self._value}.")

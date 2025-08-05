@@ -15,11 +15,16 @@
 
 """
 Data processing tools for use by the [Tesselator][pyearthtools.utils.data.Tesselator]
+
 """
+from ._reorder import reorder
+
 DEFAULT_FORMAT_SUBSET: str = "...HW"
 
 DEFAULT_FORMAT_PATCH_ORGANISE: str = "P...HW"
 DEFAULT_FORMAT_PATCH: str = "RP...HW"
 DEFAULT_FORMAT_PATCH_AFTER: str = "...HW"
 
-from . import patches, reorder, subset
+from . import patches, subset  # noqa
+
+__all__ = ["patches", "reorder", "subset"]

@@ -21,4 +21,4 @@ from pyearthtools.pipeline.branching.stop import StopUndo
 
 from pyearthtools.pipeline.branching import unify, join, split
 
-__all__ = ["PipelineBranchPoint", "Unifier", "Joiner", "Spliter"]
+__all__ = ["PipelineBranchPoint", "Unifier", "Joiner", "Spliter", "StopUndo", "unify", "join", "split"]

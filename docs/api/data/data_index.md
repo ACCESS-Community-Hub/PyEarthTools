@@ -191,5 +191,3 @@ The rest of this page contains reference information for the components of the D
 | `data.warnings`  |                                               | - [pyearthtoolsDataWarning](data_api.md#pyearthtools.data.warnings.InvalidIndexError) |
 |                  |                                               | - [IndexWarning](data_api.md#pyearthtools.data.warnings.IndexWarning) |
 |                  |                                               | - [AccessorRegistrationWarning](data_api.md#pyearthtools.data.warnings.AccessorRegistrationWarning) |
-
-

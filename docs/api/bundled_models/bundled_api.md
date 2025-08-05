@@ -8,15 +8,15 @@ Note - at some point, "bundled models" will become simply "models", and each mod
 .. autoclass:: fourcastnext.lightning_model.FourCastNextLM
     :members:
 .. autoclass:: fourcastnext.registered_model.FourCastNextRM
-    :members:    
+    :members:
 
 .. autoclass:: fourcastnext.CropToRectangle
     :members:
 .. autoclass:: fourcastnext.CropToRectangleSmall
-    :members:    
+    :members:
 
 .. autoclass:: fourcastnext.architecture.afnonet.Mlp
-    :members:        
+    :members:
 .. autoclass:: fourcastnext.architecture.afnonet.AFNO2D
     :members:
 .. autoclass:: fourcastnext.architecture.afnonet.Block
@@ -24,5 +24,5 @@ Note - at some point, "bundled models" will become simply "models", and each mod
 .. autoclass:: fourcastnext.architecture.afnonet.AFNONet
     :members:
 .. autoclass:: fourcastnext.architecture.afnonet.PatchEmbed
-    :members:    
+    :members:
 ```

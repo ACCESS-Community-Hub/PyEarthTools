@@ -21,3 +21,5 @@ Currently just [geographic][pyearthtools.data.static.geographic]
 
 ## Indexing for Static Data
 from pyearthtools.data.static.geographic import GeographicIndex as geographic
+
+__all__ = ["geographic"]

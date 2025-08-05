@@ -114,7 +114,7 @@ classDiagram
 
 """
 
-from pyearthtools.data.indexes.indexes import (
+from pyearthtools.data.indexes._indexes import (
     Index,
     DataIndex,
     FileSystemIndex,

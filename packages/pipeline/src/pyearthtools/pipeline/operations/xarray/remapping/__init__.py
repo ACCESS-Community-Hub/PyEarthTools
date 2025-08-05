@@ -24,7 +24,7 @@ __all__ = ["HEALPix"]
 try:
     from .healpix import HEALPix  # noqa: F401
 
-except:
+except ImportError:
 
     class HealPix:
         def __init__(self):

@@ -24,9 +24,7 @@ pyearthtools Config
 from __future__ import annotations
 
 import ast
-import base64
 import builtins  # Explicitly use builtins.set as 'set' will be shadowed by a function
-import json
 import os
 import site
 import sys

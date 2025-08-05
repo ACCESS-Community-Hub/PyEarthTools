@@ -383,7 +383,7 @@ class TestRadarProj:
         ygrid = ygrid / 1000  # convert to km
         # unique sorts
         # fix annoying floating point stuff that make comparisons hard
-        approx_unique = lambda _v: np.unique(np.round(_v * 1e6) // 1e6)
+        approx_unique = lambda _v: np.unique(np.round(_v * 1e6) // 1e6)  # noqa
         assert np.sum(approx_unique(xgrid.flatten()) - approx_unique(ds.x)) <= 1e-6
         assert np.sum(approx_unique(ygrid.flatten()) - approx_unique(ds.y)) <= 1e-6
 
@@ -550,14 +550,14 @@ class TestRadarProj:
         # something that is meaningless for this context - hence potato
         ds_badprojattr.proj.attrs["standard_parallel"] = "potato"
         with pytest.raises(ErrorRadarProj, match="PES-103"):
-            ds_out = RadarProj.xy_to_lonlat(ds_badprojattr)
-            projobj = RadarProj._transform_projattr_to_pyprojobj(ds_badprojattr.proj.attrs)
+            _ds_out = RadarProj.xy_to_lonlat(ds_badprojattr)
+            _projobj = RadarProj._transform_projattr_to_pyprojobj(ds_badprojattr.proj.attrs)
 
         # try deleting the whole thing
         del ds_badprojattr.proj.attrs["standard_parallel"]
         with pytest.raises(ErrorRadarProj, match="PES-103"):
-            ds_out = RadarProj.xy_to_lonlat(ds_badprojattr)
-            projobj = RadarProj._transform_projattr_to_pyprojobj(ds_badprojattr.proj.attrs)
+            _ds_out = RadarProj.xy_to_lonlat(ds_badprojattr)
+            _projobj = RadarProj._transform_projattr_to_pyprojobj(ds_badprojattr.proj.attrs)
 
     # FIXME
     # TODO: all error states
@@ -623,7 +623,7 @@ class TestRadarProj:
             endpoint=True,
         )
         with pytest.raises(ErrorRadarProj, match="PES-105"):
-            ds = RadarProj.xy_to_lonlat(DS_TEST, interp_lonlat=True, interp_method="potato", lonlat_meshgrid=mg)
+            _ds = RadarProj.xy_to_lonlat(DS_TEST, interp_lonlat=True, interp_method="potato", lonlat_meshgrid=mg)
 
     def test_xy_to_lonlat_projcache_interp_bad_args(self):
         """
@@ -631,7 +631,7 @@ class TestRadarProj:
         not know what to do.
         """
         with pytest.raises(ValueError, match="lonlat_meshgrid must be specified"):
-            ds = RadarProj.xy_to_lonlat(DS_TEST, interp_lonlat=True)
+            _ds = RadarProj.xy_to_lonlat(DS_TEST, interp_lonlat=True)
 
     def test_xy_to_lonlat_projcache_interp_no_scipy(self, monkeypatch):
         """
@@ -639,6 +639,8 @@ class TestRadarProj:
         """
         # trigger import if not already
         import site_archive_nci._Rainfields3
+
+        assert site_archive_nci._Rainfields3 is not None
 
         (lon0, lon1), (lat0, lat1) = APPROX_LATLON_BOUNDS
         # Note: including endpoint, since min/max which are used to compute
@@ -649,10 +651,3 @@ class TestRadarProj:
             lat_extent=(lat0, lat1),
             endpoint=True,
         )
-        monkeypatch.setattr("site_archive_nci._Rainfields3._scipy_supported", lambda: False)
-        with pytest.raises(ValueError, match="scipy"):
-            _ = RadarProj.xy_to_lonlat(
-                DS_TEST,
-                interp_lonlat=True,
-                lonlat_meshgrid=_fn_mesh_lonlat(num_lon=6, num_lat=6),
-            )

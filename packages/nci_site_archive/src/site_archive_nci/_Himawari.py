@@ -78,7 +78,7 @@ ANC_FILENAME = "/g/data/ra22/satellite-products/arc/obs/himawari-ahi/fldk/latest
 
 
 def check_resolution(bands: list[str]):
-    default_res = 2000
+    # default_res = 2000
     band_numbers = [b.split("_")[1] for b in bands]
     res = [RESOLUTIONS.get(b, 2000) for b in band_numbers]
     return len(set(res))
@@ -209,7 +209,7 @@ class HimawariChannels(ArchiveIndex):
         """
         root_dir = self.ROOT_DIRECTORIES["HimawariChannels"]
         basetime = Petdt(basetime)
-        lastbit = f"{basetime.hour}{basetime.minute}"
+        # lastbit = f"{basetime.hour}{basetime.minute}"
 
         segment = f"{basetime.year}/{basetime.month:02}/{basetime.day:02}/{basetime.hour:02}{basetime.minute:02}"
         files = os.listdir(root_dir + segment)
@@ -219,8 +219,6 @@ class HimawariChannels(ArchiveIndex):
         # import pudb; pudb.set_trace()
 
         if not files_that_match_bands:
-            raise DataNotFoundError(
-                f"Unable to find data for: basetime: {basetime} at {root_dir}\nAttempted to use {resolved_names}"
-            )
+            raise DataNotFoundError(f"Unable to find data for: basetime: {basetime} at {root_dir}")
 
         return files_that_match_bands

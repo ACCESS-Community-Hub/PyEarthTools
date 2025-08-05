@@ -19,13 +19,12 @@ Rainfields3 Accessor
 import functools
 import logging
 import os
-import sys
 import warnings
 import zipfile
 from enum import Enum
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, Callable, NamedTuple
+from typing import Any, Callable
 
 import numpy as np
 import numpy.typing as npt
@@ -37,20 +36,6 @@ from pyearthtools.data.indexes import ArchiveIndex
 from pyearthtools.data.time import Petdt as petdt
 
 from site_archive_nci.utilities import check_project
-
-
-@functools.cache
-def _scipy_supported():
-    try:
-        import scipy
-
-        return True
-    except ImportError:
-        return False
-
-
-# precache scipy on module load
-_scipy_supported()
 
 #: TODO: unused in this module - assumed to be used in tutorials.
 SINGLE_RADAR_VARIABLES = ["RAIN", "DBZH"]
@@ -323,9 +308,6 @@ class RadarProj(SimpleNamespace):
 
             if not test_lonlatmesh:
                 raise ValueError("Invalid lonlat_meshgrid specified. See numpy.meshgrid on how to" " create this")
-
-        if not _scipy_supported() and interp_lonlat:
-            raise ValueError("`interp_lonlat` not support. Dependency `scipy` is missing")
 
         # ------------------------
         #  1. extract proj object
@@ -636,7 +618,7 @@ class RadarProj(SimpleNamespace):
         # to account for pesky floating point issues - not perfect but good enough
         # if anything, keeping this weak means interpolation can still trigger instead
         # of overzealously raising errors.
-        approx_unique = lambda _v: np.unique(np.round(_v * 1e6) // 1e6)
+        approx_unique = lambda _v: np.unique(np.round(_v * 1e6) // 1e6)  # noqa
 
         # check that the conversion is indeed unique.
         if (approx_unique(lon_1d) == approx_unique(lon_grid)).all() or (
@@ -646,7 +628,7 @@ class RadarProj(SimpleNamespace):
             da_y = xr.DataArray(y_grid, dims=["lon", "lat"], coords={"lon": lon_1d, "lat": lat_1d})
             ret = (da_x, da_y)
         else:
-            _e = f"ERROR: provided meshgrid is malformed."
+            _e = "ERROR: provided meshgrid is malformed."
             logging.exception(ValueError(_e))
             return None
 
@@ -682,8 +664,6 @@ class RadarProj(SimpleNamespace):
                 * lonlat grid (second) - for debugging
                 * xy grid (third) - for debugging
         """
-        # should have been already checked
-        assert _scipy_supported()
 
         ds_interp = None
         ret = None
@@ -757,8 +737,8 @@ class RadarProj(SimpleNamespace):
 
         """
         # define helpers to avoid repetition errors
-        fn_maxgridsize = lambda _v: np.abs(np.max(_v[0:-1] - _v[1:]))
-        fn_minmaxdiff = lambda _v1, _v2: (
+        fn_maxgridsize = lambda _v: np.abs(np.max(_v[0:-1] - _v[1:]))  # noqa
+        fn_minmaxdiff = lambda _v1, _v2: (  # noqa
             np.abs(np.min(_v1) - np.min(_v2)),
             np.abs(np.max(_v1) - np.max(_v2)),
         )

@@ -21,7 +21,6 @@ from __future__ import annotations
 from typing import Any, Type
 
 from pyearthtools.data.exceptions import InvalidIndexError
-from pyearthtools.data.indexes.utilities.fileload import open_static
 
 
 class VariableDefault:

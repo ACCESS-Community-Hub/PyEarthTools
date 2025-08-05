@@ -18,18 +18,17 @@ from __future__ import annotations
 
 import xarray as xr
 
-
-from pyearthtools.data.exceptions import DataNotFoundError, InvalidIndexError, InvalidDataError
+import pyearthtools.data
+from pyearthtools.data.exceptions import DataNotFoundError, InvalidDataError
 from pyearthtools.data.time import Petdt, TimeDelta, TimeRange
 from pyearthtools.data.transforms.transform import Transform, TransformCollection
-from pyearthtools.data.warnings import IndexWarning
 
 from pyearthtools.data.operations import index_routines
 from pyearthtools.data.operations.utils import identify_time_dimension
 
 
 def forecast_series(
-    DataFunction: "Index",
+    DataFunction: "pyearthtools.data.indexes.Index",
     start: str | Petdt,
     end: str | Petdt,
     interval: tuple[float, str] | TimeDelta,
@@ -66,7 +65,7 @@ def forecast_series(
 
 
 def forecast_as_basetime(
-    DataFunction: "Index",
+    DataFunction: "pyearthtools.data.indexes.Index",
     start: str | Petdt,
     end: str | Petdt,
     interval: tuple[float, str] | TimeDelta,
@@ -104,7 +103,7 @@ def forecast_as_basetime(
 
 
 def forecast_select_time(
-    DataFunction: "Index",
+    DataFunction: "pyearthtools.data.indexes.Index",
     start: str | Petdt,
     end: str | Petdt,
     interval: tuple[float, str] | TimeDelta,

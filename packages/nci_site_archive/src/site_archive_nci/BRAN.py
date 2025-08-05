@@ -26,8 +26,8 @@ from typing import Any, Literal
 
 import pyearthtools.data
 
-from pyearthtools.data import Petdt, TimeResolution
-from pyearthtools.data.exceptions import DataNotFoundError, InvalidIndexError
+from pyearthtools.data import Petdt
+from pyearthtools.data.exceptions import DataNotFoundError
 from pyearthtools.data.indexes import ArchiveIndex, decorators
 from pyearthtools.data.transforms import Transform, TransformCollection
 from pyearthtools.data.archive import register_archive

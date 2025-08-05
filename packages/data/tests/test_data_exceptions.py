@@ -14,8 +14,6 @@
 
 from pyearthtools.data import exceptions as e
 
-import pytest
-
 
 def test_InvalidIndexError():
 

@@ -19,7 +19,7 @@ import xarray as xr
 import numpy as np
 
 from pyearthtools.data.time import Petdt
-from pyearthtools.data.indexes.indexes import AdvancedTimeDataIndex
+from pyearthtools.data.indexes import AdvancedTimeDataIndex
 
 from pyearthtools.data.indexes.decorators import variable_modifications
 

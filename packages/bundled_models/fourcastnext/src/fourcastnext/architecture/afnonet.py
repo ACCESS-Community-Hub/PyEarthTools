@@ -24,21 +24,13 @@
 # and maintained within the PyEarthTools repository so it can continue to be a useful
 # reference implementation and learning aid.
 
-import math
 from functools import partial
-from collections import OrderedDict
-from copy import Error, deepcopy
-from re import S
-from numpy import pad
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from timm.layers import DropPath, trunc_normal_
+from timm.layers import trunc_normal_
 import torch.fft
-from torch.nn.modules.container import Sequential
-from einops import rearrange, repeat
-from einops.layers.torch import Rearrange
+from einops import rearrange
 
 
 class Mlp(nn.Module):

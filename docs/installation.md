@@ -11,7 +11,7 @@ These installation instructions have been tested on Linux, maxOS and Windows. If
 
 ## Using or Developing PyEarthTools at NCI
 
-Many of the users of PyEarthTools work on the NCI supercomputing environment. Users here should request access to project code `dk92`. The modules environment `/g/data/dk92/apps/Modules/modulefiles` can then be specified, and the module `pet/2025.05` can be used (noting this module name will change with each new update). This will make the most recent update of PyEarthTools available. 
+Many of the users of PyEarthTools work on the NCI supercomputing environment. Users here should request access to project code `dk92`. The modules environment `/g/data/dk92/apps/Modules/modulefiles` can then be specified, and the module `pet/2025.05` can be used (noting this module name will change with each new update). This will make the most recent update of PyEarthTools available.
 
 For developers of PyEarthTools at NCI, this is the recommended approach, not a virtual environment. Users can then use `pip install -e` to check out the latest code from the repository, and Python will install the development packages into a userspace install directory.
 
@@ -83,7 +83,7 @@ pip install "pyearthtools[all] @ git+https://github.com/ACCESS-Community-Hub/PyE
 
 PyEarthTools code is organised as a monorepo, each sub-package lies in a different sub-directory in the `packages` directory.
 
-Developers of PyEarthTools will most likely want to check out the entire monorepo and work on changesets which may span sub-packages. 
+Developers of PyEarthTools will most likely want to check out the entire monorepo and work on changesets which may span sub-packages.
 
 The following instructions detail how to install PyEarthTools in [editable mode](https://setuptools.pypa.io/en/latest/userguide/development_mode.html), making it easier to implement and test changes iteratively.
 

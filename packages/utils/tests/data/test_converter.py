@@ -13,7 +13,6 @@
 # limitations under the License.
 
 
-import pytest
 import xarray as xr
 
 from pyearthtools.utils.data import converter
@@ -30,14 +29,14 @@ def test_NumpyConverter():
 
     # This round-trips convert and unconvert
     nc = converter.NumpyConverter()
-    np_array1 = nc.convert_from_xarray(SIMPLE_DATA_ARRAY)
+    _np_array1 = nc.convert_from_xarray(SIMPLE_DATA_ARRAY)
 
     # FIXME
     # xr_da1 = nc.convert_to_xarray(np_array1)
 
     # Test conversion from xarray works
     nc = converter.NumpyConverter()
-    np_array2 = nc.convert_from_xarray(SIMPLE_DATA_SET)
+    _np_array2 = nc.convert_from_xarray(SIMPLE_DATA_SET)
 
 
 def test_DaskConverter():
@@ -48,7 +47,7 @@ def test_DaskConverter():
 
     dc = converter.DaskConverter()
 
-    da_array1 = dc.convert_from_xarray(SIMPLE_DATA_ARRAY)
+    _da_array1 = dc.convert_from_xarray(SIMPLE_DATA_ARRAY)
 
     # FIXME
     # xr_da1 = dc.convert_to_xarray(da_array1)

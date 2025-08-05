@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections import namedtuple
 
 from pyearthtools.data.indexes.utilities.mixins import index_repr
 
@@ -32,5 +31,5 @@ def test_repr_mixin():
 
     subject = MixableTestClass()
 
-    r = repr(subject)
-    h = subject._repr_html_()  # Used by Jupyter
+    _r = repr(subject)
+    _h = subject._repr_html_()  # Used by Jupyter

@@ -24,11 +24,8 @@ Met Office specific Indexes
 """
 
 import os
-import pyearthtools.data
 from pyearthtools.data.archive import (
     register_archive,
-    set_root_directory,
-    get_root_directories,
     load_root_directories_from_config,
 )
 
@@ -41,11 +38,11 @@ ROOT_DIRECTORIES = {
 
 register_archive("ROOT_DIRECTORIES")(ROOT_DIRECTORIES)
 
-import site_archive_met_office
+import site_archive_met_office  # noqa
 
-from site_archive_met_office.ERA5lowres import ERA5lowres
-from site_archive_met_office.MOGLOBAL import MOGLOBAL
-from site_archive_met_office.MOUKV import MOUKV
+from site_archive_met_office.ERA5lowres import ERA5lowres  # noqa
+from site_archive_met_office.MOGLOBAL import MOGLOBAL  # noqa
+from site_archive_met_office.MOUKV import MOUKV  # noqa
 
 register_archive("met_office")(site_archive_met_office)
 
@@ -60,3 +57,6 @@ try:
 except ImportError:  # pragma: no cover
     # Local copy or not installed with setuptools
     __version__ = "999"
+
+
+__all__ = ["MOUKV", "MOGLOBAL", "ERA5lowres"]

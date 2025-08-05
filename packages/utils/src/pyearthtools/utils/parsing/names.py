@@ -37,8 +37,6 @@ def function_name(anobject: Callable) -> str:
     else:
         name = anobject.__class__.__name__
 
-    str_name = str(name)
-
     # Not covered by testing. Presumably here for a reason. Leaving for posterity.
     # if "<locals>" in str_name:
     #     return str_name.split("'")[1].split("<locals>")[0].removesuffix(".")

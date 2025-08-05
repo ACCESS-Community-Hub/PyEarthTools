@@ -19,7 +19,6 @@ Met Office UKV (subset)
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Literal
 
 import pyearthtools.data
 
@@ -29,7 +28,7 @@ from pyearthtools.data.indexes import ArchiveIndex, decorators
 from pyearthtools.data.transforms import Transform, TransformCollection
 from pyearthtools.data.archive import register_archive
 
-from site_archive_met_office.utilities import cached_exists, cached_iterdir
+from site_archive_met_office.utilities import cached_iterdir
 
 
 MOUKV_RESOLUTION = (6, "hour")

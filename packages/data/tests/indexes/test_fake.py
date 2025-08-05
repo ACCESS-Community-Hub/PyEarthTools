@@ -21,4 +21,5 @@ def test_FakeIndex():
 
     fi = FakeIndex(["temperature", "humidity"])
     result = fi.get("2020-01-01")
-    fi._desc_
+    assert result is not None
+    assert fi._desc_ is not None

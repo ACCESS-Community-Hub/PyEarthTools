@@ -15,7 +15,7 @@
 .. autoclass:: pyearthtools.zoo.exceptions.ModelException
     :members:
 .. autoclass:: pyearthtools.zoo.exceptions.ModelRegistrationException
-    :members:    
+    :members:
 ```
 
 ## `zoo.model`
@@ -33,26 +33,25 @@
 ## `zoo.utils`
 ```{eval-rst}
 .. autoclass:: pyearthtools.zoo.utils.Colour
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.zoo.utils.CategorisedObjects
-    :members:        
+    :members:
 .. autoclass:: pyearthtools.zoo.utils.AvailableModels
-    :members:            
+    :members:
 .. autoclass:: pyearthtools.zoo.utils.TabCompleter
-    :members:                
+    :members:
 
-.. autofunction:: pyearthtools.zoo.utils.parse_str    
-.. autofunction:: pyearthtools.zoo.utils.find_demlim    
-.. autofunction:: pyearthtools.zoo.utils.delta_conversion    
+.. autofunction:: pyearthtools.zoo.utils.parse_str
+.. autofunction:: pyearthtools.zoo.utils.find_demlim
+.. autofunction:: pyearthtools.zoo.utils.delta_conversion
 .. autofunction:: pyearthtools.zoo.utils.create_mapping
 .. autofunction:: pyearthtools.zoo.utils.get_annotation
 .. autofunction:: pyearthtools.zoo.utils.get_arguments
-.. autofunction:: pyearthtools.zoo.utils.split_name_assignment    
+.. autofunction:: pyearthtools.zoo.utils.split_name_assignment
 ```
 
 ## `zoo.warnings`
 ```{eval-rst}
 .. autoclass:: pyearthtools.zoo.AccessorRegistrationWarning
-    :members:    
+    :members:
 ```
-

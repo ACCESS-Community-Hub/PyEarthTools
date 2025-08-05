@@ -16,33 +16,29 @@
 CMIP5 Accessor
 """
 
-import datetime
 import os
 from pathlib import Path
-from typing import Any, Literal
 import warnings
 from collections import namedtuple
 import pandas as pd
-import cftime
 
-import functools
 
 import xarray as xr
 
 import pyearthtools.data
-from pyearthtools.data.exceptions import DataNotFoundError
 from pyearthtools.data.warnings import IndexWarning
-from pyearthtools.data.indexes import ArchiveIndex, ForecastIndex, DataFileSystemIndex, decorators
+from pyearthtools.data.indexes import ArchiveIndex
 from pyearthtools.data.time import Petdt, TimeDelta
 from pyearthtools.data.transforms import Transform, TransformCollection
 
 from pyearthtools.data.archive import register_archive
 
-from site_archive_nci.utilities import check_project, cached_exists, cached_iterdir
+from site_archive_nci.utilities import check_project
 
-from pyearthtools.data.time import Petdt, TimeDelta, time_delta_resolution, TimeRange
+from pyearthtools.data.time import TimeRange
 from pyearthtools.data.operations.utils import identify_time_dimension
 from pyearthtools.data.operations.index_routines import _mf_series
+from pyearthtools.data.operations.index_routines import _get_series
 
 # Path schema for CMIP5
 NamedPath = namedtuple(
@@ -115,7 +111,7 @@ def to_cftime(times):
     Given an iterable of Petdts, return an iterable of cftime.DatetimeNoLeap
     """
 
-    pdt = times[0]
+    # pdt = times[0]
 
     # converted = [cftime.num2date(pdt.datetime.timestamp(), 'seconds since 1970-01-01') for pdt in times]
 
@@ -264,7 +260,7 @@ class CMIP5(ArchiveIndex):
     # Override the series method because of the unusual datetime class
     # Maybe the data loader should convert from unusual calendar datetimes to regular calendar datetimes
     def series(
-        DataFunction: "AdvancedTimeIndex",
+        DataFunction: "AdvancedTimeIndex",  # noqa FIXME
         start: str | Petdt,
         end: str | Petdt,
         interval: tuple[float, str] | TimeDelta,
@@ -352,7 +348,7 @@ class CMIP5(ArchiveIndex):
                 verbose=verbose,
                 **kwargs,
             )
-        except NotImplementedError as e:
+        except NotImplementedError:
             data = _get_series(
                 DataFunction,
                 start,
@@ -399,7 +395,7 @@ class CMIP5(ArchiveIndex):
 
             if not time:
                 time = timesteps
-            sel_kwargs = {}
+            _sel_kwargs = {}
 
             if tolerance:  # and start.resolution < interval.resolution:
                 if isinstance(tolerance, tuple):
@@ -408,7 +404,8 @@ class CMIP5(ArchiveIndex):
                 if isinstance(tolerance, TimeDelta):
                     tolerance = tolerance._timedelta
 
-                sel_kwargs = getattr(DataFunction, "sel_kwargs", dict(method="bfill", tolerance=tolerance))
+                # TODO: why is the line below there?
+                _sel_kwargs = getattr(DataFunction, "sel_kwargs", dict(method="bfill", tolerance=tolerance))
                 time = list(
                     set(
                         map(
@@ -430,7 +427,7 @@ class CMIP5(ArchiveIndex):
 
             subset_ds = data
 
-            time_orig = time
+            _time_orig = time
             time = to_cftime(time)
 
             # Try selecting exact time indexes

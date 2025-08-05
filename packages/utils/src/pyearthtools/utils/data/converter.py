@@ -18,6 +18,8 @@
 
 from __future__ import annotations
 
+import dask
+import dask.array as da
 import importlib
 import importlib.util
 import json
@@ -282,7 +284,14 @@ class NumpyConverter(xarrayConverter):
             if isinstance(dataset, xr.DataArray):
                 return dataset.to_numpy()
             if isinstance(dataset, xr.Dataset):
-                return np.stack([dataset[var].to_numpy() for var in dataset], axis=0)
+                try:
+                    return np.stack([dataset[var].to_numpy() for var in dataset], axis=0)
+                except ValueError as ve:
+                    msg = (
+                        "Cannot stack all the data variables, it is likely that some of"
+                        " the data variables in the data set do not share coordinates."
+                    )
+                    raise ValueError(msg) from ve
 
         if isinstance(data, (xr.DataArray, xr.Dataset)):
             data = data.compute()
@@ -326,10 +335,6 @@ class NumpyConverter(xarrayConverter):
         full_coords.pop("Variables", None)
 
         ar = np
-        try:
-            import dask.array as da
-        except (ImportError, ModuleNotFoundError):
-            ar = da
 
         for i in range(numpy_array.shape[xarray_distill["dims"].index("Variables")]):
             data = ar.take(numpy_array, i, axis=xarray_distill["dims"].index("Variables"))
@@ -436,7 +441,6 @@ class DaskConverter(NumpyConverter):
             (dask.array.Array | tuple[dask.array.Array, ...]):
                 Generated array/s from Dataset/s
         """
-        import dask.array as da
 
         self._set_records(data, replace=replace)
 
@@ -456,7 +460,6 @@ class DaskConverter(NumpyConverter):
         raise TypeError(f"Unable to convert data of {type(data)} to `da.array`")
 
     def convert_to_xarray(self, data, pop: bool = True):
-        import dask.array as da
 
         # if isinstance(data, da.Array):
         #     data = data.compute()

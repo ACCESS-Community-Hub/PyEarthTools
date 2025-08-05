@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from typing import TypeVar, Optional
+from typing import TypeVar
 
 import pandas as pd
 import xarray as xr

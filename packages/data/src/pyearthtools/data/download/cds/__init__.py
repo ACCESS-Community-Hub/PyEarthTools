@@ -28,3 +28,5 @@
 
 from pyearthtools.data.download.cds.cds import cds, root_cds
 from pyearthtools.data.download.cds.ERA5 import ERA5
+
+__all__ = ["cds", "root_cds", "ERA5"]

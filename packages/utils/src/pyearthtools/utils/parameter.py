@@ -125,7 +125,7 @@ def search(function: Callable, verbose: bool = False, **kwargs) -> list[dict]:
                 valid_configs.append(remapped)
                 if verbose:
                     print(f"Valid config: {remapped}")
-            except Exception as e:
+            except Exception:
                 pass
     except KeyboardInterrupt:
         pass

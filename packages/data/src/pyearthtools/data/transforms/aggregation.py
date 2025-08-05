@@ -15,7 +15,7 @@
 
 from __future__ import annotations
 
-from typing import Callable, Optional, Union
+from typing import Callable, Optional
 
 import xarray as xr
 
@@ -65,7 +65,7 @@ class Aggregate(Transform):
             AttributeError: If method is invalid
         """
         if (
-            method == None
+            method is None
             or isinstance(method, (dict, Callable))
             or method in known_methods
             or hasattr(aggregation, method)

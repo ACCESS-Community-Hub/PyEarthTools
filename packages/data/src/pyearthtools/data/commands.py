@@ -19,6 +19,7 @@ Command Line Interface for `pyearthtools.data`
 
 from __future__ import annotations
 from pathlib import Path
+from typing import Any
 
 import click
 
@@ -41,9 +42,9 @@ def setup(verbose):
     import pyearthtools.data
 
     if pyearthtools.data.static.geographic._download_all(verbose=verbose):
-        print(f"Successfully downloaded all files")
+        print("Successfully downloaded all files")
     else:
-        print(f"Failed to download all files")
+        print("Failed to download all files")
 
 
 def split_dictionary(dictionary: dict[str, dict] = {}, **kwargs) -> list[list[str]]:
@@ -104,7 +105,7 @@ def create_structure(top, disallowed, save, verbose):
     structure_dict: dict[str, dict | list] = {}
     structure_d: dict[str, dict[str, Any] | list[str]] = structure(top, disallowed=disallowed, verbose=verbose)  # type: ignore
 
-    response = input(f"Would you like to specify the order? (Yes/No): ")
+    response = input("Would you like to specify the order? (Yes/No): ")
     order = []
     if "y" in response.lower():
         for level in split_dictionary(structure_d):  # type: ignore

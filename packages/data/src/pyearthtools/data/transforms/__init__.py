@@ -72,3 +72,28 @@ from pyearthtools.data.transforms.default import get_default_transforms
 
 # from pyearthtools.data.transforms.mask import MaskTransform as mask
 from pyearthtools.data.transforms.derive import derive, Derive
+
+from pyearthtools.data.transforms import projection
+
+__all__ = [
+    "Transform",
+    "TransformCollection",
+    "FunctionTransform",
+    "aggregation",
+    "coordinates",
+    "dimensions",
+    "normalisation",
+    "utils",
+    "variables",
+    "attributes",
+    "optimisation",
+    "values",
+    "interpolation",
+    "region",
+    "mask",
+    "get_default_transform",
+    "derive",
+    "Derive",
+    "projection",
+    "get_default_transforms",
+]

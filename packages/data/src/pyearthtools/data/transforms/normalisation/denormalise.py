@@ -21,7 +21,7 @@ import warnings
 import numpy as np
 import xarray as xr
 
-from pyearthtools.data.transforms.normalisation.default import Normaliser, open_file
+from pyearthtools.data.transforms.normalisation.default import Normaliser
 from pyearthtools.data.transforms.transform import FunctionTransform, Transform
 
 xr.set_options(keep_attrs=True)
@@ -89,7 +89,7 @@ class Denormalise(Normaliser):
 
     def manual_range(normalise_self, min: float, max: float):
         warnings.warn(
-            f"This function is being deprecated, use `range` method and set override.",
+            "This function is being deprecated, use `range` method and set override.",
             DeprecationWarning,
         )
 

@@ -50,4 +50,3 @@ The rest of this page contains reference information for the components of the U
 | `utils.repr_utils`  |                                      | - [provide_html](utils_api.md#pyearthtools.utils.repr_utils.provide_html) |
 |                     |                                      | - [html](utils_api.md#pyearthtools.utils.repr_utils.html) |
 |                     |                                      | - [default](utils_api.md#pyearthtools.utils.repr_utils.default  ) |
-

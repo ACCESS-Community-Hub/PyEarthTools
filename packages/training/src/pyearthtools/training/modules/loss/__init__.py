@@ -42,7 +42,7 @@ def _get_callable(module: str):
     except ModuleNotFoundError:
         module = module.split(".")
         return getattr(_get_callable(".".join(module[:-1])), module[-1])
-    except ValueError as e:
+    except ValueError:
         raise ModuleNotFoundError("End of module definition reached")
 
 
@@ -90,3 +90,6 @@ def get_loss(loss_function: str, **loss_kwargs):
     elif hasattr(modules.loss, loss_function):
         return getattr(modules.loss, loss_function)(**loss_kwargs)
     return _get_callable(loss_function)(**loss_function)
+
+
+__all__ = ["ExtremeLoss", "centre_weighted", "RMSELoss", "SSIMLoss", "ComponentLoss"]

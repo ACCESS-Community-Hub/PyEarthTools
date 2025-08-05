@@ -29,8 +29,8 @@ from pyearthtools.utils.data.tesselator._patching import (
     DEFAULT_FORMAT_PATCH_AFTER,
     DEFAULT_FORMAT_PATCH_ORGANISE,
 )
-from pyearthtools.utils.data.tesselator._patching.reorder import reorder
-from pyearthtools.utils.data.tesselator._patching.subset import center, cut_center
+from pyearthtools.utils.data.tesselator._patching._reorder import reorder
+from pyearthtools.utils.data.tesselator._patching.subset import cut_center
 
 
 def factors(value: int) -> list[list[int, int]]:
@@ -273,7 +273,7 @@ def make_patches(
         )
         # padd_width.append(((kernel_size[0] - stride[0])//2,(kernel_size[1] - stride[1])//2))
         if (np.array(padd_width) < 0).any():
-            raise ValueError(f"Padding width cannot be negative, try setting `padding` to None")
+            raise ValueError("Padding width cannot be negative, try setting `padding` to None")
 
         if padding == "constant":
             kwargs["constant_values"] = kwargs.get("constant_values", np.nan)

@@ -16,7 +16,7 @@
 import pytest
 import math
 
-from pyearthtools.data.transforms.derive import EquationException, evaluate
+from pyearthtools.data.transforms.derive import evaluate
 
 
 @pytest.mark.parametrize(

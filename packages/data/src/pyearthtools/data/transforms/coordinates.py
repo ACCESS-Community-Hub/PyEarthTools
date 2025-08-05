@@ -24,9 +24,8 @@ import numpy as np
 import pandas as pd
 
 
-import pyearthtools.data
-
 from pyearthtools.data.transforms.transform import Transform, TransformCollection
+from pyearthtools.data.transforms.attributes import SetType
 from pyearthtools.data.warnings import pyearthtoolsDataWarning
 from pyearthtools.data.exceptions import DataNotFoundError
 
@@ -119,7 +118,7 @@ class StandardLongitude(Transform):
             def _standardise(dataset):
                 if not any(dataset[self._longitude_name] < 0):
                     return dataset
-                func = lambda x: x % 360
+                func = lambda x: x % 360  # noqa
                 dataset = dataset.assign_coords({self._longitude_name: func(dataset[self._longitude_name])})
                 return dataset.sortby(self._longitude_name)
 
@@ -128,7 +127,7 @@ class StandardLongitude(Transform):
             def _standardise(dataset):
                 if not any(dataset[self._longitude_name] > 180):
                     return dataset
-                func = lambda x: ((x + 180) % 360) - 180
+                func = lambda x: ((x + 180) % 360) - 180  # noqa
                 # (180 - abs(x - 180)) * np.sign((x - 180)) * -1
                 dataset = dataset.assign_coords({self._longitude_name: func(dataset[self._longitude_name])})
                 return dataset.sortby(self._longitude_name)
@@ -184,7 +183,7 @@ class ReIndex(Transform):
         coordinates.update(coords)
 
         if not coordinates:
-            raise ValueError(f"No coordinates to reindex at, must be given either with `coordinates` or `kwargs`.")
+            raise ValueError("No coordinates to reindex at, must be given either with `coordinates` or `kwargs`.")
         self._coordinates = coordinates
 
     @property
@@ -193,7 +192,7 @@ class ReIndex(Transform):
 
     def apply(self, dataset: xr.Dataset):
         for coord, index_op in self._coordinates.items():
-            if not coord in dataset.coords:
+            if coord not in dataset.coords:
                 continue
 
             if isinstance(index_op, str):
@@ -418,7 +417,15 @@ class Flatten(Transform):
         self, coordinate: Hashable | list[Hashable] | tuple[Hashable], *extra_coordinates, skip_missing: bool = False
     ):
         """
-        Flatten a coordinate in a dataset with each point being made a separate data var
+        Flatten a coordinate in an xarray Dataset, putting the data at each value of the coordinate into a separate
+        data variable.
+
+        The output data variables will be named "<old variable name><value of coordinate>". For example, if the input
+        Dataset has a variable "t" and it is flattened along the coordinate "pressure_level" which has values
+        [100, 200, 500], then the output Dataset will have variables called t100, t200 and t500.
+
+        If more than one coordinate is flattened, the output data variable names will concatenate the values of each
+        coordinate.
 
         Args:
             coordinate (Hashable | list[Hashable] | tuple[Hashable] | None):
@@ -426,11 +433,13 @@ class Flatten(Transform):
             *extra_coordinates (optional):
                 Arguments form of `coordinate`.
             skip_missing (bool, optional):
-                Whether to skip data without the dims. Defaults to False
+                Whether to skip data that does not have any of the listed coordinates. If True, will return such data
+                unchanged. Defaults to False.
 
         Raises:
             ValueError:
                 If invalid number of coordinates found
+
         """
         super().__init__()
         self.record_initialisation()
@@ -458,7 +467,7 @@ class Flatten(Transform):
             )
 
         elif len(discovered_coord) > 1:
-            transforms = TransformCollection(*[flatten(coord) for coord in discovered_coord])
+            transforms = TransformCollection(*[Flatten(coord) for coord in discovered_coord])
             return transforms(dataset)
 
         discovered_coord = str(discovered_coord[0])
@@ -539,7 +548,7 @@ class Expand(Transform):
                 components.append(var_data)
 
             dataset = xr.combine_by_coords(components)  # type: ignore
-            dataset = pyearthtools.data.transforms.attributes.SetType(**{str(coord): dtype})(dataset)
+            dataset = SetType(**{str(coord): dtype})(dataset)
 
             ## Add stored encoding if there
             if f"{coord}-dtype" in dataset.attrs:

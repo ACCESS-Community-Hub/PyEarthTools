@@ -18,7 +18,6 @@ from unittest.mock import patch, mock_open
 import yaml
 
 from pyearthtools.data import load
-from pyearthtools.data.utils import parse_path
 from pathlib import Path
 
 

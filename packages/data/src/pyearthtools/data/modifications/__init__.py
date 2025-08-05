@@ -116,4 +116,4 @@ from pyearthtools.data.modifications.decorator import variable_modifications
 from pyearthtools.data.modifications import aggregations, reductions, constants
 
 
-__all__ = ["register_modification", "variable_modifications", "Modification"]
+__all__ = ["register_modification", "variable_modifications", "Modification", "aggregations", "reductions", "constants"]
