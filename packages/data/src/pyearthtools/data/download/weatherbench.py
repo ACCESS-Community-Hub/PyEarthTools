@@ -172,11 +172,6 @@ class WeatherBench2(AdvancedTimeDataIndex):
     https://doi.org/10.1029/2023MS004019
     """
 
-    _desc_ = {
-        "singleline": "WeatherBench2 cloud-optimized ground truth and baseline datasets",
-        "link": "https://github.com/google-research/weatherbench2",
-    }
-
     @decorators.alias_arguments(variables=["variable"], level=["levels", "level_value"])
     @decorators.variable_modifications("variables")
     def __init__(
@@ -276,6 +271,13 @@ class WeatherBench2(AdvancedTimeDataIndex):
         self._kwargs = kwargs
 
     @property
+    def _desc_(self) -> dict[str, str]:
+        return {
+            "singleline": self.__doc__.splitlines()[0],
+            "link": "https://github.com/google-research/weatherbench2",
+        }
+
+    @property
     def dataset(self) -> xr.Dataset:
         """Get full dataset for this obj"""
         return self._ds
@@ -304,11 +306,6 @@ class WB2ERA5(WeatherBench2):
     Journal of Advances in Modeling Earth Systems, 16, e2023MS004019
     https://doi.org/10.1029/2023MS004019
     """
-
-    _desc_ = {
-        "singleline": "WeatherBench2 cloud-optimized ground truth ERA5 dataset",
-        "link": "https://github.com/google-research/weatherbench2",
-    }
 
     DATASETS = {
         "raw": "1959-2023_01_10-full_37-1h-0p25deg-chunk-1.zarr",
