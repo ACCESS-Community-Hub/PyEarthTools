@@ -4,6 +4,7 @@ import textwrap
 import hashlib
 from pathlib import Path
 from typing import Literal
+from abc import ABC, abstractmethod
 
 import fsspec
 import xarray as xr
@@ -159,7 +160,7 @@ def open_local_dataset(path: Path, variables: list[str], level: list[int]) -> xr
     return dset_full
 
 
-class WeatherBench2(AdvancedTimeDataIndex):
+class WeatherBench2(ABC, AdvancedTimeDataIndex):
     """WeatherBench2 cloud-optimized ground truth and baseline datasets
 
     https://github.com/google-research/weatherbench2
@@ -254,11 +255,9 @@ class WeatherBench2(AdvancedTimeDataIndex):
                 ds = Select(level=level, ignore_missing=True)(ds)
             return ds
 
-        licence_remote = url.rsplit("/", maxsplit=1)[0] + "/LICENSE"
-
         if download_dir is None:
             ds = open_online_dataset()
-            license = licence_remote
+            license = self.license_url
 
         else:
             # use a hash of the url to identify the dataset subfolder
@@ -276,7 +275,7 @@ class WeatherBench2(AdvancedTimeDataIndex):
                 ds = open_local_dataset(download_path, variables, level)
 
             if not (license := download_path / "LICENSE").is_file():
-                with fsspec.open(licence_remote, "rt").open() as fd:
+                with fsspec.open(self.license_url, "rt").open() as fd:
                     license_txt = fd.read()
                     license.write_text(license_txt)
 
@@ -291,6 +290,11 @@ class WeatherBench2(AdvancedTimeDataIndex):
         self._ds = ds
         self._license = license
         self._kwargs = kwargs
+
+    @property
+    @abstractmethod
+    def license_url(self):
+        pass
 
     @property
     def _desc_(self) -> dict[str, str]:
@@ -358,6 +362,10 @@ class WB2ERA5(WeatherBench2):
         super().__init__(url, **kwargs)
         self.resolution = resolution
 
+    @property
+    def license_url(self):
+        return "gs://weatherbench2/datasets/era5/LICENSE"
+
     @classmethod
     def sample(cls):
         """Example subset of the dataset"""
@@ -414,6 +422,10 @@ class WB2ERA5Clim(WeatherBench2):
         super().__init__(url, **kwargs)
         self.period = period
         self.resolution = resolution
+
+    @property
+    def license_url(self):
+        return "gs://weatherbench2/datasets/era5-hourly-climatology/LICENSE"
 
     @classmethod
     def sample(cls):
