@@ -254,15 +254,11 @@ class WeatherBench2(AdvancedTimeDataIndex):
                 ds = Select(level=level, ignore_missing=True)(ds)
             return ds
 
-        def read_online_license():
-            licence_url = url.rsplit("/", maxsplit=1)[0] + "/LICENSE"
-            with fsspec.open(licence_url, "rt").open() as fd:
-                license = fd.read()
-            return license
+        licence_remote = url.rsplit("/", maxsplit=1)[0] + "/LICENSE"
 
         if download_dir is None:
             ds = open_online_dataset()
-            license = read_online_license()
+            license = licence_remote
 
         else:
             # use a hash of the url to identify the dataset subfolder
@@ -279,17 +275,16 @@ class WeatherBench2(AdvancedTimeDataIndex):
                 (download_path / "dataset_url").write_text(url)
                 ds = open_local_dataset(download_path, variables, level)
 
-            if (license_path := download_path / "license").isfile():
-                license = license_path.read_text(license)
-            else:
-                license = read_online_license()
-                license_path.write_text(license)
+            if not (license := download_path / "LICENSE").is_file():
+                with fsspec.open(licence_remote, "rt").open() as fd:
+                    license_txt = fd.read()
+                    license.write_text(license_txt)
 
         if not license_ok:
             print(
                 f"Make sure to check the LICENSE for this {self.__class__.__name__} dataset. "
                 "Some WeatherBench2 datasets allow commercial use. Others only permit research use. "
-                "The license text can be accessed via the `.license` property.",
+                "The license text can be accessed via the `.license()` method.",
                 file=sys.stderr,
             )
 
@@ -309,10 +304,11 @@ class WeatherBench2(AdvancedTimeDataIndex):
         """Get full dataset for this obj"""
         return self._ds
 
-    @property
     def license(self) -> str:
         """Get the license for this dataset"""
-        return self._license
+        with fsspec.open(self._license, "rt").open() as fd:
+            license_txt = fd.read()
+        return license_txt
 
     def get(self, time: str):
         """Get timestep from dataset"""
