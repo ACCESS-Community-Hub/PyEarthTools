@@ -1,9 +1,11 @@
+import sys
 import logging
 import textwrap
 import hashlib
 from pathlib import Path
 from typing import Literal
 
+import fsspec
 import xarray as xr
 from numcodecs.blosc import Blosc
 from tqdm.dask import TqdmCallback
@@ -183,6 +185,7 @@ class WeatherBench2(AdvancedTimeDataIndex):
         transforms: Transform | TransformCollection | None = None,
         chunks: int | dict | Literal["auto"] | None = "auto",
         download_dir: str | Path | None = None,
+        license_ok: bool = False,
         **kwargs,
     ):
         """
@@ -208,6 +211,8 @@ class WeatherBench2(AdvancedTimeDataIndex):
                 Chunking used to load data into Dask arrays. Defaults to "auto".
             download_dir (str | Path, optional):
                 Folder where to save a copy of the dataset. Defaults to None.
+            license_ok (bool, optional):
+                License has been read. Defaults to False.
         """
         super().__init__(transforms or TransformCollection(), data_interval="1 hour")
         self.record_initialisation()
@@ -249,8 +254,15 @@ class WeatherBench2(AdvancedTimeDataIndex):
                 ds = Select(level=level, ignore_missing=True)(ds)
             return ds
 
+        def read_online_license():
+            licence_url = url.rsplit("/", maxsplit=1)[0] + "/LICENSE"
+            with fsspec.open(licence_url, "rt").open() as fd:
+                license = fd.read()
+            return license
+
         if download_dir is None:
             ds = open_online_dataset()
+            license = read_online_license()
 
         else:
             # use a hash of the url to identify the dataset subfolder
@@ -267,7 +279,22 @@ class WeatherBench2(AdvancedTimeDataIndex):
                 (download_path / "dataset_url").write_text(url)
                 ds = open_local_dataset(download_path, variables, level)
 
+            if (license_path := download_path / "license").isfile():
+                license = license_path.read_text(license)
+            else:
+                license = read_online_license()
+                license_path.write_text(license)
+
+        if not license_ok:
+            print(
+                f"Make sure to check the LICENSE for this {self.__class__.__name__} dataset. "
+                "Some WeatherBench2 datasets allow commercial use. Others only permit research use. "
+                "The license text can be accessed via the `.license` property.",
+                file=sys.stderr,
+            )
+
         self._ds = ds
+        self._license = license
         self._kwargs = kwargs
 
     @property
@@ -281,6 +308,11 @@ class WeatherBench2(AdvancedTimeDataIndex):
     def dataset(self) -> xr.Dataset:
         """Get full dataset for this obj"""
         return self._ds
+
+    @property
+    def license(self) -> str:
+        """Get the license for this dataset"""
+        return self._license
 
     def get(self, time: str):
         """Get timestep from dataset"""
