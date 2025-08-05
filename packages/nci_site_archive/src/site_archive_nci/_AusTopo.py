@@ -18,14 +18,9 @@ Himawari 8/9 satellite data
 
 from __future__ import annotations
 
-import datetime
-from glob import glob
-from pathlib import Path
 
-import pyearthtools.data
-from pyearthtools.data import Petdt, TimeDelta
-from pyearthtools.data.exceptions import DataNotFoundError
-from pyearthtools.data.indexes import ArchiveIndex, decorators, StaticDataIndex, Index
+from pyearthtools.data import Petdt
+from pyearthtools.data.indexes import Index
 from pyearthtools.data.transforms import Transform, TransformCollection
 from pyearthtools.data.archive import register_archive
 
