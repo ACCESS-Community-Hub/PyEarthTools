@@ -16,8 +16,11 @@
 from typing import Hashable, TypeVar, Union
 
 import xarray as xr
+import numpy as np
 
 import pyearthtools.data
+from pyearthtools.data.transforms.transform import TransformCollection
+from pyearthtools.data.transforms.coordinates import Drop
 from pyearthtools.pipeline.operation import Operation
 
 T = TypeVar("T", xr.Dataset, xr.DataArray)
@@ -87,15 +90,34 @@ class Dimensions(Operation):
             return sample.transpose(*self._incoming_dims, missing_dims="ignore")
         return sample
 
+def weak_cast_to_int(value):
+    """
+    Basically, turns integer floats to int types, otherwise
+    does nothing. Used in CoordinateFlatten.
+    """
+    try:
+        if int(value) == value:
+            value = int(value)
+    except Exception:
+        pass
+    return value
 
 class CoordinateFlatten(Operation):
-    """Flatten and Expand on a coordinate"""
+    """Flatten a coordinate in a dataset into separate variables"""
 
     _override_interface = "Serial"
 
-    def __init__(self, coordinate: Union[Hashable, list[Hashable]], *coords: Hashable, skip_missing: bool = False):
+    def __init__(self, coordinate: Union[Hashable, list[Hashable]], *extra_coords: Hashable, skip_missing: bool = False):
         """
-        Flatten and expand on coordinate/s
+        Flatten a coordinate in an xarray Dataset, putting the data at each value of the coordinate into a separate
+        data variable.
+
+        The output data variables will be named "<old variable name><value of coordinate>". For example, if the input
+        Dataset has a variable "t" and it is flattened along the coordinate "pressure_level" which has values
+        [100, 200, 500], then the output Dataset will have variables called t100, t200 and t500.
+
+        If more than one coordinate is flattened, the output data variable names will concatenate the values of each
+        coordinate.
 
         Args:
             coordinate (Union[Hashable,list[Hashable]]):
@@ -110,12 +132,56 @@ class CoordinateFlatten(Operation):
         )
         self.record_initialisation()
 
-        coordinate = [coordinate, *coords] if not isinstance(coordinate, (list, tuple)) else [*coordinate, *coords]
-        self.coords = coordinate
+        coordinate = [coordinate, *extra_coords] if not isinstance(coordinate, (list, tuple)) else [*coordinate, *extra_coords]
+        self._coordinate = coordinate
         self._skip_missing = skip_missing
 
-    def apply_func(self, ds):
-        return pyearthtools.data.transforms.coordinates.Flatten(self.coords, skip_missing=self._skip_missing)(ds)
+    def apply_func(self, dataset: xr.Dataset) -> xr.Dataset:
+        discovered_coord = list(set(self._coordinate).intersection(set(dataset.coords)))
+
+        if len(discovered_coord) == 0:
+            if self._skip_missing:
+                return dataset
+
+            raise ValueError(
+                f"{self._coordinate} could not be found in dataset with coordinates {list(dataset.coords)}.\n"
+                "Set 'skip_missing' to True to skip this."
+            )
+
+        elif len(discovered_coord) > 1:
+            transforms = TransformCollection(*[CoordinateFlatten(coord) for coord in discovered_coord])
+            return transforms(dataset)
+
+        discovered_coord = str(discovered_coord[0])
+
+        coords = dataset.coords
+        new_ds = xr.Dataset(coords={co: v for co, v in coords.items() if not co == discovered_coord})
+        new_ds.attrs.update(
+            {f"{discovered_coord}-dtype": str(dataset[discovered_coord].encoding.get("dtype", "int32"))}
+        )
+
+        for var in dataset:
+            if discovered_coord not in dataset[var].coords:
+                new_ds[var] = dataset[var]
+                continue
+
+            coord_size = dataset[var][discovered_coord].values
+            coord_size = coord_size if isinstance(coord_size, np.ndarray) else np.array(coord_size)
+
+            if coord_size.size == 1 and False:
+                coord_val = weak_cast_to_int(dataset[var][discovered_coord].values)
+                new_ds[f"{var}{coord_val}"] = Drop(discovered_coord, ignore_missing=True)(dataset[var])
+
+            else:
+                for coord_val in dataset[discovered_coord]:
+                    coord_val = weak_cast_to_int(coord_val.values.item())
+
+                    selected = dataset[var].sel(**{discovered_coord: coord_val})  # type: ignore
+                    selected = selected.drop_vars(discovered_coord)  # type: ignore
+                    selected.attrs.update(**{discovered_coord: coord_val})
+
+                    new_ds[f"{var}{coord_val}"] = selected
+        return new_ds
 
     def undo_func(self, ds):
         return pyearthtools.data.transforms.coordinates.expand(self.coords)(ds)
