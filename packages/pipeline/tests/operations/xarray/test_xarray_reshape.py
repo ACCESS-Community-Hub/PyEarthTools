@@ -69,8 +69,8 @@ def test_Dimensions_preserve_order():
 
 import pyearthtools.data
 def test_dataFlatten():
-    pyearthtools.data.transforms.coordinates.Flatten(["a", "b"], skip_missing=True)(SIMPLE_DA2)
+    pyearthtools.data.transforms.coordinates.Flatten(["a", "b"], skip_missing=True)(SIMPLE_DS1)
 
 def test_CoordinateFlatten():
     cf = reshape.CoordinateFlatten(coordinate="a", skip_missing=True)
-    cf.apply_func(SIMPLE_DA2)
+    cf.apply_func(SIMPLE_DS1)
