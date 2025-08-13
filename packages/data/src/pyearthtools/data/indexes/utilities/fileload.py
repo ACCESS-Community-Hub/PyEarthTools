@@ -215,7 +215,7 @@ def open_files(
 
     if not isinstance(files, (tuple, list, dict)):
         raise TypeError(
-            f"Could not load files from input: {files!r}.\n" "Supported types are (str, Path, tuple, list, dict)"
+            f"Could not load files from input: {files!r}.\nSupported types are (str, Path, tuple, list, dict)"
         )
 
     files_to_load = [value for _, value in files.items()] if isinstance(files, dict) else list(files)
