@@ -80,8 +80,9 @@ def open_dataset(
 
     if isinstance(location, (tuple, list)):
         try:
-            ds = xr.open_mfdataset(filter_files(location), **get_config(True))
-            return ds
+            return xr.open_mfdataset(filter_files(location), 
+            decode_timedelta=True,  # TODO: should we raise a warning? It seems to be required for almost all our data.
+            **get_config(True))
 
         except xr.MergeError as e:
             if not soft_fail:

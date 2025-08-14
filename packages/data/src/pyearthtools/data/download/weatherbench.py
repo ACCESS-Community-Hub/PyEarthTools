@@ -1,9 +1,12 @@
+import sys
 import logging
 import textwrap
 import hashlib
 from pathlib import Path
 from typing import Literal
+from abc import ABC, abstractmethod
 
+import fsspec
 import xarray as xr
 from numcodecs.blosc import Blosc
 from tqdm.dask import TqdmCallback
@@ -157,7 +160,7 @@ def open_local_dataset(path: Path, variables: list[str], level: list[int]) -> xr
     return dset_full
 
 
-class WeatherBench2(AdvancedTimeDataIndex):
+class WeatherBench2(ABC, AdvancedTimeDataIndex):
     """WeatherBench2 cloud-optimized ground truth and baseline datasets
 
     https://github.com/google-research/weatherbench2
@@ -172,11 +175,6 @@ class WeatherBench2(AdvancedTimeDataIndex):
     https://doi.org/10.1029/2023MS004019
     """
 
-    _desc_ = {
-        "singleline": "WeatherBench2 cloud-optimized ground truth and baseline datasets",
-        "link": "https://github.com/google-research/weatherbench2",
-    }
-
     @decorators.alias_arguments(variables=["variable"], level=["levels", "level_value"])
     @decorators.variable_modifications("variables")
     def __init__(
@@ -188,6 +186,7 @@ class WeatherBench2(AdvancedTimeDataIndex):
         transforms: Transform | TransformCollection | None = None,
         chunks: int | dict | Literal["auto"] | None = "auto",
         download_dir: str | Path | None = None,
+        license_ok: bool = False,
         **kwargs,
     ):
         """
@@ -213,6 +212,8 @@ class WeatherBench2(AdvancedTimeDataIndex):
                 Chunking used to load data into Dask arrays. Defaults to "auto".
             download_dir (str | Path, optional):
                 Folder where to save a copy of the dataset. Defaults to None.
+            license_ok (bool, optional):
+                License has been read. Defaults to False.
         """
         super().__init__(transforms or TransformCollection(), data_interval="1 hour")
         self.record_initialisation()
@@ -256,6 +257,7 @@ class WeatherBench2(AdvancedTimeDataIndex):
 
         if download_dir is None:
             ds = open_online_dataset()
+            license = self.license_url
 
         else:
             # use a hash of the url to identify the dataset subfolder
@@ -272,13 +274,45 @@ class WeatherBench2(AdvancedTimeDataIndex):
                 (download_path / "dataset_url").write_text(url)
                 ds = open_local_dataset(download_path, variables, level)
 
+            if not (license := download_path / "LICENSE").is_file():
+                with fsspec.open(self.license_url, "rt").open() as fd:
+                    license_txt = fd.read()
+                    license.write_text(license_txt)
+
+        if not license_ok:
+            print(
+                f"Make sure to check the LICENSE for this {self.__class__.__name__} dataset. "
+                "Some WeatherBench2 datasets allow commercial use. Others only permit research use. "
+                "The license text can be accessed via the `.license()` method.",
+                file=sys.stderr,
+            )
+
         self._ds = ds
+        self._license = license
         self._kwargs = kwargs
+
+    @property
+    @abstractmethod
+    def license_url(self):
+        pass
+
+    @property
+    def _desc_(self) -> dict[str, str]:
+        return {
+            "singleline": self.__doc__.splitlines()[0],
+            "link": "https://github.com/google-research/weatherbench2",
+        }
 
     @property
     def dataset(self) -> xr.Dataset:
         """Get full dataset for this obj"""
         return self._ds
+
+    def license(self) -> str:
+        """Get the license for this dataset"""
+        with fsspec.open(self._license, "rt").open() as fd:
+            license_txt = fd.read()
+        return license_txt
 
     def get(self, time: str):
         """Get timestep from dataset"""
@@ -305,11 +339,6 @@ class WB2ERA5(WeatherBench2):
     https://doi.org/10.1029/2023MS004019
     """
 
-    _desc_ = {
-        "singleline": "WeatherBench2 cloud-optimized ground truth ERA5 dataset",
-        "link": "https://github.com/google-research/weatherbench2",
-    }
-
     DATASETS = {
         "raw": "1959-2023_01_10-full_37-1h-0p25deg-chunk-1.zarr",
         "1440x721": "1959-2023_01_10-wb13-6h-1440x721_with_derived_variables.zarr",
@@ -332,6 +361,10 @@ class WB2ERA5(WeatherBench2):
         url = f"gs://weatherbench2/datasets/era5/{self.DATASETS[resolution]}"
         super().__init__(url, **kwargs)
         self.resolution = resolution
+
+    @property
+    def license_url(self):
+        return "gs://weatherbench2/datasets/era5/LICENSE"
 
     @classmethod
     def sample(cls):
@@ -389,6 +422,10 @@ class WB2ERA5Clim(WeatherBench2):
         super().__init__(url, **kwargs)
         self.period = period
         self.resolution = resolution
+
+    @property
+    def license_url(self):
+        return "gs://weatherbench2/datasets/era5-hourly-climatology/LICENSE"
 
     @classmethod
     def sample(cls):

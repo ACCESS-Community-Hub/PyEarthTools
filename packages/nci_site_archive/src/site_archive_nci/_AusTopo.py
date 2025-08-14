@@ -18,20 +18,16 @@ Himawari 8/9 satellite data
 
 from __future__ import annotations
 
-import datetime
-from glob import glob
-from pathlib import Path
 
-import pyearthtools.data
-from pyearthtools.data import Petdt, TimeDelta
-from pyearthtools.data.exceptions import DataNotFoundError
-from pyearthtools.data.indexes import ArchiveIndex, decorators, StaticDataIndex, Index
+from pyearthtools.data import Petdt
+from pyearthtools.data.indexes import Index
 from pyearthtools.data.transforms import Transform, TransformCollection
 from pyearthtools.data.archive import register_archive
 
 from site_archive_nci.utilities import check_project
 
 import xarray as xr
+
 
 @register_archive("AusTopo")
 class AusTopo(Index):
@@ -41,7 +37,7 @@ class AusTopo(Index):
     https://dx.doi.org/10.25914/60a10aa56dd1b
 
     Data is covered by Attribution-ShareAlike 4.0 International
-    
+
     """
 
     @property
@@ -64,27 +60,25 @@ class AusTopo(Index):
         """
         check_project(project_code="gh70")
 
-        base_transform = (transforms or TransformCollection())
+        base_transform = transforms or TransformCollection()
         super().__init__(transforms=base_transform)
         self.record_initialisation()
 
     def get(self, date_of_interest, **kwargs):
-        '''
+        """
         Load the topography, but replace the date on the file with the
         date that is being requested, so that even though the underlying data
-        is static, it can be requests against any date/time. 
-        '''
+        is static, it can be requests against any date/time.
+        """
 
         file = self.load_file()
         doi = Petdt(date_of_interest)
         xr_time = doi.datetime64()
-        file['time'] = [xr_time] 
-        file = file.rename({'lat': 'latitude', 'lon': 'longitude'})
+        file["time"] = [xr_time]
+        file = file.rename({"lat": "latitude", "lon": "longitude"})
 
         return file
 
     def load_file(self):
-        file = xr.open_dataset('/g/data/gh70/ANUClimate/v2-0/topogrid/dem01/ANUClimate_v2-0_dem01.nc')
+        file = xr.open_dataset("/g/data/gh70/ANUClimate/v2-0/topogrid/dem01/ANUClimate_v2-0_dem01.nc")
         return file
-
-    
