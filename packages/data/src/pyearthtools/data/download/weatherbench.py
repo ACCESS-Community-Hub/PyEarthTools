@@ -373,7 +373,7 @@ class WB2ERA5(WeatherBench2):
     @classmethod
     def sample(cls):
         """Example subset of the dataset"""
-        return WB2ERA5("64x32", variables="2m_temperature")
+        return cls("64x32", variables="2m_temperature")
 
 
 class WB2ERA5Clim(WeatherBench2):
@@ -434,7 +434,7 @@ class WB2ERA5Clim(WeatherBench2):
     @classmethod
     def sample(cls):
         """Example subset of the dataset"""
-        return WB2ERA5Clim("64x32", "1990-2017", variables="2m_temperature")
+        return cls("64x32", "1990-2017", variables="2m_temperature")
 
 
 class WB2IFST0Analysis(WeatherBench2):
