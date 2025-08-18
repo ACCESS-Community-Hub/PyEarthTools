@@ -528,7 +528,7 @@ class WB2IFSHRES(WeatherBench2):
                 Defaults to "64x32".
         """
         url = f"gs://weatherbench2/datasets/hres/{self.DATASETS[resolution]}"
-        super().__init__(url, **kwargs)
+        super().__init__(url, decode_timedelta=True, **kwargs)
         self.resolution = resolution
 
     @property
