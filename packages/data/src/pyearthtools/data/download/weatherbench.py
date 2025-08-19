@@ -416,7 +416,7 @@ class WB2ERA5Clim(WeatherBench2):
         """
         dataset_url = f"gs://weatherbench2/datasets/era5-hourly-climatology/{self.DATASETS[(period, resolution)]}"
         license_url = "gs://weatherbench2/datasets/era5-hourly-climatology/LICENSE"
-        super().__init__(**kwargs)
+        super().__init__(dataset_url, license_url, **kwargs)
         self.period = period
         self.resolution = resolution
         self.record_initialisation()
