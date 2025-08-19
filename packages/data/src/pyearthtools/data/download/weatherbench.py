@@ -4,7 +4,6 @@ import textwrap
 import hashlib
 from pathlib import Path
 from typing import Literal
-from abc import ABC, abstractmethod
 
 import fsspec
 import xarray as xr
@@ -160,7 +159,7 @@ def open_local_dataset(path: Path, variables: list[str], level: list[int]) -> xr
     return dset_full
 
 
-class WeatherBench2(ABC, AdvancedTimeDataIndex):
+class WeatherBench2(AdvancedTimeDataIndex):
     """WeatherBench2 cloud-optimized ground truth and baseline datasets
 
     https://github.com/google-research/weatherbench2
@@ -179,6 +178,8 @@ class WeatherBench2(ABC, AdvancedTimeDataIndex):
     @decorators.variable_modifications("variables")
     def __init__(
         self,
+        dataset_url: str,
+        license_url: str,
         *,
         variables: str | list[str] | None = None,
         level: int | list[int] | None = None,
@@ -200,6 +201,10 @@ class WeatherBench2(ABC, AdvancedTimeDataIndex):
         downloaded.
 
         Args:
+            dataset_url (str):
+                URL of the zarr dataset
+            license_url (str):
+                License of the dataset
             variables (str | list[str] | None, optional):
                 Variables to retrieve, can be either short_name or long_name.
                 Default to None, to retrieve all variables.
@@ -219,7 +224,7 @@ class WeatherBench2(ABC, AdvancedTimeDataIndex):
         # retrieve variables name mapping and levels for the dataset
         from pyearthtools.data.download._weatherbench import DATASETS_INFOS
 
-        long_names, valid_levels = DATASETS_INFOS[self.dataset_url]
+        long_names, valid_levels = DATASETS_INFOS[dataset_url]
 
         # create short variables name mappings
         short_names = {val: key for key, val in long_names.items() if val is not None}
@@ -248,18 +253,18 @@ class WeatherBench2(ABC, AdvancedTimeDataIndex):
         def open_online_dataset():
             # skip parsing unused variables, this can make loading much faster
             drop_variables = [var for var in long_names if var not in set(variables)]
-            ds = xr.open_zarr(self.dataset_url, chunks=chunks, drop_variables=drop_variables, **kwargs)
+            ds = xr.open_zarr(dataset_url, chunks=chunks, drop_variables=drop_variables, **kwargs)
             if level is not None:
                 ds = Select(level=level, ignore_missing=True)(ds)
             return ds
 
         if download_dir is None:
             ds = open_online_dataset()
-            license = self.license_url
+            license = license_url
 
         else:
             # use a hash of the url to identify the dataset subfolder
-            url_hash = hashlib.sha256(self.dataset_url.encode()).hexdigest()
+            url_hash = hashlib.sha256(dataset_url.encode()).hexdigest()
             download_path = Path(download_dir) / url_hash
 
             # try to open dataset from download dir if defined
@@ -269,11 +274,11 @@ class WeatherBench2(ABC, AdvancedTimeDataIndex):
             except MissingVariableFile:
                 ds_remote = open_online_dataset()
                 save_local_dataset(download_path, ds_remote)
-                (download_path / "dataset_url").write_text(self.dataset_url)
+                (download_path / "dataset_url").write_text(dataset_url)
                 ds = open_local_dataset(download_path, variables, level)
 
             if not (license := download_path / "LICENSE").is_file():
-                with fsspec.open(self.license_url, "rt").open() as fd:
+                with fsspec.open(license_url, "rt").open() as fd:
                     license_txt = fd.read()
                     license.write_text(license_txt)
 
@@ -288,16 +293,6 @@ class WeatherBench2(ABC, AdvancedTimeDataIndex):
         self._ds = ds
         self._license = license
         self._kwargs = kwargs
-
-    @property
-    @abstractmethod
-    def dataset_url(self):
-        pass
-
-    @property
-    @abstractmethod
-    def license_url(self):
-        pass
 
     @property
     def _desc_(self) -> dict[str, str]:
@@ -361,19 +356,11 @@ class WB2ERA5(WeatherBench2):
                 The "raw" dataset is not subsampled, i.e. is hourly with 36 levels.
                 Defaults to "64x32".
         """
+        dataset_url = f"gs://weatherbench2/datasets/era5/{self.DATASETS[self.resolution]}"
+        license_url = "gs://weatherbench2/datasets/era5/LICENSE"
+        super().__init__(dataset_url, license_url, **kwargs)
         self.resolution = resolution
-        super().__init__(**kwargs)
         self.record_initialisation()
-
-    @property
-    def dataset_url(self):
-        "URL of the zarr dataset"
-        return f"gs://weatherbench2/datasets/era5/{self.DATASETS[self.resolution]}"
-
-    @property
-    def license_url(self):
-        "URL of the license file"
-        return "gs://weatherbench2/datasets/era5/LICENSE"
 
     @classmethod
     def sample(cls):
@@ -427,20 +414,12 @@ class WB2ERA5Clim(WeatherBench2):
                 Covered time period, either "1990-2017" or "1990-2019".
                 Defaults to "1990-2017".
         """
+        dataset_url = f"gs://weatherbench2/datasets/era5-hourly-climatology/{self.DATASETS[(self.period, self.resolution)]}"
+        license_url = "gs://weatherbench2/datasets/era5-hourly-climatology/LICENSE"
+        super().__init__(**kwargs)
         self.period = period
         self.resolution = resolution
-        super().__init__(**kwargs)
         self.record_initialisation()
-
-    @property
-    def dataset_url(self):
-        "URL of the zarr dataset"
-        return f"gs://weatherbench2/datasets/era5-hourly-climatology/{self.DATASETS[(self.period, self.resolution)]}"
-
-    @property
-    def license_url(self):
-        "URL of the license file"
-        return "gs://weatherbench2/datasets/era5-hourly-climatology/LICENSE"
 
     @classmethod
     def sample(cls):
