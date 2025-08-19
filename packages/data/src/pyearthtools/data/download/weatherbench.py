@@ -356,7 +356,7 @@ class WB2ERA5(WeatherBench2):
                 The "raw" dataset is not subsampled, i.e. is hourly with 36 levels.
                 Defaults to "64x32".
         """
-        dataset_url = f"gs://weatherbench2/datasets/era5/{self.DATASETS[self.resolution]}"
+        dataset_url = f"gs://weatherbench2/datasets/era5/{self.DATASETS[resolution]}"
         license_url = "gs://weatherbench2/datasets/era5/LICENSE"
         super().__init__(dataset_url, license_url, **kwargs)
         self.resolution = resolution
@@ -414,7 +414,7 @@ class WB2ERA5Clim(WeatherBench2):
                 Covered time period, either "1990-2017" or "1990-2019".
                 Defaults to "1990-2017".
         """
-        dataset_url = f"gs://weatherbench2/datasets/era5-hourly-climatology/{self.DATASETS[(self.period, self.resolution)]}"
+        dataset_url = f"gs://weatherbench2/datasets/era5-hourly-climatology/{self.DATASETS[(period, resolution)]}"
         license_url = "gs://weatherbench2/datasets/era5-hourly-climatology/LICENSE"
         super().__init__(**kwargs)
         self.period = period
