@@ -26,6 +26,8 @@ dependencies = [
   "pyearthtools-pipeline",
   "pyearthtools-utils",
   "pyearthtools-training",
+  "xgboost",
+  "plotly"
 ]
 dynamic = ["version", "readme"]
 
