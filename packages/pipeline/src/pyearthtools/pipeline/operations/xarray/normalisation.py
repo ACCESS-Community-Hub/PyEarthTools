@@ -157,10 +157,10 @@ class Deviation(xarrayNormalisation):
     """Deviation Normalisation"""
 
     def __init__(
-        self, 
-        mean: FILE | xr.Dataset | xr.DataArray | float, 
+        self,
+        mean: FILE | xr.Dataset | xr.DataArray | float,
         deviation: FILE | xr.Dataset | xr.DataArray | float,
-        debug=False
+        debug=False,
     ):
         """
         Each argument take take a Dataset, DataArray, float or file object.
@@ -173,7 +173,9 @@ class Deviation(xarrayNormalisation):
         self.record_initialisation()
 
         if debug:
-            import pdb; pdb.set_trace()
+            import pdb
+
+            pdb.set_trace()
 
         if isinstance(mean, xr.Dataset):
             self.mean = mean
@@ -187,7 +189,7 @@ class Deviation(xarrayNormalisation):
         if isinstance(deviation, xr.Dataset):
             self.deviation = deviation
         elif isinstance(deviation, xr.DataArray):
-            self.deviation = deviation            
+            self.deviation = deviation
         elif isinstance(deviation, float):
             self.deviation = deviation
         else:
