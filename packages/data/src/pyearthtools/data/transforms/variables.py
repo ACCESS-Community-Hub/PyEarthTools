@@ -86,12 +86,7 @@ class Drop(Transform):
     def apply(self, dataset: xr.Dataset) -> xr.Dataset:
         if self._variables is None:
             return dataset
-
-        var_included = set(dataset.data_vars).difference(set(self._variables))
-
-        if not var_included:
-            return dataset
-        return dataset[var_included]
+        return dataset.drop_vars(self._variables)
 
 
 class Select(Transform):
