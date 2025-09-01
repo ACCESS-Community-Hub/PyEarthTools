@@ -7,7 +7,6 @@ The rest of this page contains reference information for the components of the P
 |  Module              |       Purpose                        |   API Docs     |
 |----------------------|--------------------------------------|----------------|
 |  `pipeline`          |                                      | - [Sampler](pipeline_api.md#pyearthtools.pipeline.Sampler)  |
-|                      |                                      | - [Iterator](pipeline_api.md#pyearthtools.pipeline.Iterator)  |
 |                      |                                      | - [Pipeline](pipeline_api.md#pyearthtools.pipeline.Pipeline)  |
 |                      |                                      | - [Operation](pipeline_api.md#pyearthtools.pipeline.Operation)  |
 |                      |                                      | - [PipelineException](pipeline_api.md#pyearthtools.pipeline.PipelineException)  |

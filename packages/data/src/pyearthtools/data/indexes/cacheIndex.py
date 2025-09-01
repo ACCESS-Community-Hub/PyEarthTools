@@ -113,14 +113,14 @@ class MemCache(BaseCacheIndex):
     """
     Memory Cache
 
-    ## Example
-    ```python
-    import pyearthtools.data
+    Examples:
 
-    mem_cache = pyearthtools.data.indexes.FunctionalMemCacheIndex(function = pyearthtools.data.archive.ERA5.sample())
-    mem_cache_test('2000-01-01T00')
-    # Cached into memory
-    ```
+        >>> import pyearthtools.data
+        ...
+        >>> mem_cache = pyearthtools.data.indexes.FunctionalMemCacheIndex(function = pyearthtools.data.archive.ERA5.sample())
+        >>> mem_cache_test('2000-01-01T00')
+        ... # Cached into memory
+
     """
 
     _cache: dict[str, Any]
@@ -138,21 +138,18 @@ class MemCache(BaseCacheIndex):
         **kwargs,
     ):
         """
+
         Cache into memory
 
         Uses either hash of args and kwargs or `pattern` to create key,
 
         Args:
-            pattern (str | type | PatternIndex | None, optional):
-                Pattern to use to create path to act as key. Defaults to None.
-            pattern_kwargs (dict[str, Any] | None, optional):
-                Kwargs for `pattern` if given. Defaults to None.
-            max_size (str | ByteSize | None, optional):
-                Max size of cache, set to None for no limit. Defaults to None.
-            compute (bool, optional):
-                Compute xarra / dask objects when given. Defaults to False.
-            transforms (Transform | TransformCollection, optional):
-                Transforms to add upon data retrieval. Defaults to TransformCollection().
+
+            pattern: Pattern to use to create path to act as key. Defaults to None.
+            pattern_kwargs: Kwargs for `pattern` if given. Defaults to None.
+            max_size: Max size of cache, set to None for no limit. Defaults to None.
+            compute: Compute xarray / dask objects when given. Defaults to False.
+            transforms: Transforms to add upon data retrieval. Defaults to TransformCollection().
         """
 
         self._pattern = pattern
@@ -253,15 +250,16 @@ class FileSystemCacheIndex(BaseCacheIndex, FileSystemIndex):
     but is being generated from other sources and saved in given cache.
 
 
-    ## Data Flowchart
-    ``` mermaid
+    **Data Flowchart**
+
+    .. mermaid::
+
         graph LR
-        A[Data Request `.get`] --> B{Cache Given?};
-        B -->| Yes| C{Data Exists...};
-        C --> |No| G;
-        C --> |Yes| D[Get Data from Cache];
-        B --> |No| G[Generate Data];
-    ```
+            A[Data Request '.get'] --> B{Cache Given?};
+            B --> | Yes | C{Data Exists...};
+            C --> | No  | G;
+            C --> | Yes | D[Get Data from Cache];
+            B --> | No  | G[Generate Data];
     """
 
     _cleanup: dict[str, Any] | float | int | str | None = None
@@ -289,31 +287,46 @@ class FileSystemCacheIndex(BaseCacheIndex, FileSystemIndex):
         `cache` can also be 'temp' to set to a TemporaryDirectory created on `__init__`, or include any environment variables,
         with $NOTATION.
 
-        !!! Existing Cache:
+        .. warning::
+
+            **Existing Cache**
+
             If the `cache` is set to an existing cache location, and the `pattern` is the same being made and exists,
             `pattern_kwargs` will be set by default to the existing cache's kwargs, and then updated by any given.
 
         Args:
-            cache (str | Path):
-                Location to save data to.
-            pattern (str | type | PatternIndex, optional):
-                String of pattern to use or defined pattern.
-                Defaults to ExpandedDate, or TemporalExpandedDate.
-            pattern_kwargs (dict, optional):
-                Kwargs to pass to initalisation of new pattern if pattern is str. Defaults to {}.
-            transforms (Transform | TransformCollection, optional):
-                Base Transforms to apply. Defaults to TransformCollection().
-            cleanup (dict | float | int | str | None, optional):
-                Cache cleanup settings.
-                If a number type, assumed to represent age of file in days
+
+            cache: Location to save data to.
+            pattern: String of pattern to use or defined pattern.
+                     Defaults to ExpandedDate, or TemporalExpandedDate.
+            pattern_kwargs: Kwargs to pass to initalisation of new pattern if pattern is str.
+            transforms: Base Transforms to apply.
+            cleanup:
+
+                **Cache cleanup settings.**
+
+                If a number type, assumed to represent age of file in days.
+
                 If dictionary type, the following keys can be used:
-                | Key | Purpose | Type |
-                | --- | ------- | ---- |
-                | delta | Time delta to delete files past | int, float, tuple, TimeDelta |
-                | dir_size | Maximum allowed directory size. Deletes oldest according to `key` | int, float, str, ByteSize (if str, use '100 GB' format) |
-                | key | Key to use to find time of file for other time based delete steps. Default 'modified'. | Literal['modified', 'created'] |
-                | data_time | Maximum difference in time the data is of and current time | int, float, tuple, TimeDelta |
-                | verbose | Print files being deleted | bool] |
+
+                .. table::
+
+                    +-----------+----------------------------------------------+--------------------------------+
+                    | Key       | Purpose                                      | Type                           |
+                    +===========+==============================================+================================+
+                    | delta     | Time delta to delete files past              | int, float, tuple, TimeDelta   |
+                    +-----------+----------------------------------------------+--------------------------------+
+                    | dir_size  | Maximum allowed directory size. Deletes      | int, float, str, ByteSize      |
+                    |           | oldest according to `key`                    | (if str, use '100 GB' format)  |
+                    +-----------+----------------------------------------------+--------------------------------+
+                    | key       | Key to use to find time of file for other    | Literal['modified', 'created'] |
+                    |           | time based delete steps. Default 'modified'. |                                |
+                    +-----------+----------------------------------------------+--------------------------------+
+                    | data_time | Maximum difference in time the data is of    | int, float, tuple, TimeDelta   |
+                    |           | and current time                             |                                |
+                    +-----------+----------------------------------------------+--------------------------------+
+                    | verbose   | Print files being deleted                    | bool                           |
+                    +-----------+----------------------------------------------+--------------------------------+
 
                 Cleanup is run on each initialisation and deletion of the `CacheIndex`, and can be triggered manually with `.cleanup()`
 

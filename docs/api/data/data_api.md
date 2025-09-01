@@ -69,6 +69,9 @@
 .. autoclass:: pyearthtools.data.indexes.TimeIndex
     :members:
 
+.. autoclass:: pyearthtools.data.indexes.SingleTimeIndex
+    :members:
+
 .. autoclass:: pyearthtools.data.indexes.TimeDataIndex
     :members:
 
@@ -445,8 +448,6 @@
 .. autofunction:: pyearthtools.data.time.time_delta_resolution
 .. autofunction:: pyearthtools.data.time.range_samples
 
-.. autoclass:: pyearthtools.data.time.range_samples
-    :members:
 .. autoclass:: pyearthtools.data.time.Petdt
     :members:
 .. autoclass:: pyearthtools.data.time.TimeDelta

@@ -1,6 +1,16 @@
 # New Users Guide
 
-Welcome new user! This document will continue to be updated based on user feedback.
+Welcome new user! This document will continue to be updated based on user feedback. This table quickly explains how to get things done in `PyEarthTools` 
+|     Step       |    Without PyEarthTools     |    With PyEarthTools |
+|----------------|-----------------------------|----------------------|
+| Obtaining and loading data | Manual download or open from disk + data cleaning | Use or adapt in-built fetchers and openers (no cleaning) |
+| Process, subset, augment, tranform and normalise data | Custom code | Use pre-defined validated Pipelines |
+| Present your data to PyTorch or another framework as a Python iterator | Custom code to iterate over data | Pipelines are iterators |
+| Define a machine learning model | Clone someone's repo or define your own | Use a 'bundled model' or write your own |
+| Denormalise model outputs | Manual code | Pipelines are reversible |
+| Model evaluation | Use a separate framework | Use pre-defined evaluation to generate standard scorecards |
+
+This approach also allows your research to be more targetted into varying only the part of the end-to-end process which you are investigating. By starting with a baseline implementation to provide a strong basis for comparison and modifying only the relevant step, you can undertake a more controlled investigative process, confidently generating results from experimentation along the way.
 
 ## Installation
 

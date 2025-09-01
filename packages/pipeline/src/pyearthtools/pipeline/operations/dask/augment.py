@@ -104,13 +104,13 @@ class Flip(DaskOperation):
         return sample
 
 
-class Transform(DaskOperation):
+class FlipAndRotate(DaskOperation):
     """
     Flip & Rotation Augmentation.
     """
 
     _override_interface = ["Serial"]
-    _numpy_counterpart = "augment.Transform"
+    _numpy_counterpart = "augment.FlipAndRotate"
 
     def __init__(
         self,

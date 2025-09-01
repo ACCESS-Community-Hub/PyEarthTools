@@ -26,7 +26,8 @@ import numpy as np
 from pathlib import Path
 
 import pyearthtools.pipeline
-from pyearthtools.pipeline import Pipeline, Iterator
+from pyearthtools.pipeline import Pipeline
+from pyearthtools.pipeline.iterators import Iterator
 from pyearthtools.utils.initialisation import InitialisationRecordingMixin
 
 
@@ -179,7 +180,9 @@ class PipelineDataModule(InitialisationRecordingMixin):
         return np.expand_dims(sample, 0)
 
     def get_sample(self, idx, *, fake_batch_dim: bool = False):
-        """Get sample from `pipeline`s"""
+        """
+        Get sample from `pipeline`
+        """
         if fake_batch_dim:
 
             def add_batch_dim(obj):

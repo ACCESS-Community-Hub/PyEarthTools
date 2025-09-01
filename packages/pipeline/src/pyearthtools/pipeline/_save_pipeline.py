@@ -42,8 +42,8 @@ LOG = logging.getLogger("pyearthtools.pipeline")
 
 
 def save_pipeline(
-    pipeline: "pyearthtools.pipeline.Pipeline",
-    path: Optional[Union[str, Path]] = None) -> Union[None, str]:
+    pipeline: "pyearthtools.pipeline.Pipeline", path: Optional[Union[str, Path]] = None
+) -> Union[None, str]:
     """
     Save `Pipeline`
 

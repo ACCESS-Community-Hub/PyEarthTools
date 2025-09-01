@@ -54,10 +54,11 @@ class ParsingPattern(PatternIndex):
     """
     PatternIndex to parse and format paths from str formats.
 
-    Values for the formatting are expected in **kwargs / if data is saved will be added.
+    Values for the formatting are expected in **kwargs** / if data is saved will be added.
 
     Will split datasets based on what is specified in the `parse_str`.
     If a kwarg is given as a list, will look for all perturbations.
+
     """
 
     def __init__(

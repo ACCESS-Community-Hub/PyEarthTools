@@ -55,10 +55,12 @@ def to_netcdf(
     """
     Saves a dataset based on a callback to an index.
 
-    Supports:
-        dataset: xr.Dataset, xr.DataArray, tuple of either
-        callback.search(): Path, str, or dictionary of either
-            If dict, will only save dataset, and will only save specified keys
+    Args:
+
+        dataset: The xarray object to convert to netcdf
+        callback: Uses `callback.search()` to fetch a Path, str, or dictionary of either.
+            If a dictionary is returned, will only save dataset,
+            and will only save specified keys.
 
     """
 

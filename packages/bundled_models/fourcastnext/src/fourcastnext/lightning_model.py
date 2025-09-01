@@ -41,6 +41,8 @@ torch.set_float32_matmul_precision("medium")
 
 
 class FourCastNextLM(pl.LightningModule):
+    """ """
+
     def __init__(
         self,
         model_params: dict = {},
@@ -55,22 +57,18 @@ class FourCastNextLM(pl.LightningModule):
         FourCastNeXt model
 
         Expects data in (B,T,C,H,W, B,T_1,C,H,W)
+
         With the first element being the input and the second the target
         `T_1` can be any length thus indicating training up to that rollout.
 
         Args:
-            model_params (dict):
-                Model params to pass to `AFNONet`
-            base_lr (_type_, optional):
-                Base learning rate. Defaults to 1e-3.
-            grad_accum_schedule (_type_, optional):
-                _description_. Defaults to None.
-            precision (int, optional):
-                Float precision. Defaults to 32.
-            loss_function (str, optional):
-                Loss function to use. Defaults to "L1Loss".
-            loss_kwargs (dict, optional):
-                Kwargs to pass to the loss function. Defaults to {}.
+            model_params: Model params to pass to `AFNONet`
+            base_lr: Base learning rate.
+            grad_accum_schedule: tbd.
+            precision: Float precision. Defaults to 32.
+            loss_function: Loss function to use. Defaults to "L1Loss".
+            loss_kwargs: Kwargs to pass to the loss function.
+
         """
         super().__init__()
         self.save_hyperparameters()
@@ -211,6 +209,10 @@ class FourCastNextLM(pl.LightningModule):
         self.trainer.accumulate_grad_batches = accumulate_grad_batches
 
     def configure_optimizers(self):
+        """
+        tbd
+        """
+
         net_params = [p for p in self.parameters() if p.requires_grad]
         optimizer = Lamb(net_params, lr=self.hparams.base_lr, weight_decay=self.hparams.base_lr**2)
         scheduler = CosineAnnealingLR(optimizer, self.trainer.max_steps, eta_min=self.hparams.base_lr * 0.1)

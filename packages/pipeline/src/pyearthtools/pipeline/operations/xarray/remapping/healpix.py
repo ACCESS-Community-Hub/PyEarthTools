@@ -89,44 +89,35 @@ class HEALPix(BaseRemap):
         HEALPix mesh Remapper as `pipeline` operations
 
         Args:
-            spatial_coords (dict[str, int]):
-                Dictionary of spatial coords to remap over, with the associated size.
-            nside (int):
-                The number of pixels each HEALPix face sides has. Must be power of 2.
-            interpolation (str, optional):
-                The interpolation scheme ("nearest-neighbor", "bilinear", "biquadratic", "bicubic"). Defaults to "bilinear".
-            resolution_factor (float, optional):
-                In some cases, when choosing nside "too large" for the source data, the
-                projection can contain NaN values. Choosing a resolution_factor > 1.0 can resolve this but requires careful
-                inspection of the projected data. Defaults to 1.0.
-            include_coords (bool, optional):
-                Include spatial_coords as variables for each face. Defaults to False.
-            manual_rechunking (bool, optional):
-                Manually rechunk to one chunk per spatial grid. Defaults to True.
-            template_dataset (Optional[str], optional):
-                Override for template dataset to get coords from. Defaults to None.
-            check_for_nans (bool, optional):
-                Check for nans after remapping. Defaults to False.
+            spatial_coords: Dictionary of spatial coords to remap over, with the associated size.
+            nside: The number of pixels each HEALPix face sides has. Must be power of 2.
+            interpolation: The interpolation scheme ("nearest-neighbor", "bilinear", "biquadratic", "bicubic").
+            resolution_factor: In some cases, when choosing nside "too large" for the source data, the projection
+                               can contain NaN values. Choosing a resolution_factor > 1.0 can resolve this but
+                               requires careful inspection of the projected data.
+            include_coords: Include spatial_coords as variables for each face.
+            manual_rechunking: Manually rechunk to one chunk per spatial grid.
+            template_dataset: Override for template dataset to get coords from.
+            check_for_nans: Check for nans after remapping.
 
         Raises:
-            ValueError:
-                If `spatial_coords` is wrong
+            ValueError: If `spatial_coords` is wrong
 
         Examples:
+
             Remap ERA5 resolution data to faces of size 128.
-            ```python
-            import pyearthtools.pipeline
-            import pyearthtools.data
 
-            remapper = pyearthtools.pipeline.operations.xarray.remapping.HEALPix({'latitude':721, 'longitude':1440}, nside = 128)
-            remapper.remap(pyearthtools.data.archive.ERA5.sample()['2000-01-01T00'])
-            # Remapped data
-
-            pyearthtools.pipeline.Pipeline(
-                pyearthtools.data.archive.ERA5.sample(),
-                remapper
-            )
-            ```
+            >>> import pyearthtools.pipeline
+            >>> import pyearthtools.data
+            >>>
+            >>> remapper = pyearthtools.pipeline.operations.xarray.remapping.HEALPix({'latitude':721, 'longitude':1440}, nside = 128)
+            >>> remapper.remap(pyearthtools.data.archive.ERA5.sample()['2000-01-01T00'])
+            ... # Remapped data
+            >>>
+            >>> pyearthtools.pipeline.Pipeline(
+            >>>     pyearthtools.data.archive.ERA5.sample(),
+            >>>     remapper
+            >>> )
         """
         super().__init__()
         self.record_initialisation()

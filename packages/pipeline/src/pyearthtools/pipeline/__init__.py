@@ -68,8 +68,6 @@ from pyearthtools.pipeline.modifications import Cache, SequenceRetrieval, Tempor
 
 from pyearthtools.pipeline.samplers import Sampler
 
-from pyearthtools.pipeline.iterators import Iterator
-
 from pyearthtools.pipeline.parallel import get_parallel
 
 from pyearthtools.pipeline.exceptions import (
@@ -84,7 +82,6 @@ from pyearthtools.pipeline import config
 
 __all__ = [
     "Sampler",
-    "Iterator",
     "Pipeline",
     "Operation",
     "branching",

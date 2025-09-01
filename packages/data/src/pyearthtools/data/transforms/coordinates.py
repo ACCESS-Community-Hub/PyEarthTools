@@ -653,13 +653,10 @@ class Pad(Transform):
         This will automatically pad the coordinate values with an odd reflection to allow periodicy.
 
         Args:
-            coordinates (dict[str, Any] | None, optional):
-                Coordinate pad_width. Defaults to None.
-                From xarray docs.
-                    Mapping with the form of {dim: (pad_before, pad_after)} describing the number of values
-                    padded along each dimension. {dim: pad} is a shortcut for pad_before = pad_after = pad
-            **kwargs (Any, optional):
-                Any kwargs to pass to `.pad`
+            coordinates: Coordinate pad_width.
+                From xarray docs: Mapping with the form of `{dim: (pad_before, pad_after)}` describing the number of values
+                padded along each dimension. `{dim: pad}` is a shortcut for pad_before = pad_after = pad
+            **kwargs: Any kwargs to pass to `.pad`
         """
         super().__init__()
         self.record_initialisation()

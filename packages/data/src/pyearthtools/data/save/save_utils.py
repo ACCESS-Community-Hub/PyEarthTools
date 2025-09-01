@@ -259,24 +259,25 @@ class ManageFiles:
     Automatically manage the saving of files.
 
     Using this, representative temporary files are provided to save to, and then
-     automatically renamed.
+    automatically renamed.
 
     If `lock` == True, prevent multiple processes from writing to the same temp files
-     by creating lock files, and checking for their existence.
+    by creating lock files, and checking for their existence.
 
     If a lock file is encountered, and after it's removal the real file exists,
-     the user is informed, as this data may have been saved by another process running concurrently,
-     and may not need to be saved again.
+    the user is informed, as this data may have been saved by another process running concurrently,
+    and may not need to be saved again.
 
     Example:
+
     >>> with ManageFiles('important_file.txt') as (filename, _):
     >>>     print(filename) # '.tmp_important_file.txt'
     >>>     with open(filename, 'w') as fd:
     >>>         fd.write('42')
     >>> print(os.path.exists('important_file.txt'))
-        True
+    ... True
     >>> print(os.open('important_file.txt').read())
-        42
+    ... 42
 
     """
 
@@ -292,26 +293,19 @@ class ManageFiles:
         prefix: str = ".tmp",
     ) -> None:
         """
-        Manage the saving of files,
-            Save to temp file first, and lock that file.
+        Manage the saving of files. Save to temp file first, and lock that file.
 
         Args:
-            files (VALID_PATH_TYPES):
-                Files for this to manage.
-                Will return temporary files representing each file, in the same type.
-            timeout (float | int, optional):
-                Max time waiting for lock release can take, in seconds. Defaults to 5.
+            files: Files for this to manage.
+                   Will return temporary files representing each file, in the same type.
+            timeout: Max time waiting for lock release can take, in seconds.
                     `timeout` < 0, will not timeout and simply block until release.
-            lock (bool, optional):
-                Attempt to lock temp files when saving. Mutually exclusive with `uuid`.
-                This allows the logic checking if the temp file was locked, and now the real file exists
-                    thus potentially indicating it has been made by a concurrent thread.
-                If `lock` is False, this behaves exactly like `ManageTemp`, and always returns `exist` = False.
-                Defaults to True.
-            uuid (bool, optional):
-                Add unique identifier to temp files. Mutually exclusive with `lock`. Defaults to False.
-            prefix (str, optional):
-                Prefix to add to indicate temp file. Defaults to '.tmp'.
+            lock: Attempt to lock temp files when saving. Mutually exclusive with `uuid`.
+                  This allows the logic checking if the temp file was locked, and now the real file exists
+                  thus potentially indicating it has been made by a concurrent thread.
+                  If `lock` is False, this behaves exactly like `ManageTemp`, and always returns `exist` = False.
+            uuid: Add unique identifier to temp files. Mutually exclusive with `lock`.
+            prefix: Prefix to add to indicate temp file.
         """
 
         if lock and uuid:

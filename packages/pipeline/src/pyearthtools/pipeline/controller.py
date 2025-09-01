@@ -188,23 +188,22 @@ class Pipeline(_Pipeline, Index):
 
     Provides a way to set a sequence of operations to be applied to samples / data retrieved from `pyearthtools.data`.
 
-    ## Example:
-    ```python
-    pipeline = pyearthtools.pipeline.Pipeline(
-        pyearthtools.data.download.cds.ERA5('tcwv'),
-        pyearthtools.pipeline.operations.xarray.conversion.ToNumpy()
-    )
-    pipeline['2000-01-01T00]
-    ```
+    Examples:
 
-    ## Usage:
-    A `Pipeline` can be used in three primary ways,
+        >>> python
+        >>> pipeline = pyearthtools.pipeline.Pipeline(
+        >>>     pyearthtools.data.download.cds.ERA5('tcwv'),
+        >>>     pyearthtools.pipeline.operations.xarray.conversion.ToNumpy()
+        >>>     )
+        >>> pipeline['2000-01-01T00]
 
-    | Type | Code|
-    |----|----|
-    | Direct Indexing | `pipeline[idx]` |
-    | Iteration | `for i in pipeline` |
-    | Applying | `pipeline.apply` |
+    Usage:
+
+    A `Pipeline` can be used in three primary ways.
+
+    1. Direct Indexing with `pipeline[idx]`
+    2. Iteration with `for i in pipeline`
+    3. Applying to individual data objects with `pipeline.apply`
 
     """
 
@@ -238,27 +237,30 @@ class Pipeline(_Pipeline, Index):
         The `steps` will be run in order of inclusion.
 
 
-        ## Branches
+        **Branches**
 
         If a tuple within the `steps` is encountered, it will be interpreted as a `BranchingPoint`,
         with each element in the `tuple` a seperate `Pipeline` of it's own right.
         Therefore to have a `BranchingPoint` with each branch containing multiple steps, a nested `tuple` is needed.
 
-        E.g. # Pseudocode
+        E.g. (pseudocode)
+
         >>> Pipeline(
-                Index,
-                (Operation_1, Operation_2)
-            )
+        >>>     Index,
+        >>>     (Operation_1, Operation_2)
+        >>> )
+
         This will cause samples to be retrieved from `Index` and each of the operations run on the `sample`.
-        The result will follow the form of:
-            `(Operation_1 on Index, Operation_2 on Index)`
+
+        The result will follow the form of: `(Operation_1 on Index, Operation_2 on Index)`
 
         If a branch consists of multiple operations, the nested tuples must be used.
 
-        E.g. # Pseudocode
+        E.g. (pseudocode)
+
         >>> Pipeline(
-                Index,
-                ((Operation_1, Operation_1pt2), Operation_2)
+        >>>     Index,
+        >>>     ((Operation_1, Operation_1pt2), Operation_2)
             )
         This will cause samples to be retrieved from `Index` and each of the operations run on the `sample`.
         The result will follow the form of:
@@ -267,44 +269,48 @@ class Pipeline(_Pipeline, Index):
         A `BranchingPoint` by default will cause each branch to be run seperately, and a tuple returned with the results of each branch.
         However, if 'map' is included in the `BranchingPoint` tuple, it will be mapped across elements in the incoming sample.
 
-        ### Mapping
-        E.g. # Pseudocode
+        **Mapping**
+
+        E.g. (pseudocode)
+
         >>> Pipeline(
-                Index,
-                ((Operation_1, Operation_1pt2), Operation_2, 'map')
-            )
+        >>>     Index,
+        >>>     ((Operation_1, Operation_1pt2), Operation_2, 'map')
+        >>> )
+
         This will cause samples to be retrieved from `Index` and the operations to be mapped to the `sample`.
-        The result will follow the form of:
-            `(Operation_1 + Operation_1pt2 on Index[0], Operation_2 on Index[1])`
+
+        The result will follow the form of `(Operation_1 + Operation_1pt2 on Index[0], Operation_2 on Index[1])`
 
         'map_copy' can be used to copy the branch to the number of elements in the sample without having to
         manually specify each branch.
 
-        ### Indexes in Branches
-        Indexes can also be included in branches, which behaviour as expected, where the sample is retrieved rather than operations applied.
-        E.g. #Pseudocode
-        >>> Pipeline(
-            Index,
-            (Operation_1, Operation_2, Index)
-        )
+        **Indexes in Branches**
 
-        ## Transforms
+        Indexes can also be included in branches, which behaviour as expected, where the sample is retrieved rather than operations applied.
+
+        E.g. (pseudocode)
+
+        >>> Pipeline(
+        >>>     Index,
+        >>>     (Operation_1, Operation_2, Index)
+        >>> )
+
+        **Transforms**
+
         Transforms from `pyearthtools.data` can be added directly inline in a pipeline, and will be applied on the forward pass.
         If they need to be applied on `undo`, or on both see, `pyearthtools.pipeline.operations.Transforms`
 
 
         Args:
-            *steps (VALID_PIPELINE_TYPES, tuple[VALID_PIPELINE_TYPES]):
-                Steps of the pipeline. Can include tuples to refer to branches.
+            *steps: Steps of the pipeline. Can include tuples to refer to branches.
 
-            iterator (Optional[Union[iterators.Iterator, tuple[iterators.Iterator, ...]]], optional):
-                `Iterator` to use to retrieve samples when the `Pipeline` is being iterated over. Defaults to None.
-            sampler (Optional[Union[samplers.Sampler, tuple[samplers.Sampler, ...]]], optional):
-                `Sampler` to use to sample the samples when iterating. If not given will yield all samples.
-                Can be used to randomly sample, drop out and more
-                Defaults to None.
-            exceptions_to_ignore (Optional[tuple[Union[str, Type[Exception]], ...]], optional):
-                Which exceptions to ignore when iterating. Defaults to None.
+            iterator: `Iterator` to use to retrieve samples when the `Pipeline` is being iterated over.
+
+            sampler: `Sampler` to use to sample the samples when iterating. If not given will yield all samples.
+                      Can be used to randomly sample, drop out and more
+
+            exceptions_to_ignore: Which exceptions to ignore when iterating. Defaults to None.
         """
         self.iterator = iterator
         self.sampler = sampler
@@ -603,15 +609,14 @@ class Pipeline(_Pipeline, Index):
         Reverses the steps and operations applied to the `sample`.
         Ideally this should result in the `sample` looking identical to the initial data.
 
-        Examples:
-        ```python
-            pipeline = (
-                Index,
-                Operation1,
-            )
-            pipeline[1]
-            # Data
-            pipeline.undo(pipeline[1])
+        ## Examples:
+            >>> python
+            >>> pipeline = (
+            >>>     Index,
+            >>>     Operation1,
+            >>> )
+            >>> pipeline[1]
+            >>> pipeline.undo(pipeline[1])
 
         """
         for i, step in enumerate(reversed(self.steps)):

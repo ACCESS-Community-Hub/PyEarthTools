@@ -32,14 +32,12 @@ class Predictor(InitialisationRecordingMixin, metaclass=ABCMeta):
 
     Hooks:
         `after_predict` (prediction) -> prediction:
-            Function executed after data has been reversed from prediction.
+        Function executed after data has been reversed from prediction.
 
     Usage:
-        ```python
-        model = ModelWrapper(MODEL_GOES_HERE, DATA_PIPELINE)
-        predictor = Predictor(model)
-        predictor.predict('2000-01-01T00')
-        ```
+        >>> model = ModelWrapper(MODEL_GOES_HERE, DATA_PIPELINE)
+        >>> predictor = Predictor(model)
+        >>> predictor.predict('2000-01-01T00')
     """
 
     def __init__(self, model: ModelWrapper, reverse_pipeline: Pipeline | int | str | None):

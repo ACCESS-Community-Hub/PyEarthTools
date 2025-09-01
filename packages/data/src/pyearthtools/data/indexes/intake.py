@@ -41,16 +41,16 @@ class IntakeIndex(DataIndex):
 
     Will not cache the data anywhere.
 
-    ## Example:
-    ```python
-    import pyearthtools.data
-    import intake_esm
+    Example:
 
-    cat_url = intake_esm.tutorial.get_url("google_cmip6")
+    >>> import pyearthtools.data
+    >>> import intake_esm
+    >>>
+    >>> cat_url = intake_esm.tutorial.get_url("google_cmip6")
+    >>>
+    >>> intakeIndex = pyearthtools.data.IntakeIndex(cat_url)
+    >>> intakeIndex(experiment_id=["historical", "ssp585"],table_id="Oyr",variable_id="o2",grid_label="gn")
 
-    intakeIndex = pyearthtools.data.IntakeIndex(cat_url)
-    intakeIndex(experiment_id=["historical", "ssp585"],table_id="Oyr",variable_id="o2",grid_label="gn")
-    ```
     """
 
     @property
@@ -72,17 +72,13 @@ class IntakeIndex(DataIndex):
         Intake ESM Catalog Index
 
         Args:
-            catalog_file (str | Path):
-                Intake ESM Catalog location
-            transforms (Transform | TransformCollection, optional):
-                Transforms to add to data. Defaults to TransformCollection().
-            add_default_transforms (bool, optional):
-                Add default transforms. Defaults to True.
-            filter_dict (dict, optional):
-                Filter dictionary for `Intake` search. Defaults to {}.
+            catalog_file: Intake ESM Catalog location
+            transforms: Transforms to add to data.
+            add_default_transforms: Add default transforms.
+            filter_dict: Filter dictionary for `Intake` search.
+
         Raises:
-            ImportError:
-                If `intake` cannot be imported.
+            ImportError: if `intake` cannot be imported.
         """
         super().__init__(transforms, add_default_transforms=add_default_transforms)
         self._catalog_file = catalog_file

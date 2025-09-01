@@ -63,10 +63,11 @@ class Timer:
     def __enter__(self):
         return self
 
-    # def __exit__(self, *args):
-    # elapsed = time.time() - self.start
-    # log = self.logger or LOG  # TODO: Bring this back
-    # log.debug("%s: took %.2f seconds.", self.title, elapsed)
+    def __exit__(self, *args):
+        elapsed = time.time() - self.start
+        print("%s: took %.2f seconds.", self.title, elapsed)
+        # log = self.logger or LOG  # TODO: Bring this back
+        # log.debug("%s: took %.2f seconds.", self.title, elapsed)
 
 
 class BaseForecastModel:
@@ -199,11 +200,11 @@ class BaseForecastModel:
     and limit the directory size to `10GB`, see `pyearthtools.data.indexes.CachingIndex` for more information.
 
     The model `_name` and pipeline name is automatically added to the path to prevent collisions. So:
-    ```txt
+
     If `config_path` is `/data/goes/here`, and the model is `Model/Name`, with pipeline `PipelineName`
 
     The full path is `/data/goes/here/Model/Name/PipelineName`
-    ```
+
     The pattern of the cache will then take over.
 
     """
@@ -554,21 +555,17 @@ class BaseForecastModel:
         )
 
     def load_pipeline(self, pipeline: str, data: bool = True, ancillary: Optional[str] = None, **kwargs: Any) -> "pyearthtools.pipeline.Pipeline":  # type: ignore
-        """Hook to allow modification of how `pipeline is loaded.
+        """
+
+        Hook to allow modification of how `pipeline` is loaded.
 
         Args:
-            pipeline (str):
-                Path to pipeline file to open.
-            data (bool, optional):
-                If pipeline is the data source or pipeline. Defaults to True.
-            ancillary (Optional[str], optional):
-                Name of ancillary pipeline if ancillary pipeline. Defaults to False.
-            kwargs (Any):
-                Assignments to pass to `pyearthtools.pipeline.load`
+            pipeline: Path to pipeline file to open.
+            data: If pipeline is the data source or pipeline.
+            ancillary: Name of ancillary pipeline if ancillary pipeline.
+            kwargs: Assignments to pass to `pyearthtools.pipeline.load`
 
-        Returns:
-            (pyearthtools.pipeline.Pipeline):
-                Loaded pipeline
+        Returns: Loaded pipeline
 
         Usage:
             A child model could override this to assign values within `__KEY__` keys inside the `Pipeline`.

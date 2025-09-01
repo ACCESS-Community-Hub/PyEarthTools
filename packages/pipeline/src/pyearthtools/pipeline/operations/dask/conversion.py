@@ -51,43 +51,37 @@ class ToXarray(DaskOperation):
         Can use `.like` to record from a reference data object.
 
         Args:
-            array_shape (Union[tuple[str, ...], str]):
-                Order / naming of dimensions of incoming array. Can be str split by ' '.
-                Special name is 'variable' corresponding to variables in a dataset.
-                That dim will be split into variables
-            coords (Optional[dict[Hashable, Any]], optional):
-                Coordinates to set xarray object with, not all have to be given.
-                Cannot be a tuple. As 'variable' is special in `array_shape`, 'variable' in coords
-                names the variables.
-                Defaults to None.
-            encoding (Optional[dict[str, Any]], optional):
-                Encoding to set, can be variable, or dimension. Defaults to None.
-            attributes (Optional[dict[str, Any]], optional):
-                Attributes to set. Can use `__dataset` if dataset to update dataset attrs Defaults to None.
+            array_shape: Order / naming of dimensions of incoming array. Can be str split by ' '.
+                         Special name is 'variable' corresponding to variables in a dataset.
+                         That dim will be split into variables
+            coords: Coordinates to set xarray object with, not all have to be given.
+                    Cannot be a tuple. As 'variable' is special in `array_shape`, 'variable' in coords
+                    names the variables.
+            encoding: Encoding to set, can be variable, or dimension.
+            attributes: Attributes to set. Can use `__dataset` if dataset to update dataset attrs Defaults to None.
 
         Examples:
-            ## Like
-            ```python
-                import pyearthtools.data
-                import pyearthtools.pipeline
-                import dask.array as da
+            Using `like` convenience method
 
-                sample = pyearthtools.data.archive.ERA5.sample()('2000-01-01T00')
-                converter = pyearthtools.pipeline.operations.numpy.conversion.ToXarray.like(sample)
-                converter.apply(da.ones((1, 1, 721, 1440)))
-            ```
+            >>> import pyearthtools.data
+            >>> import pyearthtools.pipeline
+            >>> import dask.array as da
+            >>>
+            >>> sample = pyearthtools.data.archive.ERA5.sample()('2000-01-01T00')
+            >>> converter = pyearthtools.pipeline.operations.numpy.conversion.ToXarray.like(sample)
+            >>> converter.apply(da.ones((1, 1, 721, 1440)))
 
-            ## Manually
-            ```python
-                import pyearthtools.pipeline
-                import numpy as np
+            Manual specification example
 
-                converter = pyearthtools.pipeline.operations.numpy.conversion.ToXarray(
-                    'time latitude longitude',
-                    coords = {'latitude': np.arange(-90, 90, 0.25), 'longitude': np.arange(-180, 180, 0.25)}
-                )
-                converter.apply(np.ones((1, 721, 1440)))
-            ```
+            >>> import pyearthtools.pipeline
+            >>> import numpy as np
+            >>>
+            >>> converter = pyearthtools.pipeline.operations.numpy.conversion.ToXarray(
+            >>>     'time latitude longitude',
+            >>>     coords = {'latitude': np.arange(-90, 90, 0.25), 'longitude': np.arange(-180, 180, 0.25)}
+            >>> )
+            >>> converter.apply(np.ones((1, 721, 1440)))
+
         """
         super().__init__(split_tuples=True, recognised_types={"apply": da.Array, "undo": (xr.DataArray, xr.Dataset)})
         self.record_initialisation()

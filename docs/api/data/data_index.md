@@ -34,6 +34,7 @@ The rest of this page contains reference information for the components of the D
 |                  |                                               | - [DataIndex](data_api.md#pyearthtools.data.indexes.DataIndex) |
 |                  |                                               | - [FileSystemIndex](data_api.md#pyearthtools.data.indexes.FileSystemIndex) |
 |                  |                                               | - [TimeIndex](data_api.md#pyearthtools.data.indexes.TimeIndex) |
+|                  |                                               | - [SingleTimeIndex](data_api.md#pyearthtools.data.indexes.SingleTimeIndex) |
 |                  |                                               | - [TimeDataIndex](data_api.md#pyearthtools.data.indexes.TimeDataIndex) |
 |                  |                                               | - [AdvancedTimeIndex](data_api.md#pyearthtools.data.indexes.AdvancedTimeIndex) |
 |                  |                                               | - [AdvancedTimeDataIndex](data_api.md#pyearthtools.data.indexes.AdvancedTimeDataIndex) |

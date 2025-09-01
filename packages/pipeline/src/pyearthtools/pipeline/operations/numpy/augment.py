@@ -98,13 +98,13 @@ class Flip(Operation):
         return sample
 
 
-class Transform(Operation):
+class FlipAndRotate(Operation):
     """
     Flip & Rotation Augmentation.
     """
 
     _override_interface = ["Delayed", "Serial"]
-    _interface_kwargs = {"Delayed": {"pure": False, "name": "FlipRotate"}}
+    _interface_kwargs = {"Delayed": {"pure": False, "name": "FlipAndRotate"}}
 
     def __init__(
         self,

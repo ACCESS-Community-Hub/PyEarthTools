@@ -47,27 +47,26 @@ class ToNumpy(Operation):
         # *,  # FIXME: move up after self and re-test ensuring coverage before and after
         warn: bool = True,
     ):
-        """DataOperation to convert data to [np.array][numpy.ndarray]
+        """
+
+        DataOperation to convert data to [np.array][numpy.ndarray]
 
         If speed is needed without an `undo`, set `run_parallel` to True, and split the data into separate
         datasets as much as possible.
-            `pyearthtools.pipeline.operations.xarray.split.OnVariables()` can be useful here
+
+        `pyearthtools.pipeline.operations.xarray.split.OnVariables()` can be useful here
 
         Args:
-            reference_dataset (Optional[FILE_TYPES], optional):
+            reference_dataset:
                 Reference dataset to run through numpy converter to initialise converter.
                 Will be overwritten when this is given a dataset.
-                Defaults to None.
-            saved_records (Optional[FILE_TYPES], optional):
+            saved_records:
                 Saved records to set numpy converter with.
                 Will be overwritten when this is given a dataset.
-                Defaults to None.
-            run_parallel (bool, optional):
+            run_parallel:
                 Whether to run in parallel, will cause `undo` to fail without `saved_records`.
                 If an undo pipeline is needed, set this to False.
-                Defaults to False.
-            warn (bool, optional):
-                Whether to warn on invalid shape. Defaults to True.
+            warn: Whether to warn on invalid shape.
         """
         super().__init__(
             recognised_types={"apply": (xr.Dataset, xr.DataArray, tuple), "undo": (np.ndarray,)},

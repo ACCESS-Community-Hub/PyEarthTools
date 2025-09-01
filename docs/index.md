@@ -22,9 +22,9 @@
     <figcaption>A data processing flow composed for working with climate data.</figcaption>
 </figure>
 
-Source Code: [github.com/ACCESS-Community-Hub/PyEarthTools](https://github.com/ACCESS-Community-Hub/PyEarthTools)
-Documentation: [pyearthtools.readthedocs.io](https://pyearthtools.readthedocs.io)
-Tutorial Gallery: [available here](./notebooks/Gallery)
+Source Code: [github.com/ACCESS-Community-Hub/PyEarthTools](https://github.com/ACCESS-Community-Hub/PyEarthTools)  
+Documentation: [pyearthtools.readthedocs.io](https://pyearthtools.readthedocs.io)  
+Tutorial Gallery: [available here](./notebooks/Gallery)  
 
 ## Installation
 

@@ -48,20 +48,20 @@ class ListParameter:
     """
     Parameter which is a list, and each element is with a range
 
-    Examples
-    >>> list(ListParameter.from_minmax(0, 3, 3))
-    [(0, 0, 0),
-     (0, 0, 1),
-     ...
-     (2, 2, 1),
-     (2, 2, 2)]
-
-    >>> list(ListParameter(['a','b','c'], 3))
-    [('a', 'a', 'a'),
-     ('a', 'a', 'b'),
-     ...
-     ('c', 'c', 'b'),
-     ('c', 'c', 'c')]
+    Examples:
+        >>> list(ListParameter.from_minmax(0, 3, 3))
+        >>> [(0, 0, 0),
+        >>> (0, 0, 1),
+        >>> ...
+        >>> (2, 2, 1),
+        >>> (2, 2, 2)]
+        >>>
+        >>> list(ListParameter(['a','b','c'], 3))
+        >>> [('a', 'a', 'a'),
+        >>> ('a', 'a', 'b'),
+        >>> ...
+        >>> ('c', 'c', 'b'),
+        >>> ('c', 'c', 'c')]
     """
 
     def __init__(self, element_range: list, num_elements: int):
