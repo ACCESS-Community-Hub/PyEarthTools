@@ -108,16 +108,16 @@ SIMPLE_DS2 = xr.Dataset({"Humidity": SIMPLE_DA1, "Temperature": SIMPLE_DA1, "Wom
 COMPLICATED_DS1 = xr.Dataset({"Temperature": SIMPLE_DA1, "MSLP": SIMPLE_DA2})
 
 
-def test_Flatten():
-    f = coordinates.Flatten(["height"])
+def test_CoordinateFlatten():
+    f = reshape.CoordinateFlatten(["height"])
     output = f.apply(SIMPLE_DS2)
     variables = list(output.keys())
     for vbl in ["Temperature10", "Temperature20", "Humidity10", "Humidity20", "WombatsPerKm210", "WombatsPerKm220"]:
         assert vbl in variables
 
 
-def test_Flatten_2_coords():
-    f = coordinates.Flatten(["height", "lon"])
+def test_CoordinateFlatten_2_coords():
+    f = reshape.CoordinateFlatten(["height", "lon"])
     output = f.apply(SIMPLE_DS1)
     variables = list(output.keys())
     # Note that it's hard to predict which coordinate will be processed first.
@@ -143,19 +143,19 @@ def test_Flatten_2_coords():
             assert vbl in variables
 
 
-def test_Flatten_complicated_dataset():
+def test_CoordinateFlatten_complicated_dataset():
     """Check that Flatten still works when the coordinate being flattened does not exist for all variables."""
-    f = coordinates.Flatten(["height"])
+    f = reshape.CoordinateFlatten(["height"])
     output = f.apply(COMPLICATED_DS1)
     variables = list(output.keys())
     for vbl in ["Temperature10", "Temperature20", "MSLP"]:
         assert vbl in variables
 
 
-def test_Flatten_skip_missing():
-    f = coordinates.Flatten(["scrupulosity"])
+def test_CoordinateFlatten_skip_missing():
+    f = reshape.CoordinateFlatten(["scrupulosity"])
     with pytest.raises(ValueError):
         f.apply(SIMPLE_DS1)
-    f2 = coordinates.Flatten(["scrupulosity"], skip_missing=True)
+    f2 = reshape.CoordinateFlatten(["scrupulosity"], skip_missing=True)
     output2 = f2.apply(SIMPLE_DS1)
     assert output2 == SIMPLE_DS1, "When skip_missing=True, Datasets without the given coordinate pass unchanged."

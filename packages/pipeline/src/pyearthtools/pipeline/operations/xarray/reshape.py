@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from typing import Hashable, TypeVar, Union
+from typing import Hashable, TypeVar, Union, Optional, Any
 
 import xarray as xr
 import numpy as np
@@ -22,6 +22,10 @@ import pyearthtools.data
 from pyearthtools.data.transforms.transform import TransformCollection
 from pyearthtools.data.transforms.coordinates import Drop
 from pyearthtools.pipeline.operation import Operation
+
+from packages.data.src.pyearthtools.data.transforms.attributes import SetType
+from packages.data.src.pyearthtools.data.transforms.coordinates import Select
+from packages.utils.src.pyearthtools.utils.decorators import BackwardsCompatibility
 
 T = TypeVar("T", xr.Dataset, xr.DataArray)
 
@@ -184,4 +188,63 @@ class CoordinateFlatten(Operation):
         return new_ds
 
     def undo_func(self, ds):
-        return pyearthtools.data.transforms.coordinates.expand(self.coords)(ds)
+        return pyearthtools.pipeline.operations.xarray.reshape.coordinate_expand(self.coords)(ds)
+
+class CoordinateExpand(Operation):
+    """Inverse operation to `CoordinateFlatten`"""
+
+    def __init__(self, coordinate: Union[Hashable, list[Hashable], tuple[Hashable]], *extra_coordinates):
+        """
+        Inverse operation to [flatten][pyearthtools.pipeline.operations.xarray.reshape.CoordinateFlatten]
+
+        Will find flattened variables and regroup them upon the extra coordinate
+
+        Args:
+            coordinate (Hashable | list[Hashable] | tuple[Hashable]):
+                Coordinate to unflatten.
+            *extra_coordinates (optional):
+                Argument form of `coordinate`.
+        """
+        super().__init__()
+        self.record_initialisation()
+
+        if not isinstance(coordinate, (list, tuple)):
+            coordinate = (coordinate,)
+
+        coordinate = (*coordinate, *extra_coordinates)
+        self._coordinate = coordinate
+
+    # @property
+    # def _info_(self):
+    #     return dict(coordinate=self._coordinate)
+
+    def apply(self, dataset: xr.Dataset) -> xr.Dataset | xr.DataArray:
+        dataset = type(dataset)(dataset)
+
+        for coord in self._coordinate:
+            dtype = dataset.attrs.get(f"{coord}-dtype", "int32")
+            components = []
+            for var in list(dataset.data_vars):
+                var_data = dataset[var]
+                if coord in var_data.attrs:
+                    value = var_data.attrs.pop(coord)
+                    var_data = (
+                        var_data.to_dataset(name=var.replace(str(value), ""))
+                        .assign_coords(**{coord: [value]})
+                        .set_coords(coord)
+                    )
+                components.append(var_data)
+
+            dataset = xr.combine_by_coords(components)  # type: ignore
+            dataset = SetType(**{str(coord): dtype})(dataset)
+
+            ## Add stored encoding if there
+            if f"{coord}-dtype" in dataset.attrs:
+                dtype = dataset.attrs.pop(f"{coord}-dtype")
+                dataset[coord].encoding.update(dtype=dtype)
+
+        return dataset
+
+
+@BackwardsCompatibility(CoordinateExpand)
+def coordinate_expand(*args, **kwargs) -> Operation: ...
