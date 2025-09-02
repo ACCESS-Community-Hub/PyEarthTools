@@ -66,7 +66,7 @@ from pyearthtools.utils.context import ChangeValue
 
 LOG = logging.getLogger("pyearthtools.data")
 
-
+ 
 class Index(CallRedirectMixin, CatalogMixin, metaclass=ABCMeta):
     """
     Base Level Index to define the structure
@@ -208,8 +208,8 @@ class FileSystemIndex(Index, metaclass=ABCMeta):
         """
         try:
             return self.load(self.search(*args), **kwargs)
-        except FileNotFoundError as e:
-            raise DataNotFoundError(f"Data with args: {args} could not be found.") from e
+        except Exception as e:
+            raise DataNotFoundError(f"Data with args: {str(args)} could not be found.") from e
 
     def filesystem(self, *args) -> Path | dict[str, str]:
         """
@@ -349,23 +349,20 @@ class SingleTimeIndex(Index):
         **kwargs,
     ):
         """
-        Setup TimeIndex,
+        Setup TimeIndex.
 
         Will warn a user if date is of incorrect resolution
 
         Args:
-            data_interval (tuple[int, str] | int, optional):
-                Interval of data. Must follow format for
-                [TimeDelta][pyearthtools.data.time.TimeDelta]. by default None
-                E.g.
-                    (1, 'h') = 1 Hour
-                    (10, 'D') = 10 Days.
-                    10 = 10 minutes.
+            data_interval: Interval of data. Must follow format for
+                [TimeDelta][pyearthtools.data.time.TimeDelta].
 
-                Defaults to None.
-            round (bool, optional):
-                Default value for round when retrieving data.
-                Defaults to False.
+                - E.g. \n
+                >>> (1, 'h') = 1 Hour
+                >>> (10, 'D') = 10 Days.
+                >>> 10 = 10 minutes.
+
+            round: Default value for round when retrieving data.
         """
 
         super().__init__(**kwargs)
@@ -415,15 +412,13 @@ class SingleTimeIndex(Index):
         Set interval of data
 
         Args:
-            data_interval (tuple[int, str] | int, optional):
-                Interval of data. Must follow format for
-                [TimeDelta][pyearthtools.data.time.TimeDelta]. by default None
-                E.g.
-                    (1, 'h') = 1 Hour
-                    (10, 'D') = 10 Days.
-                     10 = 10 minutes.
+            data_interval: Interval of data. Must follow format for [TimeDelta][pyearthtools.data.time.TimeDelta].
 
-                Defaults to None.
+                - E.g. \n
+                  >>> (1, 'h') = 1 Hour
+                  >>> (10, 'D') = 10 Days.
+                  >>> 10 = 10 minutes.
+
         """
         resolution = None
         if data_interval:
@@ -521,18 +516,12 @@ class TimeIndex(SingleTimeIndex):
         API Function of [series][pyearthtools.data.index_operations.index_routines.series] for each AdvancedTimeIndex
 
         Args:
-            start (str | Petdt):
-                Start time for series
-            end (str | Petdt):
-                End time for series
-            interval (TimeDelta, optional):
-                Interval to retrieve data at. Defaults to initialise resolution.
-            transforms (TransformCollection | Transform, optional):
-                Extra Transforms to apply. Defaults to TransformCollection().
+            start: Start time for series
+            end: End time for series
+            interval: Interval to retrieve data at.
+            transforms: Extra Transforms to apply.
 
-        Returns:
-            (xr.Dataset):
-                Loaded series of data
+        Returns: Loaded series of data
         """
 
         interval = self._get_interval(interval)
@@ -564,18 +553,12 @@ class TimeIndex(SingleTimeIndex):
         Provides a safer way into get a series of data.
 
         Args:
-            start (str | Petdt):
-                Start time for series
-            end (str | Petdt):
-                End time for series
-            interval (tuple[int, str], optional):
-                Interval to retrieve data at. Defaults to initialised resolution .
-            transforms (TransformCollection | Transform, optional):
-                Extra Transforms to apply. Defaults to TransformCollection().
+            start: Start time for series
+            end: End time for series
+            interval: Interval to retrieve data at.
+            transforms: Extra Transforms to apply.
 
-        Returns:
-            (xr.Dataset):
-                Loaded safe_series of data
+        Returns: Loaded safe_series of data
         """
         interval = self._get_interval(interval)
 
@@ -605,18 +588,12 @@ class TimeIndex(SingleTimeIndex):
         API Function of [aggregation][pyearthtools.data.index_operations.index_operations.aggregation] for each AdvancedTimeIndex
 
         Args:
-            start (str | Petdt):
-                Start time for series
-            end (str | Petdt):
-                End time for series
-            interval (tuple[int, str], optional):
-                Interval to retrieve data at. Defaults to initialise resolution .
-            transforms (TransformCollection | Transform, optional):
-                Extra Transforms to apply. Defaults to TransformCollection().
+            start: Start time for series
+            end: End time for series
+            interval: Interval to retrieve data at.
+            transforms: Extra Transforms to apply.
 
-        Returns:
-            (xr.Dataset):
-                Aggregation of data
+        Returns: Aggregation of data
         """
         interval = self._get_interval(interval)
         if self.data_resolution:
@@ -659,7 +636,7 @@ class TimeIndex(SingleTimeIndex):
 
 class SingleTimeDataIndex(TimeIndex, DataIndex):
     """
-    Combine `SingleTimeIndex` and `DataIndex`,
+    Combine `SingleTimeIndex` and `DataIndex`.
 
     Allows temporal indexing with transforms applied.
     """
@@ -736,18 +713,23 @@ class AdvancedTimeIndex(TimeIndex):
 
     Overrides `retrieve`, to allow a series of data to be retrieved based upon given date resolution.
 
-    ??? tip "New retrieve Behaviour"
-        Consider a dataset with 10 minute resolution
 
-        | Date      | Behaviour               |
-        | --------- | ----------------          |
-        |`2021-01-01T00:00`|Exact Data            |
-        |`2021-01-01T00`   |All Data in that hour  |
-        |`2021-01-01`      |All Data in that day  |
-        |`2021-01`         |All Data in that month|
-        |`2021`            |All Data in that year |
+    .. tip::
 
-    !!! Important
+        **"New retrieve Behaviour"**
+
+        >>>    Consider a dataset with 10 minute resolution
+        >>>
+        >>>    | Date             | Behaviour             |
+        >>>    | -----------------|-----------------------|
+        >>>    |`2021-01-01T00:00`|Exact Data             |
+        >>>    |`2021-01-01T00`   |All Data in that hour  |
+        >>>    |`2021-01-01`      |All Data in that day   |
+        >>>    |`2021-01`         |All Data in that month |
+        >>>    |`2021`            |All Data in that year  |
+
+    .. important::
+
         Many features of this class require the `data_interval` to be specified
 
     """
@@ -764,38 +746,37 @@ class AdvancedTimeIndex(TimeIndex):
         """
         Retrieve data at timestep, but will use the resolution of the time to infer large scale retrievals.
 
-        !!! tip "Date Behaviour"
+        .. tip::
 
-            | Date      | Behaviour               |
-            | --------- | ----------------          |
-            |`2021-01-01T00:00`|Exact Data            |
-            |`2021-01-01`      |All Data in that day  |
-            |`2021-01`         |All Data in that month|
-            |`2021`            |All Data in that year |
+            **"Date Behaviour"**
+
+            >>>    | Date               | Behaviour              |
+            >>>    | ------------------ | -----------------------|
+            >>>    | '2021-01-01T00:00' | Exact Data             |
+            >>>    | '2021-01-01'       | All Data in that day   |
+            >>>    | '2021-01'          | All Data in that month |
+            >>>    | '2021'             | All Data in that year  |
 
         Args:
-            querytime (str | datetime.datetime):
-                Timestep to retrieve data at, can be exact data or range as described above.
-            aggregation (str, optional):
-                If data becomes a range, can specify an aggregation method. Defaults to None.
-            select (bool, optional):
-                Whether to attempt to select the given timestep if date is either fully qualified
-                or data_interval not given. Defaults to True.
-            use_simple (bool, optional):
-                Whether to simply use the DataIndex.retrieve instead. Defaults to False.
-            kwargs (Any, optional):
-                Kwargs passed to downstream retrieval function
 
-        Raises:
-            DataNotFoundError:
-                If Data not found at timestep
+            querytime: Timestep to retrieve data at, can be exact data or range as described above.
+            aggregation: If data becomes a range, can specify an aggregation method.
+            select: Whether to attempt to select the given timestep if date is either fully qualified
+                or data_interval not given.
+            use_simple: Whether to simply use the `DataIndex.retrieve` instead.
+            kwargs: Kwargs passed to downstream retrieval function
 
         Returns:
-            (xr.Dataset):
-                Loaded Dataset with transforms applied, and aggregated if `aggregation_method` given
+
+            Loaded Dataset with transforms applied, and aggregated if `aggregation_method` given.
+
+        Raises:
+
+            DataNotFoundError: If Data not found at timestep.
 
         Note:
             Extra transforms can be supplied, using `transforms = `
+
         """
 
         querytime = Petdt(querytime)

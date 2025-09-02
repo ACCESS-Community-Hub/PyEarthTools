@@ -249,41 +249,38 @@ def variable_modifications(
     Syntax:
         Within the specification of the variables, a user can set the modifications with either,
 
-        Can be str of form
-            ```
-            - '!accumulate[period: "6 hourly"]:tcwv>accum_tcwv'
-            ```
-            Where the `!ABC` references the function to apply, the `[]` the init kwargs needed in json form,
-            and all after `:` being the normal variable specification with anything after `>` being the new name.
+        Can be str of form `'!accumulate[period: "6 hourly"]:tcwv>accum_tcwv'`, where:
 
-        Or dictionary with following keys
-        ```
-            - source_var (REQUIRED)     Variable to modify
-            - modification (REQUIRED)   Modification to apply
-            - target_var                Rename of variable
-            - **                        Any other keys for `modification`
-        ```
+        - `!accumulate` references the function to apply
+        - the `[init kwargs]` specify the required kwargs needed, supplied in json form,
+        - the string after `:` being the normal variable specification with anything after `>` being the new name.
+
+
+        Or dictionary with following keys:
+
+        - `source_var` (REQUIRED)     Variable to modify
+        - `modification` (REQUIRED)   Modification to apply
+        - `target_var`                Rename of variable
+        - `**`                        Any other keys for `modification`
 
         This will be transparent to the user, and only act upon retrieval of data.
 
-    Supported:
         Available modifications include:
-        ```
-            - !accumulate
-            - !mean
-            - !aggregate
-        ```
+
+        - `!accumulate`
+        - `!mean`
+        - `!aggregate`
+
 
     Examples:
-        ```python
-        class Archive(ArchiveIndex):
-            @variable_modifications(variable_keyword = 'variable')
-            def __init__(self, variable):
-                ...
 
-        # Then usage of that Archive
-        Archive('!accumulate[period = "6 hourly"]:tcwv)
-        ```
+        >>> class Archive(ArchiveIndex):
+        >>>     @variable_modifications(variable_keyword = 'variable')
+        >>>     def __init__(self, variable):
+        ...     ...
+        ...
+        ... # Then usage of that Archive
+        >>> Archive('!accumulate[period = "6 hourly"]:tcwv)
 
     Notes:
         If using this decorator with `check_arguments` put this one above it, and with `alias_arguments` put it below.

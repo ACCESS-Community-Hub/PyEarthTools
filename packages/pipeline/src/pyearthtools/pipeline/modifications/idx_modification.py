@@ -64,10 +64,12 @@ class IdxOverride(PipelineIndex):
 
 
 class IdxModifier(PipelineIndex, ParallelEnabledMixin):
-    """Modify index used in `__getitem__`, allows for multiple samples.
+    """
+    Modify index used in `__getitem__`, allows for multiple samples.
 
 
-    Examples
+    Examples:
+
         >>> pipeline = Pipeline(IdxModifier((0, 1)))
         >>> pipeline[1] # Will get sample with (1, 2)
     """
@@ -87,32 +89,26 @@ class IdxModifier(PipelineIndex, ParallelEnabledMixin):
         Index modification
 
         Args:
-            modification (Union[Any, tuple[Union[Any, tuple[Any, ...]], ...]]):
-                Can be Any type, if tuple will map across elements.
-            merge (Union[bool, int], optional):
-                Merge retrieved tuple, must all be the same type.
+            modification: Can be Any type, if tuple will map across elements.
+            merge: Merge retrieved tuple, must all be the same type.
                 If `int` corresponds to how many layers to merge from the bottom up.
                 If `True`, merge one layer.
-                Defaults to False.
-            concat (bool, optional):
-                Whether to concat arrays instead of stack. Defaults to False.
-            merge_function (Optional[Callable], optional):
-                Override for function to use when merging.
-                Defaults to None.
-            merge_kwargs (Optional[dict[str, Any]], optional):
-                Optional extra kwargs for the merge function if `merge`. Defaults to None.
+            concat: Whether to concat arrays instead of stack.
+            merge_function: Override for function to use when merging.
+            merge_kwargs: Optional extra kwargs for the merge function if `merge`.
 
         Examples:
-        >>> IdxModifier((0, 1))
-            # Will get samples with (idx+0, idx+1)
-        >>> IdxModifier((0, (1, 2)))
-            # Will get samples with (idx+0, (idx+1, idx+2))
-        >>> IdxModifier((0, (1, 2)), merge = 1)
-            # Will get samples with (idx+0, merged(idx+1, idx+2))
-        >>> IdxModifier((0, (1, 2)), merge = True)
-            # Will get samples with (idx+0, merged(idx+1, idx+2))
-        >>> IdxModifier((0, (1, 2)), merge = 2)
-            # Will get samples with merged(idx+0, merged(idx+1, idx+2))
+
+            >>> IdxModifier((0, 1))
+            ... # Will get samples with (idx+0, idx+1)
+            >>> IdxModifier((0, (1, 2)))
+            ... # Will get samples with (idx+0, (idx+1, idx+2))
+            >>> IdxModifier((0, (1, 2)), merge = 1)
+            ... # Will get samples with (idx+0, merged(idx+1, idx+2))
+            >>> IdxModifier((0, (1, 2)), merge = True)
+            ... # Will get samples with (idx+0, merged(idx+1, idx+2))
+            >>> IdxModifier((0, (1, 2)), merge = 2)
+            ... # Will get samples with merged(idx+0, merged(idx+1, idx+2))
 
         """
         super().__init__()
@@ -289,60 +285,57 @@ class SequenceRetrieval(IdxModifier):
     """
     Subclassing from `IdxModifier`, retrieve a sequence of samples based on rules.
 
-    ## Notes
-    Will attempt to stack samples, and may create a new 0 axis.
+    Notes:
 
-    ## Int
+        Will attempt to stack samples, and may create a new 0 axis.
 
-    If `samples` is an `int`:
-        Retrieve the idx originally asked for, and the sample offset by `samples`.
-        This will return 'sorted'.
-        >>> SequenceRetrieval(1)[0]
-        # Will get (0, 1)
-        >>> SequenceRetrieval(-1)[0]
-        # Will get (-1, 0)
-        >>> SequenceRetrieval(-6)[0]
-        # Will get (-6, 0)
+    If `samples` is an `int`, then retrieve the idx originally asked for, and the sample offset by `samples`.
 
-    ## Single element
-    If `samples` is a single element it must be of length 2 or 3, with the third being optional:
-        Corresponds to a (offset, num_of_samples, Optional[interval, defaults to 1])
+    This will return 'sorted'.
 
-        The `idx` being requested is first offset, then num_of_samples retrieved, merged where applicable.
+    >>> SequenceRetrieval(1)[0]
+    ... # Will get (0, 1)
+    >>> SequenceRetrieval(-1)[0]
+    ... # Will get (-1, 0)
+    >>> SequenceRetrieval(-6)[0]
+    ... # Will get (-6, 0)
 
-        If a single sample is retrieved, it will not be in a tuple if cannot be merged.
+    If `samples` is a single-element iterable, it must be of length 2 or 3, with the third being optional.
+    The `idx` being requested is first offset, then num_of_samples retrieved, merged where applicable.
+    If a single sample is retrieved, it will not be in a tuple if cannot be merged.
 
-        >>> SequenceRetrieval((0, 3))[0]
-        # Will get (0, 1, 2)
-        >>> SequenceRetrieval((-1, 2))[0]
-        # Will get (-1, 0)
-        >>> SequenceRetrieval((2, 3))[0]
-        # Will get (2,3,4)
-        >>> SequenceRetrieval((2, 3, 2))[0]
-        # Will get (2,4,6)
-        >>> SequenceRetrieval((2, 1))[0]
-        # Will get 2
+    >>> SequenceRetrieval((0, 3))[0]
+    ... # Will get (0, 1, 2)
+    >>> SequenceRetrieval((-1, 2))[0]
+    ... # Will get (-1, 0)
+    >>> SequenceRetrieval((2, 3))[0]
+    ... # Will get (2,3,4)
+    >>> SequenceRetrieval((2, 3, 2))[0]
+    ... # Will get (2,4,6)
+    >>> SequenceRetrieval((2, 1))[0]
+    ... # Will get 2
 
-    ## Multiple elements
+
     If `samples` is of multiples element it can consist of either tuples or ints.
-        A tuple in this sequence corresponds to the same as `single element`,
-        and an int the next offset to retrieve a sample at.
+    A tuple in this sequence corresponds to the same as `single element`,
+    and an int the next offset to retrieve a sample at.
 
-        These index adjustments are accumulated, so if a retrieval moves the marker
-        2 forwards, the next sampling config will operate from there.
+    These index adjustments are accumulated, so if a retrieval moves the marker
+    2 forwards, the next sampling config will operate from there.
 
-        Each config in the `samples` will be returned within its own tuple, merged where applicable.
+    Each config in the `samples` will be returned within its own tuple, merged where applicable.
 
-        >>> SequenceRetrieval((0, 3),(1, 2))[0]
-        # Will get ((0, 1, 2), (3, 4))
-        >>> SequenceRetrieval((0, 3),1)[0]
-        # Will get ((0, 1, 2), 3)
-        >>> SequenceRetrieval((0, 3),2)[0]
-        # Will get ((0, 1, 2), 4)
-        >>> SequenceRetrieval((0, 3),(-1, 2))[0]
-        # Will get ((0, 1, 2), (1, 2))
-        >>> SequenceRetrieval((0, 3),(-1, 1))[0]
-        # Will get ((0, 1, 2), 1)
+    >>> SequenceRetrieval((0, 3),(1, 2))[0]
+    ... # Will get ((0, 1, 2), (3, 4))
+    >>> SequenceRetrieval((0, 3),1)[0]
+    ... # Will get ((0, 1, 2), 3)
+    >>> SequenceRetrieval((0, 3),2)[0]
+    ... # Will get ((0, 1, 2), 4)
+    >>> SequenceRetrieval((0, 3),(-1, 2))[0]
+    ... # Will get ((0, 1, 2), (1, 2))
+    >>> SequenceRetrieval((0, 3),(-1, 1))[0]
+    ... # Will get ((0, 1, 2), 1)
+
     """
 
     _merge_level = 1
@@ -453,6 +446,12 @@ class TemporalRetrieval(SequenceRetrieval):
         merge_kwargs: Optional[dict[str, Any]] = None,
         delta_unit: Optional[str] = None,
     ):
+        """
+        Args:
+            samples: number of samples to fetch (negative for n-back, positive for n-forward)
+            delta_unit: e.g. "month" or "hour"
+            concat: whether to contact or merge
+        """
         super().__init__(samples, merge_function=merge_function, concat=concat, merge_kwargs=merge_kwargs)
 
         def map_to_tuple(mod):

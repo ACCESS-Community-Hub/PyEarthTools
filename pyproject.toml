@@ -4,17 +4,21 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyearthtools"
-description = "Reproducible science pipelines for machine learning"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 keywords = ["pyearthtools"]
 maintainers = [
     { name = "Tennessee Leeuwenburg", email = "tennessee.leeuwenburg@bom.gov.au" },
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
 ]
+
+description = """\
+PyEarthTools: Machine learning for Earth system science. 
+"""
 
 version = "0.2.0"
 
@@ -76,6 +80,7 @@ docs = [
     "sphinx_gallery",
     "sphinx-design",
     "sphinx-togglebutton",
+    "sphinxcontrib-mermaid"
 ]
 
 [project.urls]

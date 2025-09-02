@@ -156,11 +156,42 @@ class MagicNorm(xarrayNormalisation):
 class Deviation(xarrayNormalisation):
     """Deviation Normalisation"""
 
-    def __init__(self, mean: FILE, deviation: FILE):
+    def __init__(
+        self, 
+        mean: FILE | xr.Dataset | xr.DataArray | float, 
+        deviation: FILE | xr.Dataset | xr.DataArray | float,
+        debug=False
+    ):
+        """
+        Each argument take take a Dataset, DataArray, float or file object.
+
+        Args:
+            mean: mean values to subtract
+            deviation: deviation value to divide by
+        """
         super().__init__()
         self.record_initialisation()
-        self.mean = self.open_file(mean)
-        self.deviation = self.open_file(deviation)
+
+        if debug:
+            import pdb; pdb.set_trace()
+
+        if isinstance(mean, xr.Dataset):
+            self.mean = mean
+        elif isinstance(mean, xr.DataArray):
+            self.mean = mean
+        elif isinstance(mean, float):
+            self.mean = mean
+        else:
+            self.mean = self.open_file(mean)
+
+        if isinstance(deviation, xr.Dataset):
+            self.deviation = deviation
+        elif isinstance(deviation, xr.DataArray):
+            self.deviation = deviation            
+        elif isinstance(deviation, float):
+            self.deviation = deviation
+        else:
+            self.deviation = self.open_file(deviation)
 
     def normalise(self, sample):
         return (sample - self.mean) / self.deviation

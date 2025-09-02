@@ -49,8 +49,6 @@
 .. autofunction:: pyearthtools.training.wrapper.lightning.train.make_callback
 .. autoclass:: pyearthtools.training.wrapper.lightning.wrapper.LightningWrapper
 
-.. autoclass:: pyearthtools.training.wrapper.predict.Predictor
-    :members:
 .. autoclass:: pyearthtools.training.wrapper.predict.TimeSeriesPredictor
     :members:
 .. autoclass:: pyearthtools.training.wrapper.predict.TimeSeriesAutoRecurrentPredictor

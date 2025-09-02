@@ -266,51 +266,52 @@ class Flatten(Operation):
         """Operation to flatten incoming data
 
         Args:
-            flatten_dims (Optional[int], optional):
-                Number of dimensions to flatten, counting from the end. If None, flatten all, with size being stored from first use.
-                Is used for negative indexing, so for last three dims `flatten_dims` == 3, Defaults to None.
-            shape_attempt (Optional[tuple[int, ...]], optional):
-                Reshape value to try if discovered shape fails. Used if data coming to be undone is different.
-                Can have `'...'` as wildcards to get from discovered, Defaults to None.
+            flatten_dims: Number of dimensions to flatten, counting from the end. If None, flatten all,
+                          with size being stored from first use.
+                          Is used for negative indexing, so for last three dims `flatten_dims` == 3, Defaults to None.
+            shape_attempt: Reshape value to try if discovered shape fails. Used if data coming to be undone is different.
+                           Can have `'...'` as wildcards to get from discovered, Defaults to None.
 
         Examples:
+
             >>> incoming_data = np.zeros((5,4,3,2))
             >>> flattener = Flatten(flatten_dims = 2)
             >>> flattener.apply_func(incoming_data).shape
-            (5, 4, 6)
+            ... (5, 4, 6)
             >>> flattener = Flatten(flatten_dims = 3)
             >>> flattener.apply_func(incoming_data).shape
-            (5, 24)
+            ... (5, 24)
             >>> flattener = Flatten(flatten_dims = None)
             >>> flattener.apply_func(incoming_data).shape
-            (120)
+            ... (120)
 
-        ??? tip "shape_attempt Advanced Use"
+        .. tip::
+            **`shape_attempt` Advanced Use**
+
             If using a model which does not return a full sample, say an XGBoost model only returning the centre value, set `shape_attempt`.
 
             If incoming data is of shape `(1, 1, 3, 3)`, and data for undoing is `(1, 1, 1, 1)` aka `(1)`, set `shape_attempt` to `('...','...', 1, 1)`
 
 
-            ```python title="Spatial Size Change"
-            incoming_data = np.zeros((1,1,3,3))
-            flattener = Flatten(shape_attempt = (1,1,1,1))
-            flattener.apply_func(incoming_data).shape   #(9,)
-
-            undo_data = np.zeros((1))
-            flattener.undo_func(undo_data).shape        #(1,1,1,1)
-            ```
+            >>> title="Spatial Size Change"
+            >>> incoming_data = np.zeros((1,1,3,3))
+            >>> flattener = Flatten(shape_attempt = (1,1,1,1))
+            >>> flattener.apply_func(incoming_data).shape   #(9,)
+            >>>
+            >>> undo_data = np.zeros((1))
+            >>> flattener.undo_func(undo_data).shape        #(1,1,1,1)
 
 
             If incoming data is of shape `(8, 1, 3, 3)`, and data for undoing is `(2, 1, 1, 1)` aka `(2)`, set `shape_attempt` to `(2,'...',1,1)`
 
-            ```python title=" Channel or Time Size Change also"
-            incoming_data = np.zeros((8,1,3,3))
-            flattener = Flatten(shape_attempt = (2,1,1,1))
-            flattener.apply_func(incoming_data).shape   #(72,)
+            >>> title=" Channel or Time Size Change also"
+            >>> incoming_data = np.zeros((8,1,3,3))
+            >>> flattener = Flatten(shape_attempt = (2,1,1,1))
+            >>> flattener.apply_func(incoming_data).shape   #(72,)
+            >>>
+            >>> undo_data = np.zeros((2))
+            >>> flattener.undo_func(undo_data).shape        #(2,1,1,1)
 
-            undo_data = np.zeros((2))
-            flattener.undo_func(undo_data).shape        #(2,1,1,1)
-            ```
         """
         super().__init__(
             split_tuples=False,

@@ -49,22 +49,16 @@ class Interpolate(Transform):
         Interpolation Transform passing kwargs
 
         Args:
-            **kwargs (Any):
+            **kwargs:
                 Kwargs to pass to `xr.interp`. Should be variables with new coordinates to interpolate to.
-                e.g.
-                    latitude = [-90,-80,...,80,90]
-            method (InterpOptions, optional):
+                e.g. `latitude = [-90,-80,...,80,90]`
+            method:
                 Method to use for interpolate. Defaults to "linear".
                 Must be one of xarray.interp methods
-
                 "linear", "nearest", "zero", "slinear", "quadratic", "cubic", "polynomial", "barycentric", "krog", "pchip", "spline", "akima"
-            keep_encoding (bool, optional):
-                Whether to keep the encoding of the incoming dataset. Defaults to False.
-            skip_missing (bool, optional):
-                Skip missing dimensions as given in `kwargs` but not in dataset. Defaults to False.
-            pad (bool | int, optional):
-                Whether to pad all coords by 1. If `int` size to pad by.
-                Defaults to False.
+            keep_encoding: Whether to keep the encoding of the incoming dataset.
+            skip_missing: Skip missing dimensions as given in `kwargs` but not in dataset.
+            pad: Whether to pad all coords by 1. If `int` size to pad by.
 
 
         Returns:
@@ -158,28 +152,21 @@ class XESMF(Transform):
         method: str = "bilinear",
         **coords,
     ):
-        """Create Transform using xesmf
+        """
+        Create Transform using xesmf
 
         Either `reference_dataset` or `coords` must be given
 
         Args:
-            reference_dataset (xr.Dataset, optional):
-                Reference Dataset. Defaults to None.
-            **coords (tuple):
-                Coordinates to create reference_dataset from.
-                Can be fully created or tuple to use to fill np.arange
-                Either:
-                    lat = (["lat"], np.arange(16, 75, 1.0))
-                or
-                    lat = (16, 75, 1.0)
-            method (str, optional):
-                Method to use. Defaults to "bilinear".
+            reference_dataset: Reference Dataset.
+            **coords: Coordinates to create reference_dataset from. Can be fully created or tuple to use to fill np.arange.
+                    Either `lat = (["lat"], np.arange(16, 75, 1.0))`
+                    or `lat = (16, 75, 1.0)`
+            method: Interpolation method to use.
 
         Raises:
-            ImportError:
-                xesmf could not be imported
-            KeyError:
-                No arguments given
+            ImportError: xesmf could not be imported
+            KeyError: No arguments given
         """
         super().__init__()
         self.record_initialisation()

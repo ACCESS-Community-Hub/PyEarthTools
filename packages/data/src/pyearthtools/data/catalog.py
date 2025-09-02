@@ -108,16 +108,13 @@ class CatalogEntry:
         Can be used to catalog any class, and the args and kwargs to initalise it.
 
         Args:
-            item_class (Callable | str):
-                Class to setup catalog entry for
-            *args (Any):
-                args to be passed to `item_class`
-            name (str):
-                Name of this entry
-            class_path (str, None):
-                Override for class path. If not given will be auto found.
-            **kwargs (Any):
-                kwargs to be passed to `item_class`
+
+            item_class: Class for which to setup a catalog entry
+            args: args to be passed to `item_class`
+            *extra_args: also passed to `item_class`
+            name: Name of this entry
+            class_path: Override for class path. If not given will be auto found.
+            **kwargs: kwargs to be passed to `item_class`
         """
         if isinstance(item_class, str):
             item_class = dynamic_import(item_class)
@@ -148,8 +145,7 @@ class CatalogEntry:
         """
         Get underlying Class of the catalog entry
 
-        Returns:
-            (Any): Underlying Class
+        Returns: Underlying Class
         """
         if self.item_class is None:
             raise AttributeError("The item_class has not been provided, cannot get `function`.")
@@ -175,8 +171,10 @@ class CatalogEntry:
         Convert `CatalogEntry` into dict
 
         Returns:
-            dict: Dictionary containing all info needed to reconstruct
-            Structure:
+            dict: Dictionary containing all info needed to reconstruct the object.
+
+            Structure::
+
                 item_class: Function class path
                 name: Catalog Entry name
                 args: Args used to init
@@ -208,30 +206,23 @@ class CatalogEntry:
         This dictionary can be of two forms, one that is the result of `CatalogEntry.to_dict()`,
         and the other a more general form.
 
-        ```python
-        ## Form of the init_dict
+        **Form of the init_dict**
 
-        {
-            CLASS:
-                { # All are optional
-                args: #Arguments to initalise with
-                kwargs: #Keyword arguments to initalise with
-                name: #Name of entry
-                }
-
-        }
-        ```
+        >>> {
+        >>>     CLASS:
+        >>>         { # All are optional
+        >>>         args: #Arguments to initalise with
+        >>>         kwargs: #Keyword arguments to initalise with
+        >>>         name: #Name of entry
+        >>>         }
+        >>>
+        >>> }
 
         Args:
-            init_dict (dict):
-                Initialisation Dictionary.
-            **kwargs (dict, optional):
-                Kwargs to replace init_dict['kwargs'] with. Defaults to {}
+            init_dict: Initialisation Dictionary.
+            **kwargs: Kwargs to replace init_dict['kwargs'] with.
 
-
-        Returns:
-            CatalogEntry:
-                Loaded `CatalogEntry`
+        Returns: Loaded `CatalogEntry`
         """
 
         if "data_index" in init_dict:

@@ -32,6 +32,7 @@ extensions = [
     "sphinx_gallery.load_style",
     "sphinx_design",
     "sphinx_togglebutton",
+    "sphinxcontrib.mermaid",
 ]
 source_suffix = [".rst", ".md"]
 
@@ -39,11 +40,14 @@ myst_enable_extensions = [
     "substitution",
     "colon_fence",
 ]
+myst_fence_as_directive = ["mermaid"]
 
 templates_path = ["_templates"]
 exclude_patterns = [
     "**/.ipynb_checkpoints",
 ]
+
+default_role = "literal"
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
@@ -57,6 +61,7 @@ html_theme_options = {
 }
 html_baseurl = "https://pyearthtools.readthedocs.io/en/latest/"
 autodoc_typehints = "description"
+autoclass_content = "both"
 
 # This is needed to allow linking into auto-generated API documentation
 # It means there is a risk that genuine cross-referencing errors will be

@@ -39,19 +39,16 @@ def flattened_combinations(iterable: Iterable[Any | Iterable[Any]], r: int = 1) 
     If no elements are iterable, will early return.
 
     Args:
-        iterable (Iterable[Any | list[Any] | tuple[Any]]):
-            Iterable containing items of list, tuple or other
-        r (int, optional):
-            Degrees to descend in the Iterable, if any left.
+        iterable: Iterable containing items of list, tuple or other
+        r: Degrees to descend in the Iterable, if any left.
 
-    Returns:
-        (list[Any | list[Any]]):
-            List containing all combinations of flattened input.
+    Returns: List containing all combinations of flattened input.
 
 
     Examples:
-    >>> flattened_combinations([1,2,[3,4,5]])
-    [[1,2,3],[1,2,4],[1,2,5]]
+
+        >>> flattened_combinations([1,2,[3,4,5]])
+        ... [[1,2,3],[1,2,4],[1,2,5]]
     """
 
     if r <= 0 or not any([isinstance(x, (list, tuple)) for x in iterable]):
@@ -78,17 +75,18 @@ class _Argument(PatternIndex):
         Filename is made from all args, and directory is all args too.
 
     Examples:
+
         >>> pattern = pyearthtools.data.patterns.ArgumentExpansion('/dir/')
         >>> str(pattern.search('test','arg'))
-        '/dir/arg/test.nc'
+        ... '/dir/arg/test.nc'
         >>> str(pattern.search('test','arg', 'another_arg'))
-        '/dir/arg/another_arg/test.nc'
+        ... '/dir/arg/another_arg/test.nc'
         >>> pattern = pyearthtools.data.patterns.ArgumentExpansion('/dir/', filename_as_arguments = True)
         >>> str(pattern.search('test','arg'))
-        '/dir/test/arg/test_arg.nc'
+        ... '/dir/test/arg/test_arg.nc'
         >>> pattern = pyearthtools.data.patterns.ArgumentExpansion('/dir/', expand_tuples = True)
         >>> [str(x) for x in pattern.search('test',('arg1', 'arg2'))]
-        ['/dir/arg1/test.nc', '/dir/arg2/test.nc']
+        ... ['/dir/arg1/test.nc', '/dir/arg2/test.nc']
     """
 
     @decorators.alias_arguments(filename_delimiter=["filename_deliminator"])
@@ -109,29 +107,20 @@ class _Argument(PatternIndex):
 
 
         Args:
-            root_dir (str | Path):
-                Root Path to use
-            prefix (str, optional):
-                prefix to add.
-                Defaults to "".
-            extension (str, optional):
-                File Extension to use. Used to determine saving and loading function.
-                Defaults to DEFAULT_EXTENSION.
-            valid_arguments (list[Any], optional):
-                Valid arguments to limit usability to. Defaults to None.
-            filename_as_arguments (bool, optional):
-                Whether the filename should be constructed from all argumenets.
-                E.g.
-                    ArgumentExpansion('name','dir1')
-                    # root_dir/name/dir1/name_dir1.extension
-                If False, filename is first argument given.
-                Defaults to False.
-            filename_delimiter (str, optional):
-                delimiter for filename if `filename_as_arguments` is True. Defaults to '_'.
-            expand_tuples (bool | int, optional):
-                Whether to expand tuples when given in search. If True, levels = 1.
-                If `int` represents how many levels to descend in the Iterable.
-                Defaults to False.
+
+            root_dir: Root Path to use
+            prefix: prefix to add.
+            extension: File Extension to use. Used to determine saving and loading function.
+            valid_arguments: Valid arguments to limit usability to.
+            filename_as_arguments: Whether the filename should be constructed from all arguments.
+
+                - E.g. \n
+                  >>> ArgumentExpansion('name', 'dir1')
+                  ... # root_dir/name/dir1/name_dir1.extension
+                - If False, filename is first argument given.
+            filename_delimiter: delimiter for filename if `filename_as_arguments` is True.
+            expand_tuples: Whether to expand tuples when given in search. If True, levels = 1.
+                           If `int` represents how many levels to descend in the Iterable.
 
 
         """

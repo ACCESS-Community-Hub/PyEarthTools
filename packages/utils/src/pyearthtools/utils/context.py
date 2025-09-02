@@ -28,16 +28,14 @@ class ChangeValue(ContextDecorator):
     Context Manager to change attribute of object and revert after
 
     Example:
-        ```python
-        object.attribute = 'value'
-        print(object.attribute) # 'value'
-
-        with ChangeValue(object, key = 'attribute', value = 'NewValue'):
-            object.attribute = 'NewValue'
-            print(object.attribute) # 'NewValue'
-
-        print(object.attribute) # 'value'
-        ```
+        >>> object.attribute = 'value'
+        >>> print(object.attribute) # 'value'
+        >>>
+        >>> with ChangeValue(object, key = 'attribute', value = 'NewValue'):
+        >>>     object.attribute = 'NewValue'
+        >>>     print(object.attribute) # 'NewValue'
+        >>>
+        >>> print(object.attribute) # 'value'
     """
 
     def __init__(self, object: Any, key: str, value: Any):

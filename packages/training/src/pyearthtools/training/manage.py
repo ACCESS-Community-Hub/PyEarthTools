@@ -60,19 +60,20 @@ class Variables:
     All arrays are expected to be channel / variable first.
 
     E.g.
+
     >>> Variables(order = 'PFD', prognostics = 10, diagnostics = 5, forcings = 7)
-        Variables - (PFD)
-        prognostics - 10
-        forcings - 7
-        diagnostics - 5
+    ...    Variables - (PFD)
+    ...    prognostics - 10
+    ...    forcings - 7
+    ...    diagnostics - 5
 
     >>> variables = Variables(order = 'PFD', prognostics = 10, diagnostics = 5, forcings = 7)
     >>> variables.split(data)
-        {
-            # Categories of data split accordingly
-        }
+    ... {
+    ...     # Categories of data split accordingly
+    ... }
     >>> variables.extract(data, 'diagnostics')
-        # diagnostics extracted from the data
+    ... # diagnostics extracted from the data
     """
 
     order: str

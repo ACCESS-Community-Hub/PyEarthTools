@@ -5,6 +5,8 @@ import pytest
 import pathlib
 
 
+from pyearthtools.data.exceptions import DataNotFoundError
+
 def test_Index(monkeypatch):
 
     monkeypatch.setattr("pyearthtools.data.indexes.Index.__abstractmethods__", set())
@@ -49,7 +51,8 @@ def test_FileSystemIndex(monkeypatch):
         assert fsi.load(__file__) is not None
         # TODO test actual netcdf file loading
 
-    with pytest.raises(KeyError):
+    # FIXME: should this be with pytest.raises(KeyError):
+    with pytest.raises(DataNotFoundError):
         assert fsi.get(__file__) is not None
         # TODO test actual netcdf file getting
 

@@ -42,24 +42,16 @@ def SpatialInterpolation(
 
 
     Args:
-        *datasets (xr.Dataset): All datasets to be spatially and temporally interpolated
-        reference_dataset (xr.Dataset, optional):
-            Reference Dataset to use as base, if not given use first dataset. Defaults to None.
-        merge (bool, optional):
-            Whether to merge datasets together. Defaults to True.
-        method (str, optional):
-            Spatially interpolation method. Uses [xarray interpolation][xarray.interpolation],
+        *datasets: All datasets to be spatially and temporally interpolated
+        reference_dataset: Reference Dataset to use as base, if not given use first dataset.
+        merge: Whether to merge datasets together.
+        method: Spatially interpolation method. Uses [xarray interpolation][xarray.interpolation],
             which itself uses [scipy.interpolate][scipy.interpolate.interpn].
-            Defaults to "linear".
-        include_reference (bool, optional):
-            Whether to include reference datasets. Defaults to True.
-        **kwargs (optional): Extra kwargs passed to [pyearthtools.data.transforms.interpolation][pyearthtools.data.transforms.interpolation.InterpolateTransform.like]
-            drop_coords, optional
-                Coords to drop from reference dataset, by default None
+        include_reference: Whether to include reference datasets.
+        **kwargs: Extra kwargs passed to [pyearthtools.data.transforms.interpolation][pyearthtools.data.transforms.interpolation.InterpolateTransform.like]
 
     Returns:
-        (list[xr.Dataset] | xr.Dataset):
-            List of datasets if merge == false, else one merged datasets
+        List of datasets if merge == false, else one merged datasets
     """
 
     listed_datasets = [*datasets]

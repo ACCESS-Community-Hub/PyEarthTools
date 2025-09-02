@@ -119,6 +119,7 @@ from pyearthtools.data.indexes._indexes import (
     DataIndex,
     FileSystemIndex,
     TimeIndex,
+    SingleTimeIndex,
     TimeDataIndex,
     AdvancedTimeIndex,
     AdvancedTimeDataIndex,

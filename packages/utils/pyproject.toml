@@ -5,13 +5,14 @@ build-backend = "hatchling.build"
 [project]
 name = "pyearthtools-utils"
 description = "Utilities for pyearthtools"
-requires-python = ">=3.8"
+requires-python = ">=3.11"
 keywords = ["pyearthtools"]
 maintainers = [
   {name = "Tennessee Leeuwenburg", email = "tennessee.leeuwenburg@bom.gov.au"},
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
 ]
 dependencies = [

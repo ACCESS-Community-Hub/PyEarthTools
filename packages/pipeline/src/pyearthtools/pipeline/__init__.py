@@ -45,8 +45,10 @@ __version__ = "0.2.0"
 
 import pyearthtools.pipeline.logger
 
-from pyearthtools.pipeline.save import save, load
+
+# from pyearthtools.pipeline.save import save, load
 from pyearthtools.pipeline.controller import Pipeline, PipelineIndex
+from pyearthtools.pipeline._save_pipeline import load_pipeline as load
 
 from pyearthtools.pipeline.operation import Operation
 
@@ -66,8 +68,6 @@ from pyearthtools.pipeline.modifications import Cache, SequenceRetrieval, Tempor
 
 from pyearthtools.pipeline.samplers import Sampler
 
-from pyearthtools.pipeline.iterators import Iterator
-
 from pyearthtools.pipeline.parallel import get_parallel
 
 from pyearthtools.pipeline.exceptions import (
@@ -82,7 +82,6 @@ from pyearthtools.pipeline import config
 
 __all__ = [
     "Sampler",
-    "Iterator",
     "Pipeline",
     "Operation",
     "branching",

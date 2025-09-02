@@ -101,29 +101,23 @@ class TimeDerivedValue(DerivedValue, TimeDataIndex):
 
 class AdvancedTimeDerivedValue(TimeDerivedValue, AdvancedTimeDataIndex):
     """
-    Advanced Temporally derived value Index.
+    Advanced Temporally Derived Index
 
-    Allows for automatic time resolution based retrieval.
+    Allows for time-resolution-based retrieval.
 
-    Example
-    ```python
-        index = AdvancedTimeDerivedValue('6 hours')
-        index['2000-01-01'] # Will get four steps 00,06,12,18
-    ```
+    Example:
+
+    >>> index = AdvancedTimeDerivedValue('6 hours')
+    >>> index['2000-01-01'] # Will get four steps 00,06,12,18
+
+    Arguments:
+      data_interval: Interval of derivation, if given allows for [] to get multiple samples based on resolution.
+      split_time: Whether to split a series call into each individual time, or pass list of times.
     """
 
     def __init__(
         self, data_interval: tuple[int, str] | int | str | TimeDelta | None = None, split_time: bool = False, **kwargs
     ):
-        """
-        Advanced Temporally Derived Index
-
-        Args:
-            data_interval (tuple[int, str] | int | str | TimeDelta | None, optional):
-                Interval of derivation, if given allows for [] to get multiple samples based on resolution. Defaults to None.
-            split_time (bool, optional):
-                Whether to split a series call into each individual time, or pass list of times. Defaults to False.
-        """
         super().__init__(data_interval, **kwargs)
         self._split_time = split_time
 

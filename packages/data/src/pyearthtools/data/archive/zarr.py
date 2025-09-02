@@ -48,11 +48,10 @@ class ZarrIndex(DataFileSystemIndex):
 
     Can be used to access local/remote zarr archives, with the ability to write into them.
 
-    ## Example:
-    ```python
-    zarr_archive = Zarr(PATH_TO_ZARR_ARCHIVE)
-    zarr_archive()
-    ```
+    Examples:
+
+    >>> zarr_archive = Zarr(PATH_TO_ZARR_ARCHIVE)
+    >>> zarr_archive()
 
     For time aware indexing, use `ZarrTime`.
 
@@ -60,14 +59,13 @@ class ZarrIndex(DataFileSystemIndex):
 
     This is useful to premake an archive, and then use many distributed processes to write subsets into it.
 
-    ## Template Example:
-    ```python
-    zarr_archive = Zarr(PATH_TO_ZARR_ARCHIVE, template = True)
-    zarr_archive.make_template(SINGLE_SAMPLE, time = EXPANDED_TIME)
+    Template Example:
 
-    for subsample in TOTALSAMPLES: # Can be done distributedly
-        zarr_archive.save(subsample)
-    ```
+    >>> zarr_archive = Zarr(PATH_TO_ZARR_ARCHIVE, template = True)
+    >>> zarr_archive.make_template(SINGLE_SAMPLE, time = EXPANDED_TIME)
+    >>>
+    >>> for subsample in TOTALSAMPLES: # Can be done distributedly
+    >>>     zarr_archive.save(subsample)
     """
 
     @property
@@ -154,12 +152,10 @@ class ZarrIndex(DataFileSystemIndex):
         Will look at existing archive, and only append on `append_dim` data that is missing.
 
         Args:
-            data (xr.Dataset):
-                Dataset to save
-            save_kwargs (dict[str, Any] | None, optional):
-                Extra kwargs to pass to `.to_zarr`, in addition to `init.save_kwargs`. Defaults to None.
-            **kwargs:
-                Kwargs form of `save_kwargs`s
+
+            data: Dataset to save
+            save_kwargs: Extra kwargs to pass to `.to_zarr`, in addition to `init.save_kwargs`. Defaults to None.
+            **kwargs: Kwargs form of `save_kwargs`
         """
         skwargs = dict(self._save_kwargs)
         skwargs.update(save_kwargs or {})
@@ -205,6 +201,7 @@ class ZarrIndex(DataFileSystemIndex):
         The full dataset is defined as the sample expanded by `expand_coords`.
 
         Args:
+
             dataset (xr.Dataset):
                 Single sample of full dataset.
                 All metadata will be taken from this sample.
@@ -223,20 +220,20 @@ class ZarrIndex(DataFileSystemIndex):
                 Kwargs form of `expand_coords`
 
         Raises:
+
             FileExistsError:
                 If file exists and `override` == False.
 
         Examples:
-        ```python
-        era5 = pyearthtools.data.archive.ERA5.sample()
 
-        full_time_values = list(map(lambda x: x.datetime64(), pyearthtools.data.TimeRange('1980', '2020', '6 hour')))
+            >>> era5 = pyearthtools.data.archive.ERA5.sample()
+            >>>
+            >>> full_time_values = list(map(lambda x: x.datetime64(), pyearthtools.data.TimeRange('1980', '2020', '6 hour')))
+            >>>
+            >>> zarr_archive = Zarr(PATH_TO_ZARR, template = True)
+            >>> zarr_archive.make_template(era5['2000-01-01T00'], time = full_time_values)
+            ... # Will create a zarr archive like `era5` but across all of `full_time_values`
 
-        zarr_archive = Zarr(PATH_TO_ZARR, template = True)
-        zarr_archive.make_template(era5['2000-01-01T00'], time = full_time_values)
-
-        # Will create a zarr archive like `era5` but across all of `full_time_values`
-        ```
         """
         expand_coords = dict(expand_coords or {})
         expand_coords.update(kwargs)

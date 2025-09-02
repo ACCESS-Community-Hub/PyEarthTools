@@ -49,7 +49,20 @@
             "orcid": "https://orcid.org/0009-0000-5048-4240",
             "affiliation": "Met Office, United Kingdom",
             "name": "Sullivan, Ben"
+        },
+        {
+            "orcid": "https://orcid.org/0000-0001-6825-3854",
+            "affiliation": "University of New South Wales Sydney, Australia",
+            "name": "Hobeichi, Sanaa"
+
+        },
+        {
+            "orcid": "https://orcid.org/0000-0002-6799-9109",
+            "affiliation": "Bureau of Meteorology, Australia",
+            "name": "Holmes, Ryan"
         }
+
+
     ],
     "license": "Apache-2.0",
     "title": "PyEarthTools: Machine learning for Earth system science",
