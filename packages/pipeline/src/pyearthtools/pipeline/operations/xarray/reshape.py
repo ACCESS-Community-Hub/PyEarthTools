@@ -111,7 +111,7 @@ class CoordinateFlatten(Operation):
 
     _override_interface = "Serial"
 
-    def __init__(self, coordinate: Union[Hashable, list[Hashable]], *extra_coords: Hashable, skip_missing: bool = False):
+    def __init__(self, coordinate: Hashable, skip_missing: bool = False):
         """
         Flatten a coordinate in an xarray Dataset, putting the data at each value of the coordinate into a separate
         data variable.
@@ -120,11 +120,8 @@ class CoordinateFlatten(Operation):
         Dataset has a variable "t" and it is flattened along the coordinate "pressure_level" which has values
         [100, 200, 500], then the output Dataset will have variables called t100, t200 and t500.
 
-        If more than one coordinate is flattened, the output data variable names will concatenate the values of each
-        coordinate.
-
         Args:
-            coordinate (Union[Hashable,list[Hashable]]):
+            coordinate (Hashable):
                 Coordinate to flatten and expand on.
             skip_missing (bool, optional):
                 Whether to skip data without the dims. Defaults to False
@@ -136,7 +133,6 @@ class CoordinateFlatten(Operation):
         )
         self.record_initialisation()
 
-        coordinate = [coordinate, *extra_coords] if not isinstance(coordinate, (list, tuple)) else [*coordinate, *extra_coords]
         self._coordinate = coordinate
         self._skip_missing = skip_missing
 
@@ -188,22 +184,23 @@ class CoordinateFlatten(Operation):
         return new_ds
 
     def undo_func(self, ds):
-        return pyearthtools.pipeline.operations.xarray.reshape.coordinate_expand(self.coords)(ds)
+        return pyearthtools.pipeline.operations.xarray.reshape.coordinate_expand(self._coordinate)(ds)
+
+@BackwardsCompatibility(CoordinateFlatten)
+def coordinate_flatten(*args, **kwargs) -> Operation: ...
 
 class CoordinateExpand(Operation):
     """Inverse operation to `CoordinateFlatten`"""
 
-    def __init__(self, coordinate: Union[Hashable, list[Hashable], tuple[Hashable]], *extra_coordinates):
+    def __init__(self, coordinate: Hashable):
         """
         Inverse operation to [flatten][pyearthtools.pipeline.operations.xarray.reshape.CoordinateFlatten]
 
         Will find flattened variables and regroup them upon the extra coordinate
 
         Args:
-            coordinate (Hashable | list[Hashable] | tuple[Hashable]):
+            coordinate (Hashable):
                 Coordinate to unflatten.
-            *extra_coordinates (optional):
-                Argument form of `coordinate`.
         """
         super().__init__()
         self.record_initialisation()
@@ -211,14 +208,9 @@ class CoordinateExpand(Operation):
         if not isinstance(coordinate, (list, tuple)):
             coordinate = (coordinate,)
 
-        coordinate = (*coordinate, *extra_coordinates)
         self._coordinate = coordinate
 
-    # @property
-    # def _info_(self):
-    #     return dict(coordinate=self._coordinate)
-
-    def apply(self, dataset: xr.Dataset) -> xr.Dataset | xr.DataArray:
+    def apply_func(self, dataset: xr.Dataset) -> xr.Dataset | xr.DataArray:
         dataset = type(dataset)(dataset)
 
         for coord in self._coordinate:
@@ -244,6 +236,9 @@ class CoordinateExpand(Operation):
                 dataset[coord].encoding.update(dtype=dtype)
 
         return dataset
+
+    def undo_func(self, ds):
+        return pyearthtools.pipeline.operations.xarray.reshape.coordinate_flatten(self._coordinate)(ds)
 
 
 @BackwardsCompatibility(CoordinateExpand)

@@ -120,5 +120,3 @@ def test_undo_CoordinateExpand():
     variables = list(e_undone.keys())
     for vbl in ["Temperature10", "Temperature20", "Humidity10", "Humidity20", "WombatsPerKm210", "WombatsPerKm220"]:
         assert vbl in variables
-
-
