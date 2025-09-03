@@ -46,6 +46,8 @@ SIMPLE_DA2 = xr.DataArray(
 SIMPLE_DS1 = xr.Dataset({"Temperature": SIMPLE_DA1})
 SIMPLE_DS2 = xr.Dataset({"Humidity": SIMPLE_DA1, "Temperature": SIMPLE_DA1, "WombatsPerKm2": SIMPLE_DA1})
 
+COMPLICATED_DS1 = xr.Dataset({"Temperature": SIMPLE_DA1, "MSLP": SIMPLE_DA2})
+
 def test_Dimensions():
     d = reshape.Dimensions(["lat", "lon", "height"])
     output = d.apply_func(SIMPLE_DA1)
@@ -67,46 +69,6 @@ def test_Dimensions_preserve_order():
     reversed_output = d.undo_func(output)
     assert reversed_output.dims == output.dims
 
-import pyearthtools.data
-def test_dataFlatten():
-    pyearthtools.data.transforms.coordinates.Flatten(["a", "b"], skip_missing=True)(SIMPLE_DS1)
-
-def test_CoordinateFlatten():
-    cf = reshape.CoordinateFlatten(coordinate="a", skip_missing=True)
-    cf.apply_func(SIMPLE_DS1)
-
-SIMPLE_DA1 = xr.DataArray(
-    [
-        [
-            [0.9, 0.0, 5],
-            [0.7, 1.4, 2.8],
-            [0.4, 0.5, 2.3],
-        ],
-        [
-            [1.9, 1.0, 1.5],
-            [1.7, 2.4, 1.1],
-            [1.4, 1.5, 3.3],
-        ],
-    ],
-    coords=[[10, 20], [0, 1, 2], [5, 6, 7]],
-    dims=["height", "lat", "lon"],
-)
-
-SIMPLE_DA2 = xr.DataArray(
-    [
-        [0.9, 0.0, 5],
-        [0.7, 1.4, 2.8],
-        [0.4, 0.5, 2.3],
-    ],
-    coords=[[0, 1, 2], [5, 6, 7]],
-    dims=["lat", "lon"],
-)
-
-SIMPLE_DS1 = xr.Dataset({"Temperature": SIMPLE_DA1})
-SIMPLE_DS2 = xr.Dataset({"Humidity": SIMPLE_DA1, "Temperature": SIMPLE_DA1, "WombatsPerKm2": SIMPLE_DA1})
-
-COMPLICATED_DS1 = xr.Dataset({"Temperature": SIMPLE_DA1, "MSLP": SIMPLE_DA2})
-
 
 def test_CoordinateFlatten():
     f = reshape.CoordinateFlatten(["height"])
@@ -114,33 +76,6 @@ def test_CoordinateFlatten():
     variables = list(output.keys())
     for vbl in ["Temperature10", "Temperature20", "Humidity10", "Humidity20", "WombatsPerKm210", "WombatsPerKm220"]:
         assert vbl in variables
-
-
-# def test_CoordinateFlatten_2_coords():
-#     f = reshape.CoordinateFlatten(["height", "lon"])
-#     output = f.apply(SIMPLE_DS1)
-#     variables = list(output.keys())
-#     # Note that it's hard to predict which coordinate will be processed first.
-#     try:
-#         for vbl in [
-#             "Temperature510",
-#             "Temperature520",
-#             "Temperature610",
-#             "Temperature620",
-#             "Temperature710",
-#             "Temperature720",
-#         ]:
-#             assert vbl in variables
-#     except AssertionError:
-#         for vbl in [
-#             "Temperature105",
-#             "Temperature205",
-#             "Temperature106",
-#             "Temperature206",
-#             "Temperature107",
-#             "Temperature207",
-#         ]:
-#             assert vbl in variables
 
 
 def test_CoordinateFlatten_complicated_dataset():
