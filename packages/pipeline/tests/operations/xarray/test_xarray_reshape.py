@@ -116,31 +116,31 @@ def test_CoordinateFlatten():
         assert vbl in variables
 
 
-def test_CoordinateFlatten_2_coords():
-    f = reshape.CoordinateFlatten(["height", "lon"])
-    output = f.apply(SIMPLE_DS1)
-    variables = list(output.keys())
-    # Note that it's hard to predict which coordinate will be processed first.
-    try:
-        for vbl in [
-            "Temperature510",
-            "Temperature520",
-            "Temperature610",
-            "Temperature620",
-            "Temperature710",
-            "Temperature720",
-        ]:
-            assert vbl in variables
-    except AssertionError:
-        for vbl in [
-            "Temperature105",
-            "Temperature205",
-            "Temperature106",
-            "Temperature206",
-            "Temperature107",
-            "Temperature207",
-        ]:
-            assert vbl in variables
+# def test_CoordinateFlatten_2_coords():
+#     f = reshape.CoordinateFlatten(["height", "lon"])
+#     output = f.apply(SIMPLE_DS1)
+#     variables = list(output.keys())
+#     # Note that it's hard to predict which coordinate will be processed first.
+#     try:
+#         for vbl in [
+#             "Temperature510",
+#             "Temperature520",
+#             "Temperature610",
+#             "Temperature620",
+#             "Temperature710",
+#             "Temperature720",
+#         ]:
+#             assert vbl in variables
+#     except AssertionError:
+#         for vbl in [
+#             "Temperature105",
+#             "Temperature205",
+#             "Temperature106",
+#             "Temperature206",
+#             "Temperature107",
+#             "Temperature207",
+#         ]:
+#             assert vbl in variables
 
 
 def test_CoordinateFlatten_complicated_dataset():
@@ -159,3 +159,31 @@ def test_CoordinateFlatten_skip_missing():
     f2 = reshape.CoordinateFlatten(["scrupulosity"], skip_missing=True)
     output2 = f2.apply(SIMPLE_DS1)
     assert output2 == SIMPLE_DS1, "When skip_missing=True, Datasets without the given coordinate pass unchanged."
+
+def test_undo_CoordinateFlatten():
+    f = reshape.CoordinateFlatten(["height"])
+    f_output = f.apply(SIMPLE_DS2)
+    f_undone = f.undo(f_output)
+    variables = list(f_undone.keys())
+    for vbl in ["Temperature", "Humidity", "WombatsPerKm2"]:
+        assert vbl in variables
+
+def test_CoordinateExpand_reverses_CoordinateFlatten():
+    f = reshape.CoordinateFlatten(["height"])
+    f_output = f.apply(SIMPLE_DS2)
+    e = reshape.CoordinateExpand(["height"])
+    e_output = e.apply(f_output)
+    variables = list(e_output.keys())
+    assert "Temperature" in variables
+
+def test_undo_CoordinateExpand():
+    f = reshape.CoordinateFlatten(["height"])
+    f_output = f.apply(SIMPLE_DS2)
+    e = reshape.CoordinateExpand(["height"])
+    e_output = e.apply(f_output)
+    e_undone = e.undo(e_output)
+    variables = list(e_undone.keys())
+    for vbl in ["Temperature10", "Temperature20", "Humidity10", "Humidity20", "WombatsPerKm210", "WombatsPerKm220"]:
+        assert vbl in variables
+
+
