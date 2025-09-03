@@ -7,6 +7,7 @@ import pathlib
 
 from pyearthtools.data.exceptions import DataNotFoundError
 
+
 def test_Index(monkeypatch):
 
     monkeypatch.setattr("pyearthtools.data.indexes.Index.__abstractmethods__", set())

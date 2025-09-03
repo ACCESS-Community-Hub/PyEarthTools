@@ -87,8 +87,6 @@ class Drop(Transform):
         if self._variables is None:
             return dataset
 
-
-
         # 3/9/2025 - old logic was replaced with a simple drop of the variables
         # A new issue will be raised to review how coordinate protection should
         # work because people need a way to drop coords when needed.
@@ -101,7 +99,6 @@ class Drop(Transform):
         # if not var_included:
         #     return dataset
         # return dataset[var_included]
-
 
         return dataset.drop_vars(self._variables)
 

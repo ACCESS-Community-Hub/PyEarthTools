@@ -34,7 +34,7 @@ try:
     )
 
 except:
-    pytest.skip(allow_module_level=True)    
+    pytest.skip(allow_module_level=True)
 
 
 PYPROJ_SAMPLE = pyproj.Proj("+proj=aea +lat_1=-36 +lat_2=-18 +lon_0=132 +units=m")
