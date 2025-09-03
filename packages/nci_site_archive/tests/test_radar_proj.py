@@ -33,7 +33,7 @@ try:
         WarnRadarProj,
     )
 
-except:
+except ImportError:
     pytest.skip(allow_module_level=True)
 
 

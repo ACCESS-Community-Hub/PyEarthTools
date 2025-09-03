@@ -197,11 +197,12 @@ class HadISDIndex(ArchiveIndex):
         for station_id in station_ids:
             date_range_str = "19310101-20240101"  # Hardcoded for now; adjust if dataset is updated
             version = "hadisd.3.4.0.2023f"
-            filename_nc = f"{version}_{date_range_str}_{station_id}.nc"
             filename_zarr = f"{version}_{date_range_str}_{station_id}.zarr"
 
+            # filename_nc = f"{version}_{date_range_str}_{station_id}.nc" # Uncomment to test with netcdf
+            # file_path_nc = Path(HADISD_HOME) / "netcdf" / filename_nc   # Uncomment to test with netcdf
+
             # Construct the full path
-            file_path_nc = Path(HADISD_HOME) / "netcdf" / filename_nc
             file_path_zarr = Path(HADISD_HOME) / "zarr" / filename_zarr
 
             # Check if the file exists (comment out if testing with single netcdf)
@@ -211,6 +212,7 @@ class HadISDIndex(ArchiveIndex):
             # Add the file path to the dictionary
             paths[station_id] = (
                 file_path_zarr  # Change to file_path_zarr to test with zarr files or remove "_zarr" to test with netcdf files
+                # file_path_nc  # Uncomment to test with netcdf files
             )
 
         return paths
