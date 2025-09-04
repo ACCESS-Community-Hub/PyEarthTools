@@ -69,6 +69,15 @@ def test_Dimensions_preserve_order():
     reversed_output = d.undo_func(output)
     assert reversed_output.dims == output.dims
 
+def test_weak_cast_to_int():
+
+    wcti = reshape.weak_cast_to_int
+
+    assert wcti(5.0) == 5
+    assert isinstance(wcti(5.0), int)
+
+    assert wcti("hello") == "hello"
+
 
 def test_CoordinateFlatten():
     f = reshape.CoordinateFlatten(["height"])

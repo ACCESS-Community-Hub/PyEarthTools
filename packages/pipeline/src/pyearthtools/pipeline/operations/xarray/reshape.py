@@ -107,7 +107,7 @@ def weak_cast_to_int(value):
     return value
 
 class CoordinateFlatten(Operation):
-    """Flatten a coordinate in a dataset into separate variables"""
+    """Flatten a coordinate in a dataset into separate variables."""
 
     _override_interface = "Serial"
 
@@ -124,7 +124,12 @@ class CoordinateFlatten(Operation):
             coordinate (Hashable):
                 Coordinate to flatten and expand on.
             skip_missing (bool, optional):
-                Whether to skip data without the dims. Defaults to False
+                Whether to skip data that does not have any of the listed coordinates. If True, will return such data
+                unchanged. Defaults to False.
+
+        Raises:
+            ValueError:
+                If coordinate not found in the dataset and skip_missing==False.
         """
         super().__init__(
             split_tuples=True,
@@ -147,10 +152,6 @@ class CoordinateFlatten(Operation):
                 f"{self._coordinate} could not be found in dataset with coordinates {list(dataset.coords)}.\n"
                 "Set 'skip_missing' to True to skip this."
             )
-
-        elif len(discovered_coord) > 1:
-            transforms = TransformCollection(*[CoordinateFlatten(coord) for coord in discovered_coord])
-            return transforms(dataset)
 
         discovered_coord = str(discovered_coord[0])
 

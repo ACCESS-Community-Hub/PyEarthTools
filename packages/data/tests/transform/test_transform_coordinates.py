@@ -80,33 +80,6 @@ def test_Drop():
     # TODO: Assert that the dimension has been dropped
 
 
-def test_Flatten():
-
-    tf_flatten = coordinates.Flatten("vertical")
-    _result = tf_flatten.apply(ds_vertical)
-
-    # TODO: Assert the flattened data looks correct
-
-
-def test_Expand():
-
-    tf_expand = coordinates.Expand("vertical")
-    _result = tf_expand.apply(ds_vertical)
-
-    # TODO: Assert the expanded dataset has a vertical dimension
-
-
-def test_SelectFlatten():
-
-    tf_selectflatten = coordinates.SelectFlatten({"longitude": slice(10, 120)})
-
-    with pytest.raises(NotImplementedError):
-        _result = tf_selectflatten.apply(ds_vertical)
-        # TODO fix the code or avoid the issue
-
-    # TODO: Check the values of the resulting dataset
-
-
 def test_Assign():
 
     tf_assign = coordinates.Assign({"longitude": list(range(0, 4)), "vertical": list(range(3, 6))})
@@ -126,11 +99,3 @@ def test_Pad():
     # TODO: check the values of the result
 
 
-def test_weak_cast_to_int():
-
-    wcti = coordinates.weak_cast_to_int
-
-    assert wcti(5.0) == 5
-    assert isinstance(wcti(5.0), int)
-
-    assert wcti("hello") == "hello"
