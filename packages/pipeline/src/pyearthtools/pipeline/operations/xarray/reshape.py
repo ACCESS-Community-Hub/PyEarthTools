@@ -13,19 +13,17 @@
 # limitations under the License.
 
 
-from typing import Hashable, TypeVar, Union, Optional, Any
+from typing import Hashable, TypeVar, Union
 
 import xarray as xr
 import numpy as np
 
 import pyearthtools.data
-from pyearthtools.data.transforms.transform import TransformCollection
 from pyearthtools.data.transforms.coordinates import Drop
 from pyearthtools.pipeline.operation import Operation
 
-from packages.data.src.pyearthtools.data.transforms.attributes import SetType
-from packages.data.src.pyearthtools.data.transforms.coordinates import Select
-from packages.utils.src.pyearthtools.utils.decorators import BackwardsCompatibility
+from pyearthtools.data.transforms.attributes import SetType
+from pyearthtools.utils.decorators import BackwardsCompatibility
 
 T = TypeVar("T", xr.Dataset, xr.DataArray)
 
