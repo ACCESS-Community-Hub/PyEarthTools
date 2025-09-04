@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 [project]
 name = "pyearthtools-data"
 description = "Data loading, abstraction and manipulation tools"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 keywords = ["pyearthtools"]
 maintainers = [
   {name = "Tennessee Leeuwenburg", email = "tennessee.leeuwenburg@bom.gov.au"}

@@ -5,13 +5,14 @@ build-backend = "hatchling.build"
 [project]
 name = "pyearthtools-pipeline"
 description = "Data Pipelines with pyearthtools"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 keywords = ["pyearthtools"]
 maintainers = [
   {name = "Tennessee Leeuwenburg", email = "tennessee.leeuwenburg@bom.gov.au"}
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
 ]
 dependencies = [
@@ -60,9 +61,6 @@ ignore_missing_imports = true
 [tool.setuptools.packages.find]
 include = ["pyearthtools.pipeline"]
 where = ["src/"]
-
-[tool.setuptools_scm]
-version_file = "src/pyearthtools/pipeline/_version.py"
 
 [tool.ruff.lint]
 ignore-init-module-imports = false

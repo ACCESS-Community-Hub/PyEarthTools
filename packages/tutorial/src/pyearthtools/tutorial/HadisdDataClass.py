@@ -136,62 +136,32 @@ class HadISDIndex(ArchiveIndex):
 
         self.record_initialisation()
 
-    # def get_all_station_ids(self, root_directory: Path | str) -> list[str]:
-    #     """
-    #     Retrieve all station IDs by scanning the dataset directory.
-
-    #     Args:
-    #         root_directory (Path | str): The root directory containing station data.
-
-    #     Returns:
-    #         list[str]: A list of all station IDs.
-    #     """
-    #     root_directory = Path(root_directory)
-    #     station_ids = []
-    #     for folder in cached_iterdir(root_directory):
-    #         if folder.is_dir():
-    #             for file in cached_iterdir(folder):
-    #                 if file.suffix == ".nc":  # Check for NetCDF files
-    #                     # Extract the station ID from the filename
-    #                     station_id = file.stem.split("_")[-1]  # Assuming station ID is the last part of the filename
-    #                     station_ids.append(station_id)
-    #     return station_ids
-
     def get_all_station_ids(self, root_directory: Path | str = None) -> list[str]:
         """
-        Retrieve all station IDs by scanning the dataset directory.
+        Retrieve all station IDs by scanning the Zarr directory.
 
         Args:
-            root_directory (Path | str, optional): The root directory containing station data.
-                Defaults to HADISD_HOME/netcdf.
+            root_directory (Path | str, optional): The directory containing Zarr files.
+                Defaults to HADISD_HOME/zarr.
 
         Returns:
             list[str]: A list of all station IDs.
         """
-
         HADISD_HOME = self.ROOT_DIRECTORIES["hadisd"]
         if root_directory is None:
-            # Search all WMO folders for netcdf subfolders
-            wmo_folders = [f for f in Path(HADISD_HOME).iterdir() if f.is_dir() and f.name.startswith("WMO_")]
-            station_ids = []
-            for wmo_folder in wmo_folders:
-                netcdf_dir = wmo_folder / "netcdf"
-                if cached_exists(netcdf_dir):
-                    for file in cached_iterdir(netcdf_dir):
-                        if file.suffix == ".nc":
-                            station_id = file.stem.split("_")[-1]
-                            station_ids.append(station_id)
-            return station_ids
+            zarr_dir = Path(HADISD_HOME) / "zarr"
         else:
-            root_directory = Path(root_directory)
-            if not cached_exists(root_directory):
-                raise DataNotFoundError(f"Root directory does not exist: {root_directory}")
-            station_ids = []
-            for file in cached_iterdir(root_directory):
-                if file.suffix == ".nc":
-                    station_id = file.stem.split("_")[-1]
-                    station_ids.append(station_id)
-            return station_ids
+            zarr_dir = Path(root_directory)
+
+        if not cached_exists(zarr_dir):
+            raise DataNotFoundError(f"Zarr directory does not exist: {zarr_dir}")
+
+        station_ids = []
+        for file in cached_iterdir(zarr_dir):
+            if file.suffix == ".zarr":
+                station_id = file.stem.split("_")[-1]
+                station_ids.append(station_id)
+        return station_ids
 
     def filesystem(self, *args, date_range=("1970-01-01T00", "2023-12-31T23"), **kwargs) -> dict[str, Path]:
         """
@@ -222,66 +192,18 @@ class HadISDIndex(ArchiveIndex):
         if not isinstance(station_ids, list) or not all(isinstance(sid, str) for sid in station_ids):
             raise TypeError(f"Expected station_ids to be a str or list[str], but got: {type(station_ids)}")
 
-        # Define the station ranges and corresponding folders
-        STATION_RANGES = [
-            (0, 29999, "WMO_000000-029999"),
-            (30000, 49999, "WMO_030000-049999"),
-            (50000, 79999, "WMO_050000-079999"),
-            (80000, 99999, "WMO_080000-099999"),
-            (100000, 149999, "WMO_100000-149999"),
-            (150000, 199999, "WMO_150000-199999"),
-            (200000, 249999, "WMO_200000-249999"),
-            (250000, 299999, "WMO_250000-299999"),
-            (300000, 349999, "WMO_300000-349999"),
-            (350000, 399999, "WMO_350000-399999"),
-            (400000, 449999, "WMO_400000-449999"),
-            (450000, 499999, "WMO_450000-499999"),
-            (500000, 549999, "WMO_500000-549999"),
-            (550000, 599999, "WMO_550000-599999"),
-            (600000, 649999, "WMO_600000-649999"),
-            (650000, 699999, "WMO_650000-699999"),
-            (700000, 709999, "WMO_700000-709999"),
-            (710000, 714999, "WMO_710000-714999"),
-            (715000, 719999, "WMO_715000-719999"),
-            (720000, 721999, "WMO_720000-721999"),
-            (722000, 722999, "WMO_722000-722999"),
-            (723000, 723999, "WMO_723000-723999"),
-            (724000, 724999, "WMO_724000-724999"),
-            (725000, 725999, "WMO_725000-725999"),
-            (726000, 726999, "WMO_726000-726999"),
-            (727000, 729999, "WMO_727000-729999"),
-            (730000, 799999, "WMO_730000-799999"),
-            (800000, 849999, "WMO_800000-849999"),
-            (850000, 899999, "WMO_850000-899999"),
-            (900000, 949999, "WMO_900000-949999"),
-            (950000, 999999, "WMO_950000-999999"),
-        ]
-
         # Map station IDs to their file paths
         paths = {}
         for station_id in station_ids:
-            wmo_number = station_id[:6]  # Extract the first 6 digits of the station ID
-            station_numeric = int(wmo_number)  # Convert the WMO number to an integer
-
-            # Find the parent folder dynamically
-            parent_folder = None
-            for start, end, folder in STATION_RANGES:
-                if start <= station_numeric <= end:
-                    parent_folder = folder
-                    break
-
-            if parent_folder is None:
-                raise ValueError(f"Station ID {station_id} does not fall within any defined range.")
-
-            # Construct the expected filename
-            date_range = "19310101-20240101"  # Hardcoded for now; adjust if dataset is updated
+            date_range_str = "19310101-20240101"  # Hardcoded for now; adjust if dataset is updated
             version = "hadisd.3.4.0.2023f"
-            filename_nc = f"{version}_{date_range}_{station_id}.nc"
-            filename_zarr = f"{version}_{date_range}_{station_id}.zarr"
+            filename_zarr = f"{version}_{date_range_str}_{station_id}.zarr"
+
+            # filename_nc = f"{version}_{date_range_str}_{station_id}.nc" # Uncomment to test with netcdf
+            # file_path_nc = Path(HADISD_HOME) / "netcdf" / filename_nc   # Uncomment to test with netcdf
 
             # Construct the full path
-            _file_path_nc = Path(HADISD_HOME) / parent_folder / "netcdf" / filename_nc
-            file_path_zarr = Path(HADISD_HOME) / parent_folder / "zarr" / filename_zarr
+            file_path_zarr = Path(HADISD_HOME) / "zarr" / filename_zarr
 
             # Check if the file exists (comment out if testing with single netcdf)
             if not file_path_zarr.exists():
@@ -290,6 +212,7 @@ class HadISDIndex(ArchiveIndex):
             # Add the file path to the dictionary
             paths[station_id] = (
                 file_path_zarr  # Change to file_path_zarr to test with zarr files or remove "_zarr" to test with netcdf files
+                # file_path_nc  # Uncomment to test with netcdf files
             )
 
         return paths

@@ -83,7 +83,7 @@ def open_dataset(
             return xr.open_mfdataset(
                 filter_files(location),
                 decode_timedelta=True,  # TODO: should we raise a warning? It seems to be required for almost all our data.
-                compat='override',
+                compat="override",
                 **get_config(True),
             )
 

@@ -6,17 +6,18 @@ build-backend = "hatchling.build"
 [project]
 name = "pyearthtools-training"
 description = "Machine Learning Training with pyearthtools"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 keywords = ["pyearthtools"]
 maintainers = [
   {name = "Tennessee Leeuwenburg", email = "tennessee.leeuwenburg@bom.gov.au"}
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "pyearthtools-pipeline",
+    "pyearthtools-pipeline>=0.2.0",
     "pyearthtools-utils>=0.2.0",
     "einops",
     "scikit-learn",

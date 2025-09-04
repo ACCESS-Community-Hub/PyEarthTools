@@ -158,9 +158,16 @@ class xarrayConverter(metaclass=ABCMeta):
             try:
                 dims[use_shape.index(size)] = coord
             except ValueError as e:
-                raise RuntimeError(
-                    "Cannot record coordinate, currently converter can only handle datasets with variables of the same dimensions."
-                ) from e
+
+                msg = (
+                    f"Cannot record coordinate '{coord}', currently the conversion can only handle data variables with "
+                    f"the same dimensionality as the dataset coords {list(dataset.coords)}. "
+                    f"Data variable {variables[0]} with dimensions of {dataset[variables[0]].dims} was used to estimate the shape required. "
+                    f"You may need to drop unused coordinates, drop mismatching data variables, or broadcast your data variables onto the "
+                    "coordinates of the dataset yourself as the proper approach is user-defined."
+                )
+
+                raise RuntimeError(msg) from e
             use_shape[use_shape.index(size)] = 1e10
 
         while None in dims:

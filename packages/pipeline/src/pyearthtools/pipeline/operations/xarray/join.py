@@ -46,15 +46,15 @@ class Merge(Joiner):
 
 
 class LatLonInterpolate(Joiner):
-    '''
+    """
     Makes additional assumptions about how interpolation should work and
     how the data is structured. In this case, interpolation is primarily
-    expected to occur according to latitude and longitude, performing 
+    expected to occur according to latitude and longitude, performing
     no broadcasting, and iterating over other dimensions instead.
 
     It assumed the dimensions 'latitude', 'longitude', 'time', and 'level' will
     be present. 'lat' or 'lon' may also be used for convenience.
-    '''
+    """
 
     _override_interface = "Serial"
 
@@ -78,15 +78,15 @@ class LatLonInterpolate(Joiner):
         self._merge_kwargs = merge_kwargs
 
     def raise_if_dimensions_wrong(self, dataset):
-        '''
+        """
         Raise exceptions if the supplied dataset does not meet requirements
-        '''
+        """
 
-        if not hasattr(self, 'required_dims'):
-            if 'lat' in dataset.coords:
-                self.required_dims = ['lat', 'lon']
+        if not hasattr(self, "required_dims"):
+            if "lat" in dataset.coords:
+                self.required_dims = ["lat", "lon"]
             else:
-                self.required_dims = ['latitude', 'longitude']        
+                self.required_dims = ["latitude", "longitude"]
 
         present_in_coords = [d in dataset.coords for d in self.required_dims]
         if not all(present_in_coords):
@@ -100,12 +100,12 @@ class LatLonInterpolate(Joiner):
         #         raise ValueError(f"Cannot perform a GeoMergePancake on the data variables {data_var} without {self.required_dims} as a dimension")
 
     def maybe_interp(self, ds):
-        '''
+        """
         This method will only interpolate the datasets if the latitudes and longitudes don't already
         match. This means, for example, you can't use it to interpolate between time steps
         or vertical levels alone. The primary purpose here is lat/lon interpolation, not general
         model interpolation or arbitrarily-dimensioned data interpolation.
-        '''
+        """
 
         ds_coords_ok = [ds[coord].equals(self.reference_dataset[coord]) for coord in self.required_dims]
 
@@ -114,7 +114,6 @@ class LatLonInterpolate(Joiner):
             return interped
 
         return ds
-
 
     def _join_two_datasets(self, sample_a: xr.Dataset, sample_b: xr.Dataset) -> xr.Dataset:
         """
@@ -144,7 +143,7 @@ class LatLonInterpolate(Joiner):
         return merged
 
     def unjoin(self, sample: Any) -> tuple:
-        raise NotImplementedError("Not Implemented")    
+        raise NotImplementedError("Not Implemented")
 
 
 class GeospatialTimeSeriesMerge(Joiner):

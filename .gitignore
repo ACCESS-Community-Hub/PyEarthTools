@@ -1,6 +1,8 @@
 *.nc
 src/*/*/_version.py
 
+sandpit
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -66,7 +66,7 @@ from pyearthtools.utils.context import ChangeValue
 
 LOG = logging.getLogger("pyearthtools.data")
 
- 
+
 class Index(CallRedirectMixin, CatalogMixin, metaclass=ABCMeta):
     """
     Base Level Index to define the structure

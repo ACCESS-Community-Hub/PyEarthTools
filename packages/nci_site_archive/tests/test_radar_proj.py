@@ -24,13 +24,18 @@ import pytest
 import platform
 import xarray as xr
 
-from site_archive_nci._Rainfields3 import (
-    ErrorRadarProj,
-    ProjErrorStatus,
-    ProjKind,
-    RadarProj,
-    WarnRadarProj,
-)
+try:
+    from site_archive_nci._Rainfields3 import (
+        ErrorRadarProj,
+        ProjErrorStatus,
+        ProjKind,
+        RadarProj,
+        WarnRadarProj,
+    )
+
+except ImportError:
+    pytest.skip(allow_module_level=True)
+
 
 PYPROJ_SAMPLE = pyproj.Proj("+proj=aea +lat_1=-36 +lat_2=-18 +lon_0=132 +units=m")
 EXPECTED_KEYS = [
