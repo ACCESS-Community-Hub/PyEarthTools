@@ -856,3 +856,23 @@ class Pipeline(_Pipeline, Index):
             iterator=iterator,
             sampler=sampler,
         )
+
+    @property
+    def reversed(self) -> "ReversedPipeline":
+        # TODO keep same indexed?
+        # TODO keep same sampler?
+        return ReversedPipeline(*self.steps)
+
+
+class ReversedPipeline(Pipeline):
+    """Support class to reverse the effect of pipeline
+
+    Given a set of pipeline steps, this pipeline will undo the effect of the steps
+    when applied, and vice-versa. However it keeps the original order of the steps.
+    """
+
+    def undo(self, sample):
+        return super().apply(sample)
+
+    def apply(self, sample):
+        return super().undo(sample)
