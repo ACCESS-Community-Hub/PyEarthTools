@@ -322,7 +322,6 @@ class Pipeline(_Pipeline, Index):
         self.iterator = iterator
         self.sampler = sampler
         self.name = name
-        self._named = {}
         super().__init__(*steps, **kwargs)
         self.record_initialisation()
         self.exceptions_to_ignore = exceptions_to_ignore
@@ -401,19 +400,29 @@ class Pipeline(_Pipeline, Index):
                 # steps_list = [v]
             elif isinstance(v, Pipeline):
                 steps_list.extend(v.steps)
-                if v.name in self._named:
-                    assert v.name is not None
-                    raise KeyError(f"Named pipeline '{v.name}' already exists.")
-                elif v.name is not None:
-                    self._named[v.name] = v
             else:
                 steps_list.append(v)
+        if self.name is not None:
+            for step in steps_list:
+                step.name = self.name
         self._steps = tuple(steps_list)  # type: ignore
 
     @property
     def named(self) -> dict[str, Pipeline]:
-        """Named sub-pipelines"""
-        return self._named.copy()
+        """Retrieve sub-pipelines by name
+
+        The iterator and sampler of the sub-pipelines are not preserved.
+        """
+        named_steps = {}
+        for step in self.steps:
+            # skip unnamed steps, because not a PipelineStep or unset name
+            if (step_name := getattr(step, "name", None)) is None:
+                continue
+            named_steps.setdefault(step_name, []).append(step)
+
+        named_pipelines = {name: Pipeline(*steps) for name, steps in named_steps.items()}
+
+        return named_pipelines
 
     @property
     def iterator(self):
@@ -805,10 +814,15 @@ class Pipeline(_Pipeline, Index):
             new_init = dict(init)
             new_init.update({key: val for key, val in other_init.items() if val is not None})
 
+            # ensure steps are not renamed after the merge
+            if "name" in new_init:
+                del new_init["name"]
+
             return Pipeline(*args, **new_init)
 
         assert isinstance(other, (PipelineIndex, PipelineStep))
-        init = dict(self.initialisation)
+        # ensure steps are not renamed after the merge
+        init = {**self.initialisation, "name": None}
         args = (*init.pop("__args", []), other)
         return Pipeline(*args, **init)
 
@@ -829,7 +843,8 @@ class Pipeline(_Pipeline, Index):
         ],
     ) -> Pipeline:
         """Append a step in front of a pipeline"""
-        init = dict(self.initialisation)
+        # ensure steps are not renamed after the merge
+        init = {**self.initialisation, "name": None}
         args = (other, *init.pop("__args", []))
         return Pipeline(*args, **init)
 
