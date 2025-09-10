@@ -789,8 +789,7 @@ class Pipeline(_Pipeline, Index):
             return False
 
     def __add__(self, other: Union[_Pipeline, PipelineIndex, PipelineStep]) -> Pipeline:
-        """
-        Combine pipelines
+        """Combine pipelines
 
         Will set `self` steps first then `other`.
 
@@ -811,6 +810,27 @@ class Pipeline(_Pipeline, Index):
         assert isinstance(other, (PipelineIndex, PipelineStep))
         init = dict(self.initialisation)
         args = (*init.pop("__args", []), other)
+        return Pipeline(*args, **init)
+
+    def __or__(self, other: Union[_Pipeline, PipelineIndex, PipelineStep]) -> Pipeline:
+        """Combine pipelines
+
+        Same as + operator, alternative syntax.
+        """
+        return self + other
+
+    def __ror__(
+        self,
+        other: Union[
+            VALID_PIPELINE_TYPES,
+            _Pipeline,
+            PipelineIndex,
+            tuple[Union[VALID_PIPELINE_TYPES, Literal["map", "map_copy"]], ...],
+        ],
+    ) -> Pipeline:
+        """Append a step in front of a pipeline"""
+        init = dict(self.initialisation)
+        args = (other, *init.pop("__args", []))
         return Pipeline(*args, **init)
 
     def save(self, path: Optional[Union[str, Path]] = None, only_steps: bool = False) -> Union[str, None]:
@@ -878,5 +898,5 @@ class Pipeline(_Pipeline, Index):
                     f"missing the transposed property '.T':\n{step}"
                 )
             steps.append(step.T)
-        name = name if self.name is None else f"reversed_{self.name}"
+        name = self.name if self.name is None else f"reversed_{self.name}"
         return Pipeline(*steps, name=name)
