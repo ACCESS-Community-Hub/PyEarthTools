@@ -229,6 +229,7 @@ class Pipeline(_Pipeline, Index):
         iterator: Optional[Union[iterators.Iterator, tuple[iterators.Iterator, ...]]] = None,
         sampler: Optional[Union[samplers.Sampler, tuple[samplers.Sampler, ...]]] = None,
         exceptions_to_ignore: Optional[tuple[Union[str, Type[Exception]], ...]] = None,
+        name: str | None = None,
         **kwargs,
     ):
         """
@@ -311,13 +312,15 @@ class Pipeline(_Pipeline, Index):
                       Can be used to randomly sample, drop out and more
 
             exceptions_to_ignore: Which exceptions to ignore when iterating. Defaults to None.
+
+            name: Name of the pipeline, used in nested pipelines
         """
         self.iterator = iterator
         self.sampler = sampler
-
+        self.name = name
+        self._named = {}
         super().__init__(*steps, **kwargs)
         self.record_initialisation()
-
         self.exceptions_to_ignore = exceptions_to_ignore
 
     @property
@@ -394,9 +397,19 @@ class Pipeline(_Pipeline, Index):
                 # steps_list = [v]
             elif isinstance(v, Pipeline):
                 steps_list.extend(v.steps)
+                if v.name in self._named:
+                    assert v.name is not None
+                    raise KeyError(f"Named pipeline '{v.name}' already exists.")
+                elif v.name is not None:
+                    self._named[v.name] = v
             else:
                 steps_list.append(v)
         self._steps = tuple(steps_list)  # type: ignore
+
+    @property
+    def named(self) -> dict[str, Pipeline]:
+        """Named sub-pipelines"""
+        return self._named.copy()
 
     @property
     def iterator(self):
