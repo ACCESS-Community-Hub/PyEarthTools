@@ -2,6 +2,7 @@ import sys
 import logging
 import textwrap
 import hashlib
+import shutil
 from pathlib import Path
 from typing import Literal
 
@@ -97,9 +98,13 @@ def _save_variable(darr: xr.DataArray, path: Path):
         zarrpath = path / f"{darr.name}.zarr"
         varname = f"{darr.name} variable"
 
-    if zarrpath.is_dir():
+    if (canary_file := zarrpath / ".completed").is_file():
         logger.info(f"Skip saving {varname}, folder {zarrpath} already exists.")
         return
+
+    if zarrpath.is_dir():
+        logger.info(f"Incomplete download of {varname} found, removing folder {zarrpath}.")
+        shutil.rmtree(zarrpath)
 
     compressor = {"compressor": Blosc(cname="zstd", clevel=6)}
     zarr_kwargs = {"encoding": {darr.name: compressor}, "consolidated": False}
@@ -111,6 +116,7 @@ def _save_variable(darr: xr.DataArray, path: Path):
     with TqdmCallback(desc="Writing", disable=disable_bar):
         darr.to_zarr(zarrpath, **zarr_kwargs)
 
+    canary_file.touch()
     logger.info(f"Saving {varname} finished.")
 
 
@@ -152,12 +158,12 @@ def open_local_dataset(path: Path, variables: list[str], level: list[int]) -> xr
     dsets = []
     for varname in variables:
         filepath = path / f"{varname}.zarr"
-        if filepath.is_dir():
+        if (filepath / ".completed").is_file():
             logger.debug(f"Loading {varname} variable from folder {filepath}.")
             dset = xr.open_zarr(filepath, consolidated=False)
         else:
             filelist = [path / f"{varname}_level-{lvl}.zarr" for lvl in level]
-            if any(not fpath.is_dir() for fpath in filelist):
+            if any(not (fpath / ".completed").is_file() for fpath in filelist):
                 raise MissingVariableFile("Missing .zarr folder for some variables")
             logger.debug(f"Loading {varname} variable from folders {[str(p) for p in filelist]}.")
             dset = xr.open_mfdataset(filelist, concat_dim="level", combine="nested", consolidated=False)
