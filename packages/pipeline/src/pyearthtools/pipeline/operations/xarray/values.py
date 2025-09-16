@@ -210,7 +210,7 @@ class Derive(Operation):
         derivation = derivation or {}
         derivation.update(derivations)
 
-        self._derive = pyearthtools.data.transforms.derive(derivation)
+        self._derive = pyearthtools.data.transforms.Derive(derivation)
         self._drop = pyearthtools.data.transform.variables.Drop(list(derivation.keys())) if drop else None
 
     def apply_func(self, sample):
