@@ -244,10 +244,6 @@ class SetType(Transform):
         return dataset
 
 
-@BackwardsCompatibility(SetType)
-def set_type(*args, **kwargs) -> Transform: ...
-
-
 class Rename(Transform):
     """Rename Components inside Dataset"""
 
