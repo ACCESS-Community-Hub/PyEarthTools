@@ -306,4 +306,3 @@ def Geosearch(
         shapefile = geo.geometry
 
     return ShapeFile(shapefile, crs=crs)
-

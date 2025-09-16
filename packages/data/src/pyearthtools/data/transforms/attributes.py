@@ -269,4 +269,3 @@ class Rename(Transform):
 
     def apply(self, dataset: xr.Dataset) -> xr.Dataset:
         return dataset.rename(**{key: self._names[key] for key in self._names if key in dataset})
-

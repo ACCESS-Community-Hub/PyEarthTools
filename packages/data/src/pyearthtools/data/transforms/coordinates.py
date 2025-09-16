@@ -676,4 +676,3 @@ class Pad(Transform):
     # @property
     # def _info_(self) -> Any | dict:
     #     return dict(coordinates=self._coordinates, **self._kwargs)
-

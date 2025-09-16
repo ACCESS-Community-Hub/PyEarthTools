@@ -46,4 +46,3 @@ class Rechunk(Transform):
                     raise ValueError(f"Could not find 'chunksizes' in encoding of {var}")
             dataset[var].data = dataset[var].data.rechunk(chunks)
         return dataset
-
