@@ -560,10 +560,6 @@ class Expand(Transform):
         return dataset
 
 
-@BackwardsCompatibility(Expand)
-def expand(*args, **kwargs) -> Transform: ...
-
-
 def SelectFlatten(
     coordinates: dict[str, tuple[Any] | Any] | None = None,
     tolerance: float = 0.01,

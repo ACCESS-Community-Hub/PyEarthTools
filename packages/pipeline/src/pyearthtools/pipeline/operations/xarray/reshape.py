@@ -118,4 +118,4 @@ class CoordinateFlatten(Operation):
         return pyearthtools.data.transforms.coordinates.Flatten(self.coords, skip_missing=self._skip_missing)(ds)
 
     def undo_func(self, ds):
-        return pyearthtools.data.transforms.coordinates.expand(self.coords)(ds)
+        return pyearthtools.data.transforms.coordinates.Expand(self.coords)(ds)
