@@ -33,8 +33,6 @@ except ImportError:
 from pyearthtools.data.transforms import Transform
 from pyearthtools.data.transforms.utils import parse_dataset
 
-from pyearthtools.utils.decorators import BackwardsCompatibility
-
 
 RegionLookupFILE = Path(__file__).parent / "RegionLookup.yaml"
 
@@ -137,10 +135,6 @@ class Select(Transform):
         return subset_dataset
 
 
-@BackwardsCompatibility(Select)
-def sel(*args, **kwargs): ...
-
-
 class ISelect(Transform):
     """ISelect"""
 
@@ -158,10 +152,6 @@ class ISelect(Transform):
         # TODO Add automatic coordinate analysis, slice on 0-360 with a ds with -180-180
         subset_dataset = dataset.isel(**self._sel_kwargs)
         return subset_dataset
-
-
-@BackwardsCompatibility(ISelect)
-def isel(*args, **kwargs): ...
 
 
 def PointBox(point: tuple[float], size: float) -> Transform:
@@ -185,10 +175,6 @@ def PointBox(point: tuple[float], size: float) -> Transform:
         tuple(map(lambda x: x + size, point)),
     )
     return Bounding(edges[0][0], edges[1][0], edges[0][1], edges[1][1])
-
-
-@BackwardsCompatibility(PointBox)
-def point_box(*args, **kwargs): ...
 
 
 def Lookup(key: str, regionfile: str | Path = RegionLookupFILE) -> Transform:
@@ -220,10 +206,6 @@ def Lookup(key: str, regionfile: str | Path = RegionLookupFILE) -> Transform:
         return Bounding(**bounding_box)
 
     return Bounding(*bounding_box)
-
-
-@BackwardsCompatibility(Lookup)
-def lookup(*args, **kwargs): ...
 
 
 class ShapeFile(Transform):
@@ -283,10 +265,6 @@ class ShapeFile(Transform):
         self._shapefile.plot(**kwargs)
 
 
-@BackwardsCompatibility(ShapeFile)
-def from_shapefile(*args, **kwargs): ...
-
-
 def Geosearch(
     key: str,
     column: str | None = None,
@@ -328,7 +306,3 @@ def Geosearch(
         shapefile = geo.geometry
 
     return ShapeFile(shapefile, crs=crs)
-
-
-@BackwardsCompatibility(Geosearch)
-def from_geosearch(*args, **kwargs): ...

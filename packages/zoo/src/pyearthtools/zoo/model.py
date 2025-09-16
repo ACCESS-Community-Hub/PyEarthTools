@@ -794,7 +794,7 @@ class BaseForecastModel:
             full_index_kwargs["pattern_kwargs"] = pattern_kwargs
 
         post_transforms = (
-            pyearthtools.data.transforms.attributes.set_attributes(
+            pyearthtools.data.transforms.attributes.SetAttributes(
                 pyearthtools_models=f"{self.get_name()}: {VERSION}",
                 apply_on="both",
             )

@@ -149,4 +149,4 @@ class Modification(metaclass=ABCMeta):
         if isinstance(data, xr.Dataset):
             data = data[variable]
 
-        return pyearthtools.data.transforms.attributes.update(self.attribute_update)(data)
+        return pyearthtools.data.transforms.attributes.SetAttributes(self.attribute_update)(data)

@@ -19,7 +19,6 @@ from typing import Optional, Literal, TypeVar
 import xarray as xr
 
 from pyearthtools.data.transforms.transform import Transform
-from pyearthtools.utils.decorators import BackwardsCompatibility
 
 XR = TypeVar("XR", xr.Dataset, xr.DataArray)
 
@@ -58,10 +57,6 @@ class StandardDimensionNames(Transform):
                 if falsename in dataset:
                     dataset = dataset.drop(falsename)
         return dataset
-
-
-@BackwardsCompatibility(StandardDimensionNames)
-def force_standard_dimension_names(*args, **kwargs: str) -> Transform: ...
 
 
 class Expand(Transform):
@@ -138,7 +133,3 @@ class Expand(Transform):
 
         data = dataset.expand_dims(_dim, axis=self._axis, **self._kwargs)
         return data
-
-
-@BackwardsCompatibility(Expand)
-def expand(*args, **kwargs) -> Transform: ...

@@ -29,7 +29,6 @@ import logging
 
 
 from pyearthtools.data.transforms import Transform
-from pyearthtools.utils.decorators import BackwardsCompatibility
 
 LOG = logging.getLogger("pyearthtools.data")
 
@@ -507,10 +506,6 @@ class Derive(Transform):
 
     def apply(self, dataset: xr.Dataset) -> xr.Dataset:
         return derive_equations(dataset, drop=self._drop, equation=self._equation)
-
-
-@BackwardsCompatibility(Derive)
-def derive(*args, **kwargs) -> Transform: ...
 
 
 # def equations(equation: str):

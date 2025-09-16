@@ -21,7 +21,6 @@ import numpy as np
 
 from pyearthtools.data.utils import parse_path
 
-from pyearthtools.utils.decorators import BackwardsCompatibility
 from pyearthtools.pipeline.operation import Operation
 
 
@@ -128,10 +127,6 @@ class Division(numpyNormalisation):
 
     def denormalise(self, sample):
         return sample * self.expand(self.division_factor, sample)
-
-
-@BackwardsCompatibility(Division)
-def TemporalDifference(*a, **k): ...
 
 
 class Evaluated(numpyNormalisation):
