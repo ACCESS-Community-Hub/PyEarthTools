@@ -22,7 +22,6 @@ import xarray as xr
 
 from pyearthtools.data.utils import parse_path
 
-from pyearthtools.utils.decorators import BackwardsCompatibility
 from pyearthtools.pipeline.operation import Operation
 
 
@@ -232,10 +231,6 @@ class SingleValueDivision(xarrayNormalisation):
 
     def denormalise(self, sample):
         return sample * self.division_factor
-
-
-@BackwardsCompatibility(Division)
-def TemporalDifference(*a, **k): ...
 
 
 class Evaluated(xarrayNormalisation):
