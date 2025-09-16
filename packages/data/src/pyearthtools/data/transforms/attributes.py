@@ -107,9 +107,6 @@ class SetAttributes(Transform):
         return data_obj
 
 
-update = SetAttributes
-
-
 def _get_encoding_from_ds(reference: xr.DataArray | xr.Dataset, limit: list[str] | None = None):
     encoding: dict[str, dict[str, Any]] = {}
     relevant_encoding = limit or [
