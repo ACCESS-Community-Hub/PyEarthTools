@@ -200,10 +200,6 @@ class SetEncoding(Transform):
         return dataset
 
 
-@BackwardsCompatibility(SetEncoding)
-def set_encoding(*args, **kwargs) -> Transform: ...
-
-
 class SetType(Transform):
     """Set type of variables"""
 

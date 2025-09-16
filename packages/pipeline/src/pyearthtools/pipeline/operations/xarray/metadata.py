@@ -88,7 +88,7 @@ class Encoding(Operation):
             recognised_types=(xr.Dataset, xr.DataArray),
         )
         self.record_initialisation()
-        self._encoding = pyearthtools.data.transforms.attributes.set_encoding(encoding)
+        self._encoding = pyearthtools.data.transforms.attributes.SetEncoding(encoding)
 
     def apply_func(self, sample: T) -> T:
         return self._encoding(sample)
@@ -124,13 +124,13 @@ class MaintainEncoding(Operation):
         self._encoding = (
             None
             if reference is None
-            else pyearthtools.data.transforms.attributes.set_encoding(reference=xr.open_dataset(reference), limit=limit)
+            else pyearthtools.data.transforms.attributes.SetEncoding(reference=xr.open_dataset(reference), limit=limit)
         )
         self._limit = limit
 
     def apply_func(self, sample: T) -> T:
         if not self._encoding:
-            self._encoding = pyearthtools.data.transforms.attributes.set_encoding(reference=sample, limit=self._limit)
+            self._encoding = pyearthtools.data.transforms.attributes.SetEncoding(reference=sample, limit=self._limit)
         return sample
 
     def undo_func(self, sample: T) -> T:
