@@ -29,8 +29,6 @@ from pyearthtools.data.transforms.attributes import SetType
 from pyearthtools.data.warnings import pyearthtoolsDataWarning
 from pyearthtools.data.exceptions import DataNotFoundError
 
-from pyearthtools.utils.decorators import BackwardsCompatibility
-
 DASK_IMPORTED = False
 try:
     import dask
@@ -679,6 +677,3 @@ class Pad(Transform):
     # def _info_(self) -> Any | dict:
     #     return dict(coordinates=self._coordinates, **self._kwargs)
 
-
-@BackwardsCompatibility(Pad)
-def pad(*args, **kwargs) -> Transform: ...
