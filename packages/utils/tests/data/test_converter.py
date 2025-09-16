@@ -26,11 +26,10 @@ def test_NumpyConverter():
     Checks conversion from xarray to numpy and back
     """
 
-    # This round-trips convert and unconvert
-    nc = converter.NumpyConverter()
-    np_array = nc.convert_from_xarray(SIMPLE_DATA_ARRAY)
+    nc_da = converter.NumpyConverter()
+    _ = nc_da.convert_from_xarray(SIMPLE_DATA_ARRAY)
 
-    # Test conversion from xarray
+    nc = converter.NumpyConverter()
     np_array = nc.convert_from_xarray(SIMPLE_DATA_SET)
     xr_ds = nc.convert_to_xarray(np_array)
     assert isinstance(xr_ds, xr.Dataset)
