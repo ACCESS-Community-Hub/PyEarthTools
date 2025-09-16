@@ -337,10 +337,11 @@ class Select(Transform):
 
             try:
                 if not self._isel:
+                    use_method = self._tolerance is not None and not isinstance(value, slice)
                     dataset = dataset.sel(
                         **{key: value},
-                        method="nearest" if self._tolerance is not None else None,
-                        tolerance=self._tolerance,
+                        method="nearest" if use_method else None,
+                        tolerance=self._tolerance if use_method else None,
                     )
                 else:
                     dataset = dataset.isel(
