@@ -215,7 +215,7 @@ def predict(  # pylint: disable=R0913
     data_cache_str = " " if data_cache is None else f" --data_cache {data_cache}"
 
     # Add a transform to add the command line to the history attributes
-    post_transforms = pyearthtools.data.transforms.attributes.set_attributes(
+    post_transforms = pyearthtools.data.transforms.attributes.SetAttributes(
         history=f"pet predict {model!r} --pipeline_name {pipeline_name!r} --output {output!s}"
         f"{f' --config_path {config_path}' if config_path else ''} "
         f"--time {time}{data_cache_str} {extra_kwargs_str}".replace("  ", " ")

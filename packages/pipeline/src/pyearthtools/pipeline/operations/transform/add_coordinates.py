@@ -55,7 +55,7 @@ class AddCoordinates(Transform):
         dims = list(data.dims)
         rebuild_encoding = pyearthtools.data.transforms.attributes.set_encoding(
             reference=data
-        ) + pyearthtools.data.transforms.attributes.set_attributes(reference=data)
+        ) + pyearthtools.data.transforms.attributes.SetAttributes(reference=data)
 
         for coord in self.coordinates:
             if coord in data:

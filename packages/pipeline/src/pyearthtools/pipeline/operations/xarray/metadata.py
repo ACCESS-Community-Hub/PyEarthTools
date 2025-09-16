@@ -178,7 +178,7 @@ class Attributes(Operation):
             recognised_types=(xr.Dataset, xr.DataArray),
         )
         self.record_initialisation()
-        self._attributes = pyearthtools.data.transforms.attributes.set_attributes(attrs=attributes, apply_on=apply_on)
+        self._attributes = pyearthtools.data.transforms.attributes.SetAttributes(attrs=attributes, apply_on=apply_on)
 
     def apply_func(self, sample: T) -> T:
         return self._attributes(sample)
@@ -214,12 +214,12 @@ class MaintainAttributes(Operation):
         self._attributes = (
             None
             if reference is None
-            else pyearthtools.data.transforms.attributes.set_attributes(reference=xr.open_dataset(reference))
+            else pyearthtools.data.transforms.attributes.SetAttributes(reference=xr.open_dataset(reference))
         )
 
     def apply_func(self, sample: T) -> T:
         if not self._attributes:
-            self._attributes = pyearthtools.data.transforms.attributes.set_attributes(reference=sample)
+            self._attributes = pyearthtools.data.transforms.attributes.SetAttributes(reference=sample)
         return sample
 
     def undo_func(self, sample: T) -> T:

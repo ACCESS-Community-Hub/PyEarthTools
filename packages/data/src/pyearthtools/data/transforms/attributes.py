@@ -108,11 +108,7 @@ class SetAttributes(Transform):
         return data_obj
 
 
-@BackwardsCompatibility(SetAttributes)
-def set_attributes(*args, **kwargs) -> Transform: ...
-
-
-update = set_attributes
+update = SetAttributes
 
 
 def _get_encoding_from_ds(reference: xr.DataArray | xr.Dataset, limit: list[str] | None = None):
