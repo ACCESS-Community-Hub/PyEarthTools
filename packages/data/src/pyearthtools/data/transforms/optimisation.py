@@ -20,8 +20,6 @@ from typing import Literal, Any
 import xarray as xr
 from pyearthtools.data.transforms.transform import Transform
 
-from pyearthtools.utils.decorators import BackwardsCompatibility
-
 
 class Rechunk(Transform):
     """Rechunk data"""
@@ -49,6 +47,3 @@ class Rechunk(Transform):
             dataset[var].data = dataset[var].data.rechunk(chunks)
         return dataset
 
-
-@BackwardsCompatibility(Rechunk)
-def rechunk(*args, **kwargs): ...
