@@ -23,7 +23,6 @@ from typing import Any, Literal
 import xarray as xr
 
 from pyearthtools.data.transforms import Transform
-from pyearthtools.utils.decorators import BackwardsCompatibility
 
 
 def _get_attributes_from_ds(reference: xr.DataArray | xr.Dataset) -> dict[str, dict[str, Any]]:
@@ -274,6 +273,3 @@ class Rename(Transform):
     def apply(self, dataset: xr.Dataset) -> xr.Dataset:
         return dataset.rename(**{key: self._names[key] for key in self._names if key in dataset})
 
-
-@BackwardsCompatibility(Rename)
-def rename(*args, **kwargs) -> Transform: ...

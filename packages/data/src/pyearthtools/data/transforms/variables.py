@@ -23,7 +23,7 @@ from pyearthtools.data.transforms.transform import Transform
 from pyearthtools.utils.decorators import BackwardsCompatibility
 
 # Backwards compatability
-rename_variables = attr.rename
+rename_variables = attr.Rename
 replace_name_deviation = rename_variables
 
 

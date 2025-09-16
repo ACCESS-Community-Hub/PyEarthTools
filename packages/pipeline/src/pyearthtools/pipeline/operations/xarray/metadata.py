@@ -52,10 +52,10 @@ class Rename(Operation):
         self._rename = rename
 
     def apply_func(self, sample: xr.Dataset) -> xr.Dataset:
-        return pyearthtools.data.transforms.attributes.rename(self._rename)(sample)
+        return pyearthtools.data.transforms.attributes.Rename(self._rename)(sample)
 
     def undo_func(self, sample: xr.Dataset) -> xr.Dataset:
-        return pyearthtools.data.transforms.attributes.rename({val: key for key, val in self._rename.items()})(sample)
+        return pyearthtools.data.transforms.attributes.Rename({val: key for key, val in self._rename.items()})(sample)
 
 
 class Encoding(Operation):
