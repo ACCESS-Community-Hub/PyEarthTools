@@ -17,12 +17,7 @@ from __future__ import annotations
 
 import xarray as xr
 
-import pyearthtools.data.transforms.attributes as attr
 from pyearthtools.data.transforms.transform import Transform
-
-# Backwards compatability
-rename_variables = attr.Rename
-replace_name_deviation = rename_variables
 
 
 __all__ = ["Trim", "Drop"]
