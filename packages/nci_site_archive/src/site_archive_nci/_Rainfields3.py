@@ -903,7 +903,7 @@ class Rainfields3(ArchiveIndex):
         check_project(project_code="rq0")
         self.variables = [variables] if isinstance(variables, str) else variables
 
-        base_transform = pyearthtools.data.transforms.variables.variable_trim(variables)
+        base_transform = pyearthtools.data.transforms.variables.Trim(variables)
 
         self.walk_cache = {}  # Caches filesystem walks for efficiency
 
