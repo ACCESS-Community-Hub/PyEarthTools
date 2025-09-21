@@ -322,6 +322,7 @@ class Pipeline(_Pipeline, Index):
         self.iterator = iterator
         self.sampler = sampler
         self.name = name
+        self._named = {}
         super().__init__(*steps, **kwargs)
         self.record_initialisation()
         self.exceptions_to_ignore = exceptions_to_ignore
@@ -400,29 +401,23 @@ class Pipeline(_Pipeline, Index):
                 # steps_list = [v]
             elif isinstance(v, Pipeline):
                 steps_list.extend(v.steps)
+                self._add_named_pipe(v)
             else:
                 steps_list.append(v)
-        if self.name is not None:
-            for step in steps_list:
-                step.name = self.name
         self._steps = tuple(steps_list)  # type: ignore
 
     @property
     def named(self) -> dict[str, Pipeline]:
-        """Retrieve sub-pipelines by name
+        """Named sub-pipelines"""
+        return self._named.copy()
 
-        The iterator and sampler of the sub-pipelines are not preserved.
-        """
-        named_steps = {}
-        for step in self.steps:
-            # skip unnamed steps, because not a PipelineStep or unset name
-            if (step_name := getattr(step, "name", None)) is None:
-                continue
-            named_steps.setdefault(step_name, []).append(step)
-
-        named_pipelines = {name: Pipeline(*steps) for name, steps in named_steps.items()}
-
-        return named_pipelines
+    def _add_named_pipe(self, pipe: Pipeline):
+        """add or merge a nested pipeline in the dictionary of named pipelines"""
+        new_pipes = pipe._named if pipe.name is None else {pipe.name: pipe}
+        for name, nested_pipe in new_pipes.items():
+            if name in self._named:
+                raise KeyError(f"Named pipeline '{name}' already exists.")
+            self._named[name] = nested_pipe
 
     @property
     def iterator(self):
@@ -813,18 +808,19 @@ class Pipeline(_Pipeline, Index):
 
             new_init = dict(init)
             new_init.update({key: val for key, val in other_init.items() if val is not None})
+            new_init["name"] = None
 
-            # ensure steps are not renamed after the merge
-            if "name" in new_init:
-                del new_init["name"]
-
-            return Pipeline(*args, **new_init)
+            new_pipe = Pipeline(*args, **new_init)
+            new_pipe._add_named_pipe(self)
+            new_pipe._add_named_pipe(other)
+            return new_pipe
 
         assert isinstance(other, (PipelineIndex, PipelineStep))
-        # ensure steps are not renamed after the merge
         init = {**self.initialisation, "name": None}
         args = (*init.pop("__args", []), other)
-        return Pipeline(*args, **init)
+        new_pipe = Pipeline(*args, **init)
+        new_pipe._add_named_pipe(self)
+        return new_pipe
 
     def __or__(self, other: Union[_Pipeline, PipelineIndex, PipelineStep]) -> Pipeline:
         """Combine pipelines
@@ -843,10 +839,11 @@ class Pipeline(_Pipeline, Index):
         ],
     ) -> Pipeline:
         """Append a step in front of a pipeline"""
-        # ensure steps are not renamed after the merge
         init = {**self.initialisation, "name": None}
         args = (other, *init.pop("__args", []))
-        return Pipeline(*args, **init)
+        new_pipe = Pipeline(*args, **init)
+        new_pipe._add_named_pipe(self)
+        return new_pipe
 
     def save(self, path: Optional[Union[str, Path]] = None, only_steps: bool = False) -> Union[str, None]:
         """

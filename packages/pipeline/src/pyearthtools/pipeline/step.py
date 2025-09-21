@@ -53,7 +53,6 @@ class PipelineStep(PipelineRecordingMixin, ParallelEnabledMixin, metaclass=ABCMe
             ]
         ] = None,
         response_on_type: Literal["warn", "exception", "ignore", "filter"] = "exception",
-        name: str | None = None,
     ):
         """
         Base `PipelineStep`
@@ -70,15 +69,12 @@ class PipelineStep(PipelineRecordingMixin, ParallelEnabledMixin, metaclass=ABCMe
                 Types recognised, can be dictionary to reference different types per function Defaults to None.
             response_on_type (Literal['warn', 'exception', 'ignore', 'filter'], optional):
                 Response when invalid type found. Defaults to "exception".
-            name (str, optional):
-                Name of the pipeline this step belongs too
         """
         self.split_tuples = split_tuples
         self.recursively_split_tuples = recursively_split_tuples
 
         self.recognised_types = recognised_types or {}  # type: ignore
         self.response_on_type = response_on_type
-        self.name = name
 
     @abstractmethod
     def run(self, sample):
