@@ -141,9 +141,6 @@ The rest of this page contains reference information for the components of the D
 |                  |                                               | - [coordinates.StandardCoordinateNames](data_api.md#pyearthtools.data.transforms.coordinates.StandardCoordinateNames) |
 |                  |                                               | - [coordinates.Select](data_api.md#pyearthtools.data.transforms.coordinates.Select) |
 |                  |                                               | - [coordinates.Drop](data_api.md#pyearthtools.data.transforms.coordinates.Drop) |
-|                  |                                               | - [coordinates.Flatten](data_api.md#pyearthtools.data.transforms.coordinates.Flatten) |
-|                  |                                               | - [coordinates.Expand](data_api.md#pyearthtools.data.transforms.coordinates.Expand) |
-|                  |                                               | - [coordinates.SelectFlatten](data_api.md#pyearthtools.data.transforms.coordinates.SelectFlatten) |
 |                  |                                               | - [coordinates.Assign](data_api.md#pyearthtools.data.transforms.coordinates.Assign) |
 |                  |                                               | - [coordinates.Pad](data_api.md#pyearthtools.data.transforms.coordinates.Pad) |
 |                  |                                               | - [default.get_default_transforms](data_api.md#pyearthtools.data.transforms.default.get_default_transforms) |
