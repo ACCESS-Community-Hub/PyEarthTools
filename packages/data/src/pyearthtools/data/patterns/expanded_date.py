@@ -32,7 +32,6 @@ from pyearthtools.data.patterns.default import (
     PatternForecastIndex,
     PatternVariableAware,
 )
-from pyearthtools.data.indexes import decorators
 
 import pyearthtools.utils
 from pyearthtools.utils.decorators import classproperty
@@ -65,7 +64,6 @@ def parse_time_str(time, directory: bool = False, delimiter: str | tuple | list 
 
 
 class _ExpandedDate(PatternIndex):
-    @decorators.alias_arguments(delimiter=["deliminator"])
     def __init__(
         self,
         root_dir: str | Path,
@@ -140,7 +138,7 @@ class ExpandedDate(_ExpandedDate):
         >>> pattern = pyearthtools.data.patterns.ExpandedDate('/dir/', extension = '.nc')
         >>> str(pattern.search('2020-01-02T0030'))
         '/dir/2020/01/02/20200102T0030.nc'
-        >>> pattern = pyearthtools.data.patterns.ExpandedDate('/dir/', extension = '.nc', deliminator = ('#', None))
+        >>> pattern = pyearthtools.data.patterns.ExpandedDate('/dir/', extension = '.nc', delimiter = ('#', None))
         >>> str(pattern.search('2020-01-02T0030'))
         '/dir/2020/01/02/2020#01#02T00:30.nc'
     """

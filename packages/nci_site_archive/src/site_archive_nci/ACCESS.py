@@ -85,7 +85,6 @@ class ACCESS(DataFileSystemIndex, ACCESS_UI_MIXIN):
     @decorators.alias_arguments(variables=["variable"])
     def __new__(
         cls,
-        variables: list[str] | str,
         region: str,
         *,
         datatype: VALID_DATATYPES,
@@ -103,12 +102,13 @@ class ACCESS(DataFileSystemIndex, ACCESS_UI_MIXIN):
         region=ACCESS_REGIONS,
         datatype=ACCESS_DATATYPES,
         variables="site_archive_nci.variables.ACCESS.{datatype}.valid",
+        allow_all=["variables"],
     )
     def __init__(
         self,
-        variables: list[str] | str,
         region: str,
         *,
+        variables: list[str] | str | None = None,
         datatype: str,
         level_value: Any = None,
         transforms: Transform | TransformCollection | None = None,
@@ -130,17 +130,18 @@ class ACCESS(DataFileSystemIndex, ACCESS_UI_MIXIN):
                 Base Transforms to apply. Defaults to TransformCollection().
         """
         check_project(project_code="wr45")
-        variables = [variables] if isinstance(variables, str) else variables
+        base_transform = TransformCollection()
+
+        # Optionally trim variables
+        if variables != "all":
+            variables = [variables] if isinstance(variables, str) else variables
+            split_variables = [var.split("/")[-1] for var in variables]
+            base_transform += pyearthtools.data.transforms.variables.Trim(split_variables)
 
         region = region.lower()
-
         self.variables = variables
         self.region = region.lower()
         self.datatype = datatype
-
-        split_variables = [var.split("/")[-1] for var in variables]
-
-        base_transform = pyearthtools.data.transforms.variables.Trim(split_variables)
 
         self.level_value = level_value
         if level_value is not None:
@@ -185,16 +186,17 @@ class ACCESS(DataFileSystemIndex, ACCESS_UI_MIXIN):
                 IndexWarning,
             )
 
-        for variable in self.variables:
-            var_path = (
-                basepath
-                / basetime.strftime("%Y%m%d")
-                / rounder(
-                    basetime,
-                    interval,
-                )
-                / self.datatype
+        var_path = (
+            basepath
+            / basetime.strftime("%Y%m%d")
+            / rounder(
+                basetime,
+                interval,
             )
+            / self.datatype
+        )
+
+        for variable in self.variables:
 
             relevant_files = var_path.rglob(f"{variable}.nc")
 
@@ -203,6 +205,10 @@ class ACCESS(DataFileSystemIndex, ACCESS_UI_MIXIN):
                     paths[variable.split("/")[-1]] = relevant_path
                     break
             else:
+
+                import pudb
+
+                pudb.set_trace()
                 raise DataNotFoundError(
                     f"Unable to find data for: basetime: {basetime!r}, region: {self.region!r}, "
                     f"datatype: {self.datatype!r}, variable:{variable!r} at {basepath!r}"
@@ -239,10 +245,10 @@ class ACCESS_Forecast(ACCESS, ForecastIndex):
     @decorators.alias_arguments(variables=["variable"])
     def __init__(
         self,
-        variables: list[str] | str,
         region: str,
         datatype: Literal["fc", "fcmm"] = "fc",
         *,
+        variables: list[str] | str | None = None,
         forecast_leadtime: datetime.timedelta | int | tuple | None = None,
         transforms: Transform | TransformCollection | None = None,
         **kwargs,
@@ -263,7 +269,7 @@ class ACCESS_Forecast(ACCESS, ForecastIndex):
                 Base Transforms to apply. Defaults to TransformCollection().
         """
         kwargs["data_interval"] = (6, "h")
-        super().__init__(variables, region=region, datatype=datatype, transforms=transforms, **kwargs)
+        super().__init__(variables=variables, region=region, datatype=datatype, transforms=transforms, **kwargs)
         self.record_initialisation()
 
         self.forecast_leadtime = forecast_leadtime if forecast_leadtime is None else TimeDelta(forecast_leadtime)

@@ -19,7 +19,6 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from pyearthtools.data.patterns import PatternIndex, PatternVariableAware
-from pyearthtools.data.indexes import decorators
 from pyearthtools.data.indexes.utilities import spellcheck
 
 import pyearthtools.utils
@@ -89,7 +88,6 @@ class _Argument(PatternIndex):
         ... ['/dir/arg1/test.nc', '/dir/arg2/test.nc']
     """
 
-    @decorators.alias_arguments(filename_delimiter=["filename_deliminator"])
     def __init__(
         self,
         root_dir: str | Path,

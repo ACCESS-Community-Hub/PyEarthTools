@@ -186,8 +186,29 @@ class GeospatialTimeSeriesMerge(Joiner):
         if self.time_dimension not in sample_b.coords:
             raise ValueError(f"Time dimension missing from {str(sample_b)}")
 
-        interped_a = sample_a.interp_like(self.reference_dataset, method="nearest")
-        interped_b = sample_b.interp_like(self.reference_dataset, method="nearest")
+        if self.reference_dataset.latitude[0] > self.reference_dataset.latitude[-1]:
+            self.reference_dataset = self.reference_dataset.sortby("latitude")
+
+        if sample_a.latitude[0] > sample_a.latitude[-1]:
+            sample_a = sample_a.sortby("latitude")
+
+        if sample_b.latitude[0] > sample_b.latitude[-1]:
+            sample_b = sample_b.sortby("latitude")
+
+        interped_a = sample_a.interp(
+            latitude=self.reference_dataset.latitude,
+            longitude=self.reference_dataset.longitude,
+            assume_sorted=True,
+            method="nearest",
+        )
+
+        interped_b = sample_b.interp(
+            latitude=self.reference_dataset.latitude,
+            longitude=self.reference_dataset.longitude,
+            assume_sorted=True,
+            method="nearest",
+        )
+
         merged = xr.merge([interped_a, interped_b])
         return merged
 

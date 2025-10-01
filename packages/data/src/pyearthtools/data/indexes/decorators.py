@@ -65,7 +65,8 @@ def _check_required_arguments(default: dict[str, inspect.Parameter], kwargs: dic
         inspect._ParameterKind.VAR_POSITIONAL,
     ]
 
-    for key in set(default.keys()).difference(set(kwargs.keys())):
+    set_of_keys = set(default.keys()).difference(set(kwargs.keys()))
+    for key in set_of_keys:
         value = default[key]
         if value.default == inspect._empty and value.kind not in not_required:
             raise TypeError(f"{function_object} missing 1 required argument: {key!r}")
@@ -183,12 +184,11 @@ def _check_structure(structure: str | Path | dict[str, Any], arguments: dict[str
 
 def check_arguments(
     struc: str | Path | dict[str, Any] | None = None,
+    allow_all=None,
     **valid_arguments: list[Any] | tuple[Any, ...] | str,
 ):
     """
-    Check Arguments before passing to function,
-
-    If arguments and true arguments are a string, will attempt to find nearby spellings
+    Check Arguments before passing to function.
 
     Args:
         struc (str | Path | dict, optional):
@@ -221,7 +221,28 @@ def check_arguments(
 
     """
 
+    allow_all = allow_all or []
+
     def internal_function(func):
+        """
+        The double-nesting here is a little unusual. `check_arguments` is needed to take
+        more complex arguments than just `func`. `internal_function` then builds and returns
+        the wrapper function. The wrapper function is what then gets called when
+        other code calls the original function i.e. "func". The inner wrapper
+        function then does pre and post processing, and calls the original
+        (decorated) `func` method.
+
+        Purpose: to inspect the supplied arguments against  the valid values specified by the
+        'struc' file and/or the supplied dictionary
+
+        @param func: The decorated function whose arguments are to be checked
+        """
+
+        # The code prior to `wrapper` is basically to build the `valid_arguments` dictionary
+        # for `wrapper` to use. There's a bit of pre-checking to confirm the configuration
+        # is actually valid - invalid `struc` files for example can get picked up here during
+        # function definition rather than when called
+
         ## Get function signature
         signature = inspect.signature(func)
         ## Get all params
@@ -230,23 +251,29 @@ def check_arguments(
         parameter_values = {key: signature.parameters[key] for key in function_arguments}
         default_values = _get_default_arguments(signature)
 
-        ## Parse given valid arguments
-        for k, v in valid_arguments.items():
-            if k not in function_arguments:
-                raise KeyError(f"{k!r} not in function signature")
+        ## Check that each supplied argument is present within the specified valid_arguments
+        for argument_name, valid_values in valid_arguments.items():
+            if argument_name not in function_arguments:
+                raise KeyError(f"{argument_name!r} not in function signature")
 
-            if isinstance(v, (list, tuple)):
+            if isinstance(valid_values, (list, tuple)):
                 continue
-            if isinstance(v, str):
-                if _is_accepted_file(v):
-                    valid_arguments[k] = v
+            if isinstance(valid_values, str):
+                if _is_accepted_file(valid_values):
+                    valid_arguments[argument_name] = valid_values
                     continue
-                valid_arguments[k] = [v]
+                valid_arguments[argument_name] = [valid_values]
                 continue
-            raise ValueError(f"Cannot parse valid arguments list for '{k}':{v}")
+            raise ValueError(f"Cannot parse valid arguments list for '{argument_name}':{valid_values}")
 
+        # Copy the "func" metadata into the wrapper function, which then stands in for the original "func"
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
+            """
+            Called when 'func' is called. Stands in for 'func'. Does any pre or post processing
+            before calling the underlying decorated function.
+            """
+
             ## Convert args to kwargs
             for i, arg in enumerate(args):
                 if function_arguments[i] in kwargs:
@@ -270,9 +297,9 @@ def check_arguments(
                 kwargs = _check_structure(struc, kwargs)
 
             ## Check all kwargs where valid arguments have been given
-            for k, valid_arg in valid_arguments.items():
+            for argument, valid_arg in valid_arguments.items():
                 ## Skip items which have valid args but were not given
-                if k not in kwargs:
+                if argument not in kwargs:
                     continue
 
                 ## Load from .valid file
@@ -285,11 +312,14 @@ def check_arguments(
 
                     valid_arg = open_static(class_path, file_path)
 
-                if isinstance(kwargs[k], (tuple, list)):
-                    for item in kwargs[k]:
-                        spellcheck.check_prompt(item, valid_arg, k)
+                if isinstance(kwargs[argument], (tuple, list)):
+                    for item in kwargs[argument]:
+                        spellcheck.check_prompt(item, valid_arg, argument)
                 else:
-                    kwargs[k] = spellcheck.check_prompt(kwargs[k], valid_arg, k)
+                    if argument in allow_all and kwargs[argument] == "all":
+                        pass  # Don't check arguments for "all"
+                    else:
+                        kwargs[argument] = spellcheck.check_prompt(kwargs[argument], valid_arg, argument)
 
             return func(**kwargs)
 

@@ -85,6 +85,7 @@ def alias_arguments(**aliases: str | list[str]) -> Callable:
                             f"Two keyword arguments for {k!r} have been passed due to alias resolving. Cannot parse.\nRecieved: {kwargs!r}."
                         )
                 new_kwargs[k] = v
+
             return func(*args, **new_kwargs)
 
         return wrapper

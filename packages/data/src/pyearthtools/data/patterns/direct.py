@@ -33,7 +33,7 @@ from pyearthtools.data.patterns import (
     PatternVariableAware,
     PatternForecastIndex,
 )
-from pyearthtools.data.indexes import TimeIndex, decorators
+from pyearthtools.data.indexes import TimeIndex
 
 import pyearthtools.utils
 from pyearthtools.utils.decorators import classproperty
@@ -51,7 +51,6 @@ def nonNone(*args):
 
 
 class _Direct(TimeIndex, PatternIndex):
-    @decorators.alias_arguments(delimiter=["deliminator"])
     def __init__(
         self,
         root_dir: str | Path,
@@ -120,7 +119,7 @@ class Direct(_Direct):
         >>> pattern = pyearthtools.data.patterns.Direct('/dir/', extension = '.nc')
         >>> str(pattern.search('2020-01-02T0030'))
         '/dir/20200102T0030.nc'
-        >>> pattern = pyearthtools.data.patterns.Direct('/dir/', extension = '.nc', deliminator = ('@', '%'))
+        >>> pattern = pyearthtools.data.patterns.Direct('/dir/', extension = '.nc', delimiter = ('@', '%'))
         >>> str(pattern.search('2020-01-02T0030'))
         '/dir/2020@01@02T00%30.nc'
     """
