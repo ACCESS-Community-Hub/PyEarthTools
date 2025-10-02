@@ -26,7 +26,6 @@ import dask.array as da
 
 from pyearthtools.data.utils import parse_path
 
-from pyearthtools.utils.decorators import BackwardsCompatibility
 from pyearthtools.pipeline.operations.dask.dask import DaskOperation
 
 
@@ -135,10 +134,6 @@ class Division(daskNormalisation):
 
     def denormalise(self, sample):
         return sample * self.expand(self.division_factor, sample)
-
-
-@BackwardsCompatibility(Division)
-def TemporalDifference(*a, **k): ...
 
 
 class Evaluated(daskNormalisation):

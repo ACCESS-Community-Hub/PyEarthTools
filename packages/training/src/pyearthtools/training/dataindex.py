@@ -33,7 +33,7 @@ from pyearthtools.data.indexes.cacheIndex import BaseCacheIndex
 
 import pyearthtools.training.wrapper
 
-ATTRIBUTE_MARK = pyearthtools.data.transforms.attributes.set_attributes(
+ATTRIBUTE_MARK = pyearthtools.data.transforms.attributes.SetAttributes(
     purpose="Research Use Only.",
     contact="For further information or support, contact the Data Science and Emerging Technologies Team.",
     crpyearthtools="Generated with `pyearthtools`, a research endeavour under the DSET team, and Project 3.1.",
@@ -170,7 +170,7 @@ class MLDataIndex(BaseCacheIndex, TimeIndex):
         # Apply attribute marks to the prediction data
         if self.data_attributes is not None:
             attrs = yaml.safe_load(open(str(self.data_attributes), "r"))
-            predictions = pyearthtools.data.transforms.attributes.set_attributes(attrs, apply_on="dataset")(predictions)
+            predictions = pyearthtools.data.transforms.attributes.SetAttributes(attrs, apply_on="dataset")(predictions)
 
         return predictions
 

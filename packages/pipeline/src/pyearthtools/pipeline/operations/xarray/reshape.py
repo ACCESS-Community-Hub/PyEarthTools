@@ -242,3 +242,4 @@ class CoordinateExpand(Operation):
 
 @BackwardsCompatibility(CoordinateExpand)
 def coordinate_expand(*args, **kwargs) -> Operation: ...
+

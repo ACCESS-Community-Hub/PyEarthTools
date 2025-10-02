@@ -29,8 +29,6 @@ from pyearthtools.data.transforms.attributes import SetType
 from pyearthtools.data.warnings import pyearthtoolsDataWarning
 from pyearthtools.data.exceptions import DataNotFoundError
 
-from pyearthtools.utils.decorators import BackwardsCompatibility
-
 DASK_IMPORTED = False
 try:
     import dask
@@ -337,10 +335,11 @@ class Select(Transform):
 
             try:
                 if not self._isel:
+                    use_method = self._tolerance is not None and not isinstance(value, slice)
                     dataset = dataset.sel(
                         **{key: value},
-                        method="nearest" if self._tolerance is not None else None,
-                        tolerance=self._tolerance,
+                        method="nearest" if use_method else None,
+                        tolerance=self._tolerance if use_method else None,
                     )
                 else:
                     dataset = dataset.isel(
@@ -484,7 +483,3 @@ class Pad(Transform):
     # @property
     # def _info_(self) -> Any | dict:
     #     return dict(coordinates=self._coordinates, **self._kwargs)
-
-
-@BackwardsCompatibility(Pad)
-def pad(*args, **kwargs) -> Transform: ...

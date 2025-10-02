@@ -17,14 +17,7 @@ from __future__ import annotations
 
 import xarray as xr
 
-import pyearthtools.data.transforms.attributes as attr
 from pyearthtools.data.transforms.transform import Transform
-
-from pyearthtools.utils.decorators import BackwardsCompatibility
-
-# Backwards compatability
-rename_variables = attr.rename
-replace_name_deviation = rename_variables
 
 
 __all__ = ["Trim", "Drop"]
@@ -56,14 +49,6 @@ class Trim(Transform):
         if not var_included:
             return dataset
         return dataset[var_included]
-
-
-@BackwardsCompatibility(Trim)
-def trim(*args) -> Transform: ...
-
-
-@BackwardsCompatibility(Trim)
-def variable_trim(*args) -> Transform: ...
 
 
 class Drop(Transform):
@@ -142,7 +127,3 @@ class Select(Transform):
             return dataset
 
         return dataset[list(var_included)]
-
-
-@BackwardsCompatibility(Drop)
-def drop(*args) -> Transform: ...

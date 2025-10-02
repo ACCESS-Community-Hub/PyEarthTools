@@ -26,8 +26,6 @@ import xarray as xr
 from pyearthtools.data.transforms.transform import Transform
 from pyearthtools.data.transforms.utils import parse_dataset
 
-from pyearthtools.utils.decorators import BackwardsCompatibility
-
 OPERATIONS = ["==", "!=", ">", "<", ">=", "<="]
 OPERATIONS_TYPE = Literal["==", "!=", ">", "<", ">=", "<="]
 
@@ -305,10 +303,6 @@ class Dataset(UnderlyingMaskTransform):
         )
 
 
-@BackwardsCompatibility(Dataset)
-def dataset(*a, **k): ...
-
-
 class Replace(UnderlyingMaskTransform):
     def __init__(
         self,
@@ -349,10 +343,6 @@ class Replace(UnderlyingMaskTransform):
             replacement_value=self._replacement_value,
             operation=self._operation,  # type: ignore
         )
-
-
-@BackwardsCompatibility(Replace)
-def replace_value(*a, **k): ...
 
 
 __all__ = ["Dataset", "Replace"]

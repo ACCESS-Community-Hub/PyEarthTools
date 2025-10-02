@@ -17,37 +17,36 @@ import xarray as xr
 
 from pyearthtools.utils.data import converter
 
-SIMPLE_DATA_ARRAY = xr.DataArray([1, 2, 3, 4, 5])
+SIMPLE_DATA_ARRAY = xr.DataArray([1, 2, 3, 4, 5], dims=("x",), coords={"x": [0, 1, 2, 3, 4]}, name="Entry")
 SIMPLE_DATA_SET = xr.Dataset({"Entry": SIMPLE_DATA_ARRAY})
 
 
 def test_NumpyConverter():
     """
-    This test provides coverage, but does not test for
-    correctness
+    Checks conversion from xarray to numpy and back
     """
 
-    # This round-trips convert and unconvert
-    nc = converter.NumpyConverter()
-    _np_array1 = nc.convert_from_xarray(SIMPLE_DATA_ARRAY)
+    nc_da = converter.NumpyConverter()
+    _ = nc_da.convert_from_xarray(SIMPLE_DATA_ARRAY)
 
-    # FIXME
-    # xr_da1 = nc.convert_to_xarray(np_array1)
-
-    # Test conversion from xarray works
     nc = converter.NumpyConverter()
-    _np_array2 = nc.convert_from_xarray(SIMPLE_DATA_SET)
+    np_array = nc.convert_from_xarray(SIMPLE_DATA_SET)
+    xr_ds = nc.convert_to_xarray(np_array)
+    assert isinstance(xr_ds, xr.Dataset)
+    assert "Entry" in xr_ds
+    xr.testing.assert_identical(xr_ds["Entry"], SIMPLE_DATA_ARRAY)
 
 
 def test_DaskConverter():
     """
-    This test provides coverage, but does not test for
-    correctness
+    Checks conversion from xarray to dask and back
     """
 
     dc = converter.DaskConverter()
 
-    _da_array1 = dc.convert_from_xarray(SIMPLE_DATA_ARRAY)
-
-    # FIXME
-    # xr_da1 = dc.convert_to_xarray(da_array1)
+    da_array = dc.convert_from_xarray(SIMPLE_DATA_SET)
+    da_array = da_array.compute()
+    xr_ds = dc.convert_to_xarray(da_array)
+    assert isinstance(xr_ds, xr.Dataset)
+    assert "Entry" in xr_ds
+    xr.testing.assert_identical(xr_ds["Entry"], SIMPLE_DATA_ARRAY)

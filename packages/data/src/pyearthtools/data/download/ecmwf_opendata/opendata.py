@@ -165,9 +165,9 @@ class OpenData(DownloadIndex):
 
         transforms = kwargs.pop("transforms", pyearthtools.data.TransformCollection())
         # Rename variables to match other indexes, and trim out any not requested
-        self.download_transforms = pyearthtools.data.transforms.variables.rename_variables(
+        self.download_transforms = pyearthtools.data.transforms.attributes.Rename(
             **RENAME_DICT  # type: ignore
-        ) + pyearthtools.data.transforms.variables.variable_trim(
+        ) + pyearthtools.data.transforms.variables.Trim(
             *variables
         )  # + pyearthtools.data.transforms.coordinates.Drop("meanSea", "valid_time", "heightAboveGround", "entireAtmosphere", ignore_missing=True)
 

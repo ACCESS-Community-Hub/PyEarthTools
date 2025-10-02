@@ -52,7 +52,7 @@ class SelectDataset(Operation):
         self.variables = variables
 
     def apply_func(self, sample: xr.Dataset):
-        return pyearthtools.data.transforms.variables.trim(self.variables)(sample)
+        return pyearthtools.data.transforms.variables.Trim(self.variables)(sample)
 
 
 class DropDataset(Operation):
@@ -87,7 +87,7 @@ class DropDataset(Operation):
         self.variables = variables
 
     def apply_func(self, sample: xr.Dataset):
-        return pyearthtools.data.transforms.variables.drop(self.variables)(sample)
+        return pyearthtools.data.transforms.variables.Drop(self.variables)(sample)
 
 
 class SliceDataset(Operation):

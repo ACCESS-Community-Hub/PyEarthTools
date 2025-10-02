@@ -1,6 +1,5 @@
 from pyearthtools.data.transforms import coordinates
 import xarray as xr
-import numpy as np
 import pytest
 
 
@@ -15,10 +14,13 @@ da360 = xr.DataArray(coords={"longitude": lon360}, dims=["longitude"])
 da_wrongname = xr.DataArray(coords={"longname": lon180}, dims=["longname"])
 da_unclear = xr.DataArray(coords={"longitude": lon_unclear}, dims=["longitude"])
 
-ds_vertical = xr.Dataset(
-    coords={"longitude": list(range(0, 4)), "vertical": list(range(0, 3))},
-    data_vars={"temperature": (["longitude", "vertical"], np.random.rand(4, 3))},
-)
+
+@pytest.fixture()
+def ds_vertical():
+    return xr.Dataset(
+        coords={"longitude": list(range(0, 4)), "vertical": list(range(0, 3))},
+        data_vars={"temperature": (["longitude", "vertical"], [[1, 2, 3] for _ in range(4)])},
+    )
 
 
 def test_get_longitude():
@@ -46,22 +48,23 @@ def test_StandardLongitude():
     fixed = conform.apply(da180)
     assert fixed is not None
     _unchanged = conform.apply(da360)
-    # TODO - shouldn't this be true?
-    # assert xr.testing.assert_equal(fixed, da360)
+    assert xr.testing.assert_equal(_unchanged, da360) is None
+    assert xr.testing.assert_equal(fixed, da360) is None  # assert_equal returns None if they are equal, not True
 
     conform = coordinates.StandardLongitude("-180-180")
     fixed = conform.apply(da360)
     _unchanged = conform.apply(da180)
+    assert xr.testing.assert_equal(_unchanged, da180) is None
     assert fixed is not None
-    # TODO - shouldn't this be true?
-    # assert xr.testing.assert_equal(fixed, da180)
+    assert xr.testing.assert_equal(fixed, da180) is None  # assert_equal returns None if they are equal, not True
 
 
 def test_ReIndex():
 
     tf_reindex = coordinates.ReIndex({"longitude": "reversed"})
-    tf_reindex.apply(da180)
-    # TODO: Assert the range of the reversed coordinate is 180 to -180
+    _reversed = tf_reindex.apply(da180)
+    expected_result = xr.DataArray(coords={"longitude": lon180[::-1]}, dims=["longitude"])
+    assert xr.testing.assert_equal(_reversed, expected_result) is None
 
 
 def test_Select():
@@ -69,33 +72,40 @@ def test_Select():
     tf_select = coordinates.Select({"longitude": slice(10, 120)})
     result = tf_select.apply(da180)
     assert result is not None
-    # TODO: Check the result against the requested slice
+    expected_result = xr.DataArray(coords={"longitude": list(range(10, 121))}, dims=["longitude"])
+    assert xr.testing.assert_equal(result, expected_result) is None
 
 
-def test_Drop():
+def test_Drop(ds_vertical):
 
     tf_drop = coordinates.Drop("vertical")
     _result = tf_drop.apply(ds_vertical)
+    assert "vertical" not in _result.variables
 
-    # TODO: Assert that the dimension has been dropped
 
-
-def test_Assign():
+def test_Assign(ds_vertical):
 
     tf_assign = coordinates.Assign({"longitude": list(range(0, 4)), "vertical": list(range(3, 6))})
 
     _result = tf_assign.apply(ds_vertical)
+    assert set(_result.coords.keys()) == {"longitude", "vertical"}
+    assert _result.longitude.values.tolist() == list(range(0, 4))
+    assert _result.vertical.values.tolist() == list(range(3, 6))
 
-    # TODO: check the values of the vertical coords
 
-
-def test_Pad():
-    tf_pad = coordinates.Pad({"longitude": list(range(0, 4))})
-
-    with pytest.raises(ValueError):
-        _result = tf_pad.apply(ds_vertical)
-        # TODO: Fix the code or fix the test
-
-    # TODO: check the values of the result
+# TODO: possible bug - the padding values of data_vars (temperature) are NaN, they should be set to some fill value
+# def test_Pad(ds_vertical):
+#     tf_pad = coordinates.Pad({"longitude": (1, 2)})
+#
+#     _result = tf_pad.apply(ds_vertical)
+#
+#     assert set(_result.coords.keys()) == {"longitude", "vertical"}
+#     assert _result.dims["longitude"] == ds_vertical.dims["longitude"] + 3
+#
+#     expected_longitude = [-1, 0, 1, 2, 3, 4, 5]
+#     assert _result.longitude.values.tolist() == expected_longitude
+#
+#     with pytest.raises(AssertionError):
+#         assert not np.isnan(_result.sel(longitude=-1, vertical=1).temperature.values)
 
 
