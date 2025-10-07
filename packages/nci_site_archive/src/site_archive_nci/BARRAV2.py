@@ -98,7 +98,7 @@ class BARRA_V2(Structured):
             activity (str | VARIABLE_DEFAULT, optional):
                 'reanalysis'
             domain (str | VARIABLE_DEFAULT, optional):
-                Spatial domain and grid resolution of the data, namely 'AUS-11', 'AUS-22', 'AUS-04'.
+                Spatial domain and grid resolution of the data, namely 'AUS-11', AUST-11, 'AUS-22', AUST-22, 'AUST-04'.
             institution (str | VARIABLE_DEFAULT, optional):
                 'BOM', RCM-institution
             driving_source (str| VARIABLE_DEFAULT, optional):
