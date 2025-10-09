@@ -2,13 +2,13 @@
 
 order:
 - nature
-- activity
-- domain
-- institution
-- driving_source
-- experiment
-- variant
-- source
+- activity_id
+- domain_id
+- institution_id
+- driving_source_id
+- driving_experiment_id
+- driving_variant_label
+- source_id
 - version_realisation
 - frequency
 - variables

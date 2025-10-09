@@ -49,7 +49,7 @@ class BARRA_V2(Structured):
             "Documentation": "https://dx.doi.org/10.25914/1x6g-2v48",
         }
 
-    DIR_STRUCTURE = "{nature}/{activity}/{domain}/{institution}/{driving_source}/{experiment}/{variant}/{source}/{version_realisation}/{frequency}/"
+    DIR_STRUCTURE = "{nature}/{activity_id}/{domain_id}/{institution_id}/{driving_source_id}/{driving_experiment_id}/{driving_variant_label}/{source_id}/{version_realisation}/{frequency}/"
     GLOB_TEMPLATE = "{variable}/{version}/{variable}_*%Y%m-%Y%m.nc"
 
     @decorators.alias_arguments(variables=["variable"])
@@ -61,13 +61,13 @@ class BARRA_V2(Structured):
         frequency: str,
         *,
         nature: str | VARIABLE_DEFAULT = VariableDefault,
-        activity: str | VARIABLE_DEFAULT = VariableDefault,
-        domain: str | VARIABLE_DEFAULT = VariableDefault,
-        institution: str | VARIABLE_DEFAULT = VariableDefault,
-        driving_source: str | VARIABLE_DEFAULT = VariableDefault,
-        experiment: str | VARIABLE_DEFAULT = VariableDefault,
-        variant: str | VARIABLE_DEFAULT = VariableDefault,
-        source: str | VARIABLE_DEFAULT = VariableDefault,
+        activity_id: str | VARIABLE_DEFAULT = VariableDefault,
+        domain_id: str | VARIABLE_DEFAULT = VariableDefault,
+        institution_id: str | VARIABLE_DEFAULT = VariableDefault,
+        driving_source_id: str | VARIABLE_DEFAULT = VariableDefault,
+        driving_experiment_id: str | VARIABLE_DEFAULT = VariableDefault,
+        driving_variant_label: str | VARIABLE_DEFAULT = VariableDefault,
+        source_id: str | VARIABLE_DEFAULT = VariableDefault,
         version_realisation: str | VARIABLE_DEFAULT = VariableDefault,
         version: str | VARIABLE_DEFAULT = "latest",
         transforms: Transform | TransformCollection | None = None,
@@ -87,7 +87,8 @@ class BARRA_V2(Structured):
         Args:
             variables (list[str] | str):
                 Variables to retrieve.
-                Mostly based on https://docs.google.com/spreadsheets/d/1qUauozwXkq7r1g-L4ALMIkCNINIhhCPx/pyearthtools#gid=1672965248
+                Mostly based on https://opus.nci.org.au/spaces/NDP/pages/338002591/BARRA2+Parameter+Descriptions and
+                structure order is taken from the CORDEX-CMIP6 archiving specs: https://zenodo.org/records/15047096
             frequency (str):
                 Temporal Frequency. '1hr' (1-hourly), '3hr', '6hr', 'day' (daily), 'mon' (monthly), 'fx'
             transforms (Transform | TransformCollection, optional):
@@ -95,19 +96,19 @@ class BARRA_V2(Structured):
 
             nature (str | VARIABLE_DEFAULT, optional):
                 'output'
-            activity (str | VARIABLE_DEFAULT, optional):
+            activity_id (str | VARIABLE_DEFAULT, optional):
                 'reanalysis'
-            domain (str | VARIABLE_DEFAULT, optional):
+            domain_id (str | VARIABLE_DEFAULT, optional):
                 Spatial domain and grid resolution of the data, namely 'AUS-11', AUST-11, 'AUS-22', AUST-22, 'AUST-04'.
-            institution (str | VARIABLE_DEFAULT, optional):
+            institution_id (str | VARIABLE_DEFAULT, optional):
                 'BOM', RCM-institution
-            driving_source (str| VARIABLE_DEFAULT, optional):
+            driving_source_id (str| VARIABLE_DEFAULT, optional):
                 'ERA5', global model that drives BARRA2 at the lateral boundary
-            experiment (str | VARIABLE_DEFAULT, optional):
+            driving_experiment_id (str | VARIABLE_DEFAULT, optional):
                 'historical'
-            variant (str | VARIABLE_DEFAULT, optional):
+            driving_variant_label (str | VARIABLE_DEFAULT, optional):
                 labels the nature of ERA5 data used, either 'hres' or 'eda'
-            source (str | VARIABLE_DEFAULT, optional):
+            source_id (str | VARIABLE_DEFAULT, optional):
                 BARRA-R2, BARRA-RE2, or BARRA-C2
             version_realisation (str | VARIABLE_DEFAULT, optional):
                 identifies the modelling version of BARRA2 (TBC on identifying data version)
@@ -148,13 +149,13 @@ class BARRA_V2(Structured):
             config_vars=dict(
                 frequency=frequency,
                 nature=nature,
-                activity=activity,
-                domain=domain,
-                institution=institution,
-                driving_source=driving_source,
-                experiment=experiment,
-                variant=variant,
-                source=source,
+                activity_id=activity_id,
+                domain_id=domain_id,
+                institution_id=institution_id,
+                driving_source_id=driving_source_id,
+                driving_experiment_id=driving_experiment_id,
+                driving_variant_label=driving_variant_label,
+                source_id=source_id,
                 version_realisation=version_realisation,
                 version=version,
             ),
