@@ -85,7 +85,7 @@ class Drop(Transform):
         #     return dataset
         # return dataset[var_included]
 
-        return dataset.drop_vars(self._variables)
+        return dataset.drop_vars(self._variables, errors='ignore')
 
 
 class Select(Transform):
