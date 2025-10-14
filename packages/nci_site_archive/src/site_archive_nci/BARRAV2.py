@@ -123,7 +123,7 @@ class BARRA_V2(Structured):
             self.GLOB_TEMPLATE = "{variable}/{version}/{variable}_*.nc"
 
         transforms = transforms or TransformCollection()
-        transforms += pyearthtools.data.transforms.variables.Drop("time_bnds")
+        transforms += pyearthtools.data.transforms.variables.Drop("time_bnds", errors='ignore')
 
         variables = [variables] if isinstance(variables, str) else variables
         new_vars = []
