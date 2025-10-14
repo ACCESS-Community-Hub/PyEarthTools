@@ -182,10 +182,6 @@ class _Pipeline(PipelineRecordingMixin, Graphed, metaclass=ABCMeta):
         return graph, prior_step
 
 
-class NotReversiblePipeline(RuntimeError):
-    pass
-
-
 class Pipeline(_Pipeline, Index):
     """
     Core of `pyearthtools.pipeline`,
@@ -894,21 +890,21 @@ class Pipeline(_Pipeline, Index):
         )
 
     @property
-    def reversed(self) -> "Pipeline":
-        """Reversed pipeline, inverting each step and the order of the steps
+    def reversed(self) -> "ReversedPipeline":
+        # TODO keep same indexed?
+        # TODO keep same sampler?
+        return ReversedPipeline(*self.steps)
 
-        This method only works if each step can be transposed, i.e. implement the
-        transposed operation `.T`.
 
-        Note the iterator and sampler of the pipeline are dropped.
-        """
-        steps = []
-        for step in reversed(self.steps):
-            if not hasattr(step, "T"):
-                raise NotReversiblePipeline(
-                    "This pipeline cannot be reversed, the following step is "
-                    f"missing the transposed property '.T':\n{step}"
-                )
-            steps.append(step.T)
-        name = self.name if self.name is None else f"reversed_{self.name}"
-        return Pipeline(*steps, name=name)
+class ReversedPipeline(Pipeline):
+    """Support class to reverse the effect of pipeline
+
+    Given a set of pipeline steps, this pipeline will undo the effect of the steps
+    when applied, and vice-versa. However it keeps the original order of the steps.
+    """
+
+    def undo(self, sample):
+        return super().apply(sample)
+
+    def apply(self, sample):
+        return super().undo(sample)
