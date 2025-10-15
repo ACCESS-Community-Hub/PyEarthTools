@@ -144,10 +144,12 @@ class BARPA(ArchiveIndex):
                 filetmpl = f"*{querytime_year.year}01-{querytime_year.year}12*.nc"
             elif self.source_id == "BARPA-C":
                 querytime_year = Petdt(querytime).at_resolution("month")
-                filetmpl = f"*{querytime_year.year}{querytime_year.month:02}-{querytime_year.year}{querytime_year.month:02}.nc"
+                filetmpl = (
+                    f"*{querytime_year.year}{querytime_year.month:02}-{querytime_year.year}{querytime_year.month:02}.nc"
+                )
             else:
                 raise DataNotFoundError(f"Could not find source_id of {self.source_id}")
-            
+
             paths = list(dir_path.glob(filetmpl))
             if len(paths) == 0:
                 raise DataNotFoundError(f"Could not find data at {dir_path!r} at time {querytime!r}")
