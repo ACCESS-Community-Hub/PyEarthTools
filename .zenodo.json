@@ -75,6 +75,11 @@
             "orcid": "https://orcid.org/0009-0004-9553-8387",
             "affiliation": "Independent researcher, Australia",
             "name": "James, Matthew"
+        },
+        {
+            "orcid": "https://orcid.org/0000-0002-5407-4297",
+            "affiliation": "Bureau of Meteorology, Australia",
+            "name": "Stassen, Christian"
         }
     ],
     "license": "Apache-2.0",
