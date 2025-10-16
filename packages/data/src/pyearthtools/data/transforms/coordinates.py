@@ -24,8 +24,7 @@ import numpy as np
 import pandas as pd
 
 
-from pyearthtools.data.transforms.transform import Transform, TransformCollection
-from pyearthtools.data.transforms.attributes import SetType
+from pyearthtools.data.transforms.transform import Transform
 from pyearthtools.data.warnings import pyearthtoolsDataWarning
 from pyearthtools.data.exceptions import DataNotFoundError
 
