@@ -63,6 +63,7 @@ class Rainfields3ProjAus(projmanager.ProjLonLatAus_Rectilinear):
         # >>>
         return ds_interp
 
+
 class BrainProjAus(projmanager.ProjLonLatAus_Rectilinear):
     """
     Projection used for Radar 310 nation-wide product
@@ -78,7 +79,7 @@ class BrainProjAus(projmanager.ProjLonLatAus_Rectilinear):
             projsrc_to=projmanager.ProjSource.AEA_RAINFIELDS3,
         )
         self.units_xy = projmanager.CoordUnits.METRES
-        self.interp_method = "nearest"
+        self.interp_method = "nearest"  # TODO: This should be able to be specified by the user
         # define any custom initialisation below
         # >>>
 

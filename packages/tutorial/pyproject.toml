@@ -20,6 +20,8 @@ dependencies = [
   "hydra-core",
   "scores",
   "dask",
+  "pint-pandas",
+  "pint-xarray",
   "gcsfs",
   "jupyterlab",
   "ipykernel",
