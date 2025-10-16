@@ -54,19 +54,22 @@ class Trim(Transform):
 class Drop(Transform):
     """Drop dataset variables"""
 
-    def __init__(self, variables: list[str] | str, *extra_variables):
+    def __init__(self, variables: list[str] | str, *extra_variables, **kwargs):
         """
         Drop variables from dataset
 
         Args:
             variables (list[str] | str):
                 List of vars to drop
+            kwargs (dict):
+                kwargs to pass to drop
         """
         super().__init__()
         self.record_initialisation()
 
         variables = variables if isinstance(variables, (list, tuple)) else [variables]
         self._variables = [*variables, *extra_variables]
+        self.kwargs = kwargs
 
     def apply(self, dataset: xr.Dataset) -> xr.Dataset:
         if self._variables is None:
@@ -84,8 +87,7 @@ class Drop(Transform):
         # if not var_included:
         #     return dataset
         # return dataset[var_included]
-
-        return dataset.drop_vars(self._variables)
+        return dataset.drop_vars(self._variables, **self.kwargs)
 
 
 class Select(Transform):
