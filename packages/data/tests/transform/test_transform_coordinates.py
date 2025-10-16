@@ -107,5 +107,3 @@ def test_Assign(ds_vertical):
 #
 #     with pytest.raises(AssertionError):
 #         assert not np.isnan(_result.sel(longitude=-1, vertical=1).temperature.values)
-
-

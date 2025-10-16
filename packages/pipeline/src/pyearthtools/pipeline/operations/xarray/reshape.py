@@ -92,6 +92,7 @@ class Dimensions(Operation):
             return sample.transpose(*self._incoming_dims, missing_dims="ignore")
         return sample
 
+
 def weak_cast_to_int(value):
     """
     Basically, turns integer floats to int types, otherwise
@@ -103,6 +104,7 @@ def weak_cast_to_int(value):
     except Exception:
         pass
     return value
+
 
 class CoordinateFlatten(Operation):
     """Flatten a coordinate in a dataset into separate variables."""
@@ -185,8 +187,10 @@ class CoordinateFlatten(Operation):
     def undo_func(self, ds):
         return pyearthtools.pipeline.operations.xarray.reshape.coordinate_expand(self._coordinate)(ds)
 
+
 @BackwardsCompatibility(CoordinateFlatten)
 def coordinate_flatten(*args, **kwargs) -> Operation: ...
+
 
 class CoordinateExpand(Operation):
     """Inverse operation to `CoordinateFlatten`"""
@@ -242,4 +246,3 @@ class CoordinateExpand(Operation):
 
 @BackwardsCompatibility(CoordinateExpand)
 def coordinate_expand(*args, **kwargs) -> Operation: ...
-

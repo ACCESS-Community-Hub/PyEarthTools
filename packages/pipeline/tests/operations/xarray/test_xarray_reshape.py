@@ -34,40 +34,38 @@ SIMPLE_DA1 = xr.DataArray(
     dims=["height", "lat", "lon"],
 )
 
-SIMPLE_DA2 = xr.DataArray(
-    [
-        [9.1, 2.3, 3.2],
-        [2.2, 1.1, 0.2]
-    ],
-    coords=[[1, 2], [3, 4, 5]],
-    dims=["a", "b"]
-)
+SIMPLE_DA2 = xr.DataArray([[9.1, 2.3, 3.2], [2.2, 1.1, 0.2]], coords=[[1, 2], [3, 4, 5]], dims=["a", "b"])
 
 SIMPLE_DS1 = xr.Dataset({"Temperature": SIMPLE_DA1})
 SIMPLE_DS2 = xr.Dataset({"Humidity": SIMPLE_DA1, "Temperature": SIMPLE_DA1, "WombatsPerKm2": SIMPLE_DA1})
 
 COMPLICATED_DS1 = xr.Dataset({"Temperature": SIMPLE_DA1, "MSLP": SIMPLE_DA2})
 
+
 def test_Dimensions():
     d = reshape.Dimensions(["lat", "lon", "height"])
     output = d.apply_func(SIMPLE_DA1)
     assert output.dims == ("lat", "lon", "height")
+
 
 def test_Dimensions_one_input():
     d = reshape.Dimensions(["lat"])
     output = d.apply_func(SIMPLE_DA1)
     assert output.dims[0] == "lat"
 
+
 def test_Dimensions_prepend():
     d = reshape.Dimensions(["lat"], append=False)
     output = d.apply_func(SIMPLE_DA1)
     assert output.dims[-1] == "lat"
+
 
 def test_Dimensions_preserve_order():
     d = reshape.Dimensions(["lat"], preserve_order=True)
     output = d.apply_func(SIMPLE_DA1)
     reversed_output = d.undo_func(output)
     assert reversed_output.dims == output.dims
+
 
 def test_weak_cast_to_int():
 
@@ -104,6 +102,7 @@ def test_CoordinateFlatten_skip_missing():
     output2 = f2.apply(SIMPLE_DS1)
     assert output2 == SIMPLE_DS1, "When skip_missing=True, Datasets without the given coordinate pass unchanged."
 
+
 def test_undo_CoordinateFlatten():
     f = reshape.CoordinateFlatten(["height"])
     f_output = f.apply(SIMPLE_DS2)
@@ -112,6 +111,7 @@ def test_undo_CoordinateFlatten():
     for vbl in ["Temperature", "Humidity", "WombatsPerKm2"]:
         assert vbl in variables
 
+
 def test_CoordinateExpand_reverses_CoordinateFlatten():
     f = reshape.CoordinateFlatten(["height"])
     f_output = f.apply(SIMPLE_DS2)
@@ -119,6 +119,7 @@ def test_CoordinateExpand_reverses_CoordinateFlatten():
     e_output = e.apply(f_output)
     variables = list(e_output.keys())
     assert "Temperature" in variables
+
 
 def test_undo_CoordinateExpand():
     f = reshape.CoordinateFlatten(["height"])
