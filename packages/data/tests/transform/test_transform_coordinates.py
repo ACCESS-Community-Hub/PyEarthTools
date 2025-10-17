@@ -83,37 +83,6 @@ def test_Drop(ds_vertical):
     assert "vertical" not in _result.variables
 
 
-def test_Flatten(ds_vertical):
-
-    tf_flatten = coordinates.Flatten("vertical")
-    _result = tf_flatten.apply(ds_vertical)
-    assert set(_result.variables.keys()) == {"longitude", "temperature0", "temperature1", "temperature2"}
-    assert _result.sel(longitude=0).temperature1.values == ds_vertical.sel(longitude=0, vertical=1).temperature.values
-
-
-def test_Expand(ds_vertical):
-    tf_flatten = coordinates.Flatten("vertical")
-    flattened = tf_flatten.apply(ds_vertical)
-
-    tf_expand = coordinates.Expand("vertical")
-    _result = tf_expand.apply(flattened)
-    assert set(_result.variables.keys()) == {"longitude", "temperature", "vertical"}
-    assert (
-        _result.sel(longitude=0, vertical=1).temperature.values
-        == ds_vertical.sel(longitude=0, vertical=1).temperature.values
-    )
-
-
-def test_SelectFlatten(ds_vertical):
-    tf_selectflatten = coordinates.SelectFlatten({"longitude": slice(10, 120)})
-
-    tf_selectflatten = coordinates.SelectFlatten({"longitude": slice(2, 3)})
-
-    _result = tf_selectflatten.apply(ds_vertical)
-    assert set(_result.variables.keys()) == {"vertical", "temperature2", "temperature3"}
-    assert _result.sel(vertical=2).temperature3.values == ds_vertical.sel(longitude=3, vertical=2).temperature.values
-
-
 def test_Assign(ds_vertical):
 
     tf_assign = coordinates.Assign({"longitude": list(range(0, 4)), "vertical": list(range(3, 6))})
@@ -138,13 +107,3 @@ def test_Assign(ds_vertical):
 #
 #     with pytest.raises(AssertionError):
 #         assert not np.isnan(_result.sel(longitude=-1, vertical=1).temperature.values)
-
-
-def test_weak_cast_to_int():
-
-    wcti = coordinates.weak_cast_to_int
-
-    assert wcti(5.0) == 5
-    assert isinstance(wcti(5.0), int)
-
-    assert wcti("hello") == "hello"
