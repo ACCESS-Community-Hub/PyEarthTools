@@ -47,7 +47,7 @@ import pyearthtools.pipeline.logger
 
 
 # from pyearthtools.pipeline.save import save, load
-from pyearthtools.pipeline.controller import Pipeline, PipelineIndex
+from pyearthtools.pipeline.controller import Pipeline, PipelineIndex, ReversedPipeline
 from pyearthtools.pipeline._save_pipeline import load_pipeline as load
 
 from pyearthtools.pipeline.operation import Operation
@@ -83,6 +83,7 @@ from pyearthtools.pipeline import config
 __all__ = [
     "Sampler",
     "Pipeline",
+    "ReversedPipeline",
     "Operation",
     "branching",
     "exceptions",

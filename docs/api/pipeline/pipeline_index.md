@@ -6,9 +6,10 @@ The rest of this page contains reference information for the components of the P
 
 |  Module              |       Purpose                        | API Docs                                                                                                           |
 |----------------------|--------------------------------------|--------------------------------------------------------------------------------------------------------------------|
-|  `pipeline`          |                                      | - [Sampler](pipeline_api.md#pyearthtools.pipeline.Sampler)                                                         |
+| `pipeline`           |                                      | - [Sampler](pipeline_api.md#pyearthtools.pipeline.Sampler)                                                         |
 |                      |                                      | - [Pipeline](pipeline_api.md#pyearthtools.pipeline.Pipeline)                                                       |
 |                      |                                      | - [Operation](pipeline_api.md#pyearthtools.pipeline.Operation)                                                     |
+|                      |                                      | - [ReversedPipeline](pipeline_api.md#pyearthtools.pipeline.ReversedPipeline)                                       |
 |                      |                                      | - [PipelineException](pipeline_api.md#pyearthtools.pipeline.PipelineException)                                     |
 |                      |                                      | - [PipelineFilterException](pipeline_api.md#pyearthtools.pipeline.PipelineFilterException)                         |
 |                      |                                      | - [PipelineRuntimeError](pipeline_api.md#pyearthtools.pipeline.PipelineRuntimeError)                               |
