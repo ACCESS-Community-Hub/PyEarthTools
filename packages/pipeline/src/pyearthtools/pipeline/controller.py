@@ -903,7 +903,6 @@ class ReversedPipeline(Operation):
 
     def __init__(self, forward_pipeline: Pipeline):
         super().__init__()
-        # TODO check if can be reversed?
         self.forward_pipeline = forward_pipeline
         self.record_initialisation()
 
