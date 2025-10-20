@@ -52,10 +52,10 @@ class Rename(Operation):
         self._rename = rename
 
     def apply_func(self, sample: xr.Dataset) -> xr.Dataset:
-        return pyearthtools.data.transforms.attributes.rename(self._rename)(sample)
+        return pyearthtools.data.transforms.attributes.Rename(self._rename)(sample)
 
     def undo_func(self, sample: xr.Dataset) -> xr.Dataset:
-        return pyearthtools.data.transforms.attributes.rename({val: key for key, val in self._rename.items()})(sample)
+        return pyearthtools.data.transforms.attributes.Rename({val: key for key, val in self._rename.items()})(sample)
 
 
 class Encoding(Operation):
@@ -88,7 +88,7 @@ class Encoding(Operation):
             recognised_types=(xr.Dataset, xr.DataArray),
         )
         self.record_initialisation()
-        self._encoding = pyearthtools.data.transforms.attributes.set_encoding(encoding)
+        self._encoding = pyearthtools.data.transforms.attributes.SetEncoding(encoding)
 
     def apply_func(self, sample: T) -> T:
         return self._encoding(sample)
@@ -124,13 +124,13 @@ class MaintainEncoding(Operation):
         self._encoding = (
             None
             if reference is None
-            else pyearthtools.data.transforms.attributes.set_encoding(reference=xr.open_dataset(reference), limit=limit)
+            else pyearthtools.data.transforms.attributes.SetEncoding(reference=xr.open_dataset(reference), limit=limit)
         )
         self._limit = limit
 
     def apply_func(self, sample: T) -> T:
         if not self._encoding:
-            self._encoding = pyearthtools.data.transforms.attributes.set_encoding(reference=sample, limit=self._limit)
+            self._encoding = pyearthtools.data.transforms.attributes.SetEncoding(reference=sample, limit=self._limit)
         return sample
 
     def undo_func(self, sample: T) -> T:
@@ -178,7 +178,7 @@ class Attributes(Operation):
             recognised_types=(xr.Dataset, xr.DataArray),
         )
         self.record_initialisation()
-        self._attributes = pyearthtools.data.transforms.attributes.set_attributes(attrs=attributes, apply_on=apply_on)
+        self._attributes = pyearthtools.data.transforms.attributes.SetAttributes(attrs=attributes, apply_on=apply_on)
 
     def apply_func(self, sample: T) -> T:
         return self._attributes(sample)
@@ -214,12 +214,12 @@ class MaintainAttributes(Operation):
         self._attributes = (
             None
             if reference is None
-            else pyearthtools.data.transforms.attributes.set_attributes(reference=xr.open_dataset(reference))
+            else pyearthtools.data.transforms.attributes.SetAttributes(reference=xr.open_dataset(reference))
         )
 
     def apply_func(self, sample: T) -> T:
         if not self._attributes:
-            self._attributes = pyearthtools.data.transforms.attributes.set_attributes(reference=sample)
+            self._attributes = pyearthtools.data.transforms.attributes.SetAttributes(reference=sample)
         return sample
 
     def undo_func(self, sample: T) -> T:

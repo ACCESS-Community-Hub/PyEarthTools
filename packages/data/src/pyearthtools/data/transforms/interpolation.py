@@ -25,8 +25,6 @@ import pyearthtools.data
 from pyearthtools.data.transforms.transform import Transform
 from pyearthtools.data.transforms.utils import parse_dataset
 
-from pyearthtools.utils.decorators import BackwardsCompatibility
-
 xESMF_IMPORTED = True
 try:
     import xesmf as xe  # type: ignore
@@ -261,10 +259,6 @@ class InterpolateNan(Transform):
         return tf_revert_reindex(
             encode(tf_reindex(dataset).interpolate_na(dim=self._dim, method=self._method, **self._kwargs))
         )  # type: ignore
-
-
-@BackwardsCompatibility(InterpolateNan)
-def interpolate_na(*args, **kwargs): ...
 
 
 ### Model levels to pressure level transform needed

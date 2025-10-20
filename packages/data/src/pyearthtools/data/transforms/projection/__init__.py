@@ -64,6 +64,34 @@ class Rainfields3ProjAus(projmanager.ProjLonLatAus_Rectilinear):
         return ds_interp
 
 
+class BrainProjAus(projmanager.ProjLonLatAus_Rectilinear):
+    """
+    Projection used for Radar 310 nation-wide product
+
+    see: `ProjSource` for more details
+    """
+
+    def __init__(self):
+        # This flow is FROM latlon TO xy, so from_* is our target grid if our
+        # target system is latlon
+        self.crs_mapper = projmanager.SourceCRSMapper(
+            projsrc_from=projmanager.ProjSource.GDA94,
+            projsrc_to=projmanager.ProjSource.AEA_RAINFIELDS3,
+        )
+        self.units_xy = projmanager.CoordUnits.METRES
+        self.interp_method = "nearest"  # TODO: This should be able to be specified by the user
+        # define any custom initialisation below
+        # >>>
+
+    def __call__(self, ds: xr.Dataset):
+        # <<<
+        # define any custom pre processing above
+        ds_interp = self.interpolate_xy_to_lonlat(ds)
+        # define any custom post processing below
+        # >>>
+        return ds_interp
+
+
 @dataclass
 class HimawariProjAus(projmanager.ProjLonLatAus_Rectilinear):
     """

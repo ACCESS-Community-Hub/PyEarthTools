@@ -19,8 +19,6 @@
 Prediction Wrappers
 """
 
-from pyearthtools.utils.decorators import BackwardsCompatibility
-
 from pyearthtools.training.wrapper.predict.predict import Predictor
 from pyearthtools.training.wrapper.predict.timeseries import (
     TimeSeriesPredictor,
@@ -28,19 +26,3 @@ from pyearthtools.training.wrapper.predict.timeseries import (
     TimeSeriesManagedPredictor,
     ManualTimeSeriesPredictor,
 )
-
-
-@BackwardsCompatibility(TimeSeriesPredictor)
-def TimeSeriesPredictionWrapper(): ...
-
-
-@BackwardsCompatibility(TimeSeriesAutoRecurrentPredictor)
-def TimeSeriesAutoRecurrent(): ...
-
-
-@BackwardsCompatibility(TimeSeriesManagedPredictor)
-def TimeSeriesManagedRecurrent(): ...
-
-
-@BackwardsCompatibility(ManualTimeSeriesPredictor)
-def ManualTimeSeriesPredictionWrapper(): ...

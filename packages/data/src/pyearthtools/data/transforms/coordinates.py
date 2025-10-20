@@ -24,12 +24,9 @@ import numpy as np
 import pandas as pd
 
 
-from pyearthtools.data.transforms.transform import Transform, TransformCollection
-from pyearthtools.data.transforms.attributes import SetType
+from pyearthtools.data.transforms.transform import Transform
 from pyearthtools.data.warnings import pyearthtoolsDataWarning
 from pyearthtools.data.exceptions import DataNotFoundError
-
-from pyearthtools.utils.decorators import BackwardsCompatibility
 
 DASK_IMPORTED = False
 try:
@@ -337,10 +334,11 @@ class Select(Transform):
 
             try:
                 if not self._isel:
+                    use_method = self._tolerance is not None and not isinstance(value, slice)
                     dataset = dataset.sel(
                         **{key: value},
-                        method="nearest" if self._tolerance is not None else None,
-                        tolerance=self._tolerance,
+                        method="nearest" if use_method else None,
+                        tolerance=self._tolerance if use_method else None,
                     )
                 else:
                     dataset = dataset.isel(
@@ -395,203 +393,6 @@ class Drop(Transform):
                 continue
             dataset = dataset.drop_vars(i)
         return dataset
-
-
-def weak_cast_to_int(value):
-    """
-    Basically, turns integer floats to int types, otherwise
-    does nothing.
-    """
-    try:
-        if int(value) == value:
-            value = int(value)
-    except Exception:
-        pass
-    return value
-
-
-class Flatten(Transform):
-    """Operation to flatten a coordinate in a dataset, putting the data at each value of the coordinate into a separate
-    data variable."""
-
-    def __init__(
-        self, coordinate: Hashable | list[Hashable] | tuple[Hashable], *extra_coordinates, skip_missing: bool = False
-    ):
-        """
-
-        Flatten a coordinate in an xarray Dataset, putting the data at each value of the coordinate into a separate
-        data variable.
-
-        The output data variables will be named "<old variable name><value of coordinate>". For example, if the input
-        Dataset has a variable "t" and it is flattened along the coordinate "pressure_level" which has values
-        [100, 200, 500], then the output Dataset will have variables called t100, t200 and t500.
-
-        If more than one coordinate is flattened, the output data variable names will concatenate the values of each
-        coordinate.
-
-        Args:
-            coordinate (Hashable | list[Hashable] | tuple[Hashable] | None):
-                Coordinates to flatten, either str or list of candidates.
-            *extra_coordinates (optional):
-                Arguments form of `coordinate`.
-            skip_missing (bool, optional):
-                Whether to skip data that does not have any of the listed coordinates. If True, will return such data
-                unchanged. Defaults to False.
-
-        Raises:
-            ValueError:
-                If invalid number of coordinates found
-
-        """
-        super().__init__()
-        self.record_initialisation()
-
-        coordinate = coordinate if isinstance(coordinate, (list, tuple)) else [coordinate]
-        coordinate = [*coordinate, *extra_coordinates]
-
-        self._coordinate = coordinate
-        self._skip_missing = skip_missing
-
-    # @property
-    # def _info_(self):
-    #     return dict(coordinate=self._coordinate, skip_missing=self._skip_missing)
-
-    def apply(self, dataset: xr.Dataset) -> xr.Dataset:
-        discovered_coord = list(set(self._coordinate).intersection(set(dataset.coords)))
-
-        if len(discovered_coord) == 0:
-            if self._skip_missing:
-                return dataset
-
-            raise ValueError(
-                f"{self._coordinate} could not be found in dataset with coordinates {list(dataset.coords)}.\n"
-                "Set 'skip_missing' to True to skip this."
-            )
-
-        elif len(discovered_coord) > 1:
-            transforms = TransformCollection(*[Flatten(coord) for coord in discovered_coord])
-            return transforms(dataset)
-
-        discovered_coord = str(discovered_coord[0])
-
-        coords = dataset.coords
-        new_ds = xr.Dataset(coords={co: v for co, v in coords.items() if not co == discovered_coord})
-        new_ds.attrs.update(
-            {f"{discovered_coord}-dtype": str(dataset[discovered_coord].encoding.get("dtype", "int32"))}
-        )
-
-        for var in dataset:
-            if discovered_coord not in dataset[var].coords:
-                new_ds[var] = dataset[var]
-                continue
-
-            coord_size = dataset[var][discovered_coord].values
-            coord_size = coord_size if isinstance(coord_size, np.ndarray) else np.array(coord_size)
-
-            if coord_size.size == 1 and False:
-                coord_val = weak_cast_to_int(dataset[var][discovered_coord].values)
-                new_ds[f"{var}{coord_val}"] = Drop(discovered_coord, ignore_missing=True)(dataset[var])
-
-            else:
-                for coord_val in dataset[discovered_coord]:
-                    coord_val = weak_cast_to_int(coord_val.values.item())
-
-                    selected = dataset[var].sel(**{discovered_coord: coord_val})  # type: ignore
-                    selected = selected.drop_vars(discovered_coord)  # type: ignore
-                    selected.attrs.update(**{discovered_coord: coord_val})
-
-                    new_ds[f"{var}{coord_val}"] = selected
-        return new_ds
-
-
-class Expand(Transform):
-    """Inverse operation to `Flatten`"""
-
-    def __init__(self, coordinate: Hashable | list[Hashable] | tuple[Hashable], *extra_coordinates):
-        """
-        Inverse operation to [flatten][pyearthtools.data.transforms.coordinate.Flatten]
-
-        Will find flattened variables and regroup them upon the extra coordinate
-
-        Args:
-            coordinate (Hashable | list[Hashable] | tuple[Hashable]):
-                Coordinate to unflatten.
-            *extra_coordinates (optional):
-                Argument form of `coordinate`.
-        """
-        super().__init__()
-        self.record_initialisation()
-
-        if not isinstance(coordinate, (list, tuple)):
-            coordinate = (coordinate,)
-
-        coordinate = (*coordinate, *extra_coordinates)
-        self._coordinate = coordinate
-
-    # @property
-    # def _info_(self):
-    #     return dict(coordinate=self._coordinate)
-
-    def apply(self, dataset: xr.Dataset) -> xr.Dataset | xr.DataArray:
-        dataset = type(dataset)(dataset)
-
-        for coord in self._coordinate:
-            dtype = dataset.attrs.get(f"{coord}-dtype", "int32")
-            components = []
-            for var in list(dataset.data_vars):
-                var_data = dataset[var]
-                if coord in var_data.attrs:
-                    value = var_data.attrs.pop(coord)
-                    var_data = (
-                        var_data.to_dataset(name=var.replace(str(value), ""))
-                        .assign_coords(**{coord: [value]})
-                        .set_coords(coord)
-                    )
-                components.append(var_data)
-
-            dataset = xr.combine_by_coords(components)  # type: ignore
-            dataset = SetType(**{str(coord): dtype})(dataset)
-
-            ## Add stored encoding if there
-            if f"{coord}-dtype" in dataset.attrs:
-                dtype = dataset.attrs.pop(f"{coord}-dtype")
-                dataset[coord].encoding.update(dtype=dtype)
-
-        return dataset
-
-
-@BackwardsCompatibility(Expand)
-def expand(*args, **kwargs) -> Transform: ...
-
-
-def SelectFlatten(
-    coordinates: dict[str, tuple[Any] | Any] | None = None,
-    tolerance: float = 0.01,
-    **extra_coordinates,
-) -> TransformCollection:
-    """
-    Select upon coordinates, and flatten said coordinate
-
-    Args:
-        coordinates (dict[str, tuple[Any] | Any] | None, optional):
-            Coordinates and values to select.
-            Must be coordinate in data Defaults to None.
-        tolerance (float, optional):
-            tolerance of selection. Defaults to 0.01.
-
-    Returns:
-        (TransformCollection):
-            TransformCollection to select and Flatten
-    """
-
-    if coordinates is None:
-        coordinates = {}
-    coordinates.update(extra_coordinates)
-
-    select_trans = Select(coordinates, ignore_missing=True, tolerance=tolerance)
-    flatten_trans = Flatten(list(coordinates.keys()))
-
-    return select_trans + flatten_trans
 
 
 class Assign(Transform):
@@ -682,7 +483,3 @@ class Pad(Transform):
     # @property
     # def _info_(self) -> Any | dict:
     #     return dict(coordinates=self._coordinates, **self._kwargs)
-
-
-@BackwardsCompatibility(Pad)
-def pad(*args, **kwargs) -> Transform: ...

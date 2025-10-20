@@ -23,7 +23,6 @@ from typing import Any, Literal
 import xarray as xr
 
 from pyearthtools.data.transforms import Transform
-from pyearthtools.utils.decorators import BackwardsCompatibility
 
 
 def _get_attributes_from_ds(reference: xr.DataArray | xr.Dataset) -> dict[str, dict[str, Any]]:
@@ -106,13 +105,6 @@ class SetAttributes(Transform):
             else:
                 data_obj.attrs.update(**{key: value})
         return data_obj
-
-
-@BackwardsCompatibility(SetAttributes)
-def set_attributes(*args, **kwargs) -> Transform: ...
-
-
-update = set_attributes
 
 
 def _get_encoding_from_ds(reference: xr.DataArray | xr.Dataset, limit: list[str] | None = None):
@@ -204,10 +196,6 @@ class SetEncoding(Transform):
         return dataset
 
 
-@BackwardsCompatibility(SetEncoding)
-def set_encoding(*args, **kwargs) -> Transform: ...
-
-
 class SetType(Transform):
     """Set type of variables"""
 
@@ -252,10 +240,6 @@ class SetType(Transform):
         return dataset
 
 
-@BackwardsCompatibility(SetType)
-def set_type(*args, **kwargs) -> Transform: ...
-
-
 class Rename(Transform):
     """Rename Components inside Dataset"""
 
@@ -285,7 +269,3 @@ class Rename(Transform):
 
     def apply(self, dataset: xr.Dataset) -> xr.Dataset:
         return dataset.rename(**{key: self._names[key] for key in self._names if key in dataset})
-
-
-@BackwardsCompatibility(Rename)
-def rename(*args, **kwargs) -> Transform: ...

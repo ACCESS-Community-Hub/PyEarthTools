@@ -68,7 +68,7 @@ class Static(PatternIndex):
         super().__init__(
             root_dir="",
             transforms=(
-                pyearthtools.data.transforms.variables.variable_trim(variables)
+                pyearthtools.data.transforms.variables.Trim(variables)
                 if variables
                 else TransformCollection() + transforms
             ),

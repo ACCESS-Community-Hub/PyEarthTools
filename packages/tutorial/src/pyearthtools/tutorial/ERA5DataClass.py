@@ -139,7 +139,7 @@ class ERA5LowResIndex(ArchiveIndex):
         base_transform = TransformCollection()
 
         # base_transform += pyearthtools.data.transforms.attributes.Rename(ERA5_RENAME)
-        # base_transform += pyearthtools.data.transforms.variables.variable_trim(variables)
+        # base_transform += pyearthtools.data.transforms.variables.Trim(variables)
 
         self.level_value = level_value
 
@@ -255,7 +255,7 @@ class ERA5LowResDemoIndex(ArchiveIndex):
         base_transforms = TransformCollection()
 
         # base_transforms += pyearthtools.data.transforms.attributes.Rename(ERA5DEMO_RENAME)
-        base_transforms += pyearthtools.data.transforms.variables.variable_trim(variables)
+        base_transforms += pyearthtools.data.transforms.variables.Trim(variables)
 
         self.level_value = level_value
 

@@ -17,14 +17,7 @@ from __future__ import annotations
 
 import xarray as xr
 
-import pyearthtools.data.transforms.attributes as attr
 from pyearthtools.data.transforms.transform import Transform
-
-from pyearthtools.utils.decorators import BackwardsCompatibility
-
-# Backwards compatability
-rename_variables = attr.rename
-replace_name_deviation = rename_variables
 
 
 __all__ = ["Trim", "Drop"]
@@ -58,30 +51,25 @@ class Trim(Transform):
         return dataset[var_included]
 
 
-@BackwardsCompatibility(Trim)
-def trim(*args) -> Transform: ...
-
-
-@BackwardsCompatibility(Trim)
-def variable_trim(*args) -> Transform: ...
-
-
 class Drop(Transform):
     """Drop dataset variables"""
 
-    def __init__(self, variables: list[str] | str, *extra_variables):
+    def __init__(self, variables: list[str] | str, *extra_variables, **kwargs):
         """
         Drop variables from dataset
 
         Args:
             variables (list[str] | str):
                 List of vars to drop
+            kwargs (dict):
+                kwargs to pass to drop
         """
         super().__init__()
         self.record_initialisation()
 
         variables = variables if isinstance(variables, (list, tuple)) else [variables]
         self._variables = [*variables, *extra_variables]
+        self.kwargs = kwargs
 
     def apply(self, dataset: xr.Dataset) -> xr.Dataset:
         if self._variables is None:
@@ -99,8 +87,7 @@ class Drop(Transform):
         # if not var_included:
         #     return dataset
         # return dataset[var_included]
-
-        return dataset.drop_vars(self._variables)
+        return dataset.drop_vars(self._variables, **self.kwargs)
 
 
 class Select(Transform):
@@ -142,7 +129,3 @@ class Select(Transform):
             return dataset
 
         return dataset[list(var_included)]
-
-
-@BackwardsCompatibility(Drop)
-def drop(*args) -> Transform: ...

@@ -25,7 +25,6 @@ import numpy as np
 
 import pyearthtools.data
 from pyearthtools.data.transforms.transform import Transform
-from pyearthtools.utils.decorators import BackwardsCompatibility
 
 
 class Fill(Transform):
@@ -135,10 +134,6 @@ class AddFlaggedObs(Transform):
                 dataset[var_name] = dataset[var_name].where(~mask, np.nan)
 
         return dataset
-
-
-@BackwardsCompatibility(Fill)
-def fill(*args, **kwargs): ...
 
 
 def ffill(*a, **b):
