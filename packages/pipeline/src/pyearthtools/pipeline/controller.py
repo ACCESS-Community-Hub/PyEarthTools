@@ -229,6 +229,7 @@ class Pipeline(_Pipeline, Index):
         iterator: Optional[Union[iterators.Iterator, tuple[iterators.Iterator, ...]]] = None,
         sampler: Optional[Union[samplers.Sampler, tuple[samplers.Sampler, ...]]] = None,
         exceptions_to_ignore: Optional[tuple[Union[str, Type[Exception]], ...]] = None,
+        name: str | None = None,
         **kwargs,
     ):
         """
@@ -311,13 +312,15 @@ class Pipeline(_Pipeline, Index):
                       Can be used to randomly sample, drop out and more
 
             exceptions_to_ignore: Which exceptions to ignore when iterating. Defaults to None.
+
+            name: Name of the pipeline, used in nested pipelines
         """
         self.iterator = iterator
         self.sampler = sampler
-
+        self.name = name
+        self._named = {}
         super().__init__(*steps, **kwargs)
         self.record_initialisation()
-
         self.exceptions_to_ignore = exceptions_to_ignore
 
     @property
@@ -394,9 +397,23 @@ class Pipeline(_Pipeline, Index):
                 # steps_list = [v]
             elif isinstance(v, Pipeline):
                 steps_list.extend(v.steps)
+                self._add_named_pipe(v)
             else:
                 steps_list.append(v)
         self._steps = tuple(steps_list)  # type: ignore
+
+    @property
+    def named(self) -> dict[str, Pipeline]:
+        """Named sub-pipelines"""
+        return self._named.copy()
+
+    def _add_named_pipe(self, pipe: Pipeline):
+        """add or merge a nested pipeline in the dictionary of named pipelines"""
+        new_pipes = pipe._named if pipe.name is None else {pipe.name: pipe}
+        for name, nested_pipe in new_pipes.items():
+            if name in self._named:
+                raise KeyError(f"Named pipeline '{name}' already exists.")
+            self._named[name] = nested_pipe
 
     @property
     def iterator(self):
@@ -772,8 +789,7 @@ class Pipeline(_Pipeline, Index):
             return False
 
     def __add__(self, other: Union[_Pipeline, PipelineIndex, PipelineStep]) -> Pipeline:
-        """
-        Combine pipelines
+        """Combine pipelines
 
         Will set `self` steps first then `other`.
 
@@ -788,13 +804,42 @@ class Pipeline(_Pipeline, Index):
 
             new_init = dict(init)
             new_init.update({key: val for key, val in other_init.items() if val is not None})
+            new_init["name"] = None
 
-            return Pipeline(*args, **new_init)
+            new_pipe = Pipeline(*args, **new_init)
+            new_pipe._add_named_pipe(self)
+            new_pipe._add_named_pipe(other)
+            return new_pipe
 
         assert isinstance(other, (PipelineIndex, PipelineStep))
-        init = dict(self.initialisation)
+        init = {**self.initialisation, "name": None}
         args = (*init.pop("__args", []), other)
-        return Pipeline(*args, **init)
+        new_pipe = Pipeline(*args, **init)
+        new_pipe._add_named_pipe(self)
+        return new_pipe
+
+    def __or__(self, other: Union[_Pipeline, PipelineIndex, PipelineStep]) -> Pipeline:
+        """Combine pipelines
+
+        Same as + operator, alternative syntax.
+        """
+        return self + other
+
+    def __ror__(
+        self,
+        other: Union[
+            VALID_PIPELINE_TYPES,
+            _Pipeline,
+            PipelineIndex,
+            tuple[Union[VALID_PIPELINE_TYPES, Literal["map", "map_copy"]], ...],
+        ],
+    ) -> Pipeline:
+        """Append a step in front of a pipeline"""
+        init = {**self.initialisation, "name": None}
+        args = (other, *init.pop("__args", []))
+        new_pipe = Pipeline(*args, **init)
+        new_pipe._add_named_pipe(self)
+        return new_pipe
 
     def save(self, path: Optional[Union[str, Path]] = None, only_steps: bool = False) -> Union[str, None]:
         """
@@ -843,3 +888,26 @@ class Pipeline(_Pipeline, Index):
             iterator=iterator,
             sampler=sampler,
         )
+
+    @property
+    def reversed(self) -> "ReversedPipeline":
+        return ReversedPipeline(self)
+
+
+class ReversedPipeline(Operation):
+    """Operation reversing the effect of pipeline
+
+    Applying this operation will undo the provided pipeline, while undoing this
+    operation will apply the pipeline.
+    """
+
+    def __init__(self, forward_pipeline: Pipeline):
+        super().__init__()
+        self.forward_pipeline = forward_pipeline
+        self.record_initialisation()
+
+    def undo_func(self, sample):
+        return self.forward_pipeline.apply(sample)
+
+    def apply_func(self, sample):
+        return self.forward_pipeline.undo(sample)

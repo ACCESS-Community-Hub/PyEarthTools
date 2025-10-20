@@ -10,6 +10,8 @@
     :members:
 .. autoclass:: pyearthtools.pipeline.Operation
     :members:
+.. autoclass:: pyearthtools.pipeline.ReversedPipeline
+    :members:
 .. autoclass:: pyearthtools.pipeline.PipelineException
     :members:
 .. autoclass:: pyearthtools.pipeline.PipelineFilterException
