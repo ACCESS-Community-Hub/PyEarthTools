@@ -216,8 +216,6 @@ class HimawariChannels(ArchiveIndex):
         files_that_match_bands = [f for f in files if any([b in f for b in self.bands])]
         files_that_match_bands = [f"{root_dir}/{segment}/{f}" for f in files_that_match_bands]
 
-        # import pudb; pudb.set_trace()
-
         if not files_that_match_bands:
             raise DataNotFoundError(f"Unable to find data for: basetime: {basetime} at {root_dir}")
 
