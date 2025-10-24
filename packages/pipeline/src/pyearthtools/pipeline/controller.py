@@ -611,6 +611,7 @@ class Pipeline(_Pipeline, Index):
 
         class catch:
             def __getitem__(self, idx: Any):
+
                 try:
                     return pipeline_self[idx]
                 except pipeline_self._exceptions_to_ignore:  # type: ignore
@@ -689,6 +690,8 @@ class Pipeline(_Pipeline, Index):
                     with filter_count:
                         sample = self[idx]
                 except PipelineFilterException:
+                    continue
+                except:
                     continue
             try:
                 if isinstance(sample, iterators.IterateResults):
