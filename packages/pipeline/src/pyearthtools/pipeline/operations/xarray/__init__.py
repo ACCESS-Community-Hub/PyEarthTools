@@ -39,6 +39,7 @@ from pyearthtools.pipeline.operations.xarray._sort import Sort, AlignDataVariabl
 from pyearthtools.pipeline.operations.xarray.chunk import Chunk
 from pyearthtools.pipeline.operations.xarray._recode_calendar import RecodeCalendar
 from pyearthtools.pipeline.operations.xarray._align_dates import AlignDates
+from pyearthtools.pipeline.operations.xarray.round_time import RoundTime
 
 from pyearthtools.pipeline.operations.xarray import (
     conversion,
@@ -69,4 +70,5 @@ __all__ = [
     "remapping",
     "RecodeCalendar",
     "AlignDates",
+    "RoundTime",
 ]

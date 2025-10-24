@@ -56,6 +56,7 @@ from pyearthtools.data.transforms.transform import (
 
 from pyearthtools.data.transforms import (
     aggregation,
+    arithmetic,
     coordinates,
     dimensions,
     normalisation,
@@ -95,4 +96,12 @@ __all__ = [
     "Derive",
     "projection",
     "get_default_transforms",
+    "AddConstant",
+    "SubtractConstant",
+    "MultiplyConstant",
+    "DivideConstant",
+    "AddDataArray",
+    "SubtractDataArray",
+    "MultiplyDataArray",
+    "DivideDataArray",
 ]
