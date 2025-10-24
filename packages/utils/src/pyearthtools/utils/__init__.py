@@ -19,7 +19,7 @@
 pyearthtools Utilities
 """
 
-__version__ = "0.3.0"
+__version__ = "0.5.0"
 
 import importlib
 import importlib.util

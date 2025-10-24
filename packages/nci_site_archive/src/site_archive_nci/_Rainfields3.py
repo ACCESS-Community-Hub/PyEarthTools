@@ -922,15 +922,17 @@ class Rainfields3(ArchiveIndex):
             The xarray object containing the data
         """
 
-        zp = args[0][0][0][0]  # FIXME bad nesting
+        matched_zip_paths = args[0][0]  # TODO: why is this inside a list 3 times?
 
-        # TODO: this needs a context manager so that filehandlers do not leak
-        # i.e. it should be closed if the mapped `ds` is no longer being used.
-        file_like = zp.open(mode="rb")
+        dss = []
 
-        # TODO: investigate if this can be done with `open` rather than `load`
-        # alternatively cache to disk first, to avoid unnecessary in-memory loads
-        ds = xr.load_dataset(file_like, engine="h5netcdf")
+        for zip_path in matched_zip_paths:
+            file_like = zip_path.open(mode="rb")
+            ds = xr.load_dataset(file_like, engine="h5netcdf")
+            ds = ds.set_coords("valid_time")
+            dss.append(ds)
+
+        ds = xr.concat(dss, dim='valid_time')
 
         # perform projection if object was initialised with projection method.
         maybe_proj = self.fn_lonlatproj
@@ -1041,6 +1043,7 @@ class Rainfields3(ArchiveIndex):
         zp = zipfile.Path(path)
 
         contents = list(zp.iterdir())
+        matched_entries = []
 
         for zip_path in contents:
             nc_filename = zip_path.name
@@ -1052,17 +1055,15 @@ class Rainfields3(ArchiveIndex):
                 continue
 
             _radar_id, caldate, timepart = id_and_date.split("_")
-            nc_datetime = petdt("T".join([caldate, timepart]))
+            nc_petdt = petdt(f'{caldate}T{timepart}').at_resolution(query.resolution)
 
-            if nc_datetime.hour != query.hour:
+            if nc_petdt != query:
                 continue
 
-            if nc_datetime.minute != query.minute:
-                continue
+            matched_entries.append(zip_path)
 
-            # By this stage, should have match year, month, day, hour and minute
-            # Only one match should be possible, return here
-            return [(zip_path, nc_filename)]
+        if len(matched_entries):
+            return matched_entries
 
         # This should be unreachable, but could occur if the zipfile is empty
         raise IOError("Zipfile may be empty")

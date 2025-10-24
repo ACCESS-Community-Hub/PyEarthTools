@@ -41,13 +41,13 @@ pipeline['2000-01-01T00']
 
 """
 
-__version__ = "0.3.0"
+__version__ = "0.5.0"
 
 import pyearthtools.pipeline.logger
 
 
 # from pyearthtools.pipeline.save import save, load
-from pyearthtools.pipeline.controller import Pipeline, PipelineIndex
+from pyearthtools.pipeline.controller import Pipeline, PipelineIndex, ReversedPipeline
 from pyearthtools.pipeline._save_pipeline import load_pipeline as load
 
 from pyearthtools.pipeline.operation import Operation
@@ -83,6 +83,7 @@ from pyearthtools.pipeline import config
 __all__ = [
     "Sampler",
     "Pipeline",
+    "ReversedPipeline",
     "Operation",
     "branching",
     "exceptions",

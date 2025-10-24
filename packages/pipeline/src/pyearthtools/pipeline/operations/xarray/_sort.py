@@ -21,6 +21,29 @@ from pyearthtools.pipeline.operation import Operation
 
 T = TypeVar("T", xr.Dataset, xr.DataArray)
 
+class AlignDataVariableDimensionsToDatasetCoords(Operation):
+    '''
+    Sometimes, the data variables within a dataset may not be ordered consistently.
+
+    For example a Dataset may have the coordinate dimensions of time, lat and lon. 
+    Data variable (a) may in indedex by time, lat and lon while variable (b) is indexed by time, lon, lat.
+
+    Such a structure can't be easily converted to numpy due to collisions in the dimensionality.
+
+    This operator will align all of the data variables to the same ordering as present in the Dataset.
+    '''
+
+    def apply_func(self, data: xr.Dataset) -> xr.Dataset:
+        dataset_ordering = list(data.coords)
+
+        data = data.transpose(*dataset_ordering)
+        return data
+
+    def undo_func(self, data: xr.Dataset) -> xr.Dataset:
+        # TODO: Record all the original orderings and transpose them back, I guess
+
+        return data
+
 
 class Sort(Operation):
     """
