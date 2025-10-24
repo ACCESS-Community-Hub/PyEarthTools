@@ -34,7 +34,7 @@ class AddConstant(Transform):
 
         Args:
             summands (dict):
-                A dictionary of variable names and constant pairings 
+                A dictionary of variable names and constant pairings
                 (e.g., {'name':1}, will lead to a constant of 1 being added to a variable with 'name').
         """
         super().__init__()
@@ -46,7 +46,7 @@ class AddConstant(Transform):
         for key in self._summands.keys():
             try:
                 dataset[key] = dataset[key] + self._summands[key]
-            
+
             except KeyError as e:
                 raise DataNotFoundError(f"Variable with name {key} not found in dataset!") from e
         return dataset
@@ -64,7 +64,7 @@ class SubtractConstant(Transform):
 
         Args:
             subtrahends (dict):
-                A dictionary of variable names and constant pairings 
+                A dictionary of variable names and constant pairings
                 (e.g., {'name':1}, will lead to a constant of 1 being subtracted from a variable with 'name').
         """
         super().__init__()
@@ -76,7 +76,7 @@ class SubtractConstant(Transform):
         for key in self._subtrahends.keys():
             try:
                 dataset[key] = dataset[key] - self._subtrahends[key]
-            
+
             except KeyError as e:
                 raise DataNotFoundError(f"Variable with name {key} not found in dataset!") from e
         return dataset
@@ -94,7 +94,7 @@ class MultiplyConstant(Transform):
 
         Args:
             factors (dict):
-                A dictionary of variable names and factor value pairings 
+                A dictionary of variable names and factor value pairings
                 (e.g., {'name':2}, will lead to variable with 'name' to be doubled).
         """
         super().__init__()
@@ -106,7 +106,7 @@ class MultiplyConstant(Transform):
         for key in self._factors.keys():
             try:
                 dataset[key] = dataset[key] * self._factors[key]
-            
+
             except KeyError as e:
                 raise DataNotFoundError(f"Variable with name {key} not found in dataset!") from e
         return dataset
@@ -124,7 +124,7 @@ class DivideConstant(Transform):
 
         Args:
             divisors:
-                A dictionary of variable names and divisor value pairings 
+                A dictionary of variable names and divisor value pairings
                 (e.g., {'name':2}, will lead to variable with 'name' to be halved).
         """
         super().__init__()
@@ -136,7 +136,7 @@ class DivideConstant(Transform):
         for key in self._divisors.keys():
             try:
                 dataset[key] = dataset[key] / self._divisors[key]
-            
+
             except KeyError as e:
                 raise DataNotFoundError(f"Variable with name {key} not found in dataset!") from e
         return dataset
@@ -167,9 +167,11 @@ class AddDataArray(Transform):
         for key in self._summands.keys():
             try:
                 dataset[key] = dataset[key] + dataset[self._summands[key]]
-            
+
             except KeyError as e:
-                raise DataNotFoundError(f"Variables with names {key} or {self._summands[key]} not found in dataset!") from e
+                raise DataNotFoundError(
+                    f"Variables with names {key} or {self._summands[key]} not found in dataset!"
+                ) from e
         return dataset
 
 
@@ -198,9 +200,11 @@ class SubtractDataArray(Transform):
         for key in self._subtrahends.keys():
             try:
                 dataset[key] = dataset[key] - dataset[self._subtrahends[key]]
-            
+
             except KeyError as e:
-                raise DataNotFoundError(f"Variables with names {key} or {self._subtrahends[key]} not found in dataset!") from e
+                raise DataNotFoundError(
+                    f"Variables with names {key} or {self._subtrahends[key]} not found in dataset!"
+                ) from e
         return dataset
 
 
@@ -229,9 +233,11 @@ class MultiplyDataArray(Transform):
         for key in self._factors.keys():
             try:
                 dataset[key] = dataset[key] * dataset[self._factors[key]]
-            
+
             except KeyError as e:
-                raise DataNotFoundError(f"Variables with names {key} or {self._factors[key]} not found in dataset!") from e
+                raise DataNotFoundError(
+                    f"Variables with names {key} or {self._factors[key]} not found in dataset!"
+                ) from e
         return dataset
 
 
@@ -260,7 +266,9 @@ class DivideDataArray(Transform):
         for key in self._divisors.keys():
             try:
                 dataset[key] = dataset[key] / dataset[self._divisors[key]]
-            
+
             except KeyError as e:
-                raise DataNotFoundError(f"Variables with names {key} or {self._divisors[key]} not found in dataset!") from e
+                raise DataNotFoundError(
+                    f"Variables with names {key} or {self._divisors[key]} not found in dataset!"
+                ) from e
         return dataset

@@ -25,11 +25,7 @@ class RoundTime(Operation):
 
     _override_interface = "Serial"
 
-    def __init__(
-        self,
-        freq: str,
-        fun: Optional[Callable | str] = None
-    ):
+    def __init__(self, freq: str, fun: Optional[Callable | str] = None):
         """
         Round timestamps to specified frequency resolution. For example time values
         like 00:30UTC become 01:00UTC.
@@ -40,19 +36,19 @@ class RoundTime(Operation):
                 a freq string indicating the rounding resolution e.g. “D” for daily resolution
             fun (Callable, optional):
                 function to use when rounding. Default is 'round'
-            
+
         """
         super().__init__(
             split_tuples=True,
             operation="apply",
             recognised_types=(xr.Dataset, xr.DataArray),
         )
-        
+
         self._freq = freq
         self._fun = fun
         self._default_fun = "round"
         self._known_methods = ["round", "ceil", "floor"]
-        self._known_freq = ['H', 'D']
+        self._known_freq = ["H", "D"]
 
         if self._fun is None:
             self._fun = self._default_fun
@@ -67,7 +63,7 @@ class RoundTime(Operation):
 
     def apply_func(self, dataset: xr.Dataset) -> xr.Dataset:
         # Get the function from the dataset directly
-        _fun = getattr(dataset['time'].dt, self._fun)
+        _fun = getattr(dataset["time"].dt, self._fun)
 
         # Get the new time steps and make sure they are pandas timestamps
         newtime = _fun(self._freq)
