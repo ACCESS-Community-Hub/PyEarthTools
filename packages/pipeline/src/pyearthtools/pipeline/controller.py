@@ -685,19 +685,18 @@ class Pipeline(_Pipeline, Index):
         next(sampler)
         filter_count: ContextManager[None] = filters.FilterWarningContext()
         exception_count: ContextManager[None] = ExceptionIgnoreContext(
-            self._exceptions_to_ignore or tuple(),
-            max_exceptions = self.max_exception_count
+            self._exceptions_to_ignore or tuple(), max_exceptions=self.max_exception_count
         )
 
         for idx in self.iterator:
             sample = None
 
-            # User-defined expected-exception-ignoring logic is in the exception_count context manager            
+            # User-defined expected-exception-ignoring logic is in the exception_count context manager
             try:
-                with exception_count:                  
+                with exception_count:
                     with filter_count:
                         sample = self[idx]
-            
+
             except PipelineFilterException:
                 continue
 
