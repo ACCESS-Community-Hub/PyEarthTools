@@ -22,9 +22,11 @@
     <figcaption>A data processing flow composed for working with climate data.</figcaption>
 </figure>
 
-Source Code: [github.com/ACCESS-Community-Hub/PyEarthTools](https://github.com/ACCESS-Community-Hub/PyEarthTools)  
-Documentation: [pyearthtools.readthedocs.io](https://pyearthtools.readthedocs.io)  
-Tutorial Gallery: [available here](./notebooks/Gallery)  
+Source Code: [github.com/ACCESS-Community-Hub/PyEarthTools](https://github.com/ACCESS-Community-Hub/PyEarthTools)
+Documentation: [pyearthtools.readthedocs.io](https://pyearthtools.readthedocs.io)
+Tutorial Gallery: [available here](./notebooks/Gallery)
+
+**If you use `PyEarthTools` for your work or a publication, [please city our work](https://pyearthtools.readthedocs.io/en/latest/#acknowleging-or-citing-pyearthtools).**
 
 ## Installation
 
@@ -71,7 +73,7 @@ PyEarthTools is a Python framework containing modules for:
  - defining machine learning (ML) models;
  - training ML models and managing experiments;
  - performing inference with ML models;
- - and evaluating ML models.
+ - and evaluating ML models (coming soon).
 
 ## Overview of the Packages within PyEarthTools
 
@@ -95,11 +97,11 @@ If you use PyEarthTools for your work, we would appreciate you citing our softwa
 
 :::::{tab-set}
 ::::{tab-item} APA
-Cook, H., Leeuwenburg, T., Rio, M., Miller, J., Mason, G., Ramanathan, N., Pill, J., Haddad, S., & de Burgh-Day, C. (2025). PyEarthTools: Machine learning for Earth system science (0.1.1). Zenodo. https://doi.org/10.5281/zenodo.15760769
+Cook, H., Leeuwenburg, T., Rio, M., Miller, J., Mason, G., Ramanathan, N., Pill, J., Haddad, S., de Burgh-Day, C., Sullivan, B., Hobeichi, S., Holmes, R., Potokina, M., Bogacheva, J., James, M., & Stassen, C. (2025). PyEarthTools: Machine learning for Earth system science (0.4.0). Zenodo. https://doi.org/10.5281/zenodo.17429589
 ::::
 ::::{tab-item} BibTeX
 ```
-@software{cook_2025_15760769,
+@software{cook_2025_17429589,
   author       = {Cook, Harrison and
                   Leeuwenburg, Tennessee and
                   Rio, Maxime and
@@ -108,14 +110,23 @@ Cook, H., Leeuwenburg, T., Rio, M., Miller, J., Mason, G., Ramanathan, N., Pill,
                   Ramanathan, Nikeeth and
                   Pill, John and
                   Haddad, Stephen and
-                  de Burgh-Day, Catherine},
-  title        = {{PyEarthTools: Machine learning for Earth system science}},
-  month        = jun,
+                  de Burgh-Day, Catherine and
+                  Sullivan, Ben and
+                  Hobeichi, Sanaa and
+                  Holmes, Ryan and
+                  Potokina, Margarita and
+                  Bogacheva, Jenya and
+                  James, Matthew and
+                  Stassen, Christian},
+  title        = {PyEarthTools: Machine learning for Earth system
+                   science
+                  },
+  month        = oct,
   year         = 2025,
   publisher    = {Zenodo},
-  version      = {0.1.1},
-  doi          = {10.5281/zenodo.15760769},
-  url          = {https://doi.org/10.5281/zenodo.15760769}
+  version      = {0.4.0},
+  doi          = {10.5281/zenodo.17429589},
+  url          = {https://doi.org/10.5281/zenodo.17429589},
 }
 ```
 ::::
