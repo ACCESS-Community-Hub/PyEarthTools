@@ -229,6 +229,7 @@ class Pipeline(_Pipeline, Index):
         iterator: Optional[Union[iterators.Iterator, tuple[iterators.Iterator, ...]]] = None,
         sampler: Optional[Union[samplers.Sampler, tuple[samplers.Sampler, ...]]] = None,
         exceptions_to_ignore: Optional[tuple[Union[str, Type[Exception]], ...]] = None,
+        max_exception_count: int = -1,
         name: str | None = None,
         **kwargs,
     ):
@@ -312,6 +313,7 @@ class Pipeline(_Pipeline, Index):
                       Can be used to randomly sample, drop out and more
 
             exceptions_to_ignore: Which exceptions to ignore when iterating. Defaults to None.
+            max_exception_count: When "ignoring" exceptions, only ignore the first n such exceptions. Set to -1 for unlimited.
 
             name: Name of the pipeline, used in nested pipelines
         """
@@ -322,6 +324,7 @@ class Pipeline(_Pipeline, Index):
         super().__init__(*steps, **kwargs)
         self.record_initialisation()
         self.exceptions_to_ignore = exceptions_to_ignore
+        self.max_exception_count = max_exception_count
 
     @property
     def flattened_steps(self) -> tuple:
@@ -611,6 +614,7 @@ class Pipeline(_Pipeline, Index):
 
         class catch:
             def __getitem__(self, idx: Any):
+
                 try:
                     return pipeline_self[idx]
                 except pipeline_self._exceptions_to_ignore:  # type: ignore
@@ -680,16 +684,22 @@ class Pipeline(_Pipeline, Index):
 
         next(sampler)
         filter_count: ContextManager[None] = filters.FilterWarningContext()
-        exception_count: ContextManager[None] = ExceptionIgnoreContext(self._exceptions_to_ignore or tuple())
+        exception_count: ContextManager[None] = ExceptionIgnoreContext(
+            self._exceptions_to_ignore or tuple(), max_exceptions=self.max_exception_count
+        )
 
         for idx in self.iterator:
             sample = None
-            with exception_count:
-                try:
+
+            # User-defined expected-exception-ignoring logic is in the exception_count context manager
+            try:
+                with exception_count:
                     with filter_count:
                         sample = self[idx]
-                except PipelineFilterException:
-                    continue
+
+            except PipelineFilterException:
+                continue
+
             try:
                 if isinstance(sample, iterators.IterateResults):
                     for sub_sample in sample.iterate_over_object():

@@ -932,7 +932,7 @@ class Rainfields3(ArchiveIndex):
             ds = ds.set_coords("valid_time")
             dss.append(ds)
 
-        ds = xr.concat(dss, dim='valid_time')
+        ds = xr.concat(dss, dim="valid_time")
 
         # perform projection if object was initialised with projection method.
         maybe_proj = self.fn_lonlatproj
@@ -1055,7 +1055,7 @@ class Rainfields3(ArchiveIndex):
                 continue
 
             _radar_id, caldate, timepart = id_and_date.split("_")
-            nc_petdt = petdt(f'{caldate}T{timepart}').at_resolution(query.resolution)
+            nc_petdt = petdt(f"{caldate}T{timepart}").at_resolution(query.resolution)
 
             if nc_petdt != query:
                 continue
