@@ -34,5 +34,6 @@ __all__ = [
     "TimeIdxModifier",
     "SequenceRetrieval",
     "TemporalRetrieval",
+    "TemporalWindow",
     "idx_modification",
 ]

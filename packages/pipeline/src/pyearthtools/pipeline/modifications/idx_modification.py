@@ -122,9 +122,13 @@ class IdxModifier(PipelineIndex, ParallelEnabledMixin):
         self._modification = modification
 
         if concat:
-            MERGE_FUNCTIONS[np.ndarray] = lambda x, **k: np.concatenate(x, **k) if len(x) > 1 else x[0]
+            MERGE_FUNCTIONS[np.ndarray] = (
+                lambda x, **k: np.concatenate(x, **k) if len(x) > 1 else x[0]
+            )
             if DASK_IMPORTED:
-                MERGE_FUNCTIONS[da.Array] = lambda x, **k: da.concatenate(x, **k) if len(x) > 1 else x[0]
+                MERGE_FUNCTIONS[da.Array] = (
+                    lambda x, **k: da.concatenate(x, **k) if len(x) > 1 else x[0]
+                )
 
         merge = int(merge) if isinstance(merge, bool) else int(merge)
 
@@ -188,7 +192,9 @@ class IdxModifier(PipelineIndex, ParallelEnabledMixin):
         result = merge_function(sample, **self._merge_kwargs)
         return result
 
-    def _get_tuple(self, idx, mod: tuple[Any, ...], layer: int) -> Union[tuple[Any], Any]:
+    def _get_tuple(
+        self, idx, mod: tuple[Any, ...], layer: int
+    ) -> Union[tuple[Any], Any]:
         """
         Collect all elements from tuple of modification
 
@@ -199,7 +205,9 @@ class IdxModifier(PipelineIndex, ParallelEnabledMixin):
         samples = []
         for m in mod:
             if isinstance(m, tuple):
-                samples.append(self.parallel_interface.submit(self._get_tuple, idx, m, layer + 1))
+                samples.append(
+                    self.parallel_interface.submit(self._get_tuple, idx, m, layer + 1)
+                )
             else:
                 samples.append(self.parallel_interface.submit(super_get, idx + m))
 
@@ -249,7 +257,9 @@ class TimeIdxModifier(IdxModifier):
         """
 
         def can_map(mod):
-            return isinstance(mod, tuple)  # and len(mod) > 0 a#nd isinstance(mod[0], tuple)
+            return isinstance(
+                mod, tuple
+            )  # and len(mod) > 0 a#nd isinstance(mod[0], tuple)
 
         def map_to_time(mod):
             """Map elements to `TimeDelta`"""
@@ -277,7 +287,9 @@ class SequenceSpecification:
     def convert(self, pos):
         pos += self.offset
         total = self.num_samples * self.interval
-        return tuple(range(pos, pos + total, self.interval)), pos + total - (1 * self.interval)
+        return tuple(range(pos, pos + total, self.interval)), pos + total - (
+            1 * self.interval
+        )
 
 
 class SequenceRetrieval(IdxModifier):
@@ -369,7 +381,9 @@ class SequenceRetrieval(IdxModifier):
         )
         self.record_initialisation()
 
-    def _convert(self, samples: tuple[SequenceSpecification, ...]) -> tuple[tuple[int, ...], ...]:
+    def _convert(
+        self, samples: tuple[SequenceSpecification, ...]
+    ) -> tuple[tuple[int, ...], ...]:
         """
         Convert `samples` from `_parse_samples` ready for `IdxModifier`.
         """
@@ -410,7 +424,9 @@ class SequenceRetrieval(IdxModifier):
             return parse_int(samples)
 
         elif isinstance(samples, Iterable):
-            if len(samples) in [2, 3] and all(map(lambda x: not isinstance(x, Iterable), samples)):
+            if len(samples) in [2, 3] and all(
+                map(lambda x: not isinstance(x, Iterable), samples)
+            ):
                 return (SequenceSpecification(*samples),)  # type: ignore
 
             specs = []
@@ -475,7 +491,7 @@ class TemporalRetrieval(SequenceRetrieval):
         return super().__getitem__(idx)
 
 
-class TemporalWindow(pyearthtools.pipeline.controller.PipelineIndex):
+class TemporalWindow(PipelineIndex):
     """
     The purpose of this class is to provide the ability to perform
     sequence-to-sequence modelling from a data accessor or pipeline
@@ -514,7 +530,9 @@ class TemporalWindow(pyearthtools.pipeline.controller.PipelineIndex):
     A custom merge method may be specified.
     """
 
-    def __init__(self, *, prior_indexes, posterior_indexes, timedelta, merge_method=None):
+    def __init__(
+        self, *, prior_indexes, posterior_indexes, timedelta, merge_method=None
+    ):
         """
         Args:
             prior_indexes: Multiplied by the timedelta then applied to the reference date
@@ -542,8 +560,13 @@ class TemporalWindow(pyearthtools.pipeline.controller.PipelineIndex):
         prior_i = [i * self.timedelta for i in self.prior_indexes]
         posterior_i = [i * self.timedelta for i in self.posterior_indexes]
 
-        prior = [self.parent_pipeline()[str(date_of_interest + delta)] for delta in prior_i]
-        posterior = [self.parent_pipeline()[str(date_of_interest + delta)] for delta in posterior_i]
+        prior = [
+            self.parent_pipeline()[str(date_of_interest + delta)] for delta in prior_i
+        ]
+        posterior = [
+            self.parent_pipeline()[str(date_of_interest + delta)]
+            for delta in posterior_i
+        ]
 
         if self.merge_method:
             prior = self.merge_method(prior)
