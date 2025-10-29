@@ -17,15 +17,13 @@
 
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass
 from typing import Any, Callable, Iterable, Optional, Type, Union
-import warnings
 
-import xarray as xr
 import numpy as np
-
 import pyearthtools.data
-
+import xarray as xr
 
 from pyearthtools.pipeline.controller import PipelineIndex
 from pyearthtools.pipeline.parallel import ParallelEnabledMixin
@@ -33,8 +31,8 @@ from pyearthtools.pipeline.warnings import PipelineWarning
 
 DASK_IMPORTED = True
 try:
-    from dask.delayed import Delayed, delayed
     import dask.array as da
+    from dask.delayed import Delayed, delayed
 except (ImportError, ModuleNotFoundError) as _:
     DASK_IMPORTED = False
 
@@ -502,13 +500,15 @@ class TemporalWindow(PipelineIndex):
 
     For example, if the time steps are hourly, and the base pipeline
     can produce hours 1, 2, 3 ... 10; then this Temporal Window can
-    be used to produce sequence pairs like:
+    be used to produce sequence pairs like::
+
          [1,2,3], [4],
          [2,3,4], [5],
          ...
          [7,8,9], [10]
 
-    or like:
+    or like::
+
          [1,2], [3,4,5],
          [2,3], [4,5,6],
          ...
