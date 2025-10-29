@@ -215,7 +215,6 @@ class IdxModifier(PipelineIndex, ParallelEnabledMixin):
         return samples
 
     def __getitem__(self, idx: Any):
-
         if not isinstance(self._modification, tuple):
             return self.parent_pipeline()[idx + self._modification]
 
@@ -452,7 +451,12 @@ class TemporalRetrieval(SequenceRetrieval):
             delta_unit: e.g. "month" or "hour"
             concat: whether to contact or merge
         """
-        super().__init__(samples, merge_function=merge_function, concat=concat, merge_kwargs=merge_kwargs)
+        super().__init__(
+            samples,
+            merge_function=merge_function,
+            concat=concat,
+            merge_kwargs=merge_kwargs,
+        )
 
         def map_to_tuple(mod):
             if isinstance(mod, tuple):
@@ -469,3 +473,80 @@ class TemporalRetrieval(SequenceRetrieval):
             idx = pyearthtools.data.Petdt(idx)
 
         return super().__getitem__(idx)
+
+
+class TemporalWindow(pyearthtools.pipeline.controller.PipelineIndex):
+    """
+    The purpose of this class is to provide the ability to perform
+    sequence-to-sequence modelling from a data accessor or pipeline
+    that was designed to produce single time steps (i.e. single samples).
+
+    The temporal window allows the specification of the 'back window'
+    and the 'forward window', and will produce a binary branch.
+
+    For example, if the time steps are hourly, and the base pipeline
+    can produce hours 1, 2, 3 ... 10; then this Temporal Window can
+    be used to produce sequence pairs like:
+         [1,2,3], [4],
+         [2,3,4], [5],
+         ...
+         [7,8,9], [10]
+
+    or like:
+         [1,2], [3,4,5],
+         [2,3], [4,5,6],
+         ...
+         [6,7], [8,9,10]
+
+    This provides a simpler interface than the TemporalRetrieval which
+    is a more general alternative.
+
+    The window offsets are calculated not using positional indexing, but
+    using calculated date-times based on the reference time and the specified
+    timedelta to calculate each required index exactly. The handling of missing
+    data is left to the underlying pipeline response to the retrieval of the
+    calculated datetime.
+
+    The resultant sequences may be left unmerged (i.e. a list of retrieved
+    results for each timetime) or merged (e.g. into an xarray along the time
+    dimension). The default behaviour is to merge along the time dimension.
+
+    A custom merge method may be specified.
+    """
+
+    def __init__(self, *, prior_indexes, posterior_indexes, timedelta, merge_method=None):
+        """
+        Args:
+            prior_indexes: Multiplied by the timedelta then applied to the reference date
+            posterior_indexes: Multiplied by the timedelta then applied to the reference date
+            timedelta: Typically the time step of the underlying data
+            merge_method: How to merge samples into a combined object
+
+
+        Examples:
+
+        >>> TemporalWindow(prior_indexes=[-3,-2,-1], posterior_indexes=[0], timedelta=timedelta, merge_method=merge_method)
+
+        (assuming xarray data) will result in a tuple of two  datasets, the first with a time coordinate dimension of 3 time steps and the
+        second with a time coordinate dimension of 1 time step.
+
+        """
+        self.prior_indexes = prior_indexes
+        self.posterior_indexes = posterior_indexes
+        self.timedelta = timedelta
+        self.merge_method = merge_method
+
+    def __getitem__(self, date_of_interest):
+        date_of_interest = pyearthtools.data.time.Petdt(date_of_interest)
+
+        prior_i = [i * self.timedelta for i in self.prior_indexes]
+        posterior_i = [i * self.timedelta for i in self.posterior_indexes]
+
+        prior = [self.parent_pipeline()[str(date_of_interest + delta)] for delta in prior_i]
+        posterior = [self.parent_pipeline()[str(date_of_interest + delta)] for delta in posterior_i]
+
+        if self.merge_method:
+            prior = self.merge_method(prior)
+            posterior = self.merge_method(posterior)
+
+        return prior, posterior
