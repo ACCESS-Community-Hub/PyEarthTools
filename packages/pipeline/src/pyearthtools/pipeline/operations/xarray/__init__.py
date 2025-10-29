@@ -69,5 +69,5 @@ __all__ = [
     "remapping",
     "RecodeCalendar",
     "AlignDates",
-    "AlignDataVariableDimensionsToDatasetCoords"
+    "AlignDataVariableDimensionsToDatasetCoords",
 ]
