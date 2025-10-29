@@ -101,16 +101,23 @@ class ExceptionIgnoreContext:
         pass
 
     def __exit__(self, exc_type, exc_val, traceback):
+
+        # if exc_type:
+        #     import pudb; pudb.set_trace()
+
         if exc_type in self._exceptions:
             self._count += 1
             self._messages.append(str(exc_val))
 
-        if self._count >= self._max_exceptions:
-            str_msg = "\n".join(self._messages)
+            if self._count >= self._max_exceptions and self._max_exceptions >= 1:
+                str_msg = "\n".join(self._messages)
 
-            warnings.warn(
-                f"{self._count} exception's have occured.\nRaised the following messages:\n{str_msg}",
-                PipelineWarning,
-            )
-            self._count = 0
-            self._messages = []
+                warnings.warn(
+                    f"{self._count} exception's have occured.\nRaised the following messages:\n{str_msg}",
+                    PipelineWarning,
+                )
+                self._count = 0
+                self._messages = []
+
+            else:
+                raise PipelineFilterException(str(exc_val))
