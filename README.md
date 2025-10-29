@@ -10,10 +10,12 @@
 |![](https://pyearthtools.readthedocs.io/en/latest/_images/notebooks_demo_FourCastNeXt_Inference_9_1.png)<br>A weather prediction from a model trained with PyEarthTools.|![](https://pyearthtools.readthedocs.io/en/latest/_images/notebooks_tutorial_Working_with_Climate_Data_14_2.svg)<br>A data processing flow composed for working with climate data.|
 |:-:|:-:|
 
-Source Code: [github.com/ACCESS-Community-Hub/PyEarthTools](https://github.com/ACCESS-Community-Hub/PyEarthTools)  
-Documentation: [pyearthtools.readthedocs.io](https://pyearthtools.readthedocs.io)  
-Tutorial Gallery: [available here](https://pyearthtools.readthedocs.io/en/latest/notebooks/Gallery.html)  
-New Users Guide: [available here](https://pyearthtools.readthedocs.io/en/latest/newuser.html)  
+Source Code: [github.com/ACCESS-Community-Hub/PyEarthTools](https://github.com/ACCESS-Community-Hub/PyEarthTools)
+Documentation: [pyearthtools.readthedocs.io](https://pyearthtools.readthedocs.io)
+Tutorial Gallery: [available here](https://pyearthtools.readthedocs.io/en/latest/notebooks/Gallery.html)
+New Users Guide: [available here](https://pyearthtools.readthedocs.io/en/latest/newuser.html)
+
+**If you use `PyEarthTools` for your work or a publication, [please city our work](https://pyearthtools.readthedocs.io/en/latest/#acknowleging-or-citing-pyearthtools).**
 
 ## Installation
 
@@ -53,7 +55,7 @@ PyEarthTools is a Python framework containing modules for:
  - defining machine learning (ML) models;
  - training ML models and managing experiments;
  - performing inference with ML models;
- - and evaluating ML models.
+ - and evaluating ML models (coming soon).
 
 ## Overview of the Packages within PyEarthTools
 
@@ -74,11 +76,11 @@ PyEarthTools comprises multiple sub-packages which can be used individually or t
 
 If you use PyEarthTools for your work, we would appreciate you citing our software as below:
 
-Cook, H., Leeuwenburg, T., Rio, M., Miller, J., Mason, G., Ramanathan, N., Pill, J., Haddad, S., & de Burgh-Day, C. (2025). PyEarthTools: Machine learning for Earth system science (0.1.1). Zenodo. https://doi.org/10.5281/zenodo.15760769
+Cook, H., Leeuwenburg, T., Rio, M., Miller, J., Mason, G., Ramanathan, N., Pill, J., Haddad, S., de Burgh-Day, C., Sullivan, B., Hobeichi, S., Holmes, R., Potokina, M., Bogacheva, J., James, M., & Stassen, C. (2025). PyEarthTools: Machine learning for Earth system science (0.4.0). Zenodo. https://doi.org/10.5281/zenodo.17429589
 
 BibTeX:
 ```
-@software{cook_2025_15760769,
+@software{cook_2025_17429589,
   author       = {Cook, Harrison and
                   Leeuwenburg, Tennessee and
                   Rio, Maxime and
@@ -87,13 +89,22 @@ BibTeX:
                   Ramanathan, Nikeeth and
                   Pill, John and
                   Haddad, Stephen and
-                  de Burgh-Day, Catherine},
-  title        = {{PyEarthTools: Machine learning for Earth system science}},
-  month        = jun,
+                  de Burgh-Day, Catherine and
+                  Sullivan, Ben and
+                  Hobeichi, Sanaa and
+                  Holmes, Ryan and
+                  Potokina, Margarita and
+                  Bogacheva, Jenya and
+                  James, Matthew and
+                  Stassen, Christian},
+  title        = {PyEarthTools: Machine learning for Earth system
+                   science
+                  },
+  month        = oct,
   year         = 2025,
   publisher    = {Zenodo},
-  version      = {0.1.1},
-  doi          = {10.5281/zenodo.15760769},
-  url          = {https://doi.org/10.5281/zenodo.15760769}
+  version      = {0.4.0},
+  doi          = {10.5281/zenodo.17429589},
+  url          = {https://doi.org/10.5281/zenodo.17429589},
 }
 ```

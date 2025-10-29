@@ -39,6 +39,7 @@ The rest of this page contains reference information for the components of the P
 |                      |                                      | - [TimeIdxModifier](pipeline_api.md#pyearthtools.pipeline.modifications.TimeIdxModifier)                           |
 |                      |                                      | - [SequenceRetrieval](pipeline_api.md#pyearthtools.pipeline.modifications.SequenceRetrieval)                       |
 |                      |                                      | - [TemporalRetrieval](pipeline_api.md#pyearthtools.pipeline.modifications.TemporalRetrieval)                       |
+|                      |                                      | - [TemporalWindow](pipeline_api.md#pyearthtools.pipeline.modifications.TemporalWindow)                       |
 |                      |                                      | - [idx_modification](pipeline_api.md#pyearthtools.pipeline.modifications.idx_modification)                         |
 | `pipeline.operations`  |                                    | - [Transforms](pipeline_api.md#pyearthtools.pipeline.operations.Transforms)                                        |
 | `pipeline.operations.xarray`  |                             | - [Compute](pipeline_api.md#pyearthtools.pipeline.operations.xarray.Compute)                                       |

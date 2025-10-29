@@ -329,7 +329,6 @@
     :members:
 
 .. autofunction:: pyearthtools.data.transforms.coordinates.get_longitude
-.. autofunction:: pyearthtools.data.transforms.coordinates.weak_cast_to_int
 
 .. autoclass:: pyearthtools.data.transforms.coordinates.StandardLongitude
     :members:
@@ -341,11 +340,7 @@
     :members:
 .. autoclass:: pyearthtools.data.transforms.coordinates.Drop
     :members:
-.. autoclass:: pyearthtools.data.transforms.coordinates.Flatten
-    :members:
 .. autoclass:: pyearthtools.data.transforms.coordinates.Expand
-    :members:
-.. autoclass:: pyearthtools.data.transforms.coordinates.SelectFlatten
     :members:
 .. autoclass:: pyearthtools.data.transforms.coordinates.Assign
     :members:

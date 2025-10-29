@@ -91,6 +91,8 @@
     :members:
 .. autoclass:: pyearthtools.pipeline.modifications.TemporalRetrieval
     :members:
+.. autoclass:: pyearthtools.pipeline.modifications.TemporalWindow
+    :members:    
 .. autoclass:: pyearthtools.pipeline.modifications.idx_modification
     :members:
 ```
