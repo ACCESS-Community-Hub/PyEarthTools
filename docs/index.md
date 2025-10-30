@@ -1,8 +1,3 @@
-% scores documentation master file, created by
-% sphinx-quickstart on Sat Sep  9 11:24:53 2023.
-% You can adapt this file completely to your liking, but it should at least
-% contain the root `toctree` directive.
-
 # PyEarthTools: Machine learning for Earth system science
 
 [![DOI](https://zenodo.org/badge/903938118.svg)](https://doi.org/10.5281/zenodo.15760768)
@@ -22,11 +17,11 @@
     <figcaption>A data processing flow composed for working with climate data.</figcaption>
 </figure>
 
-Source Code: [github.com/ACCESS-Community-Hub/PyEarthTools](https://github.com/ACCESS-Community-Hub/PyEarthTools)
-Documentation: [pyearthtools.readthedocs.io](https://pyearthtools.readthedocs.io)
-Tutorial Gallery: [available here](./notebooks/Gallery)
+Source Code: [github.com/ACCESS-Community-Hub/PyEarthTools](https://github.com/ACCESS-Community-Hub/PyEarthTools)  
+Documentation: [pyearthtools.readthedocs.io](https://pyearthtools.readthedocs.io)  
+Tutorial Gallery: [available here](./notebooks/Gallery)  
 
-**If you use `PyEarthTools` for your work or a publication, [please city our work](https://pyearthtools.readthedocs.io/en/latest/#acknowleging-or-citing-pyearthtools).**
+**If you use `PyEarthTools` for your work or a publication, [please cite our work](https://pyearthtools.readthedocs.io/en/latest/#acknowleging-or-citing-pyearthtools).**
 
 ## Installation
 
