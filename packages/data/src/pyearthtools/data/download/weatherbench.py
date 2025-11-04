@@ -1,8 +1,9 @@
-import sys
-import logging
-import textwrap
 import hashlib
+import logging
+import os
 import shutil
+import sys
+import textwrap
 from pathlib import Path
 from typing import Literal
 
@@ -11,11 +12,11 @@ import xarray as xr
 from numcodecs.blosc import Blosc
 from tqdm.dask import TqdmCallback
 
-from pyearthtools.data.time import Petdt
 from pyearthtools.data.indexes import AdvancedTimeDataIndex, decorators
 from pyearthtools.data.indexes.utilities import spellcheck
-from pyearthtools.data.transforms.transform import Transform, TransformCollection
+from pyearthtools.data.time import Petdt
 from pyearthtools.data.transforms.coordinates import Select
+from pyearthtools.data.transforms.transform import Transform, TransformCollection
 
 
 def _extract_dataset_infos(url: str) -> tuple[dict[str, str | None], list[int]]:
@@ -106,6 +107,8 @@ def _save_variable(darr: xr.DataArray, path: Path):
         logger.info(f"Incomplete download of {varname} found, removing folder {zarrpath}.")
         shutil.rmtree(zarrpath)
 
+    zarrpath = zarrpath.expanduser()
+
     compressor = {"compressor": Blosc(cname="zstd", clevel=6)}
     zarr_kwargs = {"encoding": {darr.name: compressor}, "consolidated": False}
 
@@ -113,9 +116,11 @@ def _save_variable(darr: xr.DataArray, path: Path):
     logger.info(f"Saving {varname} under {zarrpath}, it will take at most {dsarr_size:.2f} {unit} of storage space.")
 
     disable_bar = logger.getEffectiveLevel() > logging.INFO
+
     with TqdmCallback(desc="Writing", disable=disable_bar):
         darr.to_zarr(zarrpath, **zarr_kwargs)
 
+    canary_file = zarrpath / ".completed"
     canary_file.touch()
     logger.info(f"Saving {varname} finished.")
 
@@ -155,6 +160,8 @@ def open_local_dataset(path: Path, variables: list[str], level: list[int]) -> xr
     """Open a locally saved dataset made of 1 zarr folder per variable and level"""
     logger = logging.getLogger(__name__)
 
+    path = path.expanduser()
+
     dsets = []
     for varname in variables:
         filepath = path / f"{varname}.zarr"
@@ -164,7 +171,7 @@ def open_local_dataset(path: Path, variables: list[str], level: list[int]) -> xr
         else:
             filelist = [path / f"{varname}_level-{lvl}.zarr" for lvl in level]
             if any(not (fpath / ".completed").is_file() for fpath in filelist):
-                raise MissingVariableFile("Missing .zarr folder for some variables")
+                raise MissingVariableFile(f"Missing .zarr folder for some variables - see {filelist}")
             logger.debug(f"Loading {varname} variable from folders {[str(p) for p in filelist]}.")
             dset = xr.open_mfdataset(filelist, concat_dim="level", combine="nested", consolidated=False)
         dsets.append(dset)
