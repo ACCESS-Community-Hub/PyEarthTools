@@ -17,6 +17,7 @@ classifiers = [
 dependencies = [
   "rich",
   "ipywidgets",
+  "basemap",
   "hydra-core",
   "scores",
   "dask",

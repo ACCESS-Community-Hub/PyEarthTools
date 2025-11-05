@@ -135,7 +135,6 @@ The rest of this page contains reference information for the components of the D
 |                  |                                               | - [attributes.SetType](data_api.md#pyearthtools.data.transforms.attributes.SetType) |
 |                  |                                               | - [attributes.Rename](data_api.md#pyearthtools.data.transforms.attributes.Rename) |
 |                  |                                               | - [coordinates.get_longitude](data_api.md#pyearthtools.data.transforms.coordinates.get_longitude) |
-|                  |                                               | - [coordinates.weak_cast_to_int](data_api.md#pyearthtools.data.transforms.coordinates.weak_cast_to_int) |
 |                  |                                               | - [coordinates.StandardLongitude](data_api.md#pyearthtools.data.transforms.coordinates.StandardLongitude) |
 |                  |                                               | - [coordinates.ReIndex](data_api.md#pyearthtools.data.transforms.coordinates.ReIndex) |
 |                  |                                               | - [coordinates.StandardCoordinateNames](data_api.md#pyearthtools.data.transforms.coordinates.StandardCoordinateNames) |
