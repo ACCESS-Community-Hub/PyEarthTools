@@ -79,21 +79,22 @@ and use live data.
 
 from pyearthtools.zoo import config as _
 from pyearthtools.zoo import logger as __
-
-from pyearthtools.zoo.register import register
-from pyearthtools.zoo.model import BaseForecastModel
-
-from pyearthtools.zoo.warnings import AccessorRegistrationWarning
-from pyearthtools.zoo.exceptions import ModelException, ModelRegistrationException
-
 from pyearthtools.zoo import utils
+from pyearthtools.zoo.exceptions import ModelException, ModelRegistrationException
+from pyearthtools.zoo.model import BaseForecastModel
+from pyearthtools.zoo.register import register
+from pyearthtools.zoo.warnings import AccessorRegistrationWarning
 
 Models = utils.AvailableModels()
 
-from pyearthtools.zoo.predict import predict, data, interactive  # pylint: disable=C0413  # noqa: E402
 from pyearthtools.zoo.commands import commands  # pylint: disable=C0413 # noqa: E402
+from pyearthtools.zoo.predict import (  # pylint: disable=C0413  # noqa: E402
+    data,
+    interactive,
+    predict,
+)
 
-__version__ = "0.5.0"
+__version__ = "0.6.0"
 
 
 def available_models() -> tuple[str, ...]:

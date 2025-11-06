@@ -17,10 +17,10 @@ classifiers = [
 ]
 
 description = """\
-PyEarthTools: Machine learning for Earth system science. 
+PyEarthTools: Machine learning for Earth system science.
 """
 
-version = "0.5.0"
+version = "0.6.0"
 
 # FIXME replace with minimum versions once PyEarthTools is on PyPI
 # FIXME remove redundant dependencies once PyEarthTools is on PyPI
