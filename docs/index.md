@@ -143,6 +143,7 @@ newproject
 projectideas
 installation
 notebooks/Gallery
+data
 config
 api/api
 roadmap
