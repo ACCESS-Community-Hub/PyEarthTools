@@ -157,7 +157,7 @@ __all__ = [
     "TransformCollection",
     "IndexWarning",
     "AccessorRegistrationWarning",
-    "pyeatrthtoolsDataWarning",
+    "pyearthtoolsDataWarning",
     "AdvancedTimeDataIndex",
     "AdvancedTimeIndex",
     "ArchiveIndex",
