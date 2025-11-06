@@ -102,7 +102,7 @@ warn_unused_configs = true
 allow-direct-references = true
 
 [tool.ruff]
-exclude = ["packages/bundled_models", "notebooks"]
+exclude = ["packages/bundled_models", "notebooks", "packages/met_office_site_archive"]
 
 
 [tool.hatch.build.targets.wheel]

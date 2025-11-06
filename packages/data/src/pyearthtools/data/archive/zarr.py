@@ -30,7 +30,6 @@ import dask
 import xarray as xr
 
 import pyearthtools.data
-from pyearthtools.data import Petdt
 from pyearthtools.data.indexes import DataFileSystemIndex, TimeIndex
 from pyearthtools.data.operations.utils import identify_time_dimension
 from pyearthtools.data.save import save
@@ -318,7 +317,7 @@ class ZarrTimeIndex(ZarrIndex, TimeIndex):
 
     def retrieve(
         self,
-        querytime: str | Petdt | None = None,
+        querytime: str | pyearthtools.data.Petdt | None = None,
         *args,
         transforms: Transform | TransformCollection | None = None,
         **kwargs,
@@ -330,7 +329,7 @@ class ZarrTimeIndex(ZarrIndex, TimeIndex):
         if querytime is not None:
 
             def to_np(x):
-                return Petdt(x).datetime64()
+                return pyearthtools.data.Petdt(x).datetime64()
 
             base_data = base_data.sel(
                 {
@@ -358,5 +357,5 @@ class ZarrTimeIndex(ZarrIndex, TimeIndex):
         if querytime is not None:
             time_dim = identify_time_dimension(zarr)
 
-            exists_bool = exists_bool and Petdt(querytime).datetime64() in zarr[time_dim]
+            exists_bool = exists_bool and pyearthtools.data.Petdt(querytime).datetime64() in zarr[time_dim]
         return exists_bool
