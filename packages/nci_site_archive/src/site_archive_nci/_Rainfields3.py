@@ -31,9 +31,9 @@ import numpy.typing as npt
 import pyearthtools.data
 import pyproj
 import xarray as xr
+from pyearthtools.data import Petdt as petdt
 from pyearthtools.data.archive import register_archive
 from pyearthtools.data.indexes import ArchiveIndex
-from pyearthtools.data.time import Petdt as petdt
 
 from site_archive_nci.utilities import check_project
 
@@ -307,7 +307,10 @@ class RadarProj(SimpleNamespace):
             )
 
             if not test_lonlatmesh:
-                raise ValueError("Invalid lonlat_meshgrid specified. See numpy.meshgrid on how to" " create this")
+                raise ValueError(
+                    "Invalid lonlat_meshgrid specified. See numpy.meshgrid on how to"
+                    " create this"
+                )
 
         # ------------------------
         #  1. extract proj object
@@ -349,7 +352,9 @@ class RadarProj(SimpleNamespace):
 
             # only warn and mutate cache if it is specified
             if proj_cache is not None:
-                rp._warn_inconsistent_proj_mut(pyprojobj, proj_cache, do_warn=warn_on_different_proj)
+                rp._warn_inconsistent_proj_mut(
+                    pyprojobj, proj_cache, do_warn=warn_on_different_proj
+                )
 
         # safety - we should have a projection by now or have raised an error.
         assert pyprojobj is not None
@@ -369,7 +374,9 @@ class RadarProj(SimpleNamespace):
 
         # b. interp_lonlat = True => project latlon and interpolate xy to match
         else:
-            _res = rp._interp_xy_grid_from_lonlat_meshgrid(ds, pyprojobj, lonlat_meshgrid, interp_method)
+            _res = rp._interp_xy_grid_from_lonlat_meshgrid(
+                ds, pyprojobj, lonlat_meshgrid, interp_method
+            )
             if _res is None:
                 rp._handle_error_state(ProjErrorStatus.INTERPOLATE_PROJ_FAILED)
             ds_ret, _unused_latlon_grid, _unused_xy_grid = _res
@@ -506,7 +513,10 @@ class RadarProj(SimpleNamespace):
                 ),
                 (
                     ProjErrorStatus.INVERSE_PROJ_FAILED,
-                    ("Failed to invert x-y coordinates to lat-lon. Check that the proj" " in dataset is invertible."),
+                    (
+                        "Failed to invert x-y coordinates to lat-lon. Check that the proj"
+                        " in dataset is invertible."
+                    ),
                 ),
                 (
                     ProjErrorStatus.INTERPOLATE_PROJ_FAILED,
@@ -541,7 +551,10 @@ class RadarProj(SimpleNamespace):
         """
         ret = None
 
-        if "proj" in ds.variables.keys() and RadarProj.REQUIRED_PROJATTR_GRIDMAPPINGNAME in ds.proj.attrs:
+        if (
+            "proj" in ds.variables.keys()
+            and RadarProj.REQUIRED_PROJATTR_GRIDMAPPINGNAME in ds.proj.attrs
+        ):
             ret = ds.proj.attrs
 
         return ret
@@ -561,7 +574,10 @@ class RadarProj(SimpleNamespace):
         projkind_str = projattr.get(RadarProj.REQUIRED_PROJATTR_GRIDMAPPINGNAME, None)
 
         # case sensitivity shouldn't affect the kind of projection.
-        if projkind_str is not None and projkind_str.lower() == "albers_conical_equal_area":
+        if (
+            projkind_str is not None
+            and projkind_str.lower() == "albers_conical_equal_area"
+        ):
             ret = ProjKind.ALBERS_CONICAL_EQUAL_AREA
 
         return ret
@@ -624,8 +640,12 @@ class RadarProj(SimpleNamespace):
         if (approx_unique(lon_1d) == approx_unique(lon_grid)).all() or (
             approx_unique(lat_1d) == approx_unique(lat_grid)
         ).all():
-            da_x = xr.DataArray(x_grid, dims=["lon", "lat"], coords={"lon": lon_1d, "lat": lat_1d})
-            da_y = xr.DataArray(y_grid, dims=["lon", "lat"], coords={"lon": lon_1d, "lat": lat_1d})
+            da_x = xr.DataArray(
+                x_grid, dims=["lon", "lat"], coords={"lon": lon_1d, "lat": lat_1d}
+            )
+            da_y = xr.DataArray(
+                y_grid, dims=["lon", "lat"], coords={"lon": lon_1d, "lat": lat_1d}
+            )
             ret = (da_x, da_y)
         else:
             _e = "ERROR: provided meshgrid is malformed."
@@ -691,7 +711,9 @@ class RadarProj(SimpleNamespace):
             scipy_kwargs = {"fill_value": None}
 
         # do projection
-        da_xyproj = RadarProj._make_xycoord_from_latlon_meshgrid(x_proj, y_proj, lon_grid, lat_grid)
+        da_xyproj = RadarProj._make_xycoord_from_latlon_meshgrid(
+            x_proj, y_proj, lon_grid, lat_grid
+        )
 
         if da_xyproj is None:
             return None
@@ -745,7 +767,9 @@ class RadarProj(SimpleNamespace):
 
         # compute max allowable grid difference as a ratio of x-y grid area
         xy_maxgridsize = fn_maxgridsize(ds.x.values), fn_maxgridsize(ds.y.values)
-        maxgridsize = np.prod(xy_maxgridsize) * RadarProj.MAX_XY_EXTRAPOLATE_GRIDSIZE_MULT
+        maxgridsize = (
+            np.prod(xy_maxgridsize) * RadarProj.MAX_XY_EXTRAPOLATE_GRIDSIZE_MULT
+        )
 
         # compute grid difference at boundaries
         diffgrid = (
@@ -802,7 +826,9 @@ class RadarProj(SimpleNamespace):
         try:
             # NOTE: inverse takes in x-y rather than lat-lon even though docs
             # have the args explicitly set to lat-lon
-            lon_grid, lat_grid = pyprojobj(x_grid, y_grid, inverse=True, errcheck=True, radians=False)
+            lon_grid, lat_grid = pyprojobj(
+                x_grid, y_grid, inverse=True, errcheck=True, radians=False
+            )
         except RadarProj.PYPROJ_EXCEPTION_TRAPS as _e:
             logging.exception(_e)
             return None
@@ -812,7 +838,9 @@ class RadarProj(SimpleNamespace):
 
         # assign lon/lat coordinates
         # NOTE: lon/lat grids map rows to y => y,x
-        ds_inv = ds.assign_coords(lon=(["y", "x"], lon_grid), lat=(["y", "x"], lat_grid))
+        ds_inv = ds.assign_coords(
+            lon=(["y", "x"], lon_grid), lat=(["y", "x"], lat_grid)
+        )
 
         # construct return tuple
         ret = tuple([ds_inv, (lon_grid, lat_grid), (x_grid, y_grid)])

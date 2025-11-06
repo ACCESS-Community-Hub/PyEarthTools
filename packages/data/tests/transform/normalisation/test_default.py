@@ -1,11 +1,12 @@
-import numpy as np
 import platform
+
+import numpy as np
 import pytest
 import xarray as xr
 
 import pyearthtools.data.indexes
 import pyearthtools.data.transforms.normalisation
-from pyearthtools.data.time import Petdt
+from pyearthtools.data import Petdt
 from pyearthtools.data.transforms.normalisation import default
 
 # Test setup - sample data

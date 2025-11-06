@@ -31,7 +31,7 @@ def format_class_name(class_to_find: object) -> list[str]:
         list[str]: Components of class name
     """
 
-    # e.g. "<class 'pyearthtools.data.time.Petdt'>"
+    # e.g. "<class 'pyearthtools.data.Petdt'>"
     class_str = str(class_to_find.__class__).split("'")[1]
     class_str = class_str.replace(CLASS_NAME_TO_TRIM, "")
     class_str_list = class_str.strip().split(".")

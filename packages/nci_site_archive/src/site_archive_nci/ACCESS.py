@@ -19,21 +19,24 @@ Australian Community Climate and Earth-System Simulator
 from __future__ import annotations
 
 import datetime
+import functools
+import warnings
 from pathlib import Path
 from typing import Any, Literal
-import warnings
-import functools
-
-import xarray as xr
 
 import pyearthtools.data
-from pyearthtools.data.exceptions import DataNotFoundError
-from pyearthtools.data.warnings import IndexWarning
-from pyearthtools.data.indexes import ArchiveIndex, ForecastIndex, DataFileSystemIndex, decorators
-from pyearthtools.data.time import Petdt, TimeDelta
-from pyearthtools.data.transforms import Transform, TransformCollection
-
+import xarray as xr
+from pyearthtools.data import Petdt, TimeDelta
 from pyearthtools.data.archive import register_archive
+from pyearthtools.data.exceptions import DataNotFoundError
+from pyearthtools.data.indexes import (
+    ArchiveIndex,
+    DataFileSystemIndex,
+    ForecastIndex,
+    decorators,
+)
+from pyearthtools.data.transforms import Transform, TransformCollection
+from pyearthtools.data.warnings import IndexWarning
 
 from site_archive_nci.utilities import check_project
 
@@ -71,7 +74,9 @@ class ACCESS_UI_MIXIN:
         return ACCESS_Analysis(*args, **kwargs)
 
 
-@register_archive("ACCESS", sample_kwargs=dict(variable="sfc/temp_scrn", datatype="an", region="g"))
+@register_archive(
+    "ACCESS", sample_kwargs=dict(variable="sfc/temp_scrn", datatype="an", region="g")
+)
 class ACCESS(DataFileSystemIndex, ACCESS_UI_MIXIN):
     """Index into Australian Community Climate and Earth-System Simulator"""
 
@@ -149,7 +154,9 @@ class ACCESS(DataFileSystemIndex, ACCESS_UI_MIXIN):
                 ignore_missing=True,
             )
 
-        super().__init__(transforms=base_transform + (transforms or TransformCollection()), **kwargs)
+        super().__init__(
+            transforms=base_transform + (transforms or TransformCollection()), **kwargs
+        )
         self.record_initialisation()
 
     def load(self, *args, **kwargs) -> Any:
@@ -178,7 +185,11 @@ class ACCESS(DataFileSystemIndex, ACCESS_UI_MIXIN):
 
         basepath = Path(ACCESS_HOME.format(region=self.region))
 
-        interval = FORECAST_INTERVAL if self.region == "g" or self.datatype in ["fc", "fcmm"] else 1
+        interval = (
+            FORECAST_INTERVAL
+            if self.region == "g" or self.datatype in ["fc", "fcmm"]
+            else 1
+        )
         if not int(basetime.hour) % interval == 0:
             warnings.warn(
                 f"Data exists at {interval} hourly intervals, {basetime} is thus invalid. Rounding down...",
@@ -214,7 +225,9 @@ class ACCESS(DataFileSystemIndex, ACCESS_UI_MIXIN):
 class ACCESS_Analysis(ACCESS, ArchiveIndex):
     @functools.wraps(ACCESS.__init__)
     @decorators.alias_arguments(variables=["variable"])
-    @decorators.variable_modifications(variable_keyword="variables", remove_variables=False)
+    @decorators.variable_modifications(
+        variable_keyword="variables", remove_variables=False
+    )
     def __init__(self, variables: list[str] | str, region: str, **kwargs):
         kwargs["data_interval"] = (6, "h") if region.lower() == "g" else (1, "h")
         super().__init__(variables, region=region, **kwargs)
@@ -263,12 +276,20 @@ class ACCESS_Forecast(ACCESS, ForecastIndex):
                 Base Transforms to apply. Defaults to TransformCollection().
         """
         kwargs["data_interval"] = (6, "h")
-        super().__init__(variables, region=region, datatype=datatype, transforms=transforms, **kwargs)
+        super().__init__(
+            variables, region=region, datatype=datatype, transforms=transforms, **kwargs
+        )
         self.record_initialisation()
 
-        self.forecast_leadtime = forecast_leadtime if forecast_leadtime is None else TimeDelta(forecast_leadtime)
+        self.forecast_leadtime = (
+            forecast_leadtime
+            if forecast_leadtime is None
+            else TimeDelta(forecast_leadtime)
+        )
 
-    def get(self, querytime: Petdt, *, select_time: Petdt | None = None, **kwargs) -> xr.Dataset:
+    def get(
+        self, querytime: Petdt, *, select_time: Petdt | None = None, **kwargs
+    ) -> xr.Dataset:
         querytime = Petdt(querytime)
         if self.forecast_leadtime:
             querytime = querytime - self.forecast_leadtime

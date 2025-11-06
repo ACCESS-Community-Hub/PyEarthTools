@@ -15,12 +15,11 @@
 
 from __future__ import annotations
 
-import xarray as xr
 import numpy as np
+import xarray as xr
 
-from pyearthtools.data.time import Petdt
+from pyearthtools.data import Petdt
 from pyearthtools.data.indexes import AdvancedTimeDataIndex
-
 from pyearthtools.data.indexes.decorators import variable_modifications
 
 

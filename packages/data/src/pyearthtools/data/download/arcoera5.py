@@ -18,11 +18,9 @@ from __future__ import annotations
 import xarray as xr
 
 import pyearthtools.data
-from pyearthtools.data.time import Petdt
-
+from pyearthtools.data import Petdt
 from pyearthtools.data.indexes import AdvancedTimeDataIndex, decorators
 from pyearthtools.data.transforms.transform import Transform, TransformCollection
-
 
 #: valid ARCO-ERA5 level values
 LEVELS = [

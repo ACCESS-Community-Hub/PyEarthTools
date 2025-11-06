@@ -17,32 +17,38 @@ CMIP5 Accessor
 """
 
 import os
-from pathlib import Path
 import warnings
 from collections import namedtuple
+from pathlib import Path
+
 import pandas as pd
-
-
-import xarray as xr
-
 import pyearthtools.data
-from pyearthtools.data.warnings import IndexWarning
-from pyearthtools.data.indexes import ArchiveIndex
-from pyearthtools.data.time import Petdt, TimeDelta
-from pyearthtools.data.transforms import Transform, TransformCollection
-
+import xarray as xr
+from pyearthtools.data import Petdt, TimeDelta
 from pyearthtools.data.archive import register_archive
+from pyearthtools.data.indexes import ArchiveIndex
+from pyearthtools.data.operations.index_routines import _get_series, _mf_series
+from pyearthtools.data.operations.utils import identify_time_dimension
+from pyearthtools.data.time import TimeRange
+from pyearthtools.data.transforms import Transform, TransformCollection
+from pyearthtools.data.warnings import IndexWarning
 
 from site_archive_nci.utilities import check_project
 
-from pyearthtools.data.time import TimeRange
-from pyearthtools.data.operations.utils import identify_time_dimension
-from pyearthtools.data.operations.index_routines import _mf_series
-from pyearthtools.data.operations.index_routines import _get_series
-
 # Path schema for CMIP5
 NamedPath = namedtuple(
-    "NamedPath", ["institute", "model", "scenario", "interval", "realm", "cat", "expid", "expver", "variable"]
+    "NamedPath",
+    [
+        "institute",
+        "model",
+        "scenario",
+        "interval",
+        "realm",
+        "cat",
+        "expid",
+        "expver",
+        "variable",
+    ],
 )
 
 
@@ -52,7 +58,6 @@ class CMIP_Path:
     """
 
     def __init__(self, *, elements=None, filepath=None):
-
         if not elements:
             dirpath, filename = os.path.split(filepath)
             elements = dirpath.split("/")[-9:]
@@ -150,7 +155,9 @@ class CMIP5(ArchiveIndex):
         """
         check_project(project_code="al33")
         self.variables = [variables] if isinstance(variables, str) else variables
-        self.institutions = [institutions] if isinstance(institutions, str) else institutions
+        self.institutions = (
+            [institutions] if isinstance(institutions, str) else institutions
+        )
         self.interval = [interval] if isinstance(interval, str) else interval
         self.models = [models] if isinstance(models, str) else models
         self.scenarios = [scenarios] if isinstance(scenarios, str) else scenarios
@@ -217,7 +224,6 @@ class CMIP5(ArchiveIndex):
         # Walk the filesystem finding relevant file paths
         # A more efficient walk ordered by time or primary dimension may be more efficient
         for root, _dirs, files in self.quick_walk():
-
             paths = [os.path.join(root, file) for file in files]
             relevant = [p for p in paths if self.match_path(p, query_dictionary)]
             paths_to_open += relevant
@@ -324,7 +330,9 @@ class CMIP5(ArchiveIndex):
         end = end.at_resolution(max(end.resolution, start.resolution))
 
         if DataFunction.data_resolution:
-            start = start.at_resolution(min(DataFunction.data_resolution, start.resolution))
+            start = start.at_resolution(
+                min(DataFunction.data_resolution, start.resolution)
+            )
             end = end.at_resolution(min(DataFunction.data_resolution, start.resolution))
 
         if inclusive:
@@ -388,10 +396,15 @@ class CMIP5(ArchiveIndex):
                 timesteps = [
                     t
                     for time in timesteps
-                    for t in pyearthtools.data.TimeRange(time, time + 1, DataFunction.data_interval)
+                    for t in pyearthtools.data.TimeRange(
+                        time, time + 1, DataFunction.data_interval
+                    )
                 ]
 
-            time = list(set(map(lambda x: x.datetime64("ns"), timesteps)) & set(data[time_dim].values))
+            time = list(
+                set(map(lambda x: x.datetime64("ns"), timesteps))
+                & set(data[time_dim].values)
+            )
 
             if not time:
                 time = timesteps
@@ -405,7 +418,11 @@ class CMIP5(ArchiveIndex):
                     tolerance = tolerance._timedelta
 
                 # TODO: why is the line below there?
-                _sel_kwargs = getattr(DataFunction, "sel_kwargs", dict(method="bfill", tolerance=tolerance))
+                _sel_kwargs = getattr(
+                    DataFunction,
+                    "sel_kwargs",
+                    dict(method="bfill", tolerance=tolerance),
+                )
                 time = list(
                     set(
                         map(

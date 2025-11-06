@@ -21,23 +21,21 @@ Allows access and saving in zarr
 
 from __future__ import annotations
 
+import logging
+from os import PathLike
 from pathlib import Path
 from typing import Any, Literal
-from os import PathLike
 
-import xarray as xr
 import dask
-import logging
+import xarray as xr
 
 import pyearthtools.data
-from pyearthtools.data.time import Petdt
-from pyearthtools.data.transforms import Transform, TransformCollection
+from pyearthtools.data import Petdt
 from pyearthtools.data.indexes import DataFileSystemIndex, TimeIndex
-
 from pyearthtools.data.operations.utils import identify_time_dimension
-from pyearthtools.data.utils import parse_path
-
 from pyearthtools.data.save import save
+from pyearthtools.data.transforms import Transform, TransformCollection
+from pyearthtools.data.utils import parse_path
 
 LOG = logging.getLogger("pyearthtools.data")
 

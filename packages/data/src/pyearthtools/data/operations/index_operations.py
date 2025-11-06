@@ -19,17 +19,16 @@ Provide common operations to be applied to [DataIndexes][pyearthtools.data.DataI
 
 from __future__ import annotations
 
-import datetime
 import builtins
+import datetime
 import os
 from pathlib import Path
 
-from tqdm.auto import trange
 import xarray as xr
+from tqdm.auto import trange
 
 import pyearthtools.data
-
-from pyearthtools.data.time import Petdt, TimeDelta
+from pyearthtools.data import Petdt, TimeDelta
 from pyearthtools.data.exceptions import (
     DataNotFoundError,
 )

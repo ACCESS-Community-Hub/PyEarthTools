@@ -20,12 +20,12 @@ Aggregation based `Modification's`
 from __future__ import annotations
 
 from typing import Optional, Union
+
 import xarray as xr
 
-from pyearthtools.data.time import Petdt, TimeRange
-from pyearthtools.data.operations.utils import identify_time_dimension
-
+from pyearthtools.data import Petdt, TimeRange
 from pyearthtools.data.modifications import Modification, register_modification
+from pyearthtools.data.operations.utils import identify_time_dimension
 
 
 @register_modification("constant")

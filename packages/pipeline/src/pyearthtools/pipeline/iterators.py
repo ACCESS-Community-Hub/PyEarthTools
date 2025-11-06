@@ -20,15 +20,14 @@ Allows a pipeline to be iterated over, and data retrieved from.
 """
 
 from __future__ import annotations
-from functools import cached_property
-from abc import ABCMeta, abstractmethod
 
-from typing import Any, Callable, Generator, Hashable, Iterable, Optional, Union
+import random
+from abc import ABCMeta, abstractmethod
+from functools import cached_property
 from pathlib import Path
+from typing import Any, Callable, Generator, Hashable, Iterable, Optional, Union
 
 import numpy as np
-import random
-
 import pyearthtools.data
 
 from pyearthtools.pipeline.recording import PipelineRecordingMixin
@@ -147,7 +146,9 @@ class File(Predefined):
     Each line will be treated as a seperate index.
     """
 
-    def __init__(self, file: Union[str, Path], type_conversion: Optional[Callable] = None):
+    def __init__(
+        self, file: Union[str, Path], type_conversion: Optional[Callable] = None
+    ):
         """
         Iterate over file
 
@@ -194,8 +195,8 @@ class DateRange(Iterator):
             interval (Any):
                 Interval between times. Must be understandable by
                 `pyearthtools.data.TimeDelta`.
-            allowlist: A list of pyearthtools.data.time.Petdt which should be filtered to
-            blocklist: A list of pyearthtools.data.time.Petdt which should be skipped
+            allowlist: A list of pyearthtools.data.Petdt which should be filtered to
+            blocklist: A list of pyearthtools.data.Petdt which should be skipped
 
         Note:
             You cannot specify both a blocklist and an allowlist.
@@ -217,7 +218,9 @@ class DateRange(Iterator):
         import pyearthtools.data
 
         if allowlist and blocklist:
-            raise ValueError("An allowlist and a blocklist cannot be specified at the same time")
+            raise ValueError(
+                "An allowlist and a blocklist cannot be specified at the same time"
+            )
 
         self.allowlist = allowlist
         if allowlist:
@@ -230,7 +233,6 @@ class DateRange(Iterator):
         self._timerange = pyearthtools.data.TimeRange(start, end, interval)
 
     def __iter__(self) -> Generator[pyearthtools.data.Petdt, None, None]:
-
         # If in allowlist mode, yield only samples from the allow list
         if self.allowlist:
             print("Processing allow list")
@@ -276,7 +278,9 @@ class DateRangeLimit(DateRange):
                 Number of total samples to iterate over.
         """
 
-        end = pyearthtools.data.Petdt(start) + (pyearthtools.data.TimeDelta(interval) * num)
+        end = pyearthtools.data.Petdt(start) + (
+            pyearthtools.data.TimeDelta(interval) * num
+        )
         super().__init__(start, str(end), interval)
 
 
@@ -311,13 +315,14 @@ class DateRandomise(Iterator):
             print(len(self.valid_times))
 
         if getattr(iterator, "blocklist", None):
-            self.valid_times = [t for t in self.valid_times if t not in iterator.blocklist]
+            self.valid_times = [
+                t for t in self.valid_times if t not in iterator.blocklist
+            ]
             print(len(self.valid_times))
 
         random.shuffle(self.valid_times)
 
     def __iter__(self):
-
         for key in self.valid_times:
             yield key
 
