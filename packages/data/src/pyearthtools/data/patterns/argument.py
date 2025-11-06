@@ -29,7 +29,7 @@ from pyearthtools.utils.decorators import classproperty
 Generate FilePath Structure based upon expansion of arguments
 """
 
-DEFAULT_EXTENSION = pyearthtools.utils.config.get("data.patterns.default_extension")
+DEFAULT_EXTENSION = pyearthtools.utils.config.get("data.patterns.default_extension", "pyearthtools")
 
 
 def flattened_combinations(iterable: Iterable[Any | Iterable[Any]], r: int = 1) -> list[Any | list[Any]]:

@@ -40,7 +40,7 @@ from pyearthtools.data.patterns import (
 
 DIRECTORY_PATTERN = "{ROOT_DIR}/{FILE}"
 FILE_PATTERN = "{prefix}{time}{extension}"
-DEFAULT_EXTENSION = pyearthtools.utils.config.get("data.patterns.default_extension")
+DEFAULT_EXTENSION = pyearthtools.utils.config.get("data.patterns.default_extension", ".pyearthtools")
 
 
 def nonNone(*args):

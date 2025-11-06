@@ -81,6 +81,7 @@ __version__ = "0.5.1"
 import warnings as __python_warnings
 
 import pyearthtools.utils
+from pyearthtools.data.time import Petdt, TimeDelta, TimeRange, TimeResolution, time_delta_resolution
 
 from pyearthtools.data import (
     archive,
@@ -124,7 +125,6 @@ from pyearthtools.data.indexes import (
 from pyearthtools.data.load import load
 from pyearthtools.data.patterns import PatternIndex
 from pyearthtools.data.save import ManageFiles, ManageTemp
-from pyearthtools.data.time import Petdt, TimeDelta, TimeRange, TimeResolution
 from pyearthtools.data.time import Petdt as datetime
 from pyearthtools.data.transforms.derive import evaluate
 from pyearthtools.data.transforms.transform import (

@@ -52,38 +52,36 @@ str(pattern.search('test','arg'))
 """
 
 from pyearthtools.data.patterns import utils
-
 from pyearthtools.data.patterns.default import (
+    PatternForecastIndex,
     PatternIndex,
     PatternTimeIndex,
-    PatternForecastIndex,
     PatternVariableAware,
 )
-
 from pyearthtools.data.patterns.argument import (
     Argument,
     ArgumentExpansion,
-    ArgumentExpansionVariable,
     ArgumentExpansionFactory,
+    ArgumentExpansionVariable,
 )
 from pyearthtools.data.patterns.direct import (
     Direct,
-    TemporalDirect,
-    ForecastDirect,
-    DirectVariable,
-    ForecastDirectVariable,
-    TemporalDirectVariable,
     DirectFactory,
+    DirectVariable,
+    ForecastDirect,
+    ForecastDirectVariable,
+    TemporalDirect,
+    TemporalDirectVariable,
 )
 from pyearthtools.data.patterns.expanded_date import (
     ExpandedDate,
-    TemporalExpandedDate,
-    ForecastExpandedDate,
-    ExpandedDateVariable,
-    ForecastExpandedDateVariable,
-    TemporalExpandedDateVariable,
     ExpandedDateFactory,
+    ExpandedDateVariable,
+    ForecastExpandedDate,
+    ForecastExpandedDateVariable,
+    TemporalExpandedDate,
+    TemporalExpandedDateVariable,
 )
-from pyearthtools.data.patterns.static import Static
 from pyearthtools.data.patterns.parser import ParsingPattern
-from pyearthtools.data.patterns.zarr import ZarrIndex, ZarrTimeIndex
+from pyearthtools.data.patterns.static import Static
+# from pyearthtools.data.patterns.zarr_pattern import ZarrIndex, ZarrTimeIndex
