@@ -94,7 +94,7 @@ from pyearthtools.zoo.predict import (  # pylint: disable=C0413  # noqa: E402
     predict,
 )
 
-__version__ = "0.6.0"
+__version__ = "0.5.1"
 
 
 def available_models() -> tuple[str, ...]:

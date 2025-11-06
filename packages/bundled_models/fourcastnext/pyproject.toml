@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyearthtools-bundled-fourcastnext"
-version = "0.6.0"
+version = "0.5.1"
 description = "FourCastNeXt Bundled Model"
 readme = "README.md"
 requires-python = ">=3.9"

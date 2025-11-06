@@ -19,7 +19,7 @@
 Index for ERA5 lowres, including downloading helper code and disk indexing for pyearthtools
 """
 
-__version__ = "0.6.0"
+__version__ = "0.5.1"
 
 import os
 
