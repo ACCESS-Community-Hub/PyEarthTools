@@ -26,35 +26,35 @@ version = "0.6.0"
 # FIXME remove redundant dependencies once PyEarthTools is on PyPI
 [project.optional-dependencies]
 utils = [
-    "pyearthtools-utils~=0.2.0",
+    "pyearthtools-utils>=0.5.0",
 ]
 data = [
-    "pyearthtools-data~=0.2.0",
+    "pyearthtools-data>=0.5.0",
 ]
 pipeline = [
-    "pyearthtools-utils~=0.2.0",
-    "pyearthtools-data~=0.2.0",
-    "pyearthtools-pipeline~=0.2.0",
+    "pyearthtools-utils>=0.5.0",
+    "pyearthtools-data>=0.5.0",
+    "pyearthtools-pipeline>=0.5.0",
 ]
 training = [
-    "pyearthtools-utils~=0.2.0",
-    "pyearthtools-data~=0.2.0",
-    "pyearthtools-pipeline~=0.2.0",
-    "pyearthtools-training~=0.2.0",
+    "pyearthtools-utils>=0.5.0",
+    "pyearthtools-data>=0.5.0",
+    "pyearthtools-pipeline>=0.5.0",
+    "pyearthtools-training>=0.5.0",
 ]
 zoo = [
-    "pyearthtools-utils~=0.2.0",
-    "pyearthtools-data~=0.2.0",
-    "pyearthtools-pipeline~=0.2.0",
-    "pyearthtools-training~=0.2.0",
-    "pyearthtools-zoo~=0.2.0",
+    "pyearthtools-utils>=0.5.0",
+    "pyearthtools-data>=0.5.0",
+    "pyearthtools-pipeline>=0.5.0",
+    "pyearthtools-training>=0.5.0",
+    "pyearthtools-zoo>=0.5.0",
 ]
 all = [
-    "pyearthtools-utils~=0.2.0",
-    "pyearthtools-data[all]~=0.2.0",
-    "pyearthtools-pipeline[all]~=0.2.0",
-    "pyearthtools-training[all]~=0.2.0",
-    "pyearthtools-zoo~=0.2.0",
+    "pyearthtools-utils>=0.5.0",
+    "pyearthtools-data[all]>=0.5.0",
+    "pyearthtools-pipeline[all]>=0.5.0",
+    "pyearthtools-training[all]>=0.5.0",
+    "pyearthtools-zoo>=0.5.0",
 ]
 test = ["pytest", "pytest-cov", "pytest-xdist", "pudb"]
 dev = ["pre-commit", "black==25.1.0", "interrogate", "ruff"]
