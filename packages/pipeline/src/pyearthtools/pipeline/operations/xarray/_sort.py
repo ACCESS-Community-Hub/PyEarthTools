@@ -35,7 +35,8 @@ class AlignDataVariableDimensionsToDatasetCoords(Operation):
     """
 
     def apply_func(self, data: xr.Dataset) -> xr.Dataset:
-        dataset_ordering = list(data.coords)
+        # use coords.dim for when coordinates don't have the same name as dimensions
+        dataset_ordering = list(data.coords.dims)
 
         data = data.transpose(*dataset_ordering)
         return data
