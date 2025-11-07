@@ -20,7 +20,7 @@ description = """\
 PyEarthTools: Machine learning for Earth system science.
 """
 
-version = "0.5.1"
+version = "0.6.0"
 
 dependencies = [
 "pyearthtools-utils>=0.5.1",
