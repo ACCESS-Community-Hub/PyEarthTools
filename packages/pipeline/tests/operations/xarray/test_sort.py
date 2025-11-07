@@ -81,6 +81,10 @@ def test_align():
     assert ds_aligned["Temperature"].dims == ds_aligned["Humidity"].dims
     assert ds_aligned["Temperature"].dims == ds_aligned["WombatsPerKm2"].dims
 
+    # placeholder test for undo method
+    with pytest.raises(NotImplementedError):
+        align_op.undo_func(ds)
+
 
 def test_Sort():
 

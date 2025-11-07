@@ -44,7 +44,7 @@ class AlignDataVariableDimensionsToDatasetCoords(Operation):
     def undo_func(self, data: xr.Dataset) -> xr.Dataset:
         # TODO: Record all the original orderings and transpose them back, I guess
 
-        return data
+        raise NotImplementedError("Don't yet know how to undo data variable alignment.")
 
 
 class Sort(Operation):
