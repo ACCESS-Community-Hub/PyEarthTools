@@ -120,9 +120,7 @@ class BARRA(DataIndex):
         self.datatype = datatype
 
         if datatype == "analysis" and not region == "R":
-            raise IndexError(
-                "Only BARRA-R contains an analysis product. It is suggested to use datatype='forecast'"
-            )
+            raise IndexError("Only BARRA-R contains an analysis product. It is suggested to use datatype='forecast'")
 
         self.version = version
         self.variables = variables
@@ -137,9 +135,7 @@ class BARRA(DataIndex):
             base_transform += pyearthtools.data.transforms.coordinates.Drop(
                 ["forecast_reference_time", "forecast_period"]
             )
-            preprocess = pyearthtools.data.transforms.dimensions.Expand(
-                "time", as_dataarray=True
-            )
+            preprocess = pyearthtools.data.transforms.dimensions.Expand("time", as_dataarray=True)
 
         self.pressure = pressure
         if pressure is not None:
@@ -185,23 +181,15 @@ class BARRA(DataIndex):
         querytime = Petdt(querytime)
 
         BARRA_HOME = self.ROOT_DIRECTORIES["BARRA"]
-        basepath = Path(
-            BARRA_HOME.format(
-                region=self.region, version=self.version, datatype=self.datatype
-            )
-        )
+        basepath = Path(BARRA_HOME.format(region=self.region, version=self.version, datatype=self.datatype))
 
         paths = {}
         for variable in self.variables:
             var_path = basepath / variable / querytime.strftime("%Y/%m/")
             last_var = variable.split("/")[-1]
-            path = list(
-                var_path.glob(f"{last_var}*{querytime.strftime('%Y%m%dT%H%M')}*.nc")
-            )
+            path = list(var_path.glob(f"{last_var}*{querytime.strftime('%Y%m%dT%H%M')}*.nc"))
             if len(path) == 0:
-                raise DataNotFoundError(
-                    f"Could not find data at {basepath} for {variable} at time {querytime}"
-                )
+                raise DataNotFoundError(f"Could not find data at {basepath} for {variable} at time {querytime}")
             paths[variable] = path[0]
         return paths
 
@@ -263,26 +251,16 @@ class BARRA_Forecast(BARRA, ForecastIndex):
         querytime = Petdt(querytime)
 
         BARRA_HOME = self.ROOT_DIRECTORIES["BARRA"]
-        basepath = Path(
-            BARRA_HOME.format(
-                region=self.region, version=self.version, datatype=self.datatype
-            )
-        )
+        basepath = Path(BARRA_HOME.format(region=self.region, version=self.version, datatype=self.datatype))
 
         paths = {}
         for variable in self.variables:
             var_path = basepath / variable / querytime.strftime("%Y/%m/")
             last_var = variable.split("/")[-1]
-            path = list(
-                var_path.glob(
-                    f"{last_var}*{querytime.strftime('%Y%m%d')}T{rounder(querytime, 6)}*.nc"
-                )
-            )
+            path = list(var_path.glob(f"{last_var}*{querytime.strftime('%Y%m%d')}T{rounder(querytime, 6)}*.nc"))
 
             if len(path) == 0:
-                raise DataNotFoundError(
-                    f"Could not find data at {basepath} for {variable} at time {querytime}"
-                )
+                raise DataNotFoundError(f"Could not find data at {basepath} for {variable} at time {querytime}")
             paths[variable] = path[0]
         return paths
 
@@ -303,9 +281,7 @@ class BARRA_Static(BARRA, StaticDataIndex):
         **kwargs,
     ):
         if not datatype == "static":
-            raise ValueError(
-                f"BARRA Static cannot accept datatype's not 'static', {datatype}"
-            )
+            raise ValueError(f"BARRA Static cannot accept datatype's not 'static', {datatype}")
 
         super().__init__(
             variables,
@@ -321,18 +297,12 @@ class BARRA_Static(BARRA, StaticDataIndex):
 
     def filesystem(self) -> Path | dict[str, Path]:
         BARRA_HOME = self.ROOT_DIRECTORIES["BARRA"]
-        basepath = Path(
-            BARRA_HOME.format(
-                region=self.region, version=self.version, datatype=self.datatype
-            )
-        )
+        basepath = Path(BARRA_HOME.format(region=self.region, version=self.version, datatype=self.datatype))
 
         paths = {}
         for variable in self.variables:
             path = list(basepath.glob(f"{variable}*.nc"))
             if len(path) == 0:
-                raise DataNotFoundError(
-                    f"Could not find data at {basepath} for {variable}"
-                )
+                raise DataNotFoundError(f"Could not find data at {basepath} for {variable}")
             paths[variable] = path[0]
         return paths

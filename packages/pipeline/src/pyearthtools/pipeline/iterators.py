@@ -146,9 +146,7 @@ class File(Predefined):
     Each line will be treated as a seperate index.
     """
 
-    def __init__(
-        self, file: Union[str, Path], type_conversion: Optional[Callable] = None
-    ):
+    def __init__(self, file: Union[str, Path], type_conversion: Optional[Callable] = None):
         """
         Iterate over file
 
@@ -218,9 +216,7 @@ class DateRange(Iterator):
         import pyearthtools.data
 
         if allowlist and blocklist:
-            raise ValueError(
-                "An allowlist and a blocklist cannot be specified at the same time"
-            )
+            raise ValueError("An allowlist and a blocklist cannot be specified at the same time")
 
         self.allowlist = allowlist
         if allowlist:
@@ -278,9 +274,7 @@ class DateRangeLimit(DateRange):
                 Number of total samples to iterate over.
         """
 
-        end = pyearthtools.data.Petdt(start) + (
-            pyearthtools.data.TimeDelta(interval) * num
-        )
+        end = pyearthtools.data.Petdt(start) + (pyearthtools.data.TimeDelta(interval) * num)
         super().__init__(start, str(end), interval)
 
 
@@ -315,9 +309,7 @@ class DateRandomise(Iterator):
             print(len(self.valid_times))
 
         if getattr(iterator, "blocklist", None):
-            self.valid_times = [
-                t for t in self.valid_times if t not in iterator.blocklist
-            ]
+            self.valid_times = [t for t in self.valid_times if t not in iterator.blocklist]
             print(len(self.valid_times))
 
         random.shuffle(self.valid_times)
