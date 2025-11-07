@@ -155,9 +155,7 @@ class CMIP5(ArchiveIndex):
         """
         check_project(project_code="al33")
         self.variables = [variables] if isinstance(variables, str) else variables
-        self.institutions = (
-            [institutions] if isinstance(institutions, str) else institutions
-        )
+        self.institutions = [institutions] if isinstance(institutions, str) else institutions
         self.interval = [interval] if isinstance(interval, str) else interval
         self.models = [models] if isinstance(models, str) else models
         self.scenarios = [scenarios] if isinstance(scenarios, str) else scenarios
@@ -330,9 +328,7 @@ class CMIP5(ArchiveIndex):
         end = end.at_resolution(max(end.resolution, start.resolution))
 
         if DataFunction.data_resolution:
-            start = start.at_resolution(
-                min(DataFunction.data_resolution, start.resolution)
-            )
+            start = start.at_resolution(min(DataFunction.data_resolution, start.resolution))
             end = end.at_resolution(min(DataFunction.data_resolution, start.resolution))
 
         if inclusive:
@@ -396,15 +392,10 @@ class CMIP5(ArchiveIndex):
                 timesteps = [
                     t
                     for time in timesteps
-                    for t in pyearthtools.data.TimeRange(
-                        time, time + 1, DataFunction.data_interval
-                    )
+                    for t in pyearthtools.data.TimeRange(time, time + 1, DataFunction.data_interval)
                 ]
 
-            time = list(
-                set(map(lambda x: x.datetime64("ns"), timesteps))
-                & set(data[time_dim].values)
-            )
+            time = list(set(map(lambda x: x.datetime64("ns"), timesteps)) & set(data[time_dim].values))
 
             if not time:
                 time = timesteps
