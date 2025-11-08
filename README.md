@@ -2,9 +2,10 @@
 
 [![DOI](https://zenodo.org/badge/903938118.svg)](https://doi.org/10.5281/zenodo.15760768)
 
-- An approachable way for researchers to get started with ML research for Earth system science
-- Provides a software framework for research and experimentation
-- Also suitable for students and newcomers
+- A Python framework that supports the develoment of machine learning models, big and small, for Earth system science
+- Suitable for students and newcomers, as well as for domain specialists and scientists
+- Runs effectively on HPC (supercomputers), cloud, workstations and laptops
+- Suitable for use with megabytes to petabytes of data
 - Still under early-stage development - things are likely to change a lot. If you notice an issue, please feel free to raise it on GitHub
 
 |![](https://pyearthtools.readthedocs.io/en/latest/_images/notebooks_demo_FourCastNeXt_Inference_9_1.png)<br>A weather prediction from a model trained with PyEarthTools.|![](https://pyearthtools.readthedocs.io/en/latest/_images/notebooks_tutorial_Working_with_Climate_Data_14_2.svg)<br>A data processing flow composed for working with climate data.|
