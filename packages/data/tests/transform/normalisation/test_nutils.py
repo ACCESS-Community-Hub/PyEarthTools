@@ -12,12 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyearthtools.data.transforms.normalisation import _utils
 import pyearthtools.data.time
+from pyearthtools.data.transforms.normalisation import _utils
 
 
 def test_format_class_name():
-
-    obj = pyearthtools.data.time.Petdt("2010-01-01")
+    obj = pyearthtools.data.Petdt("2010-01-01")
     result = _utils.format_class_name(obj)
     assert result == ["time", "Petdt"]

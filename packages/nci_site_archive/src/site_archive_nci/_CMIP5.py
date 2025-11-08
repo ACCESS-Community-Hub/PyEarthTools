@@ -17,32 +17,38 @@ CMIP5 Accessor
 """
 
 import os
-from pathlib import Path
 import warnings
 from collections import namedtuple
+from pathlib import Path
+
 import pandas as pd
-
-
-import xarray as xr
-
 import pyearthtools.data
-from pyearthtools.data.warnings import IndexWarning
-from pyearthtools.data.indexes import ArchiveIndex
-from pyearthtools.data.time import Petdt, TimeDelta
-from pyearthtools.data.transforms import Transform, TransformCollection
-
+import xarray as xr
+from pyearthtools.data import Petdt, TimeDelta
 from pyearthtools.data.archive import register_archive
+from pyearthtools.data.indexes import ArchiveIndex
+from pyearthtools.data.operations.index_routines import _get_series, _mf_series
+from pyearthtools.data.operations.utils import identify_time_dimension
+from pyearthtools.data.time import TimeRange
+from pyearthtools.data.transforms import Transform, TransformCollection
+from pyearthtools.data.warnings import IndexWarning
 
 from site_archive_nci.utilities import check_project
 
-from pyearthtools.data.time import TimeRange
-from pyearthtools.data.operations.utils import identify_time_dimension
-from pyearthtools.data.operations.index_routines import _mf_series
-from pyearthtools.data.operations.index_routines import _get_series
-
 # Path schema for CMIP5
 NamedPath = namedtuple(
-    "NamedPath", ["institute", "model", "scenario", "interval", "realm", "cat", "expid", "expver", "variable"]
+    "NamedPath",
+    [
+        "institute",
+        "model",
+        "scenario",
+        "interval",
+        "realm",
+        "cat",
+        "expid",
+        "expver",
+        "variable",
+    ],
 )
 
 
@@ -52,7 +58,6 @@ class CMIP_Path:
     """
 
     def __init__(self, *, elements=None, filepath=None):
-
         if not elements:
             dirpath, filename = os.path.split(filepath)
             elements = dirpath.split("/")[-9:]
@@ -217,7 +222,6 @@ class CMIP5(ArchiveIndex):
         # Walk the filesystem finding relevant file paths
         # A more efficient walk ordered by time or primary dimension may be more efficient
         for root, _dirs, files in self.quick_walk():
-
             paths = [os.path.join(root, file) for file in files]
             relevant = [p for p in paths if self.match_path(p, query_dictionary)]
             paths_to_open += relevant
@@ -405,7 +409,11 @@ class CMIP5(ArchiveIndex):
                     tolerance = tolerance._timedelta
 
                 # TODO: why is the line below there?
-                _sel_kwargs = getattr(DataFunction, "sel_kwargs", dict(method="bfill", tolerance=tolerance))
+                _sel_kwargs = getattr(
+                    DataFunction,
+                    "sel_kwargs",
+                    dict(method="bfill", tolerance=tolerance),
+                )
                 time = list(
                     set(
                         map(

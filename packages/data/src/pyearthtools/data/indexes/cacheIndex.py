@@ -30,7 +30,8 @@ import xarray as xr
 
 import pyearthtools.data
 
-from pyearthtools.data import patterns, TimeDelta, DataNotFoundError
+from pyearthtools.data import patterns, TimeDelta
+from pyearthtools.data.exceptions import DataNotFoundError
 from pyearthtools.data.transforms import Transform, TransformCollection
 from pyearthtools.data.patterns.default import PatternIndex
 from pyearthtools.data.warnings import pyearthtoolsDataWarning

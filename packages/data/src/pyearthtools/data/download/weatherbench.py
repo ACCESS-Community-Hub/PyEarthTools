@@ -11,9 +11,9 @@ import xarray as xr
 from numcodecs.blosc import Blosc
 from tqdm.dask import TqdmCallback
 
+from pyearthtools.data import Petdt
 from pyearthtools.data.indexes import AdvancedTimeDataIndex, decorators
 from pyearthtools.data.indexes.utilities import spellcheck
-from pyearthtools.data.time import Petdt
 from pyearthtools.data.transforms.coordinates import Select
 from pyearthtools.data.transforms.transform import Transform, TransformCollection
 

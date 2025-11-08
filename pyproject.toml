@@ -17,44 +17,52 @@ classifiers = [
 ]
 
 description = """\
-PyEarthTools: Machine learning for Earth system science. 
+PyEarthTools: Machine learning for Earth system science.
 """
 
-version = "0.5.0"
+version = "0.6.0"
+
+dependencies = [
+"pyearthtools-utils>=0.5.1",
+"pyearthtools-data[all]>=0.5.1",
+"pyearthtools-pipeline[all]>=0.5.1",
+"pyearthtools-training[all]>=0.5.1",
+"pyearthtools-zoo>=0.5.1",
+]
 
 # FIXME replace with minimum versions once PyEarthTools is on PyPI
 # FIXME remove redundant dependencies once PyEarthTools is on PyPI
 [project.optional-dependencies]
 utils = [
-    "pyearthtools-utils~=0.2.0",
+    "pyearthtools-utils>=0.5.1",
 ]
 data = [
-    "pyearthtools-data~=0.2.0",
+    "pyearthtools-data>=0.5.1",
 ]
 pipeline = [
-    "pyearthtools-utils~=0.2.0",
-    "pyearthtools-data~=0.2.0",
-    "pyearthtools-pipeline~=0.2.0",
+    "pyearthtools-utils>=0.5.1",
+    "pyearthtools-data>=0.5.1",
+    "pyearthtools-pipeline>=0.5.1",
 ]
 training = [
-    "pyearthtools-utils~=0.2.0",
-    "pyearthtools-data~=0.2.0",
-    "pyearthtools-pipeline~=0.2.0",
-    "pyearthtools-training~=0.2.0",
+    "pyearthtools-utils>=0.5.1",
+    "pyearthtools-data>=0.5.1",
+    "pyearthtools-pipeline>=0.5.1",
+    "pyearthtools-training>=0.5.1",
 ]
 zoo = [
-    "pyearthtools-utils~=0.2.0",
-    "pyearthtools-data~=0.2.0",
-    "pyearthtools-pipeline~=0.2.0",
-    "pyearthtools-training~=0.2.0",
-    "pyearthtools-zoo~=0.2.0",
+    "pyearthtools-utils>=0.5.1",
+    "pyearthtools-data>=0.5.1",
+    "pyearthtools-pipeline>=0.5.1",
+    "pyearthtools-training>=0.5.1",
+    "pyearthtools-zoo>=0.5.1",
 ]
 all = [
-    "pyearthtools-utils~=0.2.0",
-    "pyearthtools-data[all]~=0.2.0",
-    "pyearthtools-pipeline[all]~=0.2.0",
-    "pyearthtools-training[all]~=0.2.0",
-    "pyearthtools-zoo~=0.2.0",
+    "pyearthtools-utils>=0.5.1",
+    "pyearthtools-data[all]>=0.5.1",
+    "pyearthtools-pipeline[all]>=0.5.1",
+    "pyearthtools-training[all]>=0.5.1",
+    "pyearthtools-zoo>=0.5.1",
 ]
 test = ["pytest", "pytest-cov", "pytest-xdist", "pudb"]
 dev = ["pre-commit", "black==25.1.0", "interrogate", "ruff"]
@@ -94,7 +102,7 @@ warn_unused_configs = true
 allow-direct-references = true
 
 [tool.ruff]
-exclude = ["packages/bundled_models", "notebooks"]
+exclude = ["packages/bundled_models", "notebooks", "packages/met_office_site_archive"]
 
 
 [tool.hatch.build.targets.wheel]

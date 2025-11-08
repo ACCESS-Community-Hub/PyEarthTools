@@ -1,15 +1,12 @@
-from pyearthtools.data.operations import index_routines
-
-from pyearthtools.data.time import Petdt
-from pyearthtools.data.time import TimeDelta
-
 import xarray as xr
+
+from pyearthtools.data import Petdt
+from pyearthtools.data.operations import index_routines
+from pyearthtools.data.time import TimeDelta
 
 
 def test_mf_series(monkeypatch):
-
     class DummyData:
-
         def exists(self, query_time):
             return True
 
@@ -31,9 +28,7 @@ def test_mf_series(monkeypatch):
 
 
 def test_safe_series(monkeypatch):
-
     class DummyData:
-
         def __init__(self):
             self.data_resolution = "year"
             self.data_interval = "month"
@@ -48,7 +43,6 @@ def test_safe_series(monkeypatch):
         return str(list(range(len(list_of_paths))))
 
     def dummy_series(datafn, start_time, end_time, interval, skip_invalid):
-
         return xr.Dataset()
 
     start_time = Petdt("20220101T0000")

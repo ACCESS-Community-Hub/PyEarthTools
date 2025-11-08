@@ -19,15 +19,14 @@
 Index for ERA5 lowres, including downloading helper code and disk indexing for pyearthtools
 """
 
-__version__ = "0.5.0"
+__version__ = "0.6.0"
 
 import os
 
 import pyearthtools.data
 from pyearthtools.data.archive import register_archive
 
-from . import ERA5DataClass
-from . import HadisdDataClass
+from . import ERA5DataClass, HadisdDataClass
 
 hadisd_base = os.path.join(os.path.expanduser("~"), "HadISD_data")
 default_base = "/Users/username/Projects/data/weatherbench/5.625deg"  # must be set to your local path

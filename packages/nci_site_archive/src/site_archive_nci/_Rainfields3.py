@@ -31,9 +31,9 @@ import numpy.typing as npt
 import pyearthtools.data
 import pyproj
 import xarray as xr
+from pyearthtools.data import Petdt as petdt
 from pyearthtools.data.archive import register_archive
 from pyearthtools.data.indexes import ArchiveIndex
-from pyearthtools.data.time import Petdt as petdt
 
 from site_archive_nci.utilities import check_project
 

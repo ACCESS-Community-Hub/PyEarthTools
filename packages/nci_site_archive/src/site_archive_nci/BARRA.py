@@ -24,22 +24,18 @@ from pathlib import Path
 from typing import Any, Literal
 
 import pyearthtools.data
-
-from pyearthtools.data import DataNotFoundError
-
+from pyearthtools.data import DataNotFoundError, Petdt
+from pyearthtools.data.archive import register_archive
 from pyearthtools.data.indexes import (
-    DataIndex,
     ArchiveIndex,
+    DataIndex,
     ForecastIndex,
     StaticDataIndex,
     decorators,
 )
-from pyearthtools.data.time import Petdt
 from pyearthtools.data.transforms import Transform, TransformCollection
-from pyearthtools.data.archive import register_archive
 
 from site_archive_nci.utilities import check_project
-
 
 BARRA_REGIONS = ["R", "AD", "PH", "SY", "TA"]
 BARRA_TYPES = ["forecast", "static", "analysis"]

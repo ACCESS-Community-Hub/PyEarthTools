@@ -16,24 +16,21 @@
 from __future__ import annotations
 
 import logging
-from typing import Iterable
-
 import warnings
+from typing import Iterable
 
 import numpy as np
 import pandas as pd
+import pyearthtools.utils
 import xarray as xr
 
 import pyearthtools
-
 import pyearthtools.data
-import pyearthtools.utils
-
-from pyearthtools.data.exceptions import DataNotFoundError, InvalidIndexError, InvalidDataError
-from pyearthtools.data.time import Petdt, TimeDelta, time_delta_resolution, TimeRange
+from pyearthtools.data import Petdt, TimeDelta, TimeRange, time_delta_resolution
+from pyearthtools.data.exceptions import DataNotFoundError, InvalidDataError, InvalidIndexError
+from pyearthtools.data.operations.utils import identify_time_dimension
 from pyearthtools.data.transforms.transform import Transform, TransformCollection
 from pyearthtools.data.warnings import IndexWarning
-from pyearthtools.data.operations.utils import identify_time_dimension
 
 LOG = logging.getLogger("pyearthtools.data")
 

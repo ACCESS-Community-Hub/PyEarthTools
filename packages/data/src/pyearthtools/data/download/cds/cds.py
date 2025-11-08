@@ -27,7 +27,9 @@ import warnings
 
 import urllib3
 
-from pyearthtools.data import DataNotFoundError, Petdt
+from pyearthtools.data import Petdt
+
+from pyearthtools.data.exceptions import DataNotFoundError
 from pyearthtools.data.download import DownloadIndex
 from pyearthtools.data.indexes import utilities
 from pyearthtools.data.patterns import TemporalExpandedDateVariable, PatternIndex

@@ -29,7 +29,8 @@ import urllib3
 import functools
 
 from pyearthtools.data.indexes import CachingIndex
-from pyearthtools.data import IndexWarning, DataNotFoundError
+from pyearthtools.data.warnings import IndexWarning
+from pyearthtools.data.exceptions import DataNotFoundError
 
 from pyearthtools.data.patterns import PatternIndex
 

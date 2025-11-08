@@ -26,21 +26,21 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from pyearthtools.data.time import Petdt, TimeResolution
-from pyearthtools.data.patterns import (
-    PatternIndex,
-    PatternTimeIndex,
-    PatternVariableAware,
-    PatternForecastIndex,
-)
-from pyearthtools.data.indexes import TimeIndex, decorators
-
 import pyearthtools.utils
 from pyearthtools.utils.decorators import classproperty
 
+from pyearthtools.data import Petdt, TimeResolution
+from pyearthtools.data.indexes import TimeIndex, decorators
+from pyearthtools.data.patterns import (
+    PatternForecastIndex,
+    PatternIndex,
+    PatternTimeIndex,
+    PatternVariableAware,
+)
+
 DIRECTORY_PATTERN = "{ROOT_DIR}/{FILE}"
 FILE_PATTERN = "{prefix}{time}{extension}"
-DEFAULT_EXTENSION = pyearthtools.utils.config.get("data.patterns.default_extension")
+DEFAULT_EXTENSION = pyearthtools.utils.config.get("data.patterns.default_extension", ".pyearthtools")
 
 
 def nonNone(*args):
@@ -106,7 +106,7 @@ class _Direct(TimeIndex, PatternIndex):
 
         basepath = Path(self.root_dir).resolve() / FILE_PATTERN.format(
             prefix=self.prefix + "_" if self.prefix else "",
-            time=f"{str(basetime).replace('-', str(nonNone(self.delimiter[0], ''))).replace(':',str(nonNone(self.delimiter[1], '')))}",  # type: ignore
+            time=f"{str(basetime).replace('-', str(nonNone(self.delimiter[0], ''))).replace(':', str(nonNone(self.delimiter[1], '')))}",  # type: ignore
             extension=f".{self.extension.removeprefix('.')}",
         )
 

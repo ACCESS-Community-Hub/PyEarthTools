@@ -1,15 +1,13 @@
-from pyearthtools.data import indexes
-import pyearthtools.data.archive
-from pyearthtools.data.time import Petdt
-import pytest
 import pathlib
 
+import pytest
 
+import pyearthtools.data.archive
+from pyearthtools.data import Petdt, indexes
 from pyearthtools.data.exceptions import DataNotFoundError
 
 
 def test_Index(monkeypatch):
-
     monkeypatch.setattr("pyearthtools.data.indexes.Index.__abstractmethods__", set())
 
     idx = indexes.Index()
@@ -22,7 +20,6 @@ def test_Index(monkeypatch):
 
 
 def test_FileSystemIndex(monkeypatch):
-
     monkeypatch.setattr("pyearthtools.data.indexes.Index.__abstractmethods__", set())
     fsi = indexes.FileSystemIndex()
     with pytest.raises(NotImplementedError):
@@ -59,7 +56,6 @@ def test_FileSystemIndex(monkeypatch):
 
 
 def test_AdvancedTimeIndex(monkeypatch):
-
     monkeypatch.setattr("pyearthtools.data.indexes.AdvancedTimeIndex.__abstractmethods__", set())
 
     data_interval = "day"

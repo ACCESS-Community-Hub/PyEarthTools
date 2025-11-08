@@ -537,7 +537,7 @@ class TemporalWindow(PipelineIndex):
         self.merge_method = merge_method
 
     def __getitem__(self, date_of_interest):
-        date_of_interest = pyearthtools.data.time.Petdt(date_of_interest)
+        date_of_interest = pyearthtools.data.Petdt(date_of_interest)
 
         prior_i = [i * self.timedelta for i in self.prior_indexes]
         posterior_i = [i * self.timedelta for i in self.posterior_indexes]
