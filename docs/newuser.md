@@ -53,6 +53,8 @@ The tutorial ["Train and run a simplified global weather model"](./notebooks/tut
 
 If you are working at NCI, then ["Blending Data from Multiple Sources"](./notebooks/tutorial/MultipleSources.ipynb) and ["Working with Climate Data"](./notebooks/tutorial/Working_with_Climate_Data.ipynb) are also good places to start. These tutorials both use very large data sets. These data sets are archived on disk at NCI so these tutorials are straightforward to run using NCI facilities.
 
+The key difference between working at HPC facilities, on the cloud, workstations or laptops is how to initially obtain data and then configure PyEarthTools to access it. Please see the [data access page](data.md) for more information.
+
 ## Core Concepts in PyEarthTools
 
 A modelling project in PyEarthTools involves the following steps:

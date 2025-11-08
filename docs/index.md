@@ -23,7 +23,7 @@ Documentation: [pyearthtools.readthedocs.io](https://pyearthtools.readthedocs.io
 Tutorial Gallery: [available here](./notebooks/Gallery)  
 New Users Guide: [available here](newuser.md)  
 
-**If you use `PyEarthTools` for your work or a publication, [please cite our work](https://pyearthtools.readthedocs.io/en/latest/#acknowleging-or-citing-pyearthtools).**
+**If you use `PyEarthTools` for your work or a publication, [please cite our work](https://pyearthtools.readthedocs.io/en/latest/#citing-pyearthtools).**
 
 ## Installation
 
