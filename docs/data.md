@@ -24,7 +24,7 @@ Additionally, you can explore the [geonetwork](https://geonetwork.nci.org.au/geo
 
 You can use PyEarthTools successfully on a workstation or laptop with data you download yourself. 
 
-While many geoscience datasets are so large (e.g. hundreds of terabytes) that they can unly be used effectively in HPC environments, there are also many smaller datasets of interest which can be downloaded on a workstation or laptop.
+While many geoscience datasets are so large (e.g. hundreds of terabytes) that they can only be used effectively in HPC environments, there are also many smaller datasets of interest which can be downloaded on a workstation or laptop.
 
 The [Quick Start](project:./notebooks/Gallery.md#Quick-Start-(Low-Hardware-Requirements)) tutorials can run on a 4GB GPU, and include the download step for fetching around 3-10GB of data. They will also work in HPC environments.
 
