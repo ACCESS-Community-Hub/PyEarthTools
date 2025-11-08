@@ -72,39 +72,39 @@ PyEarthTools comprises multiple sub-packages which can be used individually or t
 |  [Zoo](https://pyearthtools.readthedocs.io/en/latest/api/zoo/zoo_index.html)            | Contains code for managing registered models (such as the bundled models) |
 |  Evaluation     | (Coming soon) Contains code for producing standard evaluations (such as benchmarks and scorecards) |
 
-## Acknowleging or Citing `PyEarthTools`
+## Citing `PyEarthTools`
 
 If you use PyEarthTools for your work, we would appreciate you citing our software as below:
 
-Cook, H., Leeuwenburg, T., Rio, M., Miller, J., Mason, G., Ramanathan, N., Pill, J., Haddad, S., de Burgh-Day, C., Sullivan, B., Hobeichi, S., Holmes, R., Potokina, M., Bogacheva, J., James, M., & Stassen, C. (2025). PyEarthTools: Machine learning for Earth system science (0.4.0). Zenodo. https://doi.org/10.5281/zenodo.17429589
+Leeuwenburg, T., Cook, H., Rio, M., Hobeichi, S., Miller, J., Mason, G., Ramanathan, N., Pill, J., Haddad, S., Stassen, C., de Burgh-Day, C., Holmes, R., Potokina, M., Bogacheva, J., James, M., & Sullivan, B. (2025). PyEarthTools: Machine learning for Earth system science (0.5.1). Zenodo. https://doi.org/10.5281/zenodo.17544431
 
 BibTeX:
 ```
-@software{cook_2025_17429589,
-  author       = {Cook, Harrison and
-                  Leeuwenburg, Tennessee and
+@software{leeuwenburg_2025_17544431,
+  author       = {Leeuwenburg, Tennessee and
+                  Cook, Harrison and
                   Rio, Maxime and
+                  Hobeichi, Sanaa and
                   Miller, Joel and
                   Mason, Gemma and
                   Ramanathan, Nikeeth and
                   Pill, John and
                   Haddad, Stephen and
+                  Stassen, Christian and
                   de Burgh-Day, Catherine and
-                  Sullivan, Ben and
-                  Hobeichi, Sanaa and
                   Holmes, Ryan and
                   Potokina, Margarita and
                   Bogacheva, Jenya and
                   James, Matthew and
-                  Stassen, Christian},
+                  Sullivan, Ben},
   title        = {PyEarthTools: Machine learning for Earth system
                    science
                   },
-  month        = oct,
+  month        = nov,
   year         = 2025,
   publisher    = {Zenodo},
-  version      = {0.4.0},
-  doi          = {10.5281/zenodo.17429589},
-  url          = {https://doi.org/10.5281/zenodo.17429589},
+  version      = {0.5.1},
+  doi          = {10.5281/zenodo.17544431},
+  url          = {https://doi.org/10.5281/zenodo.17544431},
 }
 ```
