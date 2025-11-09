@@ -300,7 +300,7 @@ class Petdt:
             _pandas_timestep = pd.to_datetime(time)
         elif isinstance(time, datetime.datetime):
             _pandas_timestep = pd.to_datetime(time)
-            
+
         if _pandas_timestep is None:
             raise TypeError(f"Cannot parse {type(time)}: {time!r}")
         self._pandas_timestep = _pandas_timestep
