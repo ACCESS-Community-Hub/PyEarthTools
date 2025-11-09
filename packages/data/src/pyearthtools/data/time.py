@@ -241,7 +241,7 @@ class TimeResolution:
 @functools.total_ordering
 class Petdt:
     """
-    PyEarthTooils Datetime object which has additional functionality
+    PyEarthTools Datetime object which has additional functionality
     relating to temporal resolution and resolution conversion compared
     to other libraries, and also supports alternative calendars to
     some degree.
@@ -298,6 +298,9 @@ class Petdt:
 
         if isinstance(time, str):
             _pandas_timestep = pd.to_datetime(time)
+        elif isinstance(time, datetime.datetime):
+            _pandas_timestep = pd.to_datetime(time)
+
         if _pandas_timestep is None:
             raise TypeError(f"Cannot parse {type(time)}: {time!r}")
         self._pandas_timestep = _pandas_timestep
