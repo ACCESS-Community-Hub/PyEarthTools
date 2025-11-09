@@ -67,7 +67,7 @@ The [station data](project:./notebooks/Gallery.md#Working-with-Station-Data-(Med
 
 ### Connecting PyEarthTools to a new dataset on a workstation or laptop
 
-For on-disk data access, you will need to create a new accessor based on the FileSystemArchive class. Instructions for this still need to be written. In the meantime, refer to the [NCI site archive source code](https://github.com/ACCESS-Community-Hub/PyEarthTools/tree/develop/packages/nci_site_archive) for examples. 
+For on-disk data access, you will need to create a new accessor based on the `pyearthtools.data.ArchiveIndex` class (or `pyearthtools.data.Index` for some use cases). Instructions for this still need to be written. In the meantime, refer to the [NCI site archive source code](https://github.com/ACCESS-Community-Hub/PyEarthTools/tree/develop/packages/nci_site_archive) for examples. 
 
 The [HadISD tutorials]() also demonstrate the process of creating a new data accessor. While these tutorials focus on connecting to the HadISD dataset, the patterns in these tutorials are repeatable and can be used for other datasets.
 
