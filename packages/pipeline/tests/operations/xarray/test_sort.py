@@ -47,7 +47,7 @@ def test_align(undo, unaligned_dataarray):
     """Tests that the dataset dimension alignment operation works."""
 
     # instantiate align op
-    align_op = AlignDataVariableDimensionsToDatasetCoords(undo=undo)
+    align_op = AlignDataVariableDimensionsToDatasetCoords(restore_dim_order_on_undo=undo)
 
     # create dataset with dims that are unaligned
     unaligned_dataset = xr.Dataset(

@@ -36,7 +36,7 @@ class AlignDataVariableDimensionsToDatasetCoords(Operation):
 
     def __init__(
         self,
-        undo: bool = False,
+        restore_dim_order_on_undo: bool = False,
         *,
         split_tuples: Literal["apply", "undo", True, False] = False,
         recursively_split_tuples: bool = False,
@@ -51,6 +51,23 @@ class AlignDataVariableDimensionsToDatasetCoords(Operation):
         response_on_type: Literal["warn", "exception", "ignore", "filter"] = "exception",
         **kwargs,
     ):
+        """
+        Constructs the AlignDataVariableDimensionsToDatasetCoords operation.
+
+        Args:
+            restore_dim_order_on_undo (bool): Whether to undo the dimension ordering in the class' undo operation. Defaults to False.
+            split_tuples (Literal['apply', 'undo', True, False], optional):
+                Split tuples on associated actions, if bool, apply to all functions. Defaults to False.
+            recursively_split_tuples (bool, optional):
+                Recursively split tuples. Defaults to False.
+            operation (Literal['apply', 'undo', 'both'], optional):
+                Which functions to apply operation to.
+                If not 'apply' apply does nothing, same for `undo`. Defaults to "both".
+            recognised_types (Optional[Union[tuple[Type, ...], Type, dict[str, Union[tuple[Type, ...], Type]]] ], optional):
+                Types recognised, can be dictionary to reference different types per function Defaults to None.
+            response_on_type (Literal['warn', 'exception', 'ignore', 'filter'], optional):
+                Response when invalid type found. Defaults to "exception".
+        """
         super().__init__(
             split_tuples=split_tuples,
             recursively_split_tuples=recursively_split_tuples,
@@ -59,12 +76,12 @@ class AlignDataVariableDimensionsToDatasetCoords(Operation):
             response_on_type=response_on_type,
             **kwargs,
         )
-        self.undo = undo
+        self.restore_dim_order_on_undo = restore_dim_order_on_undo
         self.recorded_ordering = {}
 
     def apply_func(self, data: xr.Dataset) -> xr.Dataset:
 
-        if self.undo:
+        if self.restore_dim_order_on_undo:
             # record the original dimensions of the array
             self.recorded_ordering = {array_name: data[array_name].dims for array_name in data}
 
@@ -75,7 +92,7 @@ class AlignDataVariableDimensionsToDatasetCoords(Operation):
         return data
 
     def undo_func(self, data: xr.Dataset) -> xr.Dataset:
-        if self.undo:
+        if self.restore_dim_order_on_undo:
             # new dataset so input data isn't augmented.
             return xr.Dataset(
                 {array_name: data[array_name].transpose(*self.recorded_ordering[array_name]) for array_name in data}
