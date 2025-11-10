@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from typing import TypeVar, Optional
+from typing import TypeVar, Optional, Literal, Union, Type
 
 import xarray as xr
 
@@ -34,7 +34,40 @@ class AlignDataVariableDimensionsToDatasetCoords(Operation):
     This operator will align all of the data variables to the same ordering as present in the Dataset.
     """
 
+    def __init__(
+        self,
+        undo: bool = False,
+        *,
+        split_tuples: Literal["apply", "undo", True, False] = False,
+        recursively_split_tuples: bool = False,
+        operation: Literal["apply", "undo", "both"] = "both",
+        recognised_types: Optional[
+            Union[
+                tuple[Type, ...],
+                Type,
+                dict[Literal["apply", "undo"], Union[tuple[Type, ...], Type]],
+            ]
+        ] = None,
+        response_on_type: Literal["warn", "exception", "ignore", "filter"] = "exception",
+        **kwargs,
+    ):
+        super().__init__(
+            split_tuples=split_tuples,
+            recursively_split_tuples=recursively_split_tuples,
+            operation=operation,
+            recognised_types=recognised_types,
+            response_on_type=response_on_type,
+            **kwargs,
+        )
+        self.undo = undo
+        self.recorded_ordering = {}
+
     def apply_func(self, data: xr.Dataset) -> xr.Dataset:
+
+        if self.undo:
+            # record the original dimensions of the array
+            self.recorded_ordering = {array_name: data[array_name].dims for array_name in data}
+
         # use coords.dim for when coordinates don't have the same name as dimensions
         dataset_ordering = list(data.coords.dims)
 
@@ -42,9 +75,13 @@ class AlignDataVariableDimensionsToDatasetCoords(Operation):
         return data
 
     def undo_func(self, data: xr.Dataset) -> xr.Dataset:
-        # TODO: Record all the original orderings and transpose them back, I guess
-
-        raise NotImplementedError("Don't yet know how to undo data variable alignment.")
+        if self.undo:
+            # new dataset so input data isn't augmented.
+            return xr.Dataset(
+                {array_name: data[array_name].transpose(*self.recorded_ordering[array_name]) for array_name in data}
+            )
+        else:
+            return data
 
 
 class Sort(Operation):
