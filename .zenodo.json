@@ -79,6 +79,11 @@
       "orcid": "https://orcid.org/0009-0000-5048-4240",
       "affiliation": "Met Office, United Kingdom",
       "name": "Sullivan, Ben"
+    },
+    {
+      "orcid": "https://orcid.org/0009-0004-5881-0695",
+      "affiliation": "ACCESS-NRI, Australia",
+      "name": "Yang, Edward"
     }
   ],
   "license": "Apache-2.0",
