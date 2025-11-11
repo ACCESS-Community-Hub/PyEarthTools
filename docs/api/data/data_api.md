@@ -340,8 +340,6 @@
     :members:
 .. autoclass:: pyearthtools.data.transforms.coordinates.Drop
     :members:
-.. autoclass:: pyearthtools.data.transforms.coordinates.Expand
-    :members:
 .. autoclass:: pyearthtools.data.transforms.coordinates.Assign
     :members:
 .. autoclass:: pyearthtools.data.transforms.coordinates.Pad

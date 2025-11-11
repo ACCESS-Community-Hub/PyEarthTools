@@ -81,7 +81,7 @@ If `transforms` need to be applied on the `undo` step or with other specificatio
 ```python
 pyearthtools.pipeline.operations.Transforms(
     transforms = pyearthtools.data.transforms.region.Lookup('Oceania'), # Applied on both apply and undo
-    apply = pyearthtools.data.transforms.coordinates.Expand(dim = [0]), # Only on apply
+    apply = pyearthtools.data.transforms.dimensions.Expand(dim = [0]), # Only on apply
     undo = pyearthtools.data.transforms.coordinates.Drop(dim = [0]), # Only on undo
 
 )

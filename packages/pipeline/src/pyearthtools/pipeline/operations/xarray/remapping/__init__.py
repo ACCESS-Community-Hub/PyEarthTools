@@ -26,7 +26,7 @@ try:
 
 except ImportError:
 
-    class HealPix:
+    class HEALPix:
         def __init__(self):
             warnings.warn(
                 "Could not import the healpix projection, please install the 'healpy' and 'reproject' optional dependencies"
