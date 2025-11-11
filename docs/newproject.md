@@ -6,11 +6,11 @@ This page is not about getting started, but is about how to undertake a larger p
 
 ## Overview
 
-**Step One:** Set up a place for your project. Consider using [Cookie Cutter Data Science](https://cookiecutter-data-science.drivendata.org). This will give all of your projects a consistent layout and structure regardless of what kind of data science project is done. Install this and use their instructions to start a new project. It's fine to do things differently, but this is a way to get started consistently with a documentated approach.
+**Step One:** Set up a place for your project (e.g. a folder on disk) to hold the source code, data and notebooks you will need. Consider using [Cookie Cutter Data Science](https://cookiecutter-data-science.drivendata.org) which will automate the process of creating a standard data science project layout on disk including creating a Python package structure for your code. Doing so will give all of your projects a consistent layout and structure. It's fine to do things differently, but this is a way to get started consistently with a documentated approach.
 
 **Step Two:** Load and visualise your data. Read [the data API how-to](/api/data/data_how_to.md) for more information fetching and adding data.
 
-**Step Three:** Set up a data pipeline to load things, get them onto a common grid, and normalise them. Read [the pipeline API how-to](/api/pipeline/pipeline_how_to.md) for more information.
+**Step Three:** Set up a data pipeline to load your data, get the data onto a common grid, and normalise them. Read [the pipeline API how-to](/api/pipeline/pipeline_how_to.md) for more information.
 
 **Step Four:** Train an initial model to establish a baseline. There are several reference architectures bundled in the framework and one of them should do for starters. Read the [models how-to guide](api/models/models_how_to.md) for more information.
 
