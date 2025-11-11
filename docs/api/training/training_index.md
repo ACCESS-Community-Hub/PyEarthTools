@@ -20,7 +20,7 @@ The rest of this page contains reference information for the components of the T
 |                       |                                      | - [predict.LoggingContext](training_api.md#pyearthtools.training.wrapper.lightning.predict.LoggingContext)  |
 |                       |                                      | - [train.get_logger](training_api.md#pyearthtools.training.wrapper.lightning.train.get_logger)  |
 |                       |                                      | - [train.make_callback](training_api.md#pyearthtools.training.wrapper.lightning.train.make_callback)  |
-|                       |                                      | - [wrapper.LightningWrapper](training_api.md#pyearthtools.training.wrapper.lwrapper.LightningWrapper)  |
+|                       |                                      | - [wrapper.LightningWrapper](training_api.md#pyearthtools.training.wrapper.wrapper.LightningWrapper)  |
 |  `training.wrapper.predict`   |                              | - [Predictor](training_api.md#pyearthtools.training.wrapper.predict.Predictor)  |
 |                       |                                      | - [TimeSeriesPredictor](training_api.md#pyearthtools.training.wrapper.predict.TimeSeriesPredictor)  |
 |                       |                                      | - [TimeSeriesAutoRecurrentPredictor](training_api.md#pyearthtools.training.wrapper.predict.TimeSeriesAutoRecurrentPredictor)  |
