@@ -35,55 +35,48 @@ SIMPLE_DA1 = xr.DataArray(
 )
 SIMPLE_DS1 = xr.Dataset({"Temperature": SIMPLE_DA1})
 SIMPLE_DS2 = xr.Dataset({"Humidity": SIMPLE_DA1, "Temperature": SIMPLE_DA1, "WombatsPerKm2": SIMPLE_DA1})
+SIMPLE_DA_WITH_NAMED_COORDS = xr.DataArray(
+    SIMPLE_DA1.data,
+    coords={"h": ("height", [10, 20]), "x": ("lat", [0, 1, 2]), "y": ("lon", [5, 6, 7])},
+    dims=["height", "lat", "lon"],
+)
 
 
-def test_align():
+@pytest.mark.parametrize("undo,unaligned_dataarray", [(True, SIMPLE_DA1), (False, SIMPLE_DA_WITH_NAMED_COORDS)])
+def test_align(undo, unaligned_dataarray):
     """Tests that the dataset dimension alignment operation works."""
-    align_op = AlignDataVariableDimensionsToDatasetCoords()
 
-    # create dataset with arrays that are not consistently ordered
-    ds = xr.Dataset(
+    # instantiate align op
+    align_op = AlignDataVariableDimensionsToDatasetCoords(restore_dim_order_on_undo=undo)
+
+    # create dataset with dims that are unaligned
+    unaligned_dataset = xr.Dataset(
         {
-            "Temperature": SIMPLE_DA1.transpose("lat", "height", "lon"),
-            "Humidity": SIMPLE_DA1,
-            "WombatsPerKm2": SIMPLE_DA1.transpose("lon", "height", "lat"),
+            "Temperature": unaligned_dataarray.transpose("lat", "lon", "height"),
+            "Humidity": unaligned_dataarray,
+            "WombatsPerKm2": unaligned_dataarray.transpose("lon", "height", "lat"),
         }
     )
 
-    # check that dataset dims are indeed unaligned
-    assert ds["Temperature"].dims != ds["Humidity"].dims
-    assert ds["Temperature"].dims != ds["WombatsPerKm2"].dims
-
     # apply aligner to dataset and check that dataset dims now align
-    ds_aligned = align_op.apply_func(ds)
-    assert ds_aligned["Temperature"].dims == ds_aligned["Humidity"].dims
-    assert ds_aligned["Temperature"].dims == ds_aligned["WombatsPerKm2"].dims
+    ds_aligned = align_op.apply_func(unaligned_dataset)
+    assert (
+        ds_aligned["Temperature"].dims == ds_aligned["Humidity"].dims
+    ), "Humidity DataArray dims not aligned to Temperature DataArray dims."
+    assert (
+        ds_aligned["Temperature"].dims == ds_aligned["WombatsPerKm2"].dims
+    ), "WombatsPerKm2 DataArray dims not aligned to Temperature DataArray dims."
 
-    ## Test that alignment works even when coordinate names don't match dims
-    da_with_named_coords = xr.DataArray(
-        SIMPLE_DA1.data,
-        coords={"h": ("height", [10, 20]), "x": ("lat", [0, 1, 2]), "y": ("lon", [5, 6, 7])},
-        dims=["height", "lat", "lon"],
-    )
-    ds = xr.Dataset(
-        {
-            "Temperature": da_with_named_coords.transpose("lat", "height", "lon"),
-            "Humidity": da_with_named_coords,
-            "WombatsPerKm2": da_with_named_coords.transpose("lon", "height", "lat"),
-        }
-    )
-    # check that dataset dims are indeed unaligned
-    assert ds["Temperature"].dims != ds["Humidity"].dims
-    assert ds["Temperature"].dims != ds["WombatsPerKm2"].dims
-
-    # apply aligner to dataset and check that dataset dims now align
-    ds_aligned = align_op.apply_func(ds)
-    assert ds_aligned["Temperature"].dims == ds_aligned["Humidity"].dims
-    assert ds_aligned["Temperature"].dims == ds_aligned["WombatsPerKm2"].dims
-
-    # placeholder test for undo method
-    with pytest.raises(NotImplementedError):
-        align_op.undo_func(ds)
+    # test undo alignment
+    ds_aligned_undone = align_op.undo_func(ds_aligned)
+    assert (ds_aligned_undone == ds_aligned).all(), "Underlying data was modified in undoing the dimension alignment."
+    for array_name in unaligned_dataset:
+        if undo:
+            assert (
+                ds_aligned_undone[array_name].dims == unaligned_dataset[array_name].dims
+            ), "Undoing dimensions failed."
+        else:
+            assert ds_aligned_undone[array_name].dims == ds_aligned[array_name].dims, "Dimensions changed."
 
 
 def test_Sort():
