@@ -11,9 +11,12 @@ maintainers = [
     { name = "Tennessee Leeuwenburg", email = "tennessee.leeuwenburg@bom.gov.au" },
 ]
 classifiers = [
-    "Programming Language :: Python :: 3",
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    # In future add "Programming Language :: Python :: 3.14" once our deps allow it
 ]
 
 description = """\

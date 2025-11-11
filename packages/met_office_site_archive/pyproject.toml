@@ -12,9 +12,11 @@ maintainers = [
   {email = "tennessee.leeuwenburg@bom.gov.au", name = "Tennessee Leeuwenburg"}
 ]
 classifiers = [
-    "Programming Language :: Python :: 3",
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
   "pyearthtools-data>=0.1.0",
