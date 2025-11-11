@@ -5,7 +5,7 @@ requires = ["setuptools>=61", "setuptools-scm>=8.0"]
 [project]
 name = "PyEarthTools-archive-Met-Office"
 description = "PyEarthTools archive for Met Office"
-requires-python = ">=3.9"
+requires-python = ">=3.11, <3.14"
 license = {file = "LICENSE"}
 keywords = ["pyearthtools"]
 maintainers = [

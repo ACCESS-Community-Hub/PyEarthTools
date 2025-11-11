@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "pyearthtools-pipeline"
 description = "Data Pipelines with pyearthtools"
-requires-python = ">=3.11"
+requires-python = ">=3.11, <3.14"
 keywords = ["pyearthtools"]
 maintainers = [
   {name = "Tennessee Leeuwenburg", email = "tennessee.leeuwenburg@bom.gov.au"}

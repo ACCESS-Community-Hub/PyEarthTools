@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "pyearthtools-tutorial"
 description = "Tutorial material for PyEarthTools"
-requires-python = ">=3.10"
+requires-python = ">=3.11, <3.14"
 keywords = ["pyearthtools"]
 maintainers = [
   {name = "Tennessee Leeuwenburg", email = "tennessee.leeuwenburg@bom.gov.au"}
@@ -17,7 +17,7 @@ classifiers = [
 dependencies = [
   "rich",
   "ipywidgets",
-  "basemap",
+  # "basemap",
   "hydra-core",
   "scores",
   "dask",
