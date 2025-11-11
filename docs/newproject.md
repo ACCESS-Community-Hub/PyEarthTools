@@ -1,5 +1,9 @@
 # New Project Guide
 
+To get started with PyEarthTools, please see the [new user guide](newuser.md).
+
+This page is not about getting started, but is about how to undertake a larger project such as developing a new model.
+
 ## Overview
 
 **Step One:** Set up a place for your project. Consider using [Cookie Cutter Data Science](https://cookiecutter-data-science.drivendata.org). This will give all of your projects a consistent layout and structure regardless of what kind of data science project is done. Install this and use their instructions to start a new project. It's fine to do things differently, but this is a way to get started consistently with a documentated approach.
