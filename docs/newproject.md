@@ -6,7 +6,7 @@ This page is not about getting started, but is about how to undertake a larger p
 
 ## Overview
 
-**Step One:** Set up a place for your project (e.g. a folder on disk) to hold the source code, data and notebooks you will need. Consider using [Cookie Cutter Data Science](https://cookiecutter-data-science.drivendata.org) which will automate the process of creating a standard data science project layout on disk including creating a Python package structure for your code. Doing so will give all of your projects a consistent layout and structure. It's fine to do things differently, but this is a way to get started consistently with a documentated approach.
+**Step One:** Set up a place for your project (e.g. a folder on disk) to hold the source code, data and notebooks you will need. Consider using [Cookiecutter Data Science](https://cookiecutter-data-science.drivendata.org) which will automate the process of creating a standard data science project layout on disk including creating a Python package structure for your code. Doing so will give all of your projects a consistent layout and structure. It's fine to do things differently, but this is a way to get started consistently with a documentated approach.
 
 **Step Two:** Load and visualise your data. Read [the data API how-to](/api/data/data_how_to.md) for more information fetching and adding data.
 
@@ -20,9 +20,9 @@ This page is not about getting started, but is about how to undertake a larger p
 
 Let's imagine you want to improve the temperature predictions at your location.
 
-You will train the model using historical model data and historical point data. If you are working at NCI, these things are available from the standard data accessors in the NCI site archive. If you haven't obtained any data yet, check out [https://herbie.readthedocs.io/en/stable/](https://herbie.readthedocs.io/en/stable/) for the means to download historical model data, and see [https://www.ncei.noaa.gov/products/global-historical-climatology-network-hourly](https://www.ncei.noaa.gov/products/global-historical-climatology-network-hourly) or [https://www.metoffice.gov.uk/hadobs/hadisd/](https://www.metoffice.gov.uk/hadobs/hadisd/) for access to weather station data. If you don't have the data on disk yet, put it into your data/raw directory. Take note, there is a lot of data here, so you will probably want to work out how to download only what you need.
+You will train the model using historical model data and historical weather station data. To obtain and integrate station data, see the [HadISD tutorials](project:/notebooks/Gallery.md#Working-with-Station-Data-(Medium-Hardware-Requirements)). To obtain and integrate model (or, technically, reanalysis) data, you can use the NCI site archive. If you are working elsewhere, see [Downloading ERA5 Data](project:/notebooks/tutorial/Downloading_ERA5.ipynb). Note, the ERA5 tutorial demonstrates downloading low-resolution data, there may be a more accurate source of model data for your location.
 
-From there, configure the data accessors. The PyEarthTools accessors are currently being extended so that there are a range of accessors for fetching cloud data and working with standard datasets, but for now look at the examples in the tutorial for how to create one for your own data.
+From there, configure the data accessors. The tutorial examples demonstrate how to do this for the downloaded data.
 
 Then, make a pipeline. Work out which variables you want, subset the grid points you want, and normlise the data. Take a look at the tutorial on [Working with Multiple Data Sources](./notebooks/tutorial/MultipleSources) and [MLX Demo](./notebooks/tutorial/MLX-Demo-Custom-Arch) to see how to approach constructing the pipeline, and refer to [api/pipeline/howto.md](api/pipeline/pipeline_how_to.md) for a more in-depth how-to guide on this process.
 
