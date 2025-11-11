@@ -172,25 +172,33 @@ def test_IdxOverride_basic():
 
 
 def test_TimeIdxModifier_basic():
-    import pyearthtools.data
 
     pipe = Pipeline(FakeIndex(), TimeIdxModifier("6 hours"))
-    assert pipe[pyearthtools.data.Petdt("2000-01-01T00")] == pyearthtools.data.Petdt("2000-01-01T06")
+    assert pipe[Petdt("2000-01-01T00")] == Petdt("2000-01-01T06")
 
 
 # def test_TimeIdxModifier_basic_tuple():
 #     import pyearthtools.data
 #     pipe = Pipeline(FakeIndex(), pipelines.TimeIdxModifier((6, 'hours')))
-#     assert pipe[pyearthtools.data.Petdt('2000-01-01T00')] == pyearthtools.data.Petdt('2000-01-01T06')
+#     assert pipe[Petdt('2000-01-01T00')] == Petdt('2000-01-01T06')
 
 
 def test_TimeIdxModifier_nested():
-    import pyearthtools.data
 
     pipe = Pipeline(FakeIndex(), TimeIdxModifier(("6 hours", "12 hours")))
-    assert pipe[pyearthtools.data.Petdt("2000-01-01T00")] == (
-        pyearthtools.data.Petdt("2000-01-01T06"),
-        pyearthtools.data.Petdt("2000-01-01T12"),
+    assert pipe[Petdt("2000-01-01T00")] == (
+        Petdt("2000-01-01T06"),
+        Petdt("2000-01-01T12"),
+    )
+
+
+def test_TimeIdxModifier_extramods():
+    """Tests TimeIdxModifier with modifications passed as variable args (extra_mods)"""
+    # first arg to TimeIdxModifier goes to "modifications" and second goes to extra_args
+    pipe = Pipeline(FakeIndex(), TimeIdxModifier("6 hours", "12 hours"))
+    assert pipe[Petdt("2000-01-01T00")] == (
+        Petdt("2000-01-01T06"),
+        Petdt("2000-01-01T12"),
     )
 
 
@@ -205,8 +213,8 @@ class test_data_accessor(Index):
         return self._data[time]
 
 
-@pytest.mark.parametrize("merge_method", (None, sum))
-def test_temporal_retrieval(merge_method):
+@pytest.mark.parametrize("merge_method, expected", ((None, (1, 3)), (sum, 4)))
+def test_TemporalRetrieval(merge_method, expected):
     """Test temporal retrieval."""
 
     # instantiate temporal retrieval with merge_method - retrieving from two steps behind.
@@ -214,14 +222,10 @@ def test_temporal_retrieval(merge_method):
 
     pipeline = Pipeline(test_data_accessor(), temporal_retrieval_step)
 
-    result = pipeline[Petdt("2025-01-03")]
-    if merge_method is sum:
-        assert result == test_data_accessor._data["2025-01-03"] + test_data_accessor._data["2025-01-01"]
-    elif merge_method is None:
-        assert result == (test_data_accessor._data["2025-01-01"], test_data_accessor._data["2025-01-03"])
+    assert expected == pipeline[Petdt("2025-01-03")]
 
 
-def test_temporal_retrieval_invalid():
+def test_TemporalRetrieval_invalid():
     """Tests errors when using/instantiating TemporalRetrieval."""
     with pytest.raises(ValueError):
         TemporalRetrieval(None)  # index ought to be int or iterable of ints
@@ -230,8 +234,8 @@ def test_temporal_retrieval_invalid():
         tr["a"]  # not convertable to Petdt
 
 
-@pytest.mark.parametrize("merge_method", (None, sum))
-def test_temporal_window(merge_method):
+@pytest.mark.parametrize("merge_method, expected", ((None, ([1, 2], [3])), (sum, (3, 3))))
+def test_TemporalWindow(merge_method, expected):
     """Test temporal window."""
 
     # instantiate temporal window with merge method
@@ -244,8 +248,4 @@ def test_temporal_window(merge_method):
 
     # Instantiate pipeline with test data and temporal window
     pipeline = Pipeline(test_data_accessor(), temporal_window_step)
-    result = pipeline["2025-01-03"]
-    if merge_method is None:
-        assert result == ([1, 2], [3])
-    elif merge_method is sum:
-        assert result == (3, 3)
+    assert expected == pipeline["2025-01-03"]

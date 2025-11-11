@@ -255,6 +255,7 @@ class TimeIdxModifier(IdxModifier):
                 return tuple(map(map_to_time, mod))
             return pyearthtools.data.TimeDelta(mod)
 
+        # packs modifications and extra_mods into single tuple
         if extra_mods:
             modification = (
                 *(modification if isinstance(modification, tuple) else (modification,)),
