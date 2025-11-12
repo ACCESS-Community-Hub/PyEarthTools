@@ -18,7 +18,7 @@ If you think you may want to contribute code, you will need to follow the PyEart
 
 ## Contribution Workflow
 
-Details of the contribution workflow can be found in the [Developer Guide](docs/devguide.md), including
+Details of the contribution workflow can be found in the [Developer Guide](https://pyearthtools.readthedocs.io/en/latest/devguide.html), including
 
 - Forking the repository in GitHub,
 - Submitting changes via pull requests from your own fork,
