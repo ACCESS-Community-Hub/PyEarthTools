@@ -33,8 +33,8 @@ DASK_IMPORTED = True
 try:
     import dask.array as da
     from dask.delayed import Delayed, delayed
-except (ImportError, ModuleNotFoundError) as _:
-    DASK_IMPORTED = False
+except (ImportError, ModuleNotFoundError) as _:  # pragma: no cover # manually tested
+    DASK_IMPORTED = False  # pragma: no cover
 
 MERGE_FUNCTIONS = {
     xr.Dataset: xr.combine_by_coords,
@@ -169,8 +169,8 @@ class IdxModifier(PipelineIndex, ParallelEnabledMixin):
         if self._merge_function is not None:
             return self._merge_function(sample, **self._merge_kwargs)
 
-        if DASK_IMPORTED and types[0] == Delayed:
-            return delayed(self._run_merge)(sample)
+        if DASK_IMPORTED and types[0] == Delayed:  # pragma: no cover
+            return delayed(self._run_merge)(sample)  # pragma: no cover
 
         if types[0] not in MERGE_FUNCTIONS:
             warnings.warn(f"Cannot merge samples of type {types[0]}.", PipelineWarning)
@@ -255,6 +255,7 @@ class TimeIdxModifier(IdxModifier):
                 return tuple(map(map_to_time, mod))
             return pyearthtools.data.TimeDelta(mod)
 
+        # packs modifications and extra_mods into single tuple
         if extra_mods:
             modification = (
                 *(modification if isinstance(modification, tuple) else (modification,)),
