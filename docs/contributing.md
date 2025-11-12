@@ -11,7 +11,7 @@ If you are thinking about contributing some code to PyEarthTools, you are very w
 
 ## Getting Started
 
-To learn more about PyEarthTools in general, a good place to start is the [New Users Guide](https://pyearthtools.readthedocs.io/en/latest/newuser.html)
+To learn more about PyEarthTools in general, a good place to start is the [New Users Guide](https://pyearthtools.readthedocs.io/en/latest/newuser.html) .
 
 If you think you may want to contribute code, you will need to follow the PyEarthTools installation instructions [here](https://pyearthtools.readthedocs.io/en/latest/installation.html#developer-installation) and read the developer guide [here](https://pyearthtools.readthedocs.io/en/latest/devguide.html) .
 
