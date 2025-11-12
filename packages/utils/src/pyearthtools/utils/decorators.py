@@ -17,7 +17,9 @@ from __future__ import annotations
 
 import functools
 import warnings
-from typing import Any, Callable
+from typing import Any, Callable, TypeVar
+
+C = TypeVar("C", bound=Callable[..., Any])
 
 
 class classproperty(property):
@@ -35,7 +37,7 @@ def invert_dictionary_list(dictionary: dict) -> dict:
     return return_dict
 
 
-def alias_arguments(**aliases: str | list[str]) -> Callable:
+def alias_arguments(**aliases: str | list[str]) -> Callable[[C], C]:
     """
     Setup aliases for parameters
 
@@ -58,7 +60,7 @@ def alias_arguments(**aliases: str | list[str]) -> Callable:
 
     """
 
-    def internal_function(func: Callable) -> Callable:
+    def internal_function(func: C) -> C:
         # Force all aliases to be list
         for k, v in aliases.items():
             if isinstance(v, (list, tuple)):
@@ -92,7 +94,7 @@ def alias_arguments(**aliases: str | list[str]) -> Callable:
     return internal_function
 
 
-def BackwardsCompatibility(new_func: Callable[[Any], Any]):
+def BackwardsCompatibility(new_func: C) -> Callable[[C], C]:
     """
     Allows for the renaming of a functionality, and subsequent backwards compatilbility.
 
@@ -111,9 +113,7 @@ def BackwardsCompatibility(new_func: Callable[[Any], Any]):
 
     """
 
-    @functools.wraps(new_func)
-    def decorator(func):
-        @functools.wraps(new_func)
+    def decorator(func: C) -> C:
         def wrapped(*args, **kwargs):
             warnings.warn(
                 f"{func.__name__} has been removed in favour of {new_func.__name__}, please switch over.",
