@@ -86,6 +86,7 @@ def train_model(
     nlon=96,
     scheduler=None,
     nepochs=20,
+    debug_sample_limit=5,
     quad_weights=None,
     true_clim=None,
     nfuture=0,
@@ -99,8 +100,6 @@ def train_model(
 
     infer_bias = 1e80
     recall_count = 0
-
-    debug_sample_limit = 5
 
     print("Starting Training")
     for epoch in tqdm(range(nepochs)):
@@ -190,6 +189,8 @@ def load_data_and_train(
     regridded_data,
     preprocessed_data,
     *,
+    debug_sample_limit: int | None = None,
+    n_epochs: int | None =  500,
     ntrain: int | None = 16000,
     nval: int | None = 100):
     '''
@@ -234,7 +235,12 @@ def load_data_and_train(
     # sht = RealSHT(nlat, nlon, lmax=modes_lat, mmax=modes_lon, grid=grid, csphase=False)
     radius = 6.37122e6
     _cost, quad_weights = legendre_gauss_weights(nlat, -1, 1)
-    quad_weights = (torch.as_tensor(quad_weights).reshape(-1, 1)).to(torch.float32).to(device)  # mps only supports float32, todo only do this if mps
+
+    # mps only supports float32, todo only do this if mps
+    # That said, most of the data seems to actually be in float32, so it is unclear if the weights
+    # benefit from being in float64 even on supported devices
+    # TODO: Experimentally verify the impact of using float32 here by default vs float64 performance
+    quad_weights = (torch.as_tensor(quad_weights).reshape(-1, 1)).to(torch.float32).to(device)
 
     model = SphericalFourierNeuralOperatorNet(
         params={},
@@ -265,6 +271,11 @@ def load_data_and_train(
         diag_stds=diag_stds,
         diff_stds=diff_stds,
         true_clim=true_clim,
-     # data_inp=data_inp, nlon=nlon, quad_weights=quad_weights, scheduler=scheduler, nepochs=500)
-     data_inp=data_inp, nlon=nlon, quad_weights=quad_weights, scheduler=scheduler, nepochs=5)
-    torch.save(model.state_dict(), "model.pth")
+        data_inp=data_inp,
+        nlon=nlon,
+        quad_weights=quad_weights,
+        scheduler=scheduler,
+        nepochs=n_epochs,
+        debug_sample_limit=debug_sample_limit)
+
+    return model
