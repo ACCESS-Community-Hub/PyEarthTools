@@ -16,7 +16,8 @@
 import pytest
 import math
 
-from pyearthtools.data.transforms.derive import evaluate
+from numpy import nan, isnan
+from pyearthtools.data.transforms.derive import evaluate, EquationException
 
 
 @pytest.mark.parametrize(
@@ -47,6 +48,20 @@ def test_evaluate_only_eq(eq, result):
 
 
 @pytest.mark.parametrize(
+    "eq",
+    [
+        ("1 + (2"),
+        ("1 + 2)"),
+        ("1 + ((2 + 3)"),
+        ("1 + (2 + 3))"),
+    ],
+)
+def test_evaluate_mismatched_brackets(eq):
+    with pytest.raises(EquationException):
+        evaluate(eq)
+
+
+@pytest.mark.parametrize(
     "eq, result",
     [
         ("pi", math.pi),
@@ -55,3 +70,20 @@ def test_evaluate_only_eq(eq, result):
 )
 def test_constants(eq, result):
     assert evaluate(eq) == float(result)
+
+
+@pytest.mark.parametrize(
+    "eq, result",
+    [
+        ("2 not_nan 3", 2.0),
+        ("nan not_nan 3", 3.0),
+        ("nan not_nan 3 not_nan 4", 3.0),
+        ("nan not_nan nan not_nan 4", 4.0),
+    ],
+)
+def test_evaluate_only_not_nan(eq, result):
+    assert evaluate(eq) == result
+
+
+def test_evaluate_only_not_nan_all_nan():
+    assert isnan(evaluate("nan not_nan nan"))
