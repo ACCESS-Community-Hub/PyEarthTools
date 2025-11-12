@@ -77,10 +77,17 @@ def train_model(
     train_loader,
     val_loader,
     optimizer,
+    data_inp=None,
+    prog_means=None,
+    prog_stds=None,
+    diag_means=None,
+    diag_stds=None,
+    diff_stds=None,
     nlon=96,
     scheduler=None,
     nepochs=20,
     quad_weights=None,
+    true_clim=None,
     nfuture=0,
     num_examples=256,
     num_valid=8,
@@ -92,6 +99,8 @@ def train_model(
 
     infer_bias = 1e80
     recall_count = 0
+
+    debug_sample_limit = 5
 
     print("Starting Training")
     for epoch in tqdm(range(nepochs)):
@@ -109,9 +118,16 @@ def train_model(
         model.train()
 
         batch_num = 0
+
+        zz = 0
+
         for inp, tar in train_loader:
             batch_num += 1
             loss = 0
+
+            zz += 1
+            if zz > debug_sample_limit:
+                break
 
             inp = inp.to(device)
             tar = tar.to(device)
@@ -135,8 +151,9 @@ def train_model(
             loss.backward()
             optimizer.step()
 
-        if epoch % 10 == 0:
-            rollout_steps = 2920
+        if epoch % 1 == 0:
+            # rollout_steps = 2920
+            rollout_steps = 50
             rollout = torch.tensor(
                 inference.infer(
                     model,
@@ -186,7 +203,7 @@ def load_data_and_train(
     regridded_data = regridded_data[..., :6]
     true_clim = torch.tensor(np.mean(regridded_data, axis=0)).to(device).permute(2, 0, 1)
 
-    data = preprocessed_data
+    data = preprocessed_data  # dictionary-like numpy array
     data_inp = torch.tensor(data["data_inp"], dtype=torch.float32)  # input data
     data_tar = torch.tensor(data["data_tar"], dtype=torch.float32)
     raw_means = torch.tensor(data["raw_means"], dtype=torch.float32).reshape(1, -1, 1, 1).to(device)
@@ -214,11 +231,10 @@ def load_data_and_train(
     modes_lat = int(nlat * hard_thresholding_fraction)
     modes_lon = int(nlon // 2 * hard_thresholding_fraction)
     modes_lat = modes_lon = min(modes_lat, modes_lon)
-    sht = RealSHT(nlat, nlon, lmax=modes_lat, mmax=modes_lon, grid=grid, csphase=False)
+    # sht = RealSHT(nlat, nlon, lmax=modes_lat, mmax=modes_lon, grid=grid, csphase=False)
     radius = 6.37122e6
-    cost, quad_weights = legendre_gauss_weights(nlat, -1, 1)
+    _cost, quad_weights = legendre_gauss_weights(nlat, -1, 1)
     quad_weights = (torch.as_tensor(quad_weights).reshape(-1, 1)).to(torch.float32).to(device)  # mps only supports float32, todo only do this if mps
-    print('a')
 
     model = SphericalFourierNeuralOperatorNet(
         params={},
@@ -240,8 +256,15 @@ def load_data_and_train(
         mlp_ratio=2.0,
     ).to(device)
 
-    print('b')
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-4, weight_decay=0)
     scheduler = CosineAnnealingLR(optimizer, T_max=150, eta_min=1e-5)
-    train_model(device, model, train_loader, val_loader, optimizer, nlon=nlon, quad_weights=quad_weights, scheduler=scheduler, nepochs=500)
+    train_model(device, model, train_loader, val_loader, optimizer,
+        prog_means=prog_means,
+        prog_stds=prog_stds,
+        diag_means=diag_means,
+        diag_stds=diag_stds,
+        diff_stds=diff_stds,
+        true_clim=true_clim,
+     # data_inp=data_inp, nlon=nlon, quad_weights=quad_weights, scheduler=scheduler, nepochs=500)
+     data_inp=data_inp, nlon=nlon, quad_weights=quad_weights, scheduler=scheduler, nepochs=5)
     torch.save(model.state_dict(), "model.pth")
