@@ -18,7 +18,7 @@ This is a summary only, and should be expanded to provide more detail. This is i
 - Pylint checking is a good idea, please turn it on and do your best.
 
 
-## Creating Your Own Fork  of PyEarthTools for the First Time
+## Creating Your Own Fork of PyEarthTools for the First Time
 
 Unless you are an advanced Git user, we would recommend you follow this process:
 
