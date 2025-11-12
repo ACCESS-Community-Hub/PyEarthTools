@@ -34,7 +34,7 @@ from tqdm import tqdm
 import torch
 
 
-from torch_harmonics_local import *
+from lucie.torch_harmonics_local import *
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -42,7 +42,7 @@ if torch.cuda.is_available():
     torch.cuda.set_device(0)
 
 
-def inference(
+def infer(
     model, steps, initial_frame, forcing, initial_forcing_idx, prog_means, prog_stds, diag_means, diag_stds, diff_stds
 ):
     inf_data = []
