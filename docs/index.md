@@ -1,6 +1,7 @@
 # PyEarthTools: Machine learning for Earth system science
 
 [![DOI](https://zenodo.org/badge/903938118.svg)](https://doi.org/10.5281/zenodo.15760768)
+![Python Version from PEP 621 TOML](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2FACCESS-Community-Hub%2FPyEarthTools%2Frefs%2Fheads%2Fdevelop%2Fpyproject.toml&label=Python)
 
 - A Python framework that supports the develoment of machine learning models, big and small, for Earth system science
 - Suitable for students and newcomers, as well as for domain specialists and scientists
