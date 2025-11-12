@@ -6,7 +6,7 @@ If you are thinking about contributing some code to PyEarthTools, you are very w
 - Improve documentation and tutorials based on your own experience
 - Contribute to code quality and test coverage
 
-(A pinned issue)[https://github.com/ACCESS-Community-Hub/PyEarthTools/issues/174] contains a non-exhaustive list of things you could consider doing. Alternatively, you are very welcome to look through the GitHub issue tracker and see if there is anything that grabs your interest. If you are going to work on an issue, let me know so we can avoid people doubling up.
+[A pinned issue](https://github.com/ACCESS-Community-Hub/PyEarthTools/issues/174) contains a non-exhaustive list of things you could consider doing. Alternatively, you are very welcome to look through the GitHub issue tracker and see if there is anything that grabs your interest. If you are going to work on an issue, let me know so we can avoid people doubling up.
 
 
 ## Getting Started
