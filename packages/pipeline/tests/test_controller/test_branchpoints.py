@@ -199,3 +199,8 @@ def test_branch_with_source():
         (MultiplicationOperation(2), FakeIndex()),
     )
     assert pipe[1] == (2, 1)
+
+    # test error when trying to map to a datasource
+    pipe = Pipeline((FakeIndex(1),), (FakeIndex(2), "map"))
+    with pytest.raises(ValueError):
+        pipe[0]
