@@ -151,6 +151,7 @@ data
 config
 api/api
 roadmap
+contributing
 devguide
 maintainer
 ```

@@ -1,22 +1,14 @@
-# PyEarthTools Core Developer Guide
+# PyEarthTools Developer Guide
 
-This is a summary only, and should be expanded to provide more detail. This is intended to provide succinct guidance to the team of people directly involved in coding the PyEarthTools framework. Other guides will be produced for other contributor demographics (such as those involved in producing documentation, tutorials, or other kinds of contribution).
+This is a summary only, and should be expanded to provide more detail. This is intended to provide succinct guidance to those who want to contribute code to PyEarthTools.
 
 ## Quick Overview
 
 - Please fork the repository and do your development on your fork. Create pull requests from your fork.
+- Use feature branches on your fork, and use a unique branch for every pull request.
 - Unit test coverage on new pull requests should meet or extend existing levels of test coverage.
-
-
-## Coding Guidelines
-
-- Use 'black' and 'isort' with a line length of 120 characters
-
-## Nice-to-haves
-
-- Type hints would be nice, but the development so far hasn't required them. Do your best.
-- Pylint checking is a good idea, please turn it on and do your best.
-
+- We use 'black' and 'ruff check' and supply configuration files for each.
+- Type hints are not required.
 
 ## Creating Your Own Fork of PyEarthTools for the First Time
 
@@ -25,7 +17,6 @@ Unless you are an advanced Git user, we would recommend you follow this process:
 1. First (i.e. **before** cloning the PyEarthTools repository) create your own fork using the GitHub web user interface.
 2. Clone **your fork**. (Do not directly clone https://github.com/ACCESS-Community-Hub/PyEarthTools).
 3. Immediately create a new local branch, with a command such as `git checkout -b branch_name`.
-
 
 ## Workflow for Submitting Pull Requests
 
@@ -62,7 +53,6 @@ A code review is responsible for checking the following:
 5. Code is readable and well-structured
 6. Code does not do anything unexpected or beyond the scope of the function
 7. Any additional dependencies are justified and do not result in bloat
-
 
 ## GitHub Actions - Workflows
 We are using GitHub actions to automate testing and specific workflows.
