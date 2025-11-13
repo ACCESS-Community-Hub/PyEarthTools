@@ -28,6 +28,18 @@ In .zenodo.json, please add your details at the bottom of the “creators” sec
 3. “name”. Format: surname, given name(s).
 ```
 
+## Citation CFF
+
+This needs to be updated after each release. This is almost as simple as downloading the new CFF file from Zenodo, but not quite!
+
+Remove the following fields:
+- Repository code (with a URL)
+- Indicators with swh entry (x 1 or 2)
+
+Add:
+- URL: with the full DOI path
+- Publisher: Zenodo
+
 ## This section gives guidance for maintaining compatibility with old versions of Python and packages
 
 tldr; about 3 years old is OK, longer if painless
