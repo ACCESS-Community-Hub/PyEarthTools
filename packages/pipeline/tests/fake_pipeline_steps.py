@@ -33,6 +33,9 @@ class FakeIndex(Index):
     def get(self, idx):
         return self._overrideValue or idx
 
+    def __eq__(self, other):
+        return type(other) is FakeIndex and other._overrideValue == self._overrideValue
+
 
 class MultiplicationOperation(Operation):
     def __init__(self, factor):

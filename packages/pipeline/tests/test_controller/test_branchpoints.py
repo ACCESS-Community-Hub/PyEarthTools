@@ -29,6 +29,7 @@ pyearthtools.utils.config.set({"pipeline.run_parallel": False})
 def test_branchingpoint_basic():
     pipe = Pipeline((FakeIndex(), FakeIndex()))
     assert pipe[1] == (1, 1)
+    assert pipe.complete_steps == (((FakeIndex(),), (FakeIndex(),)),)
 
 
 def test_branch_differing_operations():
@@ -214,3 +215,10 @@ def test_branch_with_source():
     pipe = Pipeline((FakeIndex(1),), (FakeIndex(2),))
     with pytest.raises(ValueError):
         pipe[None]
+
+
+def test_check_index():
+    pipe = Pipeline(
+        (MultiplicationOperation(2), MultiplicationOperation(3)),
+    )
+    assert not branching.branching._check_if_index(pipe)
