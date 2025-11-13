@@ -67,7 +67,7 @@ authors:
     family-names: Sullivan
     given-names: Ben
     orcid: 0009-0000-5048-4240
-cff-version: 1.2.0
+cff-version: "1.2.0"
 date-released: "2025-11-06"
 doi: 10.5281/zenodo.17544431
 url: https://doi.org/10.5281/zenodo.17544431
@@ -80,7 +80,6 @@ keywords:
 license:
   - apache-2.0
 message: If you use this software, please cite it using the metadata from this file.
-repository-code: https://github.com/ACCESS-Community-Hub/PyEarthTools/tree/0.5.1
 title: "PyEarthTools: Machine learning for Earth system science"
 type: software
 version: 0.5.1
