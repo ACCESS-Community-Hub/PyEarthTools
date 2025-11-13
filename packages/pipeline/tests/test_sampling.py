@@ -18,6 +18,13 @@ from pyearthtools.pipeline import Pipeline, iterators, samplers
 from tests.fake_pipeline_steps import FakeIndex
 
 
+def _get_elements(obj):
+    if isinstance(obj, tuple):
+        return obj
+    else:
+        return (obj,)
+
+
 @pytest.mark.parametrize(
     "sampler,length",
     [
@@ -38,6 +45,13 @@ def test_samplers(sampler, length):
 
     if length is not None:
         assert len(list(pipe)) == length, "Length differs from expected"
+
+    super_sampler = samplers.SuperSampler(sampler)
+    super_sampler + super_sampler
+
+    assert isinstance(super_sampler, samplers.Sampler)
+    for sample in _get_elements(sampler):
+        assert isinstance(sample + sample, samplers.Sampler)
 
     iteration_1 = list(pipe)
     iteration_2 = list(pipe)
