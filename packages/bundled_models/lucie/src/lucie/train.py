@@ -145,11 +145,12 @@ def train_model(
             loss.backward()
             optimizer.step()
 
-        if epoch % 1 == 0:
-            # rollout_steps = 2920
-            rollout_steps = 50
+        if epoch % 10 == 0:
+            rollout_steps = 2920  # Per paper
+            # rollout_steps = 50  # Testing
             rollout = torch.tensor(
                 inference.infer(
+                    device,
                     model,
                     rollout_steps,
                     data_inp[0:1].to(device),
