@@ -19,6 +19,8 @@ import pytest
 
 
 @pytest.mark.parametrize(
+    # The result depends on the random seed. This one has been manually
+    # checked to produce a certain number of rotations the first time.
     "seed, rotations",
     [
         (42, 0),
@@ -34,8 +36,6 @@ def test_Rotate(seed, rotations):
         [4, 3]
     ])
 
-    # The result depends on the random seed. This one has been manually checked
-    # to produce a certain number of rotations the first time.
     match rotations:
         case 0:
             expected = np.array([
@@ -58,12 +58,15 @@ def test_Rotate(seed, rotations):
                 [1, 4]
             ])
 
-
     rotate = augment.Rotate(seed=seed, axis=(1, 0))
 
     result = rotate.apply_func(original)
     assert (result == expected).all()
 
+
+def test_Rotate_axis_must_be_tuple():
+    with pytest.raises(TypeError):
+        augment.Rotate(axis=0)
 
 @pytest.mark.parametrize(
     "seed, should_flip",
@@ -76,11 +79,11 @@ def test_Flip(seed, should_flip):
 
     original = np.array([
         [1, 2],
-        [3, 4]
+        [4, 3]
     ])
     
     flipped = np.array([
-        [4, 3],
+        [3, 4],
         [2, 1]
     ])
 
@@ -91,3 +94,26 @@ def test_Flip(seed, should_flip):
 
     result = flip.apply_func(original)
     assert (result == expected).all()
+
+
+@pytest.mark.parametrize(
+    "seed, should_flip",
+    [
+        (0, True),
+        (1, False),
+    ]
+)
+def test_FlipAndRotate(seed, should_flip):
+
+    original = np.array([
+        [1, 2],
+        [4, 3]
+    ])
+
+    flip_and_rotate = augment.FlipAndRotate()
+
+    result = flip_and_rotate.apply_func(original)
+    # Don't worry about the number of flips and rotations, just check the
+    # shape and type returned
+    assert isinstance(result, np.ndarray)
+    assert result.shape == (2, 2)
