@@ -30,13 +30,13 @@ for more information on the `datasets` config.
     attribution: PyEarthTools
 
     dates:
-    start: '2025-11-10T00:00:00'
-    end: '2025-11-12T00:00:00'
-    frequency: 1h
+        start: '2025-11-10T00:00:00'
+        end: '2025-11-12T00:00:00'
+        frequency: 1h
 
     input:
-    pyearthtools: # Use the pyearthtools input object
-        pipeline: /PATH/TO/PIPELINE.yaml
+        pyearthtools: # Use the pyearthtools input object
+            pipeline: /PATH/TO/PIPELINE.yaml
 
 ### Run anemoi-datasets
 
