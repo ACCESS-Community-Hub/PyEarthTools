@@ -22,7 +22,7 @@ import dask.array as da
 def test_ToXarray_with_DataArray():
 
     coords = {"x": list(range(5)), "y": list(range(5))}
-    data = np.ones((5, 5))
+    data = np.random.randn(5, 5)
     sample = xr.DataArray(coords=coords, data=data)
 
     tox = conversion.ToXarray.like(sample)
@@ -37,42 +37,40 @@ def test_ToXarray_with_DataArray():
 def test_ToXarray_with_Dataset():
 
     coords = {"x": list(range(5)), "y": list(range(5))}
-    data = np.ones((5, 5))
-    data1 = np.ones((1, 5, 5))
-    sample_da = xr.DataArray(coords=coords, data=data)
+    data_3d = np.random.randn(1, 5, 5)
+    data_2d = data_3d[0]
+    sample_da = xr.DataArray(coords=coords, data=data_2d)
     sample_ds = xr.Dataset(coords=coords, data_vars={"z": sample_da})
 
     tox = conversion.ToXarray.like(sample_ds)
-    result = tox.apply_func(data1)
+    result = tox.apply_func(data_3d)
 
     assert (result == sample_ds).all()
 
     as_numpy = tox.undo_func(sample_ds)
-    assert (as_numpy == data1).all()
+    assert (as_numpy == data_3d).all()
 
 
 def test_drop_coords():
 
     coords = {"x": list(range(5)), "y": list(range(5))}
-    data = np.ones((5, 5))
-    data1 = np.ones((1, 5, 5))
-    sample_da = xr.DataArray(coords=coords, data=data)
+
+    data_3d = np.random.randn(1, 5, 5)
+    data_2d = data_3d[0]
+    sample_da = xr.DataArray(coords=coords, data=data_2d)
     sample_ds = xr.Dataset(coords=coords, data_vars={"z": sample_da})
 
-    expected_data = np.ones((5))
-    expected_da = xr.DataArray(coords={"y": list(range(5))}, data=expected_data)
-    expected_ds = xr.Dataset(coords={"y": list(range(5))}, data_vars={"z": sample_da})
-
     tox = conversion.ToXarray.like(sample_ds, drop_coords=["x"])
-    result = tox.apply_func(data1)
-    assert (result == expected_ds).all()
+    result = tox.apply_func(data_3d)
+    assert (result == sample_ds).all()
 
     as_numpy = tox.undo_func(sample_ds)
-    assert (as_numpy == data1).all()
+    assert (as_numpy == data_3d).all()
+
 
 def test_ToDask():
 
-    data = np.ones((5, 5))
+    data = np.random.randn(5, 5)
     expected = da.from_array(data)
 
     tod = conversion.ToDask()
