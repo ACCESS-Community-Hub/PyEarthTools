@@ -33,7 +33,6 @@ dependencies = [
 "pyearthtools-zoo>=0.5.1",
 ]
 
-# FIXME replace with minimum versions once PyEarthTools is on PyPI
 # FIXME remove redundant dependencies once PyEarthTools is on PyPI
 [project.optional-dependencies]
 utils = [
@@ -100,13 +99,8 @@ line-length = 120
 warn_return_any = true
 warn_unused_configs = true
 
-# FIXME remove once PyEarthTools is published on PyPI
-[tool.hatch.metadata]
-allow-direct-references = true
-
 [tool.ruff]
 exclude = ["packages/bundled_models", "notebooks", "packages/met_office_site_archive"]
-
 
 [tool.hatch.build.targets.wheel]
 bypass-selection = true
