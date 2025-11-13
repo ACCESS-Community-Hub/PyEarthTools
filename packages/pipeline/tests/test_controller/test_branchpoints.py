@@ -222,3 +222,31 @@ def test_check_index():
         (MultiplicationOperation(2), MultiplicationOperation(3)),
     )
     assert not branching.branching._check_if_index(pipe)
+
+
+def test_nested_branching_undo_nosource():
+    pipe = Pipeline(
+        (
+            (
+                MultiplicationOperation(2),
+                MultiplicationOperation(3),
+            ),
+            MultiplicationOperation(4),
+        )
+    )
+    assert pipe.undo((18, 8)) == (3, 2)
+
+
+def test_expand_pipeline_skip_non_pipeline():
+    """Tests that expand_pipeline function ignore non-pipeline objects."""
+
+    # instantiate pipline with branchpoint at step 0.
+    pipe = Pipeline(
+        (MultiplicationOperation(3), MultiplicationOperation(4)),
+    )
+
+    # add the non-pipeline object to branchpoint sub pipelines
+    pipe._steps[0].sub_pipelines.append((1,))
+
+    # test that the non pipeline object isn't in the resultant expanded pipeline.
+    assert (1,) not in branching.branching.expand_pipeline(pipe._steps[0], 3)

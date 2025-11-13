@@ -161,7 +161,9 @@ class PipelineBranchPoint(_Pipeline, Operation):
                     raise PipelineRuntimeError(
                         f"Cannot map sample to branches as length differ. {len(sample)} != {len(self.sub_pipelines)}."
                     )
-                elif self._map_copy:
+                elif (
+                    self._map_copy
+                ):  # pragma: no cover # cannot be fully tested - if this line is reached, self._map_copy is True
                     self.sub_pipelines = expand_pipeline(self, len(sample))
 
             for s, pipe in zip(sample, self.sub_pipelines):
