@@ -204,3 +204,8 @@ def test_branch_with_source():
     pipe = Pipeline((FakeIndex(1),), (FakeIndex(2), "map"))
     with pytest.raises(ValueError):
         pipe[0]
+
+    # test branching with None index
+    pipe = Pipeline((FakeIndex(1),), (FakeIndex(2),))
+    with pytest.raises(ValueError):
+        pipe[None]
