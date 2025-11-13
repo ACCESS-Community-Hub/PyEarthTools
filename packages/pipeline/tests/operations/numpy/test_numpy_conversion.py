@@ -16,6 +16,7 @@ from pyearthtools.pipeline.operations.numpy import conversion
 
 import numpy as np
 import xarray as xr
+import dask.array as da
 
 
 def test_ToXarray_with_DataArray():
@@ -54,19 +55,29 @@ def test_drop_coords():
 
     coords = {"x": list(range(5)), "y": list(range(5))}
     data = np.ones((5, 5))
-    _data1 = np.ones((1, 5, 5))
+    data1 = np.ones((1, 5, 5))
     sample_da = xr.DataArray(coords=coords, data=data)
     sample_ds = xr.Dataset(coords=coords, data_vars={"z": sample_da})
 
-    tox = conversion.ToXarray.like(sample_ds, drop_coords=["x"])
-    assert tox is not None
+    expected_data = np.ones((5))
+    expected_da = xr.DataArray(coords={"y": list(range(5))}, data=expected_data)
+    expected_ds = xr.Dataset(coords={"y": list(range(5))}, data_vars={"z": sample_da})
 
+    tox = conversion.ToXarray.like(sample_ds, drop_coords=["x"])
+    result = tox.apply_func(data1)
+    assert (result == expected_ds).all()
+
+    as_numpy = tox.undo_func(sample_ds)
+    assert (as_numpy == data1).all()
 
 def test_ToDask():
 
     data = np.ones((5, 5))
+    expected = da.from_array(data)
 
     tod = conversion.ToDask()
-    da = tod.apply_func(data)
-    orig = tod.undo_func(da)
+    result = tod.apply_func(data)
+    da.assert_eq(result, expected)
+
+    orig = tod.undo_func(result)
     assert (orig == data).all()
