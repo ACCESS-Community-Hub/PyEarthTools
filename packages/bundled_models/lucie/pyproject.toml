@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pyearthtools-bundled-lucie"
 version = "0.6.0"
-description = "FourCastNeXt Bundled Model"
+description = "LUCIE Bundled Model"
 readme = "README.md"
 requires-python = ">=3.11, <3.14"
 keywords = ["lucie"]
@@ -21,10 +21,10 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
- 'pyearthtools.training[lightning]>=0.5.0',
- 'pyearthtools.zoo>=0.5.0',
- 'pyearthtools.data>=0.5.0',
- 'pyearthtools.pipeline>=0.5.0',
+ 'pyearthtools.training[lightning]>=0.5.1',
+ 'pyearthtools.zoo>=0.5.1',
+ 'pyearthtools.data>=0.5.1',
+ 'pyearthtools.pipeline>=0.5.1',
  'torch_optimizer',
  'timm',
 ]
@@ -34,9 +34,6 @@ dependencies = [
 homepage = "https://pyearthtools.readthedocs.io/"
 documentation = "https://pyearthtools.readthedocs.io/"
 repository = "https://github.com/ACCESS-Community-Hub/PyEarthTools"
-
-[project.entry-points."pyearthtools.zoo.model"]
-Global_FCNXT = "lucie.registered_model:LucieRM"
 
 [tool.isort]
 profile = "black"
@@ -52,7 +49,7 @@ warn_unused_configs = true
 ignore_missing_imports = true
 
 [tool.hatch.version]
-path = "src/pyearthtools/pipeline/__init__.py"
+path = "src/lucie/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/pyearthtools/"]
+packages = ["src/lucie/"]
