@@ -19,6 +19,7 @@ import pytest
 import pyearthtools.utils
 
 from pyearthtools.pipeline import Pipeline, exceptions, branching
+from pyearthtools.pipeline.warnings import PipelineWarning
 
 from tests.fake_pipeline_steps import FakeIndex, MultiplicationOperation, MultiplicationOperationUnunifiedable
 
@@ -87,6 +88,8 @@ def test_branch_differing_operations_nested_larger():
 def test_branch_differing_operations_undo():
     pipe = Pipeline(FakeIndex(), (MultiplicationOperation(10), MultiplicationOperation(2)))
     assert pipe.undo(pipe[1]) == 1
+    with pytest.warns(PipelineWarning):
+        pipe._steps[1].undo((30, 20, 10))
 
 
 # def test_branch_differing_operations_undo_unify():
@@ -168,6 +171,8 @@ def test_branch_with_mapping_copy():
         (MultiplicationOperation(1), "map_copy"),
     )
     assert pipe[1] == (1, 2)
+    # test round robin application of undo
+    assert pipe._steps[1].undo((30, 20, 10)) == (30, 20, 10)
 
 
 def test_branch_with_mapping_not_tuple():
