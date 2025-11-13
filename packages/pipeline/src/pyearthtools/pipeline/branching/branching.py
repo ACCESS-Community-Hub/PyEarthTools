@@ -62,6 +62,13 @@ def expand_pipeline(original: PipelineBranchPoint, length: int) -> list[Pipeline
     return new_pipeline
 
 
+def _check_if_index(pipe: Pipeline):
+    """Check if pipeline is an index pipeline/branch"""
+    if isinstance(pipe.steps[0], PipelineBranchPoint):
+        return all(map(_check_if_index, pipe.steps[0].sub_pipelines))
+    return isinstance(pipe.steps[0], Index)
+
+
 class PipelineBranchPoint(_Pipeline, Operation):
     """
     Branch Point in a `Pipeline`.
@@ -213,13 +220,7 @@ class PipelineBranchPoint(_Pipeline, Operation):
                 # )
             result = tuple(self.parallel_interface.collect(sub_samples))
 
-        def check_if_index(pipe: Pipeline):
-            """Check if pipeline is an index pipeline/branch"""
-            if isinstance(pipe.steps[0], PipelineBranchPoint):
-                return all(map(check_if_index, pipe.steps[0].sub_pipelines))
-            return isinstance(pipe.steps[0], Index)
-
-        if all(len(pipe.steps) == 1 or check_if_index(pipe) for pipe in self.sub_pipelines):
+        if all(len(pipe.steps) == 1 or _check_if_index(pipe) for pipe in self.sub_pipelines):
             if all(map(lambda x: result[0] == x, result[1:])):
                 return result[0]
         return result
