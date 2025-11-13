@@ -84,6 +84,11 @@
       "orcid": "https://orcid.org/0009-0004-5881-0695",
       "affiliation": "ACCESS-NRI, Australia",
       "name": "Yang, Edward"
+    },
+    {
+      "orcid": "https://orcid.org/0009-0006-3272-3678",
+      "affiliation": "Bureau of Meteorology, Australia",
+      "name": "Hoffmann, Luke"
     }
   ],
   "license": "Apache-2.0",
