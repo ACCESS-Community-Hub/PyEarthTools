@@ -24,6 +24,7 @@ data/data_index
 data/data_api
 pipeline/pipeline_index
 pipeline/pipeline_api
+pipeline/pipeline_entrypoints
 training/training_index
 training/training_api
 tutorial/tutorial_index
