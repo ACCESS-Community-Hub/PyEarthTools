@@ -11,7 +11,7 @@ This code was copied from the LUCIE repository from commit hash 19a1d6ebe844f498
 These are the links for the original paper, code and data published by the LUCIE authors. The code was published to Zenodo under a Creative Commons license but the license in their github repository was MIT to allow improved code re-use.
 
 - [arXiv Preprint: https://doi.org/10.48550/arXiv.2405.16297](https://doi.org/10.48550/arXiv.2405.16297)
-- [Zenodo Archive: zenodo.org/records/15164648](https://zenodo.org/records/15164648)
+- [Zenodo Archive: [https://doi.org/10.5281/zenodo.15164648](https://doi.org/10.5281/zenodo.15164648)
 
 ---
 
