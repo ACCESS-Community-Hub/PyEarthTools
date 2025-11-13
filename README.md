@@ -28,7 +28,8 @@ We strongly recommend using either a Conda or Python [virtual environment](https
 Run the following commands to install PyEarthTools in a Conda environment:
 ```shell
 git clone git@github.com:ACCESS-Community-Hub/PyEarthTools.git
-conda create -y -p ./venv python graphviz
+cd PyEarthTools
+conda create -y -p ./venv python=3.13 graphviz
 conda activate ./venv
 pip install -r requirements.txt
 cd notebooks
