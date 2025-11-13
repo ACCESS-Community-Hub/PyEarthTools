@@ -42,11 +42,7 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from lucie import inference
 
 
-def integrate_grid(
-    ugrid,
-    nlon,
-    quad_weights,
-    dimensionless=False, polar_opt=0):
+def integrate_grid(ugrid, nlon, quad_weights, dimensionless=False, polar_opt=0):
 
     dlon = 2 * torch.pi / nlon
     radius = 1 if dimensionless else radius
@@ -93,17 +89,16 @@ def train_model(
     num_examples=256,
     num_valid=8,
     reg_rate=0,
-    ):
-    '''
+):
+    """
     Train your own weights for the LUCIE model
-    '''
+    """
 
     infer_bias = 1e80
     recall_count = 0
 
     print("Starting Training")
     for epoch in tqdm(range(nepochs)):
-
 
         if epoch < 149:
             if scheduler is not None:
@@ -183,23 +178,23 @@ def train_model(
                         break
 
 
-
 def load_data_and_train(
     device,
     regridded_data,
     preprocessed_data,
     *,
     debug_sample_limit: int | None = None,
-    n_epochs: int | None =  500,
+    n_epochs: int | None = 500,
     ntrain: int | None = 16000,
-    nval: int | None = 100):
-    '''
+    nval: int | None = 100,
+):
+    """
 
     args:
         unprocessed_data
         reprocessed_data: dictionary or numpy collection containing 'diagn_means', 'diag_stds', 'diff_means' and 'diff_stds'
 
-    '''
+    """
 
     regridded_data = regridded_data[..., :6]
     true_clim = torch.tensor(np.mean(regridded_data, axis=0)).to(device).permute(2, 0, 1)
@@ -221,7 +216,6 @@ def load_data_and_train(
 
     train_loader = DataLoader(train_set, batch_size=16, shuffle=True)
     val_loader = DataLoader(val_set, batch_size=4, shuffle=False)
-
 
     grid = "legendre-gauss"
     nlat = 48
@@ -264,7 +258,12 @@ def load_data_and_train(
 
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-4, weight_decay=0)
     scheduler = CosineAnnealingLR(optimizer, T_max=150, eta_min=1e-5)
-    train_model(device, model, train_loader, val_loader, optimizer,
+    train_model(
+        device,
+        model,
+        train_loader,
+        val_loader,
+        optimizer,
         prog_means=prog_means,
         prog_stds=prog_stds,
         diag_means=diag_means,
@@ -276,6 +275,7 @@ def load_data_and_train(
         quad_weights=quad_weights,
         scheduler=scheduler,
         nepochs=n_epochs,
-        debug_sample_limit=debug_sample_limit)
+        debug_sample_limit=debug_sample_limit,
+    )
 
     return model
