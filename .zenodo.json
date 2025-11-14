@@ -89,6 +89,11 @@
       "orcid": "https://orcid.org/0009-0006-3272-3678",
       "affiliation": "Bureau of Meteorology, Australia",
       "name": "Hoffmann, Luke"
+    },
+    {
+      "orcid": "https://orcid.org/0009-0001-3652-4274",
+      "affiliation": "Bureau of Meteorology, Australia",
+      "name": "Pegios, Michael"
     }
   ],
   "license": "Apache-2.0",
