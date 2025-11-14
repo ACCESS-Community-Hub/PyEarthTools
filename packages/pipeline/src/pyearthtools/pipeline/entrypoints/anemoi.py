@@ -12,7 +12,7 @@ from anemoi.datasets.create.typing import DateList
 class pyearthtoolsSource(Source):
     emoji = "🌏"  # For tracing
 
-    def __init__(self, context, pipeline: str | Path):
+    def __init__(self, context, pipeline: str | Path | Pipeline):
         """Initialise the source.
 
         Parameters
@@ -27,7 +27,10 @@ class pyearthtoolsSource(Source):
 
     @cached_property
     def pipeline(self) -> Pipeline:
-        return load(self._pyearthtools_pipeline)
+        pipeline = self._pyearthtools_pipeline
+        if isinstance(pipeline, Pipeline):
+            return pipeline
+        return load(pipeline)
 
     def execute(self, dates: DateList) -> ekd.FieldList:
         """Execute the source.
