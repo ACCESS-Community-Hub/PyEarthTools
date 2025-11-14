@@ -27,36 +27,21 @@ import pytest
         (1, 1),
         (4, 2),
         (2, 3),
-    ]
+    ],
 )
 def test_Rotate(seed, rotations):
 
-    original = np.array([
-        [1, 2],
-        [4, 3]
-    ])
+    original = np.array([[1, 2], [4, 3]])
 
     match rotations:
         case 0:
-            expected = np.array([
-                [1, 2],
-                [4, 3]
-            ])
+            expected = np.array([[1, 2], [4, 3]])
         case 1:
-            expected = np.array([
-                [4, 1],
-                [3, 2]
-            ])
+            expected = np.array([[4, 1], [3, 2]])
         case 2:
-            expected = np.array([
-                [3, 4],
-                [2, 1]
-            ])
+            expected = np.array([[3, 4], [2, 1]])
         case 3:
-            expected = np.array([
-                [2, 3],
-                [1, 4]
-            ])
+            expected = np.array([[2, 3], [1, 4]])
 
     rotate = augment.Rotate(seed=seed, axis=(1, 0))
 
@@ -68,24 +53,19 @@ def test_Rotate_axis_must_be_tuple():
     with pytest.raises(TypeError):
         augment.Rotate(axis=0)
 
+
 @pytest.mark.parametrize(
     "seed, should_flip",
     [
         (0, True),
         (1, False),
-    ]
+    ],
 )
 def test_Flip(seed, should_flip):
 
-    original = np.array([
-        [1, 2],
-        [4, 3]
-    ])
-    
-    flipped = np.array([
-        [3, 4],
-        [2, 1]
-    ])
+    original = np.array([[1, 2], [4, 3]])
+
+    flipped = np.array([[3, 4], [2, 1]])
 
     # The result depends on the random seed. This one has been manually checked
     # to produce a single rotation the first time.
@@ -101,14 +81,11 @@ def test_Flip(seed, should_flip):
     [
         (0, True),
         (1, False),
-    ]
+    ],
 )
 def test_FlipAndRotate(seed, should_flip):
 
-    original = np.array([
-        [1, 2],
-        [4, 3]
-    ])
+    original = np.array([[1, 2], [4, 3]])
 
     flip_and_rotate = augment.FlipAndRotate()
 
