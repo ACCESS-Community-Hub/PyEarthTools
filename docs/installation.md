@@ -7,7 +7,7 @@ This page describes different ways to install PyEathTools depending on intended 
 - install PyEarthTools packages as dependencies in your Python project,
 - install PyEarthTools in developer mode in order to contribute.
 
-These installation instructions have been tested on Linux, maxOS and Windows. If you encounter any difficulties, please [raise an issue](https://github.com/ACCESS-Community-Hub/PyEarthTools/issues).
+These installation instructions have been tested on Linux, macOS and Windows. If you encounter any difficulties, please [raise an issue](https://github.com/ACCESS-Community-Hub/PyEarthTools/issues).
 
 ## Using or Developing PyEarthTools at NCI
 

@@ -1,13 +1,17 @@
 # LUCIE: Lightweight Uncoupled ClImate Emulator
 
-Please note - this is a fork of https://github.com/ISCLPennState/LUCIE which has been adapted included in PyEarthTools for the purposes of maintenance, compatbility and to supply an integrated approach to using the LUCIE model within the PyEarthTools framework.
+Please note - this is a adaptation of https://github.com/ISCLPennState/LUCIE which has been modified for inclusion in PyEarthTools for the purposes of maintenance, compatbility and to supply an integrated approach to using the LUCIE model within the PyEarthTools framework.
+
+This code was copied from the LUCIE repository from commit hash 19a1d6ebe844f49893f92e8b377ebdca8f6aa0e6 (Jul 9th, 2025).
 
 ---
 
 ## Paper & Data
 
-- [arXiv Preprint: arxiv.org/abs/2405.16297](https://arxiv.org/abs/2405.16297)
-- [Zenodo Archive: zenodo.org/records/15164648](https://zenodo.org/records/15164648)
+These are the links for the original paper, code and data published by the LUCIE authors. The code was published to Zenodo under a Creative Commons license but the license in their github repository was MIT to allow improved code re-use.
+
+- [arXiv Preprint: https://doi.org/10.48550/arXiv.2405.16297](https://doi.org/10.48550/arXiv.2405.16297)
+- [Zenodo Archive: [https://doi.org/10.5281/zenodo.15164648](https://doi.org/10.5281/zenodo.15164648)
 
 ---
 
@@ -22,4 +26,4 @@ This repository prvides the following:
 5. The data generator file that precprocesses the regridded ERA5 data.
 
 ## Note
-Please refer to the zenodo link for the regridded ERA5 data. The link also includes the preprocessed data from the data generator file.
+Please refer to the LUCIE zenodo link for the regridded ERA5 data. The link also includes the preprocessed data from the data generator file.

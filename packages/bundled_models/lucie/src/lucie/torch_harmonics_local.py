@@ -11,7 +11,7 @@ from typing import Any, Tuple
 # from torch_harmonics import *
 import torch.nn.functional as F
 import torch.fft
-from torch.cuda import amp
+from torch import amp  # was from torch.cuda import amp
 import math
 import logging
 
@@ -1158,7 +1158,7 @@ class SpectralConvS2(nn.Module):
         x = x.float()
         B, C, H, W = x.shape
 
-        with amp.autocast(enabled=False):
+        with amp.autocast(str(device), enabled=False):
             x = self.forward_transform(x)
             if self.scale_residual:
                 x = x.contiguous()
@@ -1179,7 +1179,7 @@ class SpectralConvS2(nn.Module):
         # x = self._contract(x, self.weight, separable=self.separable, operator_type=self.operator_type)
         # x = x.contiguous()
 
-        with amp.autocast(enabled=False):
+        with amp.autocast(str(device), enabled=False):
             x = self.inverse_transform(x)
 
         if hasattr(self, "bias"):

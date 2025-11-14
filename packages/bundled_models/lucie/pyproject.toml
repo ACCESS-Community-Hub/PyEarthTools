@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "pyearthtools-bundled-lucie"
+version = "0.6.0"
+description = "LUCIE Bundled Model"
+readme = "README.md"
+requires-python = ">=3.11, <3.14"
+keywords = ["lucie"]
+maintainers = [
+  {name = "Tennessee Leeuwenburg", email = "tennessee.leeuwenburg@bom.gov.au"}
+]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+ 'pyearthtools.training[lightning]>=0.5.1',
+ 'pyearthtools.zoo>=0.5.1',
+ 'pyearthtools.data>=0.5.1',
+ 'pyearthtools.pipeline>=0.5.1',
+ 'torch_optimizer',
+ 'timm',
+]
+
+
+[project.urls]
+homepage = "https://pyearthtools.readthedocs.io/"
+documentation = "https://pyearthtools.readthedocs.io/"
+repository = "https://github.com/ACCESS-Community-Hub/PyEarthTools"
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 120
+
+[tool.mypy]
+warn_return_any = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+ignore_missing_imports = true
+
+[tool.hatch.version]
+path = "src/lucie/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lucie/"]

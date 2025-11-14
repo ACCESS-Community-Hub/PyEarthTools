@@ -24,7 +24,7 @@ import warnings
 
 import inspect
 from pathlib import Path
-from typing import Any
+from typing import Any, TypeVar, Callable
 
 from pyearthtools.data.indexes.utilities import spellcheck, open_static
 from pyearthtools.utils.decorators import alias_arguments
@@ -37,6 +37,8 @@ __all__ = [
     "deprecated_arguments",
     "variable_modifications",
 ]
+
+C = TypeVar("C", bound=Callable[..., Any])
 
 
 def _check_required_arguments(default: dict[str, inspect.Parameter], kwargs: dict, function_object: object):
@@ -184,7 +186,7 @@ def _check_structure(structure: str | Path | dict[str, Any], arguments: dict[str
 def check_arguments(
     struc: str | Path | dict[str, Any] | None = None,
     **valid_arguments: list[Any] | tuple[Any, ...] | str,
-):
+) -> Callable[[C], C]:
     """
     Check Arguments before passing to function,
 
@@ -221,7 +223,7 @@ def check_arguments(
 
     """
 
-    def internal_function(func):
+    def internal_function(func: C) -> C:
         ## Get function signature
         signature = inspect.signature(func)
         ## Get all params
@@ -302,7 +304,7 @@ def deprecated_arguments(
     deprecation: dict[str, str | None] | str | None = None,
     *arg_deprecations: str,
     **extra_deprecations: str | None,
-):
+) -> Callable[[C], C]:
     """
     Warn a user if they attempt to use a deprecated argument, and remove it from the call.
 
@@ -317,7 +319,7 @@ def deprecated_arguments(
     deprecation.update({k: None for k in arg_deprecations})
     deprecation.update(extra_deprecations)
 
-    def internal_func(func):
+    def internal_func(func: C) -> C:
         @functools.wraps(func)
         def warn_on_deprecated(*args, **kwargs):
             for depr in deprecation.keys():

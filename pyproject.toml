@@ -33,8 +33,6 @@ dependencies = [
 "pyearthtools-zoo>=0.5.1",
 ]
 
-# FIXME replace with minimum versions once PyEarthTools is on PyPI
-# FIXME remove redundant dependencies once PyEarthTools is on PyPI
 [project.optional-dependencies]
 utils = [
     "pyearthtools-utils>=0.5.1",
@@ -43,21 +41,12 @@ data = [
     "pyearthtools-data>=0.5.1",
 ]
 pipeline = [
-    "pyearthtools-utils>=0.5.1",
-    "pyearthtools-data>=0.5.1",
     "pyearthtools-pipeline>=0.5.1",
 ]
 training = [
-    "pyearthtools-utils>=0.5.1",
-    "pyearthtools-data>=0.5.1",
-    "pyearthtools-pipeline>=0.5.1",
     "pyearthtools-training>=0.5.1",
 ]
 zoo = [
-    "pyearthtools-utils>=0.5.1",
-    "pyearthtools-data>=0.5.1",
-    "pyearthtools-pipeline>=0.5.1",
-    "pyearthtools-training>=0.5.1",
     "pyearthtools-zoo>=0.5.1",
 ]
 all = [
@@ -100,13 +89,8 @@ line-length = 120
 warn_return_any = true
 warn_unused_configs = true
 
-# FIXME remove once PyEarthTools is published on PyPI
-[tool.hatch.metadata]
-allow-direct-references = true
-
 [tool.ruff]
 exclude = ["packages/bundled_models", "notebooks", "packages/met_office_site_archive"]
-
 
 [tool.hatch.build.targets.wheel]
 bypass-selection = true

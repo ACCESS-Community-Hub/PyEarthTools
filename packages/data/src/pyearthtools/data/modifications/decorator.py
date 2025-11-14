@@ -24,7 +24,7 @@ import re
 import json
 
 import functools
-from typing import Callable, Any, Optional, Type, Union
+from typing import Callable, Any, Optional, Type, Union, TypeVar
 import xarray as xr
 
 from pyearthtools.data.indexes import TimeDataIndex
@@ -36,6 +36,8 @@ from pyearthtools.data.modifications.register import MODIFICATION_DICT
 
 
 __all__ = ["variable_modifications", "Modification"]
+
+C = TypeVar("C", bound=Callable[..., Any])
 
 
 def _args_to_kwargs(func, args: tuple[Any, ...]) -> dict[str, Any]:
@@ -226,7 +228,7 @@ def variable_modifications(
     *,
     remove_variables: bool = False,
     skip_if_invalid_class: bool = False,
-):
+) -> Callable[[C], C]:
     """
     Allow modifications of variables dynamically,
 
@@ -286,7 +288,7 @@ def variable_modifications(
         If using this decorator with `check_arguments` put this one above it, and with `alias_arguments` put it below.
     """
 
-    def internal(func: Callable):
+    def internal(func: C) -> C:
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             # Get variables to parse modifications from
