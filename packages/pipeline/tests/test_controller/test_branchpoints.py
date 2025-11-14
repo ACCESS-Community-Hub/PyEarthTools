@@ -19,6 +19,7 @@ import pytest
 import pyearthtools.utils
 
 from pyearthtools.pipeline import Pipeline, exceptions, branching
+from pyearthtools.pipeline.warnings import PipelineWarning
 
 from tests.fake_pipeline_steps import FakeIndex, MultiplicationOperation, MultiplicationOperationUnunifiedable
 
@@ -28,6 +29,7 @@ pyearthtools.utils.config.set({"pipeline.run_parallel": False})
 def test_branchingpoint_basic():
     pipe = Pipeline((FakeIndex(), FakeIndex()))
     assert pipe[1] == (1, 1)
+    assert pipe.complete_steps == (((FakeIndex(),), (FakeIndex(),)),)
 
 
 def test_branch_differing_operations():
@@ -87,6 +89,8 @@ def test_branch_differing_operations_nested_larger():
 def test_branch_differing_operations_undo():
     pipe = Pipeline(FakeIndex(), (MultiplicationOperation(10), MultiplicationOperation(2)))
     assert pipe.undo(pipe[1]) == 1
+    with pytest.warns(PipelineWarning):
+        pipe._steps[1].undo((30, 20, 10))
 
 
 # def test_branch_differing_operations_undo_unify():
@@ -168,6 +172,8 @@ def test_branch_with_mapping_copy():
         (MultiplicationOperation(1), "map_copy"),
     )
     assert pipe[1] == (1, 2)
+    # test round robin application of undo
+    assert pipe._steps[1].undo((30, 20, 10)) == (30, 20, 10)
 
 
 def test_branch_with_mapping_not_tuple():
@@ -199,3 +205,48 @@ def test_branch_with_source():
         (MultiplicationOperation(2), FakeIndex()),
     )
     assert pipe[1] == (2, 1)
+
+    # test error when trying to map to a datasource
+    pipe = Pipeline((FakeIndex(1),), (FakeIndex(2), "map"))
+    with pytest.raises(ValueError):
+        pipe[0]
+
+    # test branching with None index
+    pipe = Pipeline((FakeIndex(1),), (FakeIndex(2),))
+    with pytest.raises(ValueError):
+        pipe[None]
+
+
+def test_check_index():
+    pipe = Pipeline(
+        (MultiplicationOperation(2), MultiplicationOperation(3)),
+    )
+    assert not branching.branching._check_if_index(pipe)
+
+
+def test_nested_branching_undo_nosource():
+    pipe = Pipeline(
+        (
+            (
+                MultiplicationOperation(2),
+                MultiplicationOperation(3),
+            ),
+            MultiplicationOperation(4),
+        )
+    )
+    assert pipe.undo((18, 8)) == (3, 2)
+
+
+def test_expand_pipeline_skip_non_pipeline():
+    """Tests that expand_pipeline function ignore non-pipeline objects."""
+
+    # instantiate pipline with branchpoint at step 0.
+    pipe = Pipeline(
+        (MultiplicationOperation(3), MultiplicationOperation(4)),
+    )
+
+    # add the non-pipeline object to branchpoint sub pipelines
+    pipe._steps[0].sub_pipelines.append((1,))
+
+    # test that the non pipeline object isn't in the resultant expanded pipeline.
+    assert (1,) not in branching.branching.expand_pipeline(pipe._steps[0], 3)
