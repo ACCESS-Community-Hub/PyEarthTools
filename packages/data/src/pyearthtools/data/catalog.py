@@ -373,7 +373,7 @@ class Catalog:
     a dictionary with the init kwargs. A `name` kwarg specifies the `CatalogEntry` name.
     """
 
-    def __init__(self, *, catalog_name: Optional[str] = None, entries=Optional[dict]):
+    def __init__(self, *, catalog_name: Optional[str] = None, entries: Optional[dict] = None):
         """
         Initalise a new Catalog of Data Sources
 
@@ -398,8 +398,9 @@ class Catalog:
 
         self.name = catalog_name
 
-        for name, entry in entries.items():
-            self.append(entry, name=name)
+        if entries:
+            for name, entry in entries.items():
+                self.append(entry, name=name)
 
     def append(
         self,
