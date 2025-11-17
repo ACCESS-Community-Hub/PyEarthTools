@@ -29,6 +29,10 @@ dependencies = [
 
 dynamic = ["version", "readme"]
 
+[project.entry-points]
+# Add PyEarthTools as an anemoi datasets source
+"anemoi.datasets.create.sources".pyearthtools = "pyearthtools.pipeline.entrypoints.anemoi:pyearthtoolsSource"
+
 [project.optional-dependencies]
 distributed = [
   "dask",
