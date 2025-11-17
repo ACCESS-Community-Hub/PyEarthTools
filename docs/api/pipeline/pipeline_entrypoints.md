@@ -8,7 +8,7 @@ a pipeline as a source for [anemoi-datasets](https://anemoi.readthedocs.io/proje
 Below is a minimal example of using a `PyEarthTools` pipeline to load data and prepare it for `anemoi`, please see the `anemoi` docs
 for more information on the `datasets` config.
 
-### Create the Pipeline
+### Create the Pipeline in PyEarthTools
 
 .. code-block:: python
 
@@ -44,7 +44,7 @@ for more information on the `datasets` config.
 
     anemoi-datasets create /path/to/anemoi/dataset.yaml
 
-## Contract
+## Function Contract
 
 The expected contract and result from the `PyEarthTools` pipeline is to return an `xarray` object of a single time index.
 
