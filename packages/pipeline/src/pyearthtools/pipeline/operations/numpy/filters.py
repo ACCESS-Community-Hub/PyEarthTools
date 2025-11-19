@@ -48,16 +48,16 @@ class DropAnyNan(NumpyFilter):
         self.record_initialisation()
 
     def filter(self, sample: np.ndarray):
-        """Check if any of the sample is nan
+        """Reject the sample if any value is nan
 
         Args:
             sample (np.ndarray):
                 Sample to check
-        Returns:
-            (bool):
-                If sample contains nan's
+        Raises:
+            (PipelineFilterException):
+                If sample contains one or more nan value
         """
-        if not bool(np.array(list(np.isnan(sample))).any()):
+        if bool(np.array(list(np.isnan(sample))).any()):
             raise PipelineFilterException(sample, "Data contained nan's.")
 
 
@@ -76,16 +76,16 @@ class DropAllNan(NumpyFilter):
         self.record_initialisation()
 
     def filter(self, sample: np.ndarray):
-        """Check if all of the sample is nan
+        """Reject the sample if all of its values are nan
 
         Args:
             sample (np.ndarray):
                 Sample to check
-        Returns:
-            (bool):
-                If sample contains nan's
+        Raises:
+            (PipelineFilterException):
+                If sample contains only nan values
         """
-        if not bool(np.array(list(np.isnan(sample))).all()):
+        if bool(np.array(list(np.isnan(sample))).all()):
             raise PipelineFilterException(sample, "Data contained all nan's.")
 
 
