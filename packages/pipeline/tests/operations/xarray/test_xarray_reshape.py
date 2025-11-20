@@ -30,7 +30,7 @@ SIMPLE_DA1 = xr.DataArray(
             [1.4, 1.5, 3.3],
         ],
     ],
-    coords=[[10, 20], [0, 1, 2], [5, 6, 7]],
+    coords=[[10.1, 20], [0, 1, 2], [5, 6, 7]],
     dims=["height", "lat", "lon"],
 )
 
@@ -81,7 +81,14 @@ def test_CoordinateFlatten():
     f = reshape.CoordinateFlatten(["height"])
     output = f.apply(SIMPLE_DS2)
     variables = list(output.keys())
-    for vbl in ["Temperature10", "Temperature20", "Humidity10", "Humidity20", "WombatsPerKm210", "WombatsPerKm220"]:
+    for vbl in [
+        "Temperature10.1",
+        "Temperature20",
+        "Humidity10.1",
+        "Humidity20",
+        "WombatsPerKm210.1",
+        "WombatsPerKm220",
+    ]:
         assert vbl in variables
 
 
@@ -90,7 +97,7 @@ def test_CoordinateFlatten_complicated_dataset():
     f = reshape.CoordinateFlatten(["height"])
     output = f.apply(COMPLICATED_DS1)
     variables = list(output.keys())
-    for vbl in ["Temperature10", "Temperature20", "MSLP"]:
+    for vbl in ["Temperature10.1", "Temperature20", "MSLP"]:
         assert vbl in variables
 
 
@@ -128,5 +135,12 @@ def test_undo_CoordinateExpand():
     e_output = e.apply(f_output)
     e_undone = e.undo(e_output)
     variables = list(e_undone.keys())
-    for vbl in ["Temperature10", "Temperature20", "Humidity10", "Humidity20", "WombatsPerKm210", "WombatsPerKm220"]:
+    for vbl in [
+        "Temperature10.1",
+        "Temperature20",
+        "Humidity10.1",
+        "Humidity20",
+        "WombatsPerKm210.1",
+        "WombatsPerKm220",
+    ]:
         assert vbl in variables
