@@ -67,6 +67,13 @@ def test_Dimensions_preserve_order():
     assert reversed_output.dims == output.dims
 
 
+def test_Dimensions_noop_undo():
+    """Tests that Dimensions undo returns the input as-is when not applied previously."""
+    d = reshape.Dimensions(["lat"], preserve_order=True)
+    reversed_output = d.undo_func(SIMPLE_DA1)
+    assert reversed_output.dims == SIMPLE_DA1.dims
+
+
 def test_weak_cast_to_int():
 
     wcti = reshape.weak_cast_to_int
