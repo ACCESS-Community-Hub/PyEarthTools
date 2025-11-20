@@ -234,7 +234,8 @@ class CoordinateExpand(Operation):
             dataset = SetType(**{str(coord): dtype})(dataset)
 
             ## Add stored encoding if there
-            if f"{coord}-dtype" in dataset.attrs:
+            # this is always False since attributes always get overwritten.
+            if f"{coord}-dtype" in dataset.attrs:  # pragma: no cover
                 dtype = dataset.attrs.pop(f"{coord}-dtype")
                 dataset[coord].encoding.update(dtype=dtype)
 
