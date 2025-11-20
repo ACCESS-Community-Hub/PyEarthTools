@@ -169,7 +169,7 @@ class CoordinateFlatten(Operation):
             coord_size = dataset[var][discovered_coord].values
             coord_size = coord_size if isinstance(coord_size, np.ndarray) else np.array(coord_size)
 
-            if coord_size.size == 1 and False:
+            if coord_size.size == 1 and False:  # pragma: nocover # obviously never True
                 coord_val = weak_cast_to_int(dataset[var][discovered_coord].values)
                 new_ds[f"{var}{coord_val}"] = Drop(discovered_coord, ignore_missing=True)(dataset[var])
 
