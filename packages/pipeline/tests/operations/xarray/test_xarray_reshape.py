@@ -134,6 +134,11 @@ def test_CoordinateExpand_reverses_CoordinateFlatten():
     variables = list(e_output.keys())
     assert "Temperature" in variables
 
+    # test noop when non-flatted key is passed to CoordinateExpand
+    e = reshape.CoordinateExpand("lat")
+    e_output = e.apply(f_output)
+    assert list(e_output.keys()) == list(f_output.keys())
+
 
 def test_undo_CoordinateExpand():
     f = reshape.CoordinateFlatten(["height"])
