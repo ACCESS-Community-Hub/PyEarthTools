@@ -138,7 +138,7 @@ def test_CoordinateExpand_reverses_CoordinateFlatten():
 def test_undo_CoordinateExpand():
     f = reshape.CoordinateFlatten(["height"])
     f_output = f.apply(SIMPLE_DS2)
-    e = reshape.CoordinateExpand(["height"])
+    e = reshape.CoordinateExpand("height")  # should be able to accept non-list/tuple arg
     e_output = e.apply(f_output)
     e_undone = e.undo(e_output)
     variables = list(e_undone.keys())
