@@ -316,7 +316,7 @@ class Flatten(Operation):
         """
         super().__init__(
             split_tuples=False,
-            recognised_types=(np.ndarray),
+            recognised_types=(np.ndarray, tuple),
         )
         self.record_initialisation()
 
