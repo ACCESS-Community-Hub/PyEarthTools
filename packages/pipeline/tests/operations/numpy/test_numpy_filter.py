@@ -35,7 +35,7 @@ def test_DropAnyNan_true():
     drop = filters.DropAnyNan()
 
     with pytest.raises(PipelineFilterException):
-        result = drop.filter(original)
+        drop.filter(original)
 
 
 def test_DropAllNan_false():
@@ -54,4 +54,29 @@ def test_DropAllNan_true():
     drop = filters.DropAllNan()
 
     with pytest.raises(PipelineFilterException):
-        result = drop.filter(original)
+        drop.filter(original)
+
+
+def test_DropValue():
+
+    # test drop case
+    original = np.array([[1, 1], [np.nan, np.nan]])
+
+    drop = filters.DropValue(value=1, percentage=75)
+
+    with pytest.raises(PipelineFilterException):
+        drop.filter(original)
+
+    # test no drop case
+    drop = filters.DropValue(value=1, percentage=50)
+    drop.filter(original)
+
+    # test with nan - drop case
+    drop = filters.DropValue(value="nan", percentage=75)
+
+    with pytest.raises(PipelineFilterException):
+        drop.filter(original)
+
+    # no drop case
+    drop = filters.DropValue(value="nan", percentage=50)
+    drop.filter(original)
