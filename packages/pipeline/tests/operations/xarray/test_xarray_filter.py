@@ -123,3 +123,66 @@ def test_DropValue():
     # check whole dataset non-drop case
     drop = filters.DropValue(1, 10)
     drop.filter(original)
+
+    # check whole dataset nan drop case
+    drop = filters.DropValue("nan", 50)
+    with pytest.raises(PipelineFilterException):
+        drop.filter(original)
+
+    # check whole dataset nan non-drop case
+    drop = filters.DropValue("nan", 10)
+    drop.filter(original)
+
+    # check invalid type
+    with pytest.raises(TypeError):
+        drop.filter(np.empty((1, 1)))
+
+
+def test_Shape():
+    """Tests Shape xarray filter."""
+
+    originals = (
+        xr.Dataset({"var": xr.DataArray(np.empty((2, 2)))}),
+        xr.Dataset({"var": xr.DataArray(np.empty((2, 3)))}),
+    )
+
+    # check DataArray drop case
+    drop = filters.Shape((2, 3))
+    with pytest.raises(PipelineFilterException):
+        drop.filter(originals[0]["var"])
+
+    # check Dataset drop case
+    with pytest.raises(PipelineFilterException):
+        drop.filter(originals[0])
+
+    # check non-drop cases
+    drop = filters.Shape((2, 2))
+    drop.filter(originals[0]["var"])
+    drop = filters.Shape((1, 2, 2))
+    drop.filter(originals[0])
+
+    # check tuple inputs drop cases
+    drop = filters.Shape(((1, 2, 3), (1, 2, 3)))
+    with pytest.raises(PipelineFilterException):
+        drop.filter(originals)
+
+    drop = filters.Shape(((2, 3), (2, 2)))
+    with pytest.raises(PipelineFilterException):
+        drop.filter(tuple(ds["var"] for ds in originals))
+
+    # check tuple inputs non-drop cases
+    drop = filters.Shape(((1, 2, 2), (1, 2, 3)))
+    drop.filter(originals)
+
+    drop = filters.Shape(((2, 2), (2, 3)))
+    drop.filter(tuple(ds["var"] for ds in originals))
+
+    # invalid mismatched shape and input
+    drop = filters.Shape(((1, 2, 2),))
+    with pytest.raises(RuntimeError):
+        drop.filter(originals)
+
+    # try invalid input type
+    drop = filters.Shape((2,))
+    with pytest.raises(TypeError):
+        drop.filter([1, 2])
