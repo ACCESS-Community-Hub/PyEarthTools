@@ -17,7 +17,7 @@ from typing import Literal, Optional, TypeVar, Union
 
 import numpy as np
 import xarray as xr
-
+import warnings
 import math
 
 from pyearthtools.pipeline.filters import Filter, PipelineFilterException
@@ -68,10 +68,19 @@ class DropAnyNan(XarrayFilter):
             (bool):
                 If sample contains nan's
         """
-        if self.variables:
-            sample = sample[self.variables]
 
-        if np.array(list(np.isnan(sample).values())).any():
+        if self.variables:
+            if isinstance(sample, xr.DataArray):
+                warnings.warn("input sample is xr.DataArray - ignoring filter variables.")
+            else:
+                sample = sample[self.variables]
+
+        if isinstance(sample, xr.DataArray):
+            has_nan = np.isnan(sample).any()
+        elif isinstance(sample, xr.Dataset):
+            has_nan = np.array(list(np.isnan(sample).values())).any()
+
+        if has_nan:
             raise PipelineFilterException(sample, "Data contained nan's.")
 
 
