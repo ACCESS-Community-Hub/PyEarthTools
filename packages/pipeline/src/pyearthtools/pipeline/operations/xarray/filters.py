@@ -71,7 +71,7 @@ class DropAnyNan(XarrayFilter):
         if self.variables:
             sample = sample[self.variables]
 
-        if not bool(np.array(list(np.isnan(sample).values())).any()):
+        if np.array(list(np.isnan(sample).values())).any():
             raise PipelineFilterException(sample, "Data contained nan's.")
 
 
