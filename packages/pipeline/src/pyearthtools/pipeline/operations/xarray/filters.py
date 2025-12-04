@@ -79,6 +79,8 @@ class DropAnyNan(XarrayFilter):
             has_nan = np.isnan(sample).any()
         elif isinstance(sample, xr.Dataset):
             has_nan = np.array(list(np.isnan(sample).values())).any()
+        else:
+            raise TypeError("This filter only accepts xr.DataArray or xr.Dataset")
 
         if has_nan:
             raise PipelineFilterException(sample, "Data contained nan's.")

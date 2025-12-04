@@ -48,3 +48,7 @@ def test_DropAnyNan():
     # check whole dataset without nans - should succeed quietly
     original["var2"][0, 0] = 0
     drop.filter(original)
+
+    # test wrong type
+    with pytest.raises(TypeError):
+        drop.filter(np.empty(1))
