@@ -117,9 +117,19 @@ class DropAllNan(XarrayFilter):
                 If sample contains nan's
         """
         if self.variables:
-            sample = sample[self.variables]
+            if isinstance(sample, xr.DataArray):
+                warnings.warn("input sample is xr.DataArray - ignoring filter variables.")
+            else:
+                sample = sample[self.variables]
 
-        if not bool(np.array(list(np.isnan(sample).values())).all()):
+        if isinstance(sample, xr.DataArray):
+            all_nan = np.isnan(sample).all()
+        elif isinstance(sample, xr.Dataset):
+            all_nan = np.array(list(np.isnan(sample).values())).all()
+        else:
+            raise TypeError("This filter only accepts xr.DataArray or xr.Dataset")
+
+        if all_nan:
             raise PipelineFilterException(sample, "Data contained all nan's.")
 
 
