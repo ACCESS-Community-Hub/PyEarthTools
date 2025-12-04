@@ -80,3 +80,33 @@ def test_DropValue():
     # no drop case
     drop = filters.DropValue(value="nan", percentage=50)
     drop.filter(original)
+
+
+def test_Shape():
+
+    # test drop case
+    original = np.empty((2, 3))
+    drop = filters.Shape((2, 2))
+
+    with pytest.raises(PipelineFilterException):
+        drop.filter(original)
+
+    # test non-drop case
+    original = np.empty((2, 2))
+    drop.filter(original)
+
+    # test with multiple inputs
+    originals = (np.empty((2, 3)), np.empty((2, 2)))
+    drop = filters.Shape(((2, 2), (2, 3)))
+
+    with pytest.raises(PipelineFilterException):
+        drop.filter(originals)
+
+    # test non drop case
+    drop = filters.Shape(((2, 3), (2, 2)))
+    drop.filter(originals)
+
+    # test mismatched number of input shapes
+    drop = filters.Shape(((1, 2), (3, 4), (5, 6)))
+    with pytest.raises(RuntimeError):
+        drop.filter(originals)
