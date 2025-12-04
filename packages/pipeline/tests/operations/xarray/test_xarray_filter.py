@@ -52,3 +52,39 @@ def test_DropAnyNan():
     # test wrong type
     with pytest.raises(TypeError):
         drop.filter(np.empty(1))
+
+
+def test_DropAllNan():
+    """Tests DropAllNan xarray filter."""
+
+    original = xr.Dataset(
+        {
+            "var1": xr.DataArray(np.array([[np.nan, np.nan], [np.nan, 4]])),
+            "var2": xr.DataArray(np.array([[np.nan, np.nan], [np.nan, np.nan]])),
+        }
+    )
+
+    # check var1 of dataset - should succeed quietly
+    drop = filters.DropAllNan("var1")
+    drop.filter(original)
+
+    # warning if dataarray is passed in with filter initialized with variable
+    with pytest.warns():
+        drop.filter(original["var1"])
+
+    # check var2 - should raise exception
+    drop = filters.DropAllNan("var2")
+    with pytest.raises(PipelineFilterException):
+        drop.filter(original["var2"])
+
+    # check whole dataset - should succeed quietly
+    drop = filters.DropAllNan()
+    drop.filter(original)
+
+    # check whole dataset without nans - should succeed quietly
+    original["var2"][0, 0] = 0
+    drop.filter(original)
+
+    # test wrong type
+    with pytest.raises(TypeError):
+        drop.filter(np.empty(1))
