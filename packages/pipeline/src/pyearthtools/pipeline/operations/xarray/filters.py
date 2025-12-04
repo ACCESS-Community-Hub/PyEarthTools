@@ -58,7 +58,7 @@ class DropAnyNan(XarrayFilter):
 
         self.variables = variables
 
-    def _check(self, sample: xr.Dataset):
+    def filter(self, sample: xr.Dataset):
         """Check if any of the sample is nan
 
         Args:
@@ -95,7 +95,7 @@ class DropAllNan(XarrayFilter):
 
         self.variables = variables
 
-    def _check(self, sample: xr.Dataset):
+    def filter(self, sample: xr.Dataset):
         """Check if all of the sample is nan
 
         Args:
