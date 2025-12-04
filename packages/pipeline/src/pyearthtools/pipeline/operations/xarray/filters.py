@@ -168,16 +168,24 @@ class DropValue(XarrayFilter):
             (bool):
                 If sample contains nan's
         """
-        if np.isnan(self._value):
-            function = (  # noqa
-                lambda x: ((np.count_nonzero(np.isnan(x)) / math.prod(x.shape)) * 100) >= self._percentage
-            )  # noqa
+        if isinstance(sample, xr.DataArray):
+            if np.isnan(self._value):
+                drop = ((np.count_nonzero(np.isnan(sample)) / math.prod(sample.shape)) * 100) >= self._percentage
+            else:
+                drop = ((np.count_nonzero(sample == self._value) / math.prod(sample.shape)) * 100) >= self._percentage
+        elif isinstance(sample, xr.Dataset):
+            if np.isnan(self._value):
+                nmatches = np.sum(list(np.isnan(sample).sum().values()))
+                nvalues = np.sum([math.prod(v.shape) for v in sample.values()])
+                drop = nmatches / nvalues * 100 >= self._percentage
+            else:
+                nmatches = np.sum(list((sample == 1).sum().values()))
+                nvalues = np.sum([math.prod(v.shape) for v in sample.values()])
+                drop = nmatches / nvalues * 100 >= self._percentage
         else:
-            function = (  # noqa
-                lambda x: ((np.count_nonzero(x == self._value) / math.prod(x.shape)) * 100) >= self._percentage
-            )  # noqa
+            raise TypeError("This filter only accepts xr.DataArray or xr.Dataset")
 
-        if not function(sample):
+        if not drop:
             raise PipelineFilterException(sample, f"Data contained more than {self._percentage}% of {self._value}.")
 
 
