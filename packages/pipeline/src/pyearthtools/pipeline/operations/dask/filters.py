@@ -164,7 +164,7 @@ class Shape(Filter):
             return tuple(map(self._find_shape, data))
         return data.shape
 
-    def check_shape(self, sample: Union[tuple[da.Array, ...], da.Array]):
+    def filter(self, sample: Union[tuple[da.Array, ...], da.Array]):
         if isinstance(sample, (list, tuple)):
             if not isinstance(self._shape, (list, tuple)) and len(self._shape) == len(sample):
                 raise RuntimeError(
