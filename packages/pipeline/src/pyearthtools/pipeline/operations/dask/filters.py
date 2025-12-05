@@ -166,7 +166,7 @@ class Shape(Filter):
 
     def filter(self, sample: Union[tuple[da.Array, ...], da.Array]):
         if isinstance(sample, (list, tuple)):
-            if not isinstance(self._shape, (list, tuple)) and len(self._shape) == len(sample):
+            if not (isinstance(self._shape, (list, tuple)) and len(self._shape) == len(sample)):
                 raise RuntimeError(
                     f"If sample is tuple, shape must also be, and of the same length. {self._shape} != {tuple(self._find_shape(i) for i in sample)}"
                 )
