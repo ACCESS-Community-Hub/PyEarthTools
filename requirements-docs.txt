@@ -5,4 +5,4 @@
 -e packages/tutorial
 -e packages/zoo
 -e packages/bundled_models/fourcastnext
--e .[all]
+-e .[all,docs]

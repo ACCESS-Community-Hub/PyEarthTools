@@ -108,8 +108,6 @@ The rest of this page contains reference information for the components of the D
 |                  |                                               | - [ExpandedDateFactory](data_api.md#pyearthtools.data.patterns.ExpandedDateFactory) |
 |                  |                                               | - [Static](data_api.md#pyearthtools.data.patterns.Static) |
 |                  |                                               | - [ParsingPattern](data_api.md#pyearthtools.data.patterns.ParsingPattern) |
-|                  |                                               | - [ZarrIndex](data_api.md#pyearthtools.data.patterns.ZarrIndex) |
-|                  |                                               | - [ZarrTimeIndex](data_api.md#pyearthtools.data.patterns.ZarrTimeIndex) |
 | `data.save`      |                                               | - [save.save](data_api.md#pyearthtools.data.save.save) |
 |                  |                                               | - [ManageFiles](data_api.md#pyearthtools.data.save.ManageFiles) |
 |                  |                                               | - [ManageTemp](data_api.md#pyearthtools.data.save.ManageTemp) |

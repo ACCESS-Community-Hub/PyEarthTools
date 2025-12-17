@@ -85,4 +85,3 @@ from pyearthtools.data.patterns.expanded_date import (
 from pyearthtools.data.patterns.parser import ParsingPattern
 from pyearthtools.data.patterns.static import Static
 
-# from pyearthtools.data.patterns.zarr_pattern import ZarrIndex, ZarrTimeIndex

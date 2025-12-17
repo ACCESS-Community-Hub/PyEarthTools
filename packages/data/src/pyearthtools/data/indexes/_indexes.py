@@ -751,7 +751,6 @@ class AdvancedTimeIndex(TimeIndex):
             >>>    | '2021'             | All Data in that year  |
 
         Args:
-
             querytime: Timestep to retrieve data at, can be exact data or range as described above.
             aggregation: If data becomes a range, can specify an aggregation method.
             select: Whether to attempt to select the given timestep if date is either fully qualified
@@ -760,16 +759,13 @@ class AdvancedTimeIndex(TimeIndex):
             kwargs: Kwargs passed to downstream retrieval function
 
         Returns:
-
             Loaded Dataset with transforms applied, and aggregated if `aggregation_method` given.
 
         Raises:
-
             DataNotFoundError: If Data not found at timestep.
 
         Note:
             Extra transforms can be supplied, using `transforms = `
-
         """
 
         querytime = Petdt(querytime)
