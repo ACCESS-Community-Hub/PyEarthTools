@@ -168,9 +168,9 @@ class Shape(Filter):
             return tuple(map(self._find_shape, data))
         return data.shape
 
-    def check_shape(self, sample: Union[tuple[np.ndarray, ...], np.ndarray]):
+    def filter(self, sample: Union[tuple[np.ndarray, ...], np.ndarray]):
         if isinstance(sample, (list, tuple)):
-            if not isinstance(self._shape, (list, tuple)) and len(self._shape) == len(sample):
+            if not (isinstance(self._shape, (list, tuple)) and len(self._shape) == len(sample)):
                 raise RuntimeError(
                     f"If sample is tuple, shape must also be, and of the same length. {self._shape} != {tuple(self._find_shape(i) for i in sample)}"
                 )
