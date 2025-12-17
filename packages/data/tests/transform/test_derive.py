@@ -16,7 +16,7 @@
 import pytest
 import math
 
-from numpy import nan, isnan
+from numpy import isnan
 from pyearthtools.data.transforms.derive import evaluate, EquationException
 
 
