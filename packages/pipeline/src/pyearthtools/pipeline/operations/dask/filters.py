@@ -59,7 +59,7 @@ class DropAnyNan(daskFilter):
             (bool):
                 If sample contains nan's
         """
-        if not bool(da.array(list(da.isnan(sample))).any()):
+        if da.array(list(da.isnan(sample))).any():
             raise PipelineFilterException(sample, "Data contained nan's.")
 
 
@@ -85,7 +85,7 @@ class DropAllNan(daskFilter):
             (bool):
                 If sample contains nan's
         """
-        if not bool(da.array(list(da.isnan(sample))).all()):
+        if da.array(list(da.isnan(sample))).all():
             raise PipelineFilterException(sample, "Data contained all nan's.")
 
 
@@ -164,9 +164,9 @@ class Shape(Filter):
             return tuple(map(self._find_shape, data))
         return data.shape
 
-    def check_shape(self, sample: Union[tuple[da.Array, ...], da.Array]):
+    def filter(self, sample: Union[tuple[da.Array, ...], da.Array]):
         if isinstance(sample, (list, tuple)):
-            if not isinstance(self._shape, (list, tuple)) and len(self._shape) == len(sample):
+            if not (isinstance(self._shape, (list, tuple)) and len(self._shape) == len(sample)):
                 raise RuntimeError(
                     f"If sample is tuple, shape must also be, and of the same length. {self._shape} != {tuple(self._find_shape(i) for i in sample)}"
                 )

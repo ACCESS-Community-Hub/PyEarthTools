@@ -21,7 +21,7 @@ from abc import abstractmethod, ABCMeta
 from typing import Type, TypeVar
 import xarray as xr
 
-from pyearthtools.pipeline import Operation
+from pyearthtools.pipeline.operation import Operation
 
 XR_TYPE = TypeVar("XR_TYPE", xr.Dataset, xr.DataArray)
 

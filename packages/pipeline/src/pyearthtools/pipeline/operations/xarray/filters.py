@@ -17,7 +17,7 @@ from typing import Literal, Optional, TypeVar, Union
 
 import numpy as np
 import xarray as xr
-
+import warnings
 import math
 
 from pyearthtools.pipeline.filters import Filter, PipelineFilterException
@@ -58,7 +58,7 @@ class DropAnyNan(XarrayFilter):
 
         self.variables = variables
 
-    def _check(self, sample: xr.Dataset):
+    def filter(self, sample: xr.Dataset):
         """Check if any of the sample is nan
 
         Args:
@@ -68,10 +68,21 @@ class DropAnyNan(XarrayFilter):
             (bool):
                 If sample contains nan's
         """
-        if self.variables:
-            sample = sample[self.variables]
 
-        if not bool(np.array(list(np.isnan(sample).values())).any()):
+        if self.variables:
+            if isinstance(sample, xr.DataArray):
+                warnings.warn("input sample is xr.DataArray - ignoring filter variables.")
+            else:
+                sample = sample[self.variables]
+
+        if isinstance(sample, xr.DataArray):
+            has_nan = np.isnan(sample).any()
+        elif isinstance(sample, xr.Dataset):
+            has_nan = np.array(list(np.isnan(sample).values())).any()
+        else:
+            raise TypeError("This filter only accepts xr.DataArray or xr.Dataset")
+
+        if has_nan:
             raise PipelineFilterException(sample, "Data contained nan's.")
 
 
@@ -95,7 +106,7 @@ class DropAllNan(XarrayFilter):
 
         self.variables = variables
 
-    def _check(self, sample: xr.Dataset):
+    def filter(self, sample: xr.Dataset):
         """Check if all of the sample is nan
 
         Args:
@@ -106,9 +117,19 @@ class DropAllNan(XarrayFilter):
                 If sample contains nan's
         """
         if self.variables:
-            sample = sample[self.variables]
+            if isinstance(sample, xr.DataArray):
+                warnings.warn("input sample is xr.DataArray - ignoring filter variables.")
+            else:
+                sample = sample[self.variables]
 
-        if not bool(np.array(list(np.isnan(sample).values())).all()):
+        if isinstance(sample, xr.DataArray):
+            all_nan = np.isnan(sample).all()
+        elif isinstance(sample, xr.Dataset):
+            all_nan = np.array(list(np.isnan(sample).values())).all()
+        else:
+            raise TypeError("This filter only accepts xr.DataArray or xr.Dataset")
+
+        if all_nan:
             raise PipelineFilterException(sample, "Data contained all nan's.")
 
 
@@ -147,16 +168,24 @@ class DropValue(XarrayFilter):
             (bool):
                 If sample contains nan's
         """
-        if np.isnan(self._value):
-            function = (  # noqa
-                lambda x: ((np.count_nonzero(np.isnan(x)) / math.prod(x.shape)) * 100) >= self._percentage
-            )  # noqa
+        if isinstance(sample, xr.DataArray):
+            if np.isnan(self._value):
+                drop = ((np.count_nonzero(np.isnan(sample)) / math.prod(sample.shape)) * 100) >= self._percentage
+            else:
+                drop = ((np.count_nonzero(sample == self._value) / math.prod(sample.shape)) * 100) >= self._percentage
+        elif isinstance(sample, xr.Dataset):
+            if np.isnan(self._value):
+                nmatches = np.sum(list(np.isnan(sample).sum().values()))
+                nvalues = np.sum([math.prod(v.shape) for v in sample.values()])
+                drop = nmatches / nvalues * 100 >= self._percentage
+            else:
+                nmatches = np.sum(list((sample == 1).sum().values()))
+                nvalues = np.sum([math.prod(v.shape) for v in sample.values()])
+                drop = nmatches / nvalues * 100 >= self._percentage
         else:
-            function = (  # noqa
-                lambda x: ((np.count_nonzero(x == self._value) / math.prod(x.shape)) * 100) >= self._percentage
-            )  # noqa
+            raise TypeError("This filter only accepts xr.DataArray or xr.Dataset")
 
-        if not function(sample):
+        if not drop:
             raise PipelineFilterException(sample, f"Data contained more than {self._percentage}% of {self._value}.")
 
 
@@ -198,7 +227,7 @@ class Shape(Filter):
 
     def filter(self, sample: Union[tuple[T, ...], T]):
         if isinstance(sample, (list, tuple)):
-            if not isinstance(self._shape, (list, tuple)) and len(self._shape) == len(sample):
+            if not (isinstance(self._shape, (list, tuple)) and len(self._shape) == len(sample)):
                 raise RuntimeError(
                     f"If sample is tuple, shape must also be, and of the same length. {self._shape} != {tuple(self._find_shape(i) for i in sample)}"
                 )
