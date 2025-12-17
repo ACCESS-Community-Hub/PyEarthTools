@@ -269,12 +269,6 @@
 
 .. autoclass:: pyearthtools.data.patterns.ParsingPattern
     :members:
-
-.. autoclass:: pyearthtools.data.patterns.ZarrIndex
-    :members:
-
-.. autoclass:: pyearthtools.data.patterns.ZarrTimeIndex
-    :members:
 ```
 
 ## `data.save`
