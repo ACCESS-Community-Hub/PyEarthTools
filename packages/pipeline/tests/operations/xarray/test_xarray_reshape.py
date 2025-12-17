@@ -30,7 +30,7 @@ SIMPLE_DA1 = xr.DataArray(
             [1.4, 1.5, 3.3],
         ],
     ],
-    coords=[[10, 20], [0, 1, 2], [5, 6, 7]],
+    coords=[[10.1, 20], [0, 1, 2], [5, 6, 7]],
     dims=["height", "lat", "lon"],
 )
 
@@ -67,6 +67,13 @@ def test_Dimensions_preserve_order():
     assert reversed_output.dims == output.dims
 
 
+def test_Dimensions_noop_undo():
+    """Tests that Dimensions undo returns the input as-is when not applied previously."""
+    d = reshape.Dimensions(["lat"], preserve_order=True)
+    reversed_output = d.undo_func(SIMPLE_DA1)
+    assert reversed_output.dims == SIMPLE_DA1.dims
+
+
 def test_weak_cast_to_int():
 
     wcti = reshape.weak_cast_to_int
@@ -81,7 +88,14 @@ def test_CoordinateFlatten():
     f = reshape.CoordinateFlatten(["height"])
     output = f.apply(SIMPLE_DS2)
     variables = list(output.keys())
-    for vbl in ["Temperature10", "Temperature20", "Humidity10", "Humidity20", "WombatsPerKm210", "WombatsPerKm220"]:
+    for vbl in [
+        "Temperature10.1",
+        "Temperature20",
+        "Humidity10.1",
+        "Humidity20",
+        "WombatsPerKm210.1",
+        "WombatsPerKm220",
+    ]:
         assert vbl in variables
 
 
@@ -90,7 +104,7 @@ def test_CoordinateFlatten_complicated_dataset():
     f = reshape.CoordinateFlatten(["height"])
     output = f.apply(COMPLICATED_DS1)
     variables = list(output.keys())
-    for vbl in ["Temperature10", "Temperature20", "MSLP"]:
+    for vbl in ["Temperature10.1", "Temperature20", "MSLP"]:
         assert vbl in variables
 
 
@@ -120,13 +134,25 @@ def test_CoordinateExpand_reverses_CoordinateFlatten():
     variables = list(e_output.keys())
     assert "Temperature" in variables
 
+    # test noop when non-flatted key is passed to CoordinateExpand
+    e = reshape.CoordinateExpand("lat")
+    e_output = e.apply(f_output)
+    assert list(e_output.keys()) == list(f_output.keys())
+
 
 def test_undo_CoordinateExpand():
     f = reshape.CoordinateFlatten(["height"])
     f_output = f.apply(SIMPLE_DS2)
-    e = reshape.CoordinateExpand(["height"])
+    e = reshape.CoordinateExpand("height")  # should be able to accept non-list/tuple arg
     e_output = e.apply(f_output)
     e_undone = e.undo(e_output)
     variables = list(e_undone.keys())
-    for vbl in ["Temperature10", "Temperature20", "Humidity10", "Humidity20", "WombatsPerKm210", "WombatsPerKm220"]:
+    for vbl in [
+        "Temperature10.1",
+        "Temperature20",
+        "Humidity10.1",
+        "Humidity20",
+        "WombatsPerKm210.1",
+        "WombatsPerKm220",
+    ]:
         assert vbl in variables

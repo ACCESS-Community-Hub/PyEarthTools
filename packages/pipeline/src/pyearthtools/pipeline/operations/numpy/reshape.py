@@ -238,7 +238,8 @@ class Flattener:
 
         if self.shape_attempt:
             shape_attempt = self._configure_shape_attempt()
-            if shape_attempt:
+            # if self.shape_attempt is truthy then shape_attempt is always truthy.
+            if shape_attempt:  # pragma: no cover
                 attempts.append((*parsed_shape, *shape_attempt[-1 * self.flatten_dims :]))  # type: ignore
 
         for attemp in attempts:
@@ -315,7 +316,7 @@ class Flatten(Operation):
         """
         super().__init__(
             split_tuples=False,
-            recognised_types=(np.ndarray),
+            recognised_types=(np.ndarray, tuple),
         )
         self.record_initialisation()
 

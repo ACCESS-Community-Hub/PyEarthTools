@@ -169,7 +169,7 @@ class CoordinateFlatten(Operation):
             coord_size = dataset[var][discovered_coord].values
             coord_size = coord_size if isinstance(coord_size, np.ndarray) else np.array(coord_size)
 
-            if coord_size.size == 1 and False:
+            if coord_size.size == 1 and False:  # pragma: nocover # TODO: review why this if stmt was put here.
                 coord_val = weak_cast_to_int(dataset[var][discovered_coord].values)
                 new_ds[f"{var}{coord_val}"] = Drop(discovered_coord, ignore_missing=True)(dataset[var])
 
@@ -234,7 +234,8 @@ class CoordinateExpand(Operation):
             dataset = SetType(**{str(coord): dtype})(dataset)
 
             ## Add stored encoding if there
-            if f"{coord}-dtype" in dataset.attrs:
+            # this is always False since attributes always get overwritten.
+            if f"{coord}-dtype" in dataset.attrs:  # pragma: no cover
                 dtype = dataset.attrs.pop(f"{coord}-dtype")
                 dataset[coord].encoding.update(dtype=dtype)
 

@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from pyearthtools.pipeline.operations.numpy import reshape
+from unittest.mock import MagicMock
 
 import numpy as np
 import pytest
@@ -115,6 +116,53 @@ def test_Flattener_1_dim():
     assert np.all(undo_output == random_array), "Undo Flatten 1 dimension."
 
 
+def success_then_fail(self, *args, **kwargs):
+    yield self
+    raise ValueError()
+
+
+def test_Flattener_exceptions():
+    """Tests all the exceptions that can be raised in the Flattener class."""
+    # try instantiating flattener with invalid dim
+    with pytest.raises(ValueError):
+        reshape.Flattener(flatten_dims=0)
+
+    # test undo without apply
+    f = reshape.Flattener(shape_attempt=(2, 1, 1))
+    random_array = np.random.randn(4, 3, 5)
+    with pytest.raises(RuntimeError):
+        f.undo(random_array)
+
+    # _configure_shape_attempt error when apply not run
+    with pytest.raises(RuntimeError):
+        f._configure_shape_attempt()
+
+    # test undo when flatten_dims unset
+    output = f.apply(random_array)
+    f.flatten_dims = None  # "accidentally" overwrite the dims
+    with pytest.raises(RuntimeError):
+        f.undo(output)
+
+    # setup flattener
+    mock_array = MagicMock()
+    mock_array.__len__.return_value = 1
+    mock_array.shape = tuple([1])
+    mock_array.reshape.return_value = mock_array
+    f = reshape.Flattener()
+    output = f.apply(mock_array)
+
+    # trigger ValueError in undo when reshape fails
+    mock_array.reshape.side_effect = ValueError
+    with pytest.raises(ValueError):
+        f.undo(mock_array)
+
+    # error when input array shape not same rank as shape_attempt
+    f = reshape.Flattener(shape_attempt=("...", 2))
+    output = f.apply(random_array)
+    with pytest.raises(IndexError):
+        f.undo(output)
+
+
 def test_Flatten():
     f1 = reshape.Flatten(flatten_dims=2)
     random_array = np.random.randn(4, 3, 5)
@@ -157,6 +205,20 @@ def test_Flatten_with_shape_attempt_with_ellipses():
     assert f.undo_func(undo_data).shape == (2, 1, 1, 1)
 
 
+def test_Flatten_with_many_arrays():
+    incoming_data = (np.zeros((8, 1, 3, 3)), np.zeros((8, 1, 3, 6)))
+    f = reshape.Flatten()
+    output = f.apply_func(incoming_data)
+    assert isinstance(output, tuple)
+    assert output[0].shape == (8 * 1 * 3 * 3,)
+    assert output[1].shape == (8 * 1 * 3 * 6,)
+    # undo
+    output = f.undo(output)
+    assert isinstance(output, tuple)
+    assert output[0].shape == incoming_data[0].shape
+    assert output[1].shape == incoming_data[1].shape
+
+
 def test_SwapAxis():
     s = reshape.SwapAxis(1, 3)
     random_array = np.random.randn(5, 7, 8, 2)
@@ -164,3 +226,15 @@ def test_SwapAxis():
     assert output.shape == (5, 2, 8, 7), "Swap axes 1 and 3"
     undo_output = s.undo_func(output)
     assert np.all(undo_output == random_array), "Undo axis swap."
+
+
+def test_Flattener_prod_shape_helper():
+    """Tests the Flattener._prod_shape method with numpy input."""
+    f = reshape.Flattener()
+    data = np.array(
+        (
+            (1, 2, 3),
+            (4, 5, 6),
+        )
+    )
+    assert f._prod_shape(data) == 6  # product of data shape
