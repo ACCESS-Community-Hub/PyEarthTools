@@ -56,8 +56,8 @@ all = [
     "pyearthtools-training[all]>=0.5.1",
     "pyearthtools-zoo>=0.5.1",
 ]
-test = ["pytest", "pytest-cov", "pytest-xdist", "pudb"]
-dev = ["pre-commit", "black==25.1.0", "interrogate", "ruff"]
+test = ["pytest", "pytest-cov", "pytest-xdist"]
+dev = ["pre-commit", "black==25.1.0", "interrogate", "ruff", "pudb"]
 docs = [
     "sphinx",
     "myst-parser",
