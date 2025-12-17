@@ -84,4 +84,3 @@ from pyearthtools.data.patterns.expanded_date import (
 )
 from pyearthtools.data.patterns.parser import ParsingPattern
 from pyearthtools.data.patterns.static import Static
-
