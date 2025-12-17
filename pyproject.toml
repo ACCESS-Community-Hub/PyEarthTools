@@ -27,9 +27,9 @@ version = "0.6.0"
 
 dependencies = [
 "pyearthtools-utils>=0.5.1",
-"pyearthtools-data[all]>=0.5.1",
-"pyearthtools-pipeline[all]>=0.5.1",
-"pyearthtools-training[all]>=0.5.1",
+"pyearthtools-data>=0.5.1",
+"pyearthtools-pipeline>=0.5.1",
+"pyearthtools-training>=0.5.1",
 "pyearthtools-zoo>=0.5.1",
 ]
 
