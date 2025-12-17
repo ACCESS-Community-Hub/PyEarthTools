@@ -1,0 +1,8 @@
+-e packages/utils
+-e packages/data
+-e packages/training
+-e packages/pipeline[all]
+-e packages/tutorial
+-e packages/zoo
+-e packages/bundled_models/fourcastnext
+-e .[test]
