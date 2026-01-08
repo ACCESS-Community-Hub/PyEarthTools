@@ -405,7 +405,7 @@ def derive_equations(
         dataset_copy[key].attrs.update(**attrs)
 
     # Drop variables used in the calculation
-    dataset_copy = dataset_copy.drop(set(drop_vars).intersection(dataset_copy.data_vars), errors="ignore")  # type: ignore
+    dataset_copy = dataset_copy.drop_vars(set(drop_vars).intersection(dataset_copy.data_vars), errors="ignore")  # type: ignore
 
     return dataset_copy
 
