@@ -117,7 +117,7 @@ class MaskValue(DaskOperation):
         self.value = value
         self.replacement_value = replacement_value
 
-        self._mask_transform = pyearthtools.data.transforms.mask.replace_value(value, operation, replacement_value)
+        self._mask_transform = pyearthtools.data.transforms.mask.Replace(value, operation, replacement_value)
 
     def apply_func(self, sample: da.Array) -> da.Array:
         """

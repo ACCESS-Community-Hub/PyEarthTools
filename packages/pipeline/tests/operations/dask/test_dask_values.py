@@ -49,3 +49,93 @@ def test_fillnan(example_data):
         .all()
         .compute()
     )
+
+
+def test_maskvalue(example_data):
+    """Tests dask MaskValue operation class."""
+
+    # pass invalid operation
+    with pytest.raises(KeyError):
+        values.MaskValue(1, operation="*")
+
+    # test default op (==)
+    op = values.MaskValue(1)
+    result = op.apply_func(example_data)
+
+    assert da.allclose(
+        result,
+        da.array(
+            [
+                [np.nan, 2.0, 3.0],
+                [-np.inf, np.inf, -np.inf],
+                [np.nan, np.nan, np.nan],
+            ],
+        ),
+        equal_nan=True,
+    )
+
+    # test <= op
+    op = values.MaskValue(2, operation="<=")
+    result = op.apply_func(example_data)
+
+    assert da.allclose(
+        result,
+        da.array(
+            [
+                [np.nan, np.nan, 3.0],
+                [np.nan, np.inf, np.nan],
+                [np.nan, np.nan, np.nan],
+            ],
+        ),
+        equal_nan=True,
+    )
+
+    # test < op
+    op = values.MaskValue(2, operation="<")
+    result = op.apply_func(example_data)
+
+    assert da.allclose(
+        result,
+        da.array(
+            [
+                [np.nan, 2.0, 3.0],
+                [np.nan, np.inf, np.nan],
+                [np.nan, np.nan, np.nan],
+            ],
+        ),
+        equal_nan=True,
+    )
+
+    # test >= op
+    op = values.MaskValue(2, operation=">=")
+    result = op.apply_func(example_data)
+
+    assert np.allclose(
+        result,
+        da.array(
+            [
+                [1.0, np.nan, np.nan],
+                [-np.inf, np.nan, -np.inf],
+                [1.0, np.nan, np.nan],
+            ],
+            dtype=result.dtype,
+        ),
+        equal_nan=True,
+    )
+
+    # test > op
+    op = values.MaskValue(2, operation=">")
+    result = op.apply_func(example_data)
+
+    assert np.allclose(
+        result,
+        da.array(
+            [
+                [1.0, 2.0, np.nan],
+                [-np.inf, np.nan, -np.inf],
+                [1.0, np.nan, np.nan],
+            ],
+            dtype=result.dtype,
+        ),
+        equal_nan=True,
+    )
