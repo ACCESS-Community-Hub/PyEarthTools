@@ -53,7 +53,6 @@ class FillNan(DaskOperation):
                 Value to be used to fill negative infinity values,
                 If no value is passed then negative infinity values will be replaced with a very small (or negative) number. Defaults to None.
         """
-        raise NotImplementedError("Not implemented")
 
         super().__init__(
             operation="apply",
@@ -69,7 +68,7 @@ class FillNan(DaskOperation):
         self.neginf = neginf
 
     def apply_func(self, sample: da.Array):
-        return da.nan_to_num(da.array(sample), self.nan, self.posinf, self.neginf)
+        return da.nan_to_num(da.array(sample), True, self.nan, self.posinf, self.neginf)
 
 
 class MaskValue(DaskOperation):
