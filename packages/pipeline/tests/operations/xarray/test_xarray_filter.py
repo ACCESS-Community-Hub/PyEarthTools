@@ -97,41 +97,41 @@ def test_DropValue():
         {"var1": xr.DataArray(np.array([[1, 1], [3, 4]])), "var2": xr.DataArray(np.array([[np.nan, np.nan], [6, 7]]))}
     )
 
-    # check var1 of dataset drop case
+    # check var1 of dataset non-drop case
     drop = filters.DropValue(1, 75)
+    drop.filter(original["var1"])
+
+    # check var1 of dataset drop case
+    drop = filters.DropValue(1, 50)
     with pytest.raises(PipelineFilterException):
         drop.filter(original["var1"])
 
-    # check var1 of dataset non-drop case
-    drop = filters.DropValue(1, 50)
-    drop.filter(original["var1"])
-
-    # check var2 of dataset drop case (using nan)
+    # check var2 of dataset non-drop case (using nan)
     drop = filters.DropValue("nan", 75)
+    drop.filter(original["var2"])
+
+    # check var2 of dataset drop case
+    drop = filters.DropValue("nan", 50)
     with pytest.raises(PipelineFilterException):
         drop.filter(original["var2"])
 
-    # check var2 of dataset non-drop case
-    drop = filters.DropValue("nan", 50)
-    drop.filter(original["var2"])
-
-    # check whole dataset drop case
-    drop = filters.DropValue(1, 50)
-    with pytest.raises(PipelineFilterException):
-        drop.filter(original)
-
     # check whole dataset non-drop case
-    drop = filters.DropValue(1, 10)
+    drop = filters.DropValue(1, 50)
     drop.filter(original)
 
-    # check whole dataset nan drop case
-    drop = filters.DropValue("nan", 50)
+    # check whole dataset drop case
+    drop = filters.DropValue(1, 10)
     with pytest.raises(PipelineFilterException):
         drop.filter(original)
 
     # check whole dataset nan non-drop case
-    drop = filters.DropValue("nan", 10)
+    drop = filters.DropValue("nan", 50)
     drop.filter(original)
+
+    # check whole dataset nan drop case
+    drop = filters.DropValue("nan", 10)
+    with pytest.raises(PipelineFilterException):
+        drop.filter(original)
 
     # check invalid type
     with pytest.raises(TypeError):

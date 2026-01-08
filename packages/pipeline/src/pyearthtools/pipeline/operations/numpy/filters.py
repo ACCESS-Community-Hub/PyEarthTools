@@ -135,7 +135,7 @@ class DropValue(NumpyFilter):
                 lambda x: ((np.count_nonzero(x == self._value) / math.prod(x.shape)) * 100) >= self._percentage
             )  # noqa
 
-        if not function(sample):
+        if function(sample):
             raise PipelineFilterException(sample, f"Data contained more than {self._percentage}% of {self._value}.")
 
 
