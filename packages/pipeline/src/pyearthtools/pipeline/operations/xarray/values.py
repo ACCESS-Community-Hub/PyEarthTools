@@ -67,7 +67,24 @@ class FillNan(Operation):
         self.neginf = neginf
 
     def apply_func(self, sample: T) -> T:
-        return sample.fillna(self.nan)
+
+        if not (isinstance(sample, xr.DataArray) or isinstance(sample, xr.Dataset)):
+            raise TypeError("sample must be xr.DataArray or xr.Dataset.")
+
+        # create copy of input, with np.nan_to_num applied to underlying numpy arrays
+        if isinstance(sample, xr.DataArray):
+            return sample.copy(
+                deep=True,  # since data is provided, deep copy only applies to coordinates
+                data=np.nan_to_num(sample.values, nan=self.nan, posinf=self.posinf, neginf=self.neginf),
+            )
+        else:
+            return sample.copy(
+                deep=True,
+                data={
+                    k: np.nan_to_num(v.values, nan=self.nan, posinf=self.posinf, neginf=self.neginf)
+                    for k, v in sample.items()
+                },
+            )
 
 
 class MaskValue(Operation):
