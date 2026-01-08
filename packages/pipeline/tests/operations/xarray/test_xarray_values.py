@@ -1,10 +1,10 @@
 # Copyright Commonwealth of Australia, Bureau of Meteorology 2025.
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
+# Licensed under the Apache License, Version 2 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#     http://www.apache.org/licenses/LICENSE-2
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -80,3 +80,184 @@ def test_fillnan(example_dataarray, example_dataset):
 
     with pytest.raises(TypeError):
         op.apply_func(1)
+
+
+def test_maskvalue(example_dataarray, example_dataset):
+    """Tests xarray MaskValue operation class."""
+
+    # pass invalid operation
+    with pytest.raises(KeyError):
+        values.MaskValue(1, operation="*")
+
+    # test default op (==)
+    op = values.MaskValue(1)
+    result = op.apply_func(example_dataarray)
+
+    assert result.equals(
+        xr.DataArray(
+            [
+                [np.nan, 2, 3],
+                [-np.inf, np.inf, -np.inf],
+                [np.nan, np.nan, np.nan],
+            ]
+        )
+    )
+
+    result = op.apply_func(example_dataset)
+
+    assert result.equals(
+        xr.Dataset(
+            {
+                "a": xr.DataArray(
+                    [
+                        [np.nan, 2, 3],
+                        [-np.inf, np.inf, -np.inf],
+                        [np.nan, np.nan, np.nan],
+                    ]
+                ),
+                "b": xr.DataArray(
+                    [
+                        [2, 4, 6],
+                        [-np.inf, np.inf, -np.inf],
+                        [2, np.nan, np.nan],
+                    ]
+                ),
+            }
+        )
+    )
+
+    # test <= op
+    op = values.MaskValue(2, operation="<=")
+    result = op.apply_func(example_dataarray)
+
+    assert result.equals(
+        xr.DataArray(
+            [
+                [np.nan, np.nan, 3],
+                [np.nan, np.inf, np.nan],
+                [np.nan, np.nan, np.nan],
+            ]
+        )
+    )
+
+    result = op.apply_func(example_dataset)
+
+    assert result.equals(
+        xr.Dataset(
+            {
+                "a": xr.DataArray(
+                    [
+                        [np.nan, np.nan, 3],
+                        [np.nan, np.inf, np.nan],
+                        [np.nan, np.nan, np.nan],
+                    ]
+                ),
+                "b": xr.DataArray([[np.nan, 4, 6], [np.nan, np.inf, np.nan], [np.nan, np.nan, np.nan]]),
+            }
+        )
+    )
+
+    # test < op
+    op = values.MaskValue(2, operation="<")
+    result = op.apply_func(example_dataarray)
+
+    assert result.equals(
+        xr.DataArray(
+            [
+                [np.nan, 2, 3],
+                [np.nan, np.inf, np.nan],
+                [np.nan, np.nan, np.nan],
+            ]
+        )
+    )
+
+    result = op.apply_func(example_dataset)
+
+    assert result.equals(
+        xr.Dataset(
+            {
+                "a": xr.DataArray(
+                    [
+                        [np.nan, 2, 3],
+                        [np.nan, np.inf, np.nan],
+                        [np.nan, np.nan, np.nan],
+                    ]
+                ),
+                "b": xr.DataArray([[2, 4, 6], [np.nan, np.inf, np.nan], [2, np.nan, np.nan]]),
+            }
+        )
+    )
+
+    # test >= op
+    op = values.MaskValue(2, operation=">=")
+    result = op.apply_func(example_dataarray)
+
+    assert result.equals(
+        xr.DataArray(
+            [
+                [1, np.nan, np.nan],
+                [-np.inf, np.nan, -np.inf],
+                [1, np.nan, np.nan],
+            ]
+        )
+    )
+
+    result = op.apply_func(example_dataset)
+
+    assert result.equals(
+        xr.Dataset(
+            {
+                "a": xr.DataArray(
+                    [
+                        [1, np.nan, np.nan],
+                        [-np.inf, np.nan, -np.inf],
+                        [1, np.nan, np.nan],
+                    ],
+                ),
+                "b": xr.DataArray(
+                    [
+                        [np.nan, np.nan, np.nan],
+                        [-np.inf, np.nan, -np.inf],
+                        [np.nan, np.nan, np.nan],
+                    ]
+                ),
+            }
+        )
+    )
+
+    # test > op
+    op = values.MaskValue(2, operation=">")
+    result = op.apply_func(example_dataarray)
+
+    assert result.equals(
+        xr.DataArray(
+            [
+                [1, 2, np.nan],
+                [-np.inf, np.nan, -np.inf],
+                [1, np.nan, np.nan],
+            ],
+        ),
+    )
+
+    result = op.apply_func(example_dataset)
+
+    assert result.equals(
+        xr.Dataset(
+            {
+                "a": xr.DataArray(
+                    [
+                        [1, 2, np.nan],
+                        [-np.inf, np.nan, -np.inf],
+                        [1, np.nan, np.nan],
+                    ],
+                ),
+                "b": xr.DataArray(
+                    [
+                        [2, np.nan, np.nan],
+                        [-np.inf, np.nan, -np.inf],
+                        [2, np.nan, np.nan],
+                    ]
+                ),
+            }
+        )
+    )
