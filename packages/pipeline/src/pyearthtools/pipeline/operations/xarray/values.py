@@ -219,7 +219,7 @@ class Derive(Operation):
             **derivations (Union[str, tuple[str, dict[str, Any]]]):
                 Kwarg form of `derivation`.
         """
-        super().__init__(split_tuples=True, recursively_split_tuples=True, recognised_types=(xr.DataArray, xr.Dataset))
+        super().__init__(split_tuples=True, recursively_split_tuples=True, recognised_types=(xr.Dataset,))
         self.record_initialisation()
 
         derivation = derivation or {}

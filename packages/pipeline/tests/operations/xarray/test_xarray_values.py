@@ -281,3 +281,13 @@ def test_clip(example_dataarray, example_dataset):
     result = op.apply_func(example_dataset)
 
     assert result.equals(xr.Dataset({"a": correct_da, "b": correct_da}))
+
+
+def test_derive(example_dataset):
+    """Tests xarray Derive operation class."""
+    op = values.Derive(c="a + b")
+    result = op.apply_func(example_dataset)
+
+    assert result.equals(example_dataset.assign({"c": example_dataset["a"] + example_dataset["b"]}))
+
+    assert op.undo_func(result).equals(example_dataset)
