@@ -139,3 +139,22 @@ def test_maskvalue(example_data):
         ),
         equal_nan=True,
     )
+
+
+def test_clip(example_data):
+    """Tests dask Clip operation class."""
+    op = values.Clip()
+    result = op.apply_func(example_data)
+
+    assert da.allclose(
+        result,
+        da.array(
+            [
+                [1.0, 1.0, 1.0],
+                [0.0, 1.0, 0.0],
+                [1.0, np.nan, np.nan],
+            ],
+            dtype=result.dtype,
+        ),
+        equal_nan=True,
+    )
