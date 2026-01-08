@@ -149,9 +149,9 @@ class MaskValue(Operation):
         return self._mask_transform(sample)
 
 
-class ForceNormalised(Operation):
+class Clip(Operation):
     """
-    Operation to force data within a certain range, by default 0 & 1
+    Operation to force data to be within a certain range, by default 0 & 1
     """
 
     _override_interface = "Serial"
@@ -183,13 +183,11 @@ class ForceNormalised(Operation):
 
         self.record_initialisation()
 
-        self._force_min = MaskValue(min_value, "<", min_value) if min_value is not None else None
-        self._force_max = MaskValue(max_value, ">", max_value) if max_value is not None else None
+        self._min_value = min_value
+        self._max_value = max_value
 
     def apply_func(self, sample):
-        for func in (func for func in [self._force_min, self._force_max] if func is not None):
-            sample = func.apply_func(sample)
-        return sample
+        return sample.clip(min=self._min_value, max=self._max_value)
 
 
 class Derive(Operation):

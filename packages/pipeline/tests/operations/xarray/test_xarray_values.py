@@ -261,3 +261,23 @@ def test_maskvalue(example_dataarray, example_dataset):
             }
         )
     )
+
+
+def test_clip(example_dataarray, example_dataset):
+    """Tests xarray Clip operation class."""
+    op = values.Clip()
+    result = op.apply_func(example_dataarray)
+
+    correct_da = xr.DataArray(
+        [
+            [1, 1, 1],
+            [0, 1, 0],
+            [1, np.nan, np.nan],
+        ],
+    )
+
+    assert result.equals(correct_da)
+
+    result = op.apply_func(example_dataset)
+
+    assert result.equals(xr.Dataset({"a": correct_da, "b": correct_da}))
