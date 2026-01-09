@@ -90,5 +90,5 @@ class OnCoordinate(Spliter):
     def split(self, sample: T) -> tuple[T, ...]:
         return tuple(sample.sel(**{self.coordinate: i}) for i in sample.coords[self.coordinate])
 
-    def undo(self, sample: tuple[T, ...]) -> xr.Dataset:
-        return xr.merge(sample, **(self._merge_kwargs or {}))
+    def join(self, sample: tuple[T, ...]) -> xr.Dataset:
+        return xr.concat(sample, dim=self.coordinate)

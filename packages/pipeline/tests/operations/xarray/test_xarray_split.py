@@ -21,7 +21,9 @@ import pytest
 
 @pytest.fixture(scope="module")
 def example_dataarray():
-    return xr.DataArray(np.array(range(2 * 3 * 4)).reshape((2, 3, 4)))
+    return xr.DataArray(
+        np.array(range(2 * 3 * 4)).reshape((2, 3, 4)), coords={"c0": range(2), "c1": range(3), "c2": range(4)}
+    )
 
 
 @pytest.fixture(scope="module")
@@ -51,3 +53,22 @@ def test_onvariables(example_dataset):
     op = split.OnVariables(variables=("c",))
     with pytest.raises(ValueError):
         op.split(example_dataset)
+
+
+def test_oncoordinate(example_dataarray, example_dataset):
+    """Tests xarray OnCoordinate operation class."""
+    op = split.OnCoordinate("c1")
+    result = op.split(example_dataset)
+    for i, arr in enumerate(result):
+        assert arr["a"].equals(example_dataset["a"].loc[:, i, :])
+        assert arr["b"].equals(example_dataset["b"].loc[:, i, :])
+
+    orig = op.join(result)
+    assert orig.broadcast_equals(example_dataset)
+
+    result = op.split(example_dataarray)
+    for i, arr in enumerate(result):
+        assert arr.equals(example_dataarray.loc[:, i, :])
+
+    orig = op.join(result)
+    assert orig.broadcast_equals(example_dataarray)
