@@ -43,7 +43,7 @@ class OnVariables(Spliter):
                 Kwargs needed for merge on the `undo`. Defaults to None.
         """
         super().__init__(
-            recognised_types=(xr.DataArray, xr.Dataset),
+            recognised_types=(xr.Dataset,),
             recursively_split_tuples=True,
         )
         self.record_initialisation()
