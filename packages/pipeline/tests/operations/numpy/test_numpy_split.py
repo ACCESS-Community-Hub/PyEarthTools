@@ -35,3 +35,15 @@ def test_onaxis(example_data):
 
     orig = op.join(result)
     assert np.array_equal(orig, example_data)
+
+
+def test_onslice(example_data):
+    """Tests numpy OnSlice split operation class."""
+    slices = ((0, 1), (1, 2), (2, 4))
+    op = split.OnSlice(*slices, axis=2)
+    result = op.split(example_data)
+    for sl, arr in zip(slices, result, strict=True):
+        assert np.array_equal(arr, example_data[:, :, sl[0] : sl[1]])
+
+    orig = op.join(result)
+    assert np.array_equal(orig, example_data)

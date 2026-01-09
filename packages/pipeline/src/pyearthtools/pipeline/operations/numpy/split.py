@@ -107,9 +107,7 @@ class OnSlice(Spliter):
     def join(self, sample: tuple[np.ndarray]) -> np.ndarray:
         """Join `sample` together"""
 
-        data = np.stack(sample, axis=0)
-        data = np.moveaxis(data, 0, self.axis)
-        return data
+        return np.concat(sample, axis=self.axis)
 
 
 class VSplit(Spliter):
