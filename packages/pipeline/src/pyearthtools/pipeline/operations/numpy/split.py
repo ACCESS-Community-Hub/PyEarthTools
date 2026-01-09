@@ -133,7 +133,8 @@ class VSplit(Spliter):
         self.record_initialisation()
 
     def split(self, sample: np.ndarray) -> tuple[np.ndarray]:
-        return np.vsplit(sample)  # type: ignore
+        # splits into equally-sized subsections.
+        return np.vsplit(sample, indices_or_sections=sample.shape[0])  # type: ignore
 
     def join(self, sample: tuple[np.ndarray]) -> np.ndarray:
         """Join `sample` together"""
@@ -163,7 +164,10 @@ class HSplit(Spliter):
         self.record_initialisation()
 
     def split(self, sample: np.ndarray) -> tuple[np.ndarray]:
-        return np.hsplit(sample)  # type: ignore
+        # splits into equally-sized subsections.
+
+        nsections = sample.shape[min(1, sample.ndim - 1)]  # np.hsplit will split along axis 0 if ndims==1
+        return np.hsplit(sample, indices_or_sections=nsections)  # type: ignore
 
     def join(self, sample: tuple[np.ndarray]) -> np.ndarray:
         """Join `sample` together"""

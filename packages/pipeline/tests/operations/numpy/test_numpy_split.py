@@ -47,3 +47,21 @@ def test_onslice(example_data):
 
     orig = op.join(result)
     assert np.array_equal(orig, example_data)
+
+
+def test_vsplit(example_data):
+    """Tests numpy VSplit split operation class."""
+    op = split.VSplit()
+    result = op.split(example_data)
+    assert all(np.array_equal(arr, result[i]) for i, arr in enumerate(result))
+    orig = op.join(result)
+    assert np.array_equal(orig, example_data)
+
+
+def test_hsplit(example_data):
+    """Tests numpy HSplit split operation class."""
+    op = split.HSplit()
+    result = op.split(example_data)
+    assert all(np.array_equal(arr, example_data[:, i : i + 1, :]) for i, arr in enumerate(result))
+    orig = op.join(result)
+    assert np.array_equal(orig, example_data)
