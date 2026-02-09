@@ -1,0 +1,91 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyearthtools-persistence"
+version = "0.6.0"
+description = "Persistence Bundled Model"
+readme = "README.md"
+requires-python = ">=3.11, <3.14"
+keywords = ["persistence", "pyearthtools", "models"]
+maintainers = [
+  {name = "Tennessee Leeuwenburg", email = "tennessee.leeuwenburg@bom.gov.au"},
+  {name = "Nikeeth Ramanathan", email = "nikeeth.ramanathan@gmail.com"},
+]
+classifiers = [
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+ 'pyearthtools.zoo>=0.5.0',
+ 'pyearthtools.data>=0.5.0',
+ 'pyearthtools.pipeline>=0.5.0',
+ 'hydra-core',
+]
+[dependency-groups]
+dev = [
+  "pytest>=8.4.2",
+  "ruff",
+  "pytest-cov",
+  "pytest-xdist",
+]
+
+[project.urls]
+homepage = "https://pyearthtools.readthedocs.io/"
+documentation = "https://pyearthtools.readthedocs.io/"
+repository = "https://github.com/ACCESS-Community-Hub/PyEarthTools"
+
+[project.entry-points."pyearthtools.zoo.model"]
+Global_PERSIST = "persistence.registered_model:Persistence"
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 120
+
+[tool.mypy]
+warn_return_any = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+ignore_missing_imports = true
+
+[tool.hatch.version]
+path = "src/persistence/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pyearthtools/"]
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+
+[tool.pixi.pypi-dependencies]
+pyearthtools-persistence = { path = ".", editable = true }
+
+[tool.pixi.tasks]
+
+[tool.pixi.dependencies]
+python = ">=3.11,<3.14"
+xarray = ">=2026.1.0,<2027"
+
+[tool.pixi.feature.testing.dependencies]
+pytest = ">=9.0.2,<10"
+pytest-cov = ">=7.0.0,<8"
+pytest-xdist = ">=3.8.0,<4"
+ruff = ">=0.15.0,<0.16"
+ipython = ">=9.10.0,<10"
+
+[tool.pixi.feature.dask.dependencies]
+dask-core = "*"
+distributed = "*"
+pyarrow = ">=23.0.0,<24"
+
+[tool.pixi.environments]
+dask = ["dask"]
+dev = ["dask", "testing"]
