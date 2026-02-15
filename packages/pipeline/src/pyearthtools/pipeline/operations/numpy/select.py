@@ -63,27 +63,20 @@ class Select(Operation):
         self.tuple_index = tuple_index
 
     def _index(self, data, array_index):
-        shape = data.shape
-        for i, index in enumerate(reversed(array_index)):
-            if index is None:
-                pass
-            selected_data = np.take(data, indices=index, axis=-(i + 1))
-            if len(selected_data.shape) < len(shape):
-                selected_data = np.expand_dims(selected_data, axis=-(i + 1))
-            data = selected_data
-        return data
+        # below comprehension:
+        #   - ensures indexer is tuple (requirement)
+        #   - converts instances of None into slice(None)
+        indexer = tuple(slice(None) if index is None else index for index in array_index)
+        return data[indexer]
 
     def apply_func(self, data):
         array_index = self.array_index
 
         if isinstance(data, tuple):
-            data = list(data)
             if self.tuple_index is None:
-                return tuple(map(lambda x: self._index(x, array_index), data))
+                return tuple(self._index(x, array_index) for x in data)
 
-            data[self.tuple_index] = self._index(data[self.tuple_index], array_index)
-            data = tuple(data)
-            return data
+            return tuple(self._index(arr, array_index) if i == self.tuple_index else arr for i, arr in enumerate(data))
 
         return self._index(data, array_index)
 
