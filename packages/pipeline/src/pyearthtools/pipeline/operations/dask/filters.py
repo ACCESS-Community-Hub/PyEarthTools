@@ -49,15 +49,15 @@ class DropAnyNan(daskFilter):
         super().__init__()
         self.record_initialisation()
 
-    def filter(self, sample: da.Array):
+    def filter(self, sample: da.Array) -> None:
         """Check if any of the sample is nan
 
         Args:
             sample (da.Array):
                 Sample to check
-        Returns:
-            (bool):
-                If sample contains nan's
+        Raises:
+            (PipelineFilterException):
+                If sample contains one or more nan value
         """
         if da.array(list(da.isnan(sample))).any():
             raise PipelineFilterException(sample, "Data contained nan's.")
@@ -75,15 +75,15 @@ class DropAllNan(daskFilter):
         super().__init__()
         self.record_initialisation()
 
-    def filter(self, sample: da.Array):
+    def filter(self, sample: da.Array) -> None:
         """Check if all of the sample is nan
 
         Args:
             sample (da.Array):
                 Sample to check
-        Returns:
-            (bool):
-                If sample contains nan's
+        Raises:
+            (PipelineFilterException):
+                If sample contains only nan values
         """
         if da.array(list(da.isnan(sample))).all():
             raise PipelineFilterException(sample, "Data contained all nan's.")
@@ -114,15 +114,15 @@ class DropValue(daskFilter):
         self._value = value
         self._percentage = percentage
 
-    def filter(self, sample: da.Array):
+    def filter(self, sample: da.Array) -> None:
         """Check if all of the sample is nan
 
         Args:
             sample (da.Array):
                 Sample to check
-        Returns:
-            (bool):
-                If sample contains nan's
+        Raises:
+            (PipelineFilterException):
+                If number of elements equal to value are greater than percentage
         """
         if da.isnan(self._value):
             function = (  # noqa

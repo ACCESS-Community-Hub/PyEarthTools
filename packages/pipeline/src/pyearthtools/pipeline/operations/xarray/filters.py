@@ -58,15 +58,15 @@ class DropAnyNan(XarrayFilter):
 
         self.variables = variables
 
-    def filter(self, sample: xr.Dataset):
+    def filter(self, sample: xr.Dataset) -> None:
         """Check if any of the sample is nan
 
         Args:
             sample (xr.Dataset):
                 Sample to check
-        Returns:
-            (bool):
-                If sample contains nan's
+        Raises:
+            (PipelineFilterException):
+                If sample contains one or more nan value
         """
 
         if self.variables:
@@ -106,15 +106,17 @@ class DropAllNan(XarrayFilter):
 
         self.variables = variables
 
-    def filter(self, sample: xr.Dataset):
+    def filter(self, sample: xr.Dataset) -> None:
         """Check if all of the sample is nan
 
         Args:
             sample (xr.Dataset):
                 Sample to check
-        Returns:
-            (bool):
-                If sample contains nan's
+        Raises:
+            (PipelineFilterException):
+                If sample contains only nan values
+            (TypeError):
+                If sample is not an xr.DataArray or xr.Dataset
         """
         if self.variables:
             if isinstance(sample, xr.DataArray):
@@ -158,15 +160,15 @@ class DropValue(XarrayFilter):
         self._value = value
         self._percentage = percentage
 
-    def filter(self, sample: T):
+    def filter(self, sample: T) -> None:
         """Check if all of the sample is nan
 
         Args:
             sample (np.ndarray):
                 Sample to check
-        Returns:
-            (bool):
-                If sample contains nan's
+        Raises:
+            (PipelineFilterException):
+                If number of elements equal to value are greater than percentage
         """
         if isinstance(sample, xr.DataArray):
             if np.isnan(self._value):

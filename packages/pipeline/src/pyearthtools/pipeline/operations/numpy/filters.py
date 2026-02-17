@@ -47,7 +47,7 @@ class DropAnyNan(NumpyFilter):
         super().__init__()
         self.record_initialisation()
 
-    def filter(self, sample: np.ndarray):
+    def filter(self, sample: np.ndarray) -> None:
         """Reject the sample if any value is nan
 
         Args:
@@ -75,7 +75,7 @@ class DropAllNan(NumpyFilter):
         super().__init__()
         self.record_initialisation()
 
-    def filter(self, sample: np.ndarray):
+    def filter(self, sample: np.ndarray) -> None:
         """Reject the sample if all of its values are nan
 
         Args:
@@ -116,15 +116,15 @@ class DropValue(NumpyFilter):
         self._value = value
         self._percentage = percentage
 
-    def filter(self, sample: np.ndarray):
+    def filter(self, sample: np.ndarray) -> None:
         """Check if all of the sample is nan
 
         Args:
             sample (np.ndarray):
                 Sample to check
-        Returns:
-            (bool):
-                If sample contains nan's
+        Raises:
+            (PipelineFilterException):
+                If number of elements equal to value are greater than percentage
         """
         if np.isnan(self._value):
             function = (  # noqa
