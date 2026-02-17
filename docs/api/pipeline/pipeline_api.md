@@ -92,7 +92,7 @@
 .. autoclass:: pyearthtools.pipeline.modifications.TemporalRetrieval
     :members:
 .. autoclass:: pyearthtools.pipeline.modifications.TemporalWindow
-    :members:    
+    :members:
 .. autoclass:: pyearthtools.pipeline.modifications.idx_modification
     :members:
 ```
@@ -159,7 +159,7 @@
     :members:
 .. autoclass:: pyearthtools.pipeline.operations.xarray.values.MaskValue
     :members:
-.. autoclass:: pyearthtools.pipeline.operations.xarray.values.ForceNormalised
+.. autoclass:: pyearthtools.pipeline.operations.xarray.values.Clip
     :members:
 .. autoclass:: pyearthtools.pipeline.operations.xarray.values.Derive
     :members:
@@ -247,7 +247,7 @@
     :members:
 .. autoclass:: pyearthtools.pipeline.operations.dask.values.MaskValue
     :members:
-.. autoclass:: pyearthtools.pipeline.operations.dask.values.ForceNormalised
+.. autoclass:: pyearthtools.pipeline.operations.dask.values.Clip
     :members:
 
 .. autoclass:: pyearthtools.pipeline.operations.dask.normalisation.daskNormalisation
@@ -324,7 +324,7 @@
     :members:
 .. autoclass:: pyearthtools.pipeline.operations.numpy.values.MaskValue
     :members:
-.. autoclass:: pyearthtools.pipeline.operations.numpy.values.ForceNormalised
+.. autoclass:: pyearthtools.pipeline.operations.numpy.values.Clip
     :members:
 
 .. autoclass:: pyearthtools.pipeline.operations.numpy.normalisation.numpyNormalisation
