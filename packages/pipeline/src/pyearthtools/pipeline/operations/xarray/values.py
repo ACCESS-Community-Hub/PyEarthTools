@@ -68,6 +68,7 @@ class FillNan(Operation):
 
     def apply_func(self, sample: T) -> T:
 
+        # TODO: #239 remove superfluous type checks.
         if not (isinstance(sample, xr.DataArray) or isinstance(sample, xr.Dataset)):
             raise TypeError("sample must be xr.DataArray or xr.Dataset.")
 
