@@ -44,13 +44,13 @@ class FillNan(Operation):
         Args:
             nan (float, optional):
                 Value to fill nan's with.
-                If no value is passed then NaN values will not be replaced. Defaults to 0.
+                If None is passed then NaN values will be replaced with 0. Defaults to 0.
             posinf (float, optional):
                 Value to be used to fill positive infinity values,
-                If no value is passed then positive infinity values will be replaced with a very large number. Defaults to None.
+                If None is passed then positive infinity values will be replaced with a very large number. Defaults to None.
             neginf (float, optional):
                 Value to be used to fill negative infinity values,
-                If no value is passed then negative infinity values will be replaced with a very small (or negative) number. Defaults to None.
+                If None is passed then negative infinity values will be replaced with a very small (or negative) number. Defaults to None.
         """
 
         super().__init__(
