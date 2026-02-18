@@ -19,7 +19,7 @@ Please review your pull request for the following steps. Feel free to delete any
 
 Alternatively, if generative AI was used, then confirm you have:
  
- - [ ] Attributed any generative AI (such as GitHub Copilot) that was used in this PR. See [our contributing guide](https://github.com/ACCESS-Community-Hub/PyEarthTools?tab=contributing-ov-file) for more information.
+ - [ ] Attributed any generative AI (such as GitHub Copilot) that was used in this PR. See [our contributing guide](https://github.com/ACCESS-Community-Hub/PyEarthTools?tab=contributing-ov-file#generative-ai-usage) for more information.
  - [ ] Included the name and version of the tool or system in the pull request
  - [ ] Described the scope of that use
 
