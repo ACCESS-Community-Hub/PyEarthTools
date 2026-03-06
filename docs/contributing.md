@@ -29,6 +29,23 @@ Details of the contribution workflow can be found in the [Developer Guide](https
 - Coding formatting and test coverage requirements
 - GitHub actions
 
+## Generative AI Usage
+
+Generative AI tools can be helpful, but contributors must be transparent about using them in the `PyEarthTools` repository.
+
+1.	Contributors must declare any use of generative AI tools in preparing their pull request. Because `PyEarthTools` may be used for academic work and many journals now require authors to declare if generative AI tools are used (see [1](https://joss.readthedocs.io/en/latest/policies.html#ai-usage-policy ), [2](https://www.ametsoc.org/ams/publications/ethical-guidelines-and-ams-policies/author-disclosure-and-obligations/), [3](https://www.egu.eu/news/1031/statement-on-the-use-of-ai-based-tools-for-the-presentation-and-publication-of-research-results-in-earth-planetary-and-space-science/), [4](https://rmets.onlinelibrary.wiley.com/hub/ai-policy)), it is important to keep track of generative AI usage.
+2.	The name of any generative AI tool or system used, and the version, should be included in each pull request, including identifying exactly where they were applied. The pull request template will include this in the checklist.
+3.	A human must be in the loop for all pull requests. Human contributors must understand their code, have reviewed it before submitting the pull request, and be able to explain all changes during review.
+4.	Contributors are responsible for all submitted content, regardless of whether generative AI tools were used.
+5.	If bots wish to propose improvements to the `PyEarthTools` package, they should create an issue rather than submitting a pull request. The issue should clearly describe the proposed feature or change and may include example code snippets to illustrate how the implementation could be improved.
+6.	All contributions must adhere to the [code of conduct]([https://github.com/nci/scores/blob/develop/CODE_OF_CONDUCT.md](https://github.com/ACCESS-Community-Hub/PyEarthTools?tab=coc-ov-file)).
+7.	Given that generative tools are evolving rapidly, this policy will likely be adjusted over time.
+
+[1] https://joss.readthedocs.io/en/latest/policies.html#ai-usage-policy  
+[2] https://www.ametsoc.org/ams/publications/ethical-guidelines-and-ams-policies/author-disclosure-and-obligations/  
+[3] https://www.egu.eu/news/1031/statement-on-the-use-of-ai-based-tools-for-the-presentation-and-publication-of-research-results-in-earth-planetary-and-space-science/  
+[4] https://rmets.onlinelibrary.wiley.com/hub/ai-policy  
+
 
 ## Contributor Recognition in Zenodo
 

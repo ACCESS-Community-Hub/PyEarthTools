@@ -390,22 +390,24 @@ def derive_equations(
         attrs["equation"] = eq
 
         LOG.debug(f"Setting {key!r} to result of {eq!r}.")
-        result, eq_drop_vars = _evaluate(eq, dataset=dataset)
+        # shallow copy dataset, so new variables aren't added to old dataset
+        dataset_copy = dataset.copy(deep=False)
+        result, eq_drop_vars = _evaluate(eq, dataset=dataset_copy)
 
-        if key in list(dataset.coords.keys()):
-            dataset = dataset.assign_coords({key: result})
+        if key in list(dataset_copy.coords.keys()):
+            dataset_copy = dataset_copy.assign_coords({key: result})
         else:
-            dataset[key] = result
+            dataset_copy[key] = result
 
         if attrs.pop("drop", drop):
             _ = list(drop_vars.append(var) for var in eq_drop_vars)
 
-        dataset[key].attrs.update(**attrs)
+        dataset_copy[key].attrs.update(**attrs)
 
     # Drop variables used in the calculation
-    dataset = dataset.drop(set(drop_vars).intersection(dataset.data_vars), errors="ignore")  # type: ignore
+    dataset_copy = dataset_copy.drop_vars(set(drop_vars).intersection(dataset_copy.data_vars), errors="ignore")  # type: ignore
 
-    return dataset
+    return dataset_copy
 
 
 class Derive(Transform):

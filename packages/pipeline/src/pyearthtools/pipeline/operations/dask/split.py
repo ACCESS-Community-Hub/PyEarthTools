@@ -106,9 +106,7 @@ class OnSlice(Spliter, DaskOperation):
     def join(self, sample: tuple[da.Array]) -> da.Array:
         """Join `sample` together"""
 
-        data = da.stack(sample, axis=0)
-        data = da.moveaxis(data, 0, self.axis)
-        return data
+        return da.concatenate(sample, axis=self.axis)
 
 
 # class VSplit(Spliter, DaskOperation):
