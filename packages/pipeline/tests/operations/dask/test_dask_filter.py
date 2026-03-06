@@ -62,24 +62,24 @@ def test_DropValue():
 
     original = da.from_array([[0, 0], [1, 2]])
 
-    # drop case (num zeros < threshold)
+    # non-drop case (num zeros < threshold)
     drop = filters.DropValue(0, 75)
+    drop.filter(original)
+
+    # drop case  (num zeros >= threshold)
+    drop = filters.DropValue(0, 50)
     with pytest.raises(PipelineFilterException):
         drop.filter(original)
 
-    # non-drop case  (num zeros >= threshold)
-    drop = filters.DropValue(0, 50)
-    drop.filter(original)
-
-    # drop case  (num nans < threshold)
+    # non-drop case  (num nans < threshold)
     original = da.from_array([[np.nan, np.nan], [1, 2]])
     drop = filters.DropValue("nan", 75)
+    drop.filter(original)
+
+    # drop case (num nans >= threshold)
+    drop = filters.DropValue("nan", 50)
     with pytest.raises(PipelineFilterException):
         drop.filter(original)
-
-    # non-drop case (num nans >= threshold)
-    drop = filters.DropValue("nan", 50)
-    drop.filter(original)
 
 
 def test_Shape():

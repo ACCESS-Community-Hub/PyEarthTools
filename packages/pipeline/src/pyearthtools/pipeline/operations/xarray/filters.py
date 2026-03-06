@@ -187,7 +187,7 @@ class DropValue(XarrayFilter):
         else:
             raise TypeError("This filter only accepts xr.DataArray or xr.Dataset")
 
-        if not drop:
+        if drop:
             raise PipelineFilterException(sample, f"Data contained more than {self._percentage}% of {self._value}.")
 
 

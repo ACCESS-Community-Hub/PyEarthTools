@@ -64,22 +64,22 @@ def test_DropValue():
 
     drop = filters.DropValue(value=1, percentage=75)
 
+    drop.filter(original)
+
+    # test drop case
+    drop = filters.DropValue(value=1, percentage=50)
     with pytest.raises(PipelineFilterException):
         drop.filter(original)
 
-    # test no drop case
-    drop = filters.DropValue(value=1, percentage=50)
-    drop.filter(original)
-
-    # test with nan - drop case
+    # test with nan - non-drop case
     drop = filters.DropValue(value="nan", percentage=75)
 
+    drop.filter(original)
+
+    # drop case
+    drop = filters.DropValue(value="nan", percentage=50)
     with pytest.raises(PipelineFilterException):
         drop.filter(original)
-
-    # no drop case
-    drop = filters.DropValue(value="nan", percentage=50)
-    drop.filter(original)
 
 
 def test_Shape():
