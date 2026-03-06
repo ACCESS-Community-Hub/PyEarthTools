@@ -44,13 +44,13 @@ class FillNan(Operation):
         Args:
             nan (float, optional):
                 Value to fill nan's with.
-                If no value is passed then NaN values will not be replaced. Defaults to 0.
+                If None is passed then NaN values will be replaced with 0. Defaults to 0.
             posinf (float, optional):
                 Value to be used to fill positive infinity values,
-                If no value is passed then positive infinity values will be replaced with a very large number. Defaults to None.
+                If None is passed then positive infinity values will be replaced with a very large number. Defaults to None.
             neginf (float, optional):
                 Value to be used to fill negative infinity values,
-                If no value is passed then negative infinity values will be replaced with a very small (or negative) number. Defaults to None.
+                If None is passed then negative infinity values will be replaced with a very small (or negative) number. Defaults to None.
         """
 
         super().__init__(
@@ -67,7 +67,25 @@ class FillNan(Operation):
         self.neginf = neginf
 
     def apply_func(self, sample: T) -> T:
-        return sample.fillna(self.nan)
+
+        # TODO: #239 remove superfluous type checks.
+        if not (isinstance(sample, xr.DataArray) or isinstance(sample, xr.Dataset)):
+            raise TypeError("sample must be xr.DataArray or xr.Dataset.")
+
+        # create copy of input, with np.nan_to_num applied to underlying numpy arrays
+        if isinstance(sample, xr.DataArray):
+            return sample.copy(
+                deep=True,  # since data is provided, deep copy only applies to coordinates
+                data=np.nan_to_num(sample.values, nan=self.nan, posinf=self.posinf, neginf=self.neginf),
+            )
+        else:
+            return sample.copy(
+                deep=True,
+                data={
+                    k: np.nan_to_num(v.values, nan=self.nan, posinf=self.posinf, neginf=self.neginf)
+                    for k, v in sample.items()
+                },
+            )
 
 
 class MaskValue(Operation):
@@ -132,9 +150,9 @@ class MaskValue(Operation):
         return self._mask_transform(sample)
 
 
-class ForceNormalised(Operation):
+class Clip(Operation):
     """
-    Operation to force data within a certain range, by default 0 & 1
+    Operation to force data to be within a certain range, by default 0 & 1
     """
 
     _override_interface = "Serial"
@@ -166,13 +184,11 @@ class ForceNormalised(Operation):
 
         self.record_initialisation()
 
-        self._force_min = MaskValue(min_value, "<", min_value) if min_value is not None else None
-        self._force_max = MaskValue(max_value, ">", max_value) if max_value is not None else None
+        self._min_value = min_value
+        self._max_value = max_value
 
     def apply_func(self, sample):
-        for func in (func for func in [self._force_min, self._force_max] if func is not None):
-            sample = func.apply_func(sample)
-        return sample
+        return sample.clip(min=self._min_value, max=self._max_value)
 
 
 class Derive(Operation):
@@ -204,7 +220,7 @@ class Derive(Operation):
             **derivations (Union[str, tuple[str, dict[str, Any]]]):
                 Kwarg form of `derivation`.
         """
-        super().__init__(split_tuples=True, recursively_split_tuples=True, recognised_types=(xr.DataArray, xr.Dataset))
+        super().__init__(split_tuples=True, recursively_split_tuples=True, recognised_types=(xr.Dataset,))
         self.record_initialisation()
 
         derivation = derivation or {}

@@ -45,15 +45,14 @@ class FillNan(DaskOperation):
         Args:
             nan (float, optional):
                 Value to fill nan's with.
-                If no value is passed then NaN values will not be replaced. Defaults to 0.
+                If None is passed then NaN values will be replaced with 0. Defaults to 0.
             posinf (float, optional):
                 Value to be used to fill positive infinity values,
-                If no value is passed then positive infinity values will be replaced with a very large number. Defaults to None.
+                If None is passed then positive infinity values will be replaced with a very large number. Defaults to None.
             neginf (float, optional):
                 Value to be used to fill negative infinity values,
-                If no value is passed then negative infinity values will be replaced with a very small (or negative) number. Defaults to None.
+                If None is passed then negative infinity values will be replaced with a very small (or negative) number. Defaults to None.
         """
-        raise NotImplementedError("Not implemented")
 
         super().__init__(
             operation="apply",
@@ -69,7 +68,7 @@ class FillNan(DaskOperation):
         self.neginf = neginf
 
     def apply_func(self, sample: da.Array):
-        return da.nan_to_num(da.array(sample), self.nan, self.posinf, self.neginf)
+        return da.nan_to_num(da.array(sample), True, self.nan, self.posinf, self.neginf)
 
 
 class MaskValue(DaskOperation):
@@ -118,7 +117,7 @@ class MaskValue(DaskOperation):
         self.value = value
         self.replacement_value = replacement_value
 
-        self._mask_transform = pyearthtools.data.transforms.mask.replace_value(value, operation, replacement_value)
+        self._mask_transform = pyearthtools.data.transforms.mask.Replace(value, operation, replacement_value)
 
     def apply_func(self, sample: da.Array) -> da.Array:
         """
@@ -135,9 +134,9 @@ class MaskValue(DaskOperation):
         return self._mask_transform(sample)  # type: ignore
 
 
-class ForceNormalised(DaskOperation):
+class Clip(DaskOperation):
     """
-    Operation to force data within a certain range, by default 0 & 1
+    Operation to force data to be within a certain range, by default 0 & 1
     """
 
     _override_interface = ["Serial"]
@@ -170,10 +169,8 @@ class ForceNormalised(DaskOperation):
 
         self.record_initialisation()
 
-        self._force_min = MaskValue(min_value, "<", min_value) if min_value is not None else None
-        self._force_max = MaskValue(max_value, ">", max_value) if max_value is not None else None
+        self._min_value = min_value
+        self._max_value = max_value
 
     def apply_func(self, sample):
-        for func in (func for func in [self._force_min, self._force_max] if func is not None):
-            sample = func.apply_func(sample)
-        return sample
+        return da.clip(sample, self._min_value, self._max_value)

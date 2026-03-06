@@ -66,7 +66,7 @@ The rest of this page contains reference information for the components of the P
 |                      |                                      | - [OnCoordinate](pipeline_api.md#pyearthtools.pipeline.operations.xarray.split.OnCoordinate)                       |
 | `pipeline.operations.xarray.values`  |                      | - [FillNan](pipeline_api.md#pyearthtools.pipeline.operations.xarray.values.FillNan)                                |
 |                      |                                      | - [MaskValue](pipeline_api.md#pyearthtools.pipeline.operations.xarray.values.MaskValue)                            |
-|                      |                                      | - [ForceNormalised](pipeline_api.md#pyearthtools.pipeline.operations.xarray.values.ForceNormalised)                |
+|                      |                                      | - [Clip](pipeline_api.md#pyearthtools.pipeline.operations.xarray.values.Clip)                |
 |                      |                                      | - [Derive](pipeline_api.md#pyearthtools.pipeline.operations.xarray.values.Derive)                                  |
 | `pipeline.operations.xarray.metadata`  |                    | - [Rename](pipeline_api.md#pyearthtools.pipeline.operations.xarray.metadata.Rename)                                |
 |                      |                                      | - [Encoding](pipeline_api.md#pyearthtools.pipeline.operations.xarray.metadata.Encoding)                            |
@@ -110,7 +110,7 @@ The rest of this page contains reference information for the components of the P
 |                      |                                      | - [OnSlice](pipeline_api.md#pyearthtools.pipeline.operations.dask.split.OnSlice)                                   |
 | `pipeline.operations.dask.values`  |                        | - [FillNan](pipeline_api.md#pyearthtools.pipeline.operations.dask.values.FillNan)                                  |
 |                      |                                      | - [MaskValue](pipeline_api.md#pyearthtools.pipeline.operations.dask.values.MaskValue)                              |
-|                      |                                      | - [ForceNormalised](pipeline_api.md#pyearthtools.pipeline.operations.dask.values.ForceNormalised)                  |
+|                      |                                      | - [Clip](pipeline_api.md#pyearthtools.pipeline.operations.dask.values.Clip)                  |
 | `pipeline.operations.dask.normalisation`  |                 | - [daskNormalisation](pipeline_api.md#pyearthtools.pipeline.operations.dask.normalisation.daskNormalisation)       |
 |                      |                                      | - [Anomaly](pipeline_api.md#pyearthtools.pipeline.operations.dask.normalisation.Anomaly)                           |
 |                      |                                      | - [Deviation](pipeline_api.md#pyearthtools.pipeline.operations.dask.normalisation.Deviation)                       |
@@ -143,7 +143,7 @@ The rest of this page contains reference information for the components of the P
 |                      |                                      | - [HSplit](pipeline_api.md#pyearthtools.pipeline.operations.numpy.split.HSplit)                                    |
 | `pipeline.operations.numpy.values`  |                       | - [FillNan](pipeline_api.md#pyearthtools.pipeline.operations.numpy.values.FillNan)                                 |
 |                      |                                      | - [MaskValue](pipeline_api.md#pyearthtools.pipeline.operations.numpy.values.MaskValue)                             |
-|                      |                                      | - [ForceNormalised](pipeline_api.md#pyearthtools.pipeline.operations.numpy.values.ForceNormalised)                 |
+|                      |                                      | - [Clip](pipeline_api.md#pyearthtools.pipeline.operations.numpy.values.Clip)                 |
 | `pipeline.operations.numpy.normalisation`  |                | - [numpyNormalisation](pipeline_api.md#pyearthtools.pipeline.operations.numpy.normalisation.numpyNormalisation)    |
 |                      |                                      | - [Anomaly](pipeline_api.md#pyearthtools.pipeline.operations.numpy.normalisation.Anomaly)                          |
 |                      |                                      | - [Deviation](pipeline_api.md#pyearthtools.pipeline.operations.numpy.normalisation.Deviation)                      |
