@@ -1,81 +1,109 @@
-# Examples
+## Overview & Philosophy
 
-## Rationale
+Examples in this folder serve as patterns and architectural blueprints for library usage. They are intended to provide a starting point rather than production-ready, optimized code.
 
-Examples serve as patterns to demonstrate library pathways. While examples are often boilerplate, they provide entry points for optimization. Users are encouraged to scrutinize these examples to find more efficient implementations for their specific use-cases. If a superior method is discovered, it should be committed to the codebase, with the example updated to reflect this improvement.
+*   **Not Optimal:** These examples represent "worst-case scenarios" or basic implementations. Assume they are inefficient.
+*   **Iterative Improvement:** If you find a better way to perform a task, commit it to the codebase and use it to forge a new, improved example for future users.
+*   **Goal:** The objective is functional and *functioning* code. Current benchmarks take 5 minutes for 8 time instances; verification requires better performance.
 
 ## Technical Context: Persistence Models
 
-Persistence models are designed for memory efficiency and speed, as they currently only built for CPU; distinct from inference models which rely on pre-encoded weights and GPU acceleration.
+Persistence models (statistical methods like mean, median, etc.) differ significantly from inference models (pre-trained weights) in computational requirements.
 
-```mermaid
-%%{init: theme: 'neutral'}%%
-mindmap
-  root((Persistence Models))
-    Performance
-      No GPU usage
-      Faster than inference
-      Memory efficient
-    Data Requirements
-      Requires historical data
-      Spatial chunking preference
-    Constraints
-      Avoids Dask parallelism
-      Limited by underlying storage I/O
-```
+### Comparison: Persistence vs. Inference
 
-### Storage & Performance Goals
-
-The library aims to provide functional and efficient code. However, persistence computations are currently limited by underlying hardware and storage paradigms, rather than software efficiency alone.
-
-*   **Current Limitations:** Computation of simple statistics on weather data (HPC) can take hours due to data loading inefficiencies and inconsistent storage.
-*   **Library Scope:** PET provides access patterns and loaders (`pet-pipeline`) to mitigate data loading, but it does not universally solve I/O bottlenecks or hardware latency.
-*   **Acceptable Performance:** A runtime of 5 minutes for 8 time instances is considered unacceptable and requires optimization of storage/processing pipelines.
-
-## Configuration Architecture
-
-The examples below demonstrate different approaches to data loading (`pet-pipeline` vs `standalone`) and computation (`mp`, `py`, `backend`).
-
-### Core Configuration Options
-
-| Configuration | Description | Use Case |
+| Attribute | Persistence Models | Inference Models |
 | :--- | :--- | :--- |
-| **Default** | Uses `pet-pipeline` for data retrieval and indexing. | Standard workflow. |
-| **Standalone** | Uses `pet-pipeline` for indexing only; user implements custom loader. | Fine-grained control, non-multiprocessing platforms. |
-| **MP/Py** | Python multiprocessing (`mp`) disabling Dask. | Linux/Forkserver contexts, maximum PET compatibility. |
-| **1P** | Single worker process. | Stability testing, debugging. |
-| **Backend** (e.g., `zig`) | Backend-specific computation (e.g., SIMD, Rust). | Specific hardware optimization or custom C-library integration. |
+| **Hardware** | CPU only (No GPU usage) | GPU Accelerated (Tensor calculations) |
+| **Data Requirement** | Requires extensive historical data | Weights encode historical data |
+| **Performance** | Slower than GPU inference | Faster due to weight encoding |
+| **Parallelism** | Avoids existing paradigms (e.g., Dask) if data is associated with them | Utilizes standard parallel paradigms |
+| **Chunking** | Spatial (2D) preferred | Temporal (Time) preferred |
 
-### Usage Guidelines
+**Why this is a pain point:** Software cannot solve all storage and loading inefficiencies. Hardware and platform-specific storage paradigms are often the root cause. While libraries can improve data processing predictability, they cannot universally solve nuanced data loading issues.
+
+## Execution Modes
+
+The examples are organized around specific execution paradigms. Understanding these modes is critical to selecting the correct example for your environment.
+
+### Core Concepts
+
+*   **`pet-pipeline` (Default):** The library pipeline retrieves file information (indexing).
+    *   *Note:* Retrieving file metadata is less costly than loading raw data for arbitrarily chunked files.
+*   **`standalone` (Custom Loader):** The user is responsible for data loading.
+    *   The `pet-pipeline` provides the indexing/accessor, but the actual data is fetched via custom logic.
+*   **`mp` (Multiprocessing):**
+    *   `py`: Uses Python processes (disables Dask).
+    *   `1p`: Single worker (serial processing).
+*   **`<backend_name>` (e.g., `zig`):** Backend-specific computation.
+    *   Assumption: Backend ingests chunks from the `pet-pipeline` and chunking is done on-the-fly.
+    *   *Note:* This differs from expensive Xarray rechunking operations.
+
+### Execution Matrix
 
 ```mermaid
-graph TD
-    A[User Requirement] --> B{Select Mode};
+flowchart TD
+    A[Start] --> B{Data Loading Strategy};
     
-    B -->|Testing/Simple| C[1P + Py];
-    B -->|SIMD/Quantization| D[1P + Backend + Standalone];
-    B -->|Balanced Computation| E[MP + Backend];
+    B -- Standard --> C[pet-pipeline<br>Retrieves Indexing];
+    B -- Custom --> D[standalone<br>User loads Data];
     
-    C --> C1[Portable, Sequential];
-    D --> D1[Memory efficient, Custom Loader];
-    E --> E1[Platform compatible, Custom Computation];
+    C --> E{Computation Strategy};
+    D --> E;
     
-    subgraph "Data Access"
-    F[Pet-Pipeline Index] --> G[Custom Loader];
-    end
+    E -- Max Python Compatibility --> F[py<br>Processes];
+    E -- Max Performance/Quantized --> G[1p+zig<br>Custom Backend];
+    E -- Hybrid/Parallel --> H[mp+rust<br>Rust Backend];
+    E -- Stability Testing --> I[1p<br>Single Worker];
+    
+    F --> J[Use Case: Standard ML workflows];
+    G --> K[Use Case: Quantized/In-memory];
+    H --> L[Use Case: Hybrid Compute];
+    I --> M[Use Case: Testing/Debugging];
 ```
 
-*Note: Not all combinations of the above options are exhaustive, but they provide sufficient patterns to construct custom requirements.*
+### Selection Guide
 
-## Example Files
+> **NOTE:** Not all combinations are implemented. Use the following logic to select the correct example:
 
-The following table maps specific examples to their environments, modes, and purposes.
+| Scenario | Recommended Configuration | Reasoning |
+| :--- | :--- | :--- |
+| **Testing / Simple Methods** | `1p + py` | Minimal overhead, high compatibility. |
+| **High Perf / Quantized / In-Memory** | `1p + zig + standalone` | Enables SIMD/efficient code and quantization (e.g., 4-bit representation). |
+| **Hybrid Compute** | `mp + rust` | PET pipeline for data retrieval, Rust for computation. |
+| **Platform Constraints** | `standalone` | Required if you need fine-grained control or if the platform lacks multiprocessing support (e.g., restricted environments). |
+| **Backend Control** | `<backend>` | Required if you need custom computation logic (e.g., Numpy vs. Zig). |
 
-| Filename                    | Environment                   | Mode              | Description                                                                                                                                                 |
-| :---                        | :---                          | :---              | :---                                                                                                                                                        |
-| `nci_py_mp.py`              | NCI Linux (RHEL8-like)        | MP + PET Pipeline | Multiprocessing with satellite data using the standard pipeline.                                                                                            |
-| `nci_py_mp_standalone.py`   | NCI Linux (RHEL8-like)        | MP + Standalone   | Ad-hoc data loading on NCI, bypassing the standard pipeline.                                                                                                |
-| `anylinux_py_mp.py`         | Any Linux (Arch tested)       | MP + PET Pipeline | Multiprocessing on general Linux environments with PET pipeline.                                                                                            |
-| `anylinux_py_standalone.py` | NCI Linux (RHEL8-like)        | MP + Standalone   | Ad-hoc loading on NCI.                                                                                                                                      |
-| `any_py_1p.py`              | Local Machine (Win/Mac/Linux) | 1P + Py           | Single-threaded processing for portability. May be slower.                                                                                                  |
-| `zigc.py`                   | Linux Only                    | Zig Backend       | Computation examples using Zig. Includes parallel HDF5 loader examples and single-threaded variants. *Note: Linux required; not tested on other platforms.* |
+## Available Examples
+
+### Linux / HPC Environment
+
+These examples are optimized for Linux systems (e.g., RHEL8, Arch Linux) typically running on HPC nodes.
+
+| Filename | Description | Execution Context |
+| :--- | :--- | :--- |
+| `nci_py_mp.py` | Multiprocessing with Python on NCI. Uses **PET pipeline**. | HPC / Linux |
+| `nci_py_mp_standalone.py` | Multiprocessing with Python on NCI. Uses **adhoc loading**. | HPC / Linux |
+| `anylinux_py_mp.py` | Multiprocessing with Python. Uses **PET pipeline**. | Any Linux (tested Arch) |
+| `anylinux_py_standalone.py` | Multiprocessing with Python. Uses **adhoc loading**. | Any Linux |
+
+### General / Local Environment
+
+These examples focus on portability across different architectures and operating systems.
+
+| Filename | Description | Execution Context |
+| :--- | :--- | :--- |
+| `any_py_1p.py` | Sequential processing with Python. Best for **portability** (Windows/Mac/Linux). | Any OS / Architecture |
+
+### Experimental / Backend Specific
+
+These examples utilize specific backends (e.g., Zig) and may require additional C libraries or specific OS support.
+
+| Filename | Description | Notes |
+| :--- | :--- | :--- |
+| `zigc.py` | Contains various approaches using the **Zig backend** for computation. | **Linux only**. Tested with parallel HDF5 loader, single-threaded, and NCI contexts. Use at your own risk. |
+
+> **Resources:** Refer to the following technical documentation for deeper understanding of data storage and loading nuances:
+> *   [ATPESC 2023: Principles of HPC I/O](https://extremecomputingtraining.anl.gov/wp-content/uploads/sites/96/2023/08/ATPESC-2023-Track-7-Talk-2-carns-io-principles.pdf)
+> *   [NCSA HDF5 Introduction](https://learn.ncsa.illinois.edu/pluginfile.php/20067/mod_label/intro/HDF_NCSA_3_2024.pdf)
+
