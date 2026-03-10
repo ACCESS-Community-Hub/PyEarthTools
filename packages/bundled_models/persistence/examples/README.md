@@ -6,9 +6,10 @@ Examples serve as patterns to demonstrate library pathways. While examples are o
 
 ## Technical Context: Persistence Models
 
-Persistence models are designed for memory efficiency and speed, distinct from inference models which rely on pre-encoded weights and GPU acceleration.
+Persistence models are designed for memory efficiency and speed, as they currently only built for CPU; distinct from inference models which rely on pre-encoded weights and GPU acceleration.
 
 ```mermaid
+%%{init: theme: 'neutral'}%%
 mindmap
   root((Persistence Models))
     Performance
