@@ -10,7 +10,11 @@ PROS:
 CONS:
     - Not good for largescale operational use.
     - Taylored for NCI use only.
-    - windows/mac support not guarenteed.
+    - Windows/mac support not guarenteed.
+    - Data MUST be stored in a chunked fashion for multiprocessing to have any benefit, otherwise
+      everything will be loaded in memory anyway, and its better to let numpy handle everything (set
+      workers=1 and num_chunks=1). TODO: there likely should be a smart way to detect this.
+    - Slow.
 """
 
 
