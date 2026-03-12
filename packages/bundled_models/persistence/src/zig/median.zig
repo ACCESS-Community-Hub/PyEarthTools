@@ -138,7 +138,7 @@ fn medianofthree_scalar(num_valid: u4, valid: [3]f32) f32 {
         2 => @as(f32, 0.5) * (valid[0] + valid[1]),
         3 => blk: {
             const x0: f32, const x1: f32, const x2: f32 = valid;
-            const median = @max(@max(@min(x0, x1), @min(x1, x2)), @min(x0, x2));
+            const median = @max(@max(@min(x0, x1), x2), @min(x0, x2));
             break :blk median;
         },
         else => nanf32,
