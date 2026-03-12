@@ -153,6 +153,7 @@ class PetDataset:
 
         dict_res = {}
 
+        # strip to lowest level and compute.
         for k_var, v_da in self.ds.data_vars.items():
             # sense check
             assert isinstance(v_da, xr.DataArray)
@@ -167,6 +168,7 @@ class PetDataset:
         ds_res = xr.Dataset(dict_res)
 
         if self.return_raw_result:
+            # if returning a raw result compare original type and strip as necessary
             return self._raw_result(ds_res)
 
         # return upgraded dataset by default
@@ -180,15 +182,15 @@ class PetDataset:
         NOTE: the returned datatype may have dummy names attached, as such these results are for
         intermediate computation purposes only, not for operational outputs.
         """
-        if self.raw_type == PetDataArrayLike.UNKNOWN:
+        if self.raw_type == PetInputDataType.UNKNOWN:
             # this should not happen - _raw_result should not be called externally
             raise RuntimeError("PetDataset._raw_result: Invalid raw type encountered")
-        elif self.raw_type == PetDataArrayLike.XR_DATASET:
+        elif self.raw_type == PetInputDataType.XR_DATASET:
             # nothing to do
             return ds
-        elif self.raw_type == PetDataArrayLike.XR_DATAARRAY:
+        elif self.raw_type == PetInputDataType.XR_DATAARRAY:
             # extract the dataarray
             return ds[self._dummyvarname]
-        elif self.raw_type == PetDataArrayLike.NP_ARRAY:
+        elif self.raw_type == PetInputDataType.NP_ARRAY:
             # extract the numpy array - note this may force a memory load.
             return ds[self._dummyvarname].values

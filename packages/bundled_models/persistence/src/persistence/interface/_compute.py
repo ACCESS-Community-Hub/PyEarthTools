@@ -10,7 +10,7 @@ from collections import namedtuple
 import numpy as np
 import xarray as xr
 
-from persistence.types import PetDataArrayLike
+from persistence.interface.types import PetDataArrayLike
 from persistence.methods._impute import SimpleImpute
 from persistence.methods._median import _median_of_three_numpy
 from persistence.interface._metadata import PersistenceMetadata
@@ -176,8 +176,8 @@ class PersistenceComputePool:
         if self.metadata.num_workers <= 1:
             # loop through instead
             for chunk in iter(self.chunk_generator):
-                arr_res_chunk = PersistenceComputePool._job_wrapper(chunk)
-                arr_res[chunk.slice_dims] = arr_res_chunk
+                res_chunk = PersistenceComputePool._job_wrapper(chunk)
+                arr_res[*res_chunk.slice_dims] = res_chunk.array
         else:
             # dispatch chunks to workers
             # TODO: forkserver does/may not work with windows/mac, unless main-guarded

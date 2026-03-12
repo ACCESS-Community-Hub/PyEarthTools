@@ -77,13 +77,20 @@ FUTUREWORK:
           candidate to do this.
 """
 
+import xarray as xr
+
 from persistence.interface import (
     PetDataArrayLike,
     PersistenceComputePool,
-    PersistenceBackend,
+    PersistenceBackendType,
     PersistenceMethod,
+    PersistenceMetadata,
+    PersistenceChunker,
+    PersistenceChunkInfo,
     PetDataset,
 )
+
+from persistence.config.dask import _set_synchronous_dask
 
 
 def predict(
@@ -94,7 +101,7 @@ def predict(
     method: PersistenceMethod | str = PersistenceMethod.MEDIAN_OF_THREE,
     simple_impute: bool = True,
     backend_type: PersistenceBackendType = PersistenceBackendType.NUMPY,
-) -> pet_persist.PetDataArrayLike:
+) -> PetDataArrayLike:
     """
     Calculate the persistence of historical observations, to be used as a baseline for other models.
 
@@ -200,66 +207,67 @@ def predict(
             and hence the user cannot provide this signal - it has to be pre-derived and cached by
             one of the persistence methods dynamically.
     """
+    # force it to EnumStr - auto raises error if not compatible.
     if isinstance(method, str):
-        # force it to EnumStr - auto raises error if not compatible.
         method = PersistenceMethod(method)
+    if isinstance(backend_type, str):
+        backend_type = PersistenceBackendType(backend_type)
 
-    # --- DEPRECATED ---
-    # TODO: remove with_return_raw_result from PetDataset, there's no reason to
-    # keep the lifted structure when the caller likely only requires the
-    # original structure back.
-    # pet_ds = pet_persist.PetDataset(arr).with_return_raw_result(return_raw_result)
-    # ---
+    # Force to sync dask as early as possible
+    with _set_synchronous_dask():
+        # lift structure to dataset representation (higher order)
+        # structural order (highest to lowest)
+        # - xr.Dataset
+        # - xr.DataArray
+        # - np.ndarray
+        pet_ds = PetDataset(arr)
 
-    # lift structure to dataset representation (higher order)
-    # structural order (highest to lowest)
-    # - xr.Dataset
-    # - xr.DataArray
-    # - np.ndarray
-    pet_ds = PetDataset(arr)
+        # construct metadata
+        metadata = PersistenceMetadata(
+            idx_time_dim=idx_time_dim,
+            method=method,
+            num_workers=num_workers,
+            num_chunks_desired=num_chunks,
+            do_impute=simple_impute,
+            backend=backend_type,
+        )
 
-    raise NotImplementedError("TODO: map to persistence metadata")
+        # apply function on each variable and destruct result
+        # destructurize ONLYIF original array was lower order
+        arr_result = pet_ds.map_each_var(_predict_single_var, metadata)
 
-    metadta = PersistenceMetadata(...)
+        # safety capture for dev/test
+        assert isinstance(arr_result, type(arr))
 
-    # apply function (ALWAYS) and destruct result (ONLYIF original array was lower order)
-    arr_result = pet_ds.map_each_var(
-        _predict_single_var,
-        metadata,
-    )
-
-    # safety capture for dev/test
-    assert type(arr) == type(arr_result)
-
-    return arr_result
+        return arr_result
 
 
-# TODO: make this ingest PersistenceMetadata instead...
 def _predict_single_var(
     da: xr.DataArray,
-    idx_time_dim: int,
-    num_chunks: int = None,
-    method: PersistenceMethod = PersistenceMethod.MEDIAN_OF_THREE,
-    simple_impute: bool = True,
-):
+    metadata: PersistenceMetadata,
+) -> xr.DataArray:
     """
     Computes persistence for a single data array, has the same interface as _compute_persistence
     except that the first argument is a data array.
+
+    input: dataarray -> chunk -> impute -> compute persistence -> merge chunks -> dataarray :output
     """
-    # create metadata
+    # --- simple chunk strategy (split) ---
+    # build chunker struct
+    chunker = PersistenceChunker(da=da, metadata=metadata)
+    # this would have been filled up post-init or an error would have been raised.
+    chunk_info = chunker.chunk_info
+    # lazy - returns generator only.
+    chunk_generator = chunker.generate_chunks()
 
-    # input dataarray -> chunk -> impute -> compute persistence -> merge chunks
-    chunker = PersistenceChunker(
-        da_lazy=da,
-        method=method,
-        num_chunks=num_chunks,
-        idx_time_dim=idx_time,
-    )
+    # --- launch compute pool and run method against chunks (apply and join)---
+    # build compute struct
+    # - this registers things from the metadata such as method and backend etc.
+    # - uses chunk info to determine how to re-join the chunks.
+    worker_pool = PersistenceComputePool(chunk_generator, chunk_info, metadata)
+    da_result = worker_pool.map_and_join_chunks()
 
-    # TODO: worker pool
-    # TODO: work chain i.e. slice -> impute -> compute
-    # TODO: merge result
-    raise NotImplementedError("TODO - some missing parts")
+    return da_result
 
 
 if __name__ == "__main__":

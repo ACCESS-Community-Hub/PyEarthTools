@@ -7,7 +7,7 @@ import functools
 from typing import Generator
 
 from persistence.interface._metadata import PersistenceMetadata
-from persistence.types import PetDataArrayLike
+from persistence.interface.types import PetDataArrayLike
 
 # ---
 # 1000 chunks is more than enough for most usecases. Persistence methods should not be using large
