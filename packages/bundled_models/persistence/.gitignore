@@ -1,4 +1,5 @@
 # pixi environments
+.zig-cache
 .pixi/*
 !.pixi/config.toml
 report.xml

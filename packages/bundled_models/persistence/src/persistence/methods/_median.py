@@ -1,6 +1,8 @@
 import numpy as np
 import warnings
 
+import persistence.include._persistence_zig
+from persistence.include._persistence_zig import ffi, lib
 
 def _median_of_three_numpy(arr: np.ndarray, idx_time: int) -> np.ndarray:
     """
@@ -19,3 +21,10 @@ def _median_of_three_numpy(arr: np.ndarray, idx_time: int) -> np.ndarray:
         warnings.simplefilter("ignore")
         arr_median = np.nanmedian(arr, axis=idx_time, keepdims=True)
         return arr_median
+
+
+# --- TODO: for testing only
+def _median_of_three_zig(x1: int, x2: int, x3: int) -> int:
+    y = lib.median_of_three(x1, x2, x3)
+    return y
+# ---

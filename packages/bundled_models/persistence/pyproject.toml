@@ -73,6 +73,9 @@ pyearthtools-persistence = { path = ".", editable = true }
 [tool.pixi.dependencies]
 python = ">=3.11,<3.14"
 xarray = ">=2026.1.0,<2027"
+meson = ">=1.10.1,<2"
+cffi = ">=2.0.0,<3"
+setuptools = ">=82.0.1,<83"
 
 [tool.pixi.feature.testing.dependencies]
 pytest = ">=9.0.2,<10"
