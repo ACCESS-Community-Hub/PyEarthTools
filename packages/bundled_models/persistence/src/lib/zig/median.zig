@@ -15,23 +15,63 @@ const nanf32 = std.math.nan(f32);
 //     arr_out: pointer to n-dimensional pre-allocated output
 //     len_out: length of output array
 // ----------------------------------------------------------------------------
-fn medianofthree_numpy(
+fn medianofthree_split_nd(
     idx_time: i32,
     shape: [*]i32,
     len_shape: i32,
     arr_in: [*]f32,
-    len_in: i32,
     arr_out: [*]f32,
     len_out: i32,
 ) void {
-    // UNIMPLEMENTED
-    _ = &idx_time;
-    _ = &shape;
-    _ = &len_shape;
-    _ = &arr_in;
-    _ = &len_in;
-    _ = &arr_out;
-    _ = &len_out;
+    // --- probably not optimal - for simplicity ---
+    // var arena = std.heap.ArenaAllocator.init(std.heap.c_allocator);
+    // defer arena.deinit();
+    // const allocator = arena.allocator();
+    // ---
+    const shape_arr: []i32 = shape[0..@as(usize, @intCast(len_shape))];
+    const len_chunk: usize, const len_outer: usize = blk: {
+        var _prod_inner: usize = 1;
+        var _prod_outer: usize = 1;
+        for (shape_arr, 0..) |s, i| {
+            const s_usize: usize = @intCast(s);
+            if (i > idx_time) _prod_inner *= s_usize;
+            if (i < idx_time) _prod_outer *= s_usize;
+        }
+        break :blk .{ _prod_inner, _prod_outer };
+    };
+
+    // safety
+    std.debug.assert(@as(usize, @intCast(len_out)) == len_chunk * len_outer);
+
+    for (0..len_outer) |i| {
+        // ---
+        // start
+        const chunk_idxs = len_chunk * i;
+        // --- 3 equal length chunks representing time indices ---
+        // TODO: a more generic strategy required for historically lengthier metrics
+        const chunk_idx1 = 3 * chunk_idxs;
+        const chunk_idx2 = chunk_idx1 + len_chunk;
+        const chunk_idx3 = chunk_idx2 + len_chunk;
+        // ---
+        // end
+        const chunk_idxe = chunk_idx3 + len_chunk;
+        // ---
+
+        // get chunks that are contiguous, in one go to avoid jumps
+        // slice view of contiguous cuhnks, so memory allocation not required.
+        const cntg_chunk1 = arr_in[chunk_idx1..chunk_idx2];
+        const cntg_chunk2 = arr_in[chunk_idx2..chunk_idx3];
+        const cntg_chunk3 = arr_in[chunk_idx3..chunk_idxe];
+
+        // fill output array
+        for (0..len_chunk) |j| {
+            arr_out[chunk_idxs + j] = medianofthree_scalar_nanfiltered(
+                cntg_chunk1[j],
+                cntg_chunk2[j],
+                cntg_chunk3[j],
+            );
+        }
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -63,7 +103,7 @@ fn medianofthree_numpy(
 // Args:
 //     x1, x2, x3: values to compute the median against
 // ----------------------------------------------------------------------------
-fn medianofthree_scalar_nanfiltered(x1: f32, x2: f32, x3: f32) f32 {
+pub fn medianofthree_scalar_nanfiltered(x1: f32, x2: f32, x3: f32) f32 {
     var valid = [3]f32{ nanf32, nanf32, nanf32 };
     const xs = [3]f32{ x1, x2, x3 };
     var num_valid: u4 = 0;
@@ -73,8 +113,6 @@ fn medianofthree_scalar_nanfiltered(x1: f32, x2: f32, x3: f32) f32 {
             num_valid += 1;
         }
     }
-
-    std.debug.print("x1={},x2={},x3={},num_valid={}\n", .{ x1, x2, x3, num_valid });
 
     return medianofthree_scalar(num_valid, valid);
 }
@@ -138,7 +176,7 @@ fn medianofthree_scalar(num_valid: u4, valid: [3]f32) f32 {
         2 => @as(f32, 0.5) * (valid[0] + valid[1]),
         3 => blk: {
             const x0: f32, const x1: f32, const x2: f32 = valid;
-            const median = @max(@max(@min(x0, x1), x2), @min(x0, x2));
+            const median = @max(@min(@max(x0, x1), x2), @min(x0, x1));
             break :blk median;
         },
         else => nanf32,
@@ -177,4 +215,50 @@ test "median of three test fleet" {
     expect = -5.0;
     result = medianofthree_scalar_nanfiltered(x1, x2, x3);
     try std.testing.expectEqual(expect, result);
+}
+
+test "median of three nd" {
+    {
+        var test_arr_in: [5][4][3][6][3]f32 = undefined;
+        var test_arr_out: [5][4][1][6][3]f32 = undefined;
+        const total_len = 5 * 4 * 3 * 6 * 3;
+        for (0..total_len) |i| {
+            const arr_ptr: [*]f32 = @ptrCast(&test_arr_in);
+            arr_ptr[i] = @as(f32, @floatFromInt(i));
+        }
+        var shape = [_]i32{ 5, 4, 3, 6, 3 };
+        medianofthree_split_nd(
+            2,
+            &shape,
+            5,
+            @ptrCast(&test_arr_in),
+            @ptrCast(&test_arr_out),
+            total_len / 3,
+        );
+        const arr_out_ptr: [*]f32 = @ptrCast(&test_arr_out);
+        const arr_in_ptr: [*]f32 = @ptrCast(&test_arr_in);
+        std.debug.print("{any}\n", .{arr_in_ptr[0..total_len]});
+        std.debug.print("{any}\n", .{arr_out_ptr[0..(total_len / 3)]});
+    }
+
+    {
+        var test_arr_in = [2][3]f32{
+            [_]f32{ 2, -5, 4 },
+            [_]f32{ 5, 100, -2 },
+        };
+        var test_arr_out: [2][1]f32 = undefined;
+        var shape = [_]i32{ 2, 3 };
+        const out = medianofthree_scalar_nanfiltered(2, -5, 4);
+        medianofthree_split_nd(
+            1,
+            &shape,
+            2,
+            @ptrCast(&test_arr_in),
+            @ptrCast(&test_arr_out),
+            2,
+        );
+        std.debug.print("\n{any}\n", .{out});
+        std.debug.print("\n{any}\n", .{test_arr_in});
+        std.debug.print("\n{any}\n", .{test_arr_out});
+    }
 }
