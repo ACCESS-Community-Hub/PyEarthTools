@@ -190,28 +190,62 @@ def run_example(ds_input, use_real=True, backend="zig", num_workers=1, num_chunk
 if __name__ == "__main__":
     import multiprocessing
 
-    # CAUTION: windows/mac - this may not work, use num_workers=1 instead
+    # ---
+    # CAUTION: windows/mac - see WHEN IN DOUBT below, except it applies ALMOST ALWAYS.
+    # ---
+    # Notes:
+    # - WHEN IN DOUBT: set num_chunks = 1 and num_workers = 1
+    #
+    # - IF USING DATASETS: chunk strategy is the SAME between variables. This could be very slow for
+    #   certain variables that are very small in data size.
+    #
+    # - Support for datasets is for convenience only NOT SPEED. Supported settings != optimal settings
+    #
+    # - FASTER: use dataarrays or numpy arrays as inputs and combine later. This also allows the
+    #   user to invoke embarassing parallelism at a higher level, and also choose different
+    #   backend/computations for different variables.
+    #
+    # - (Not yet implemented) EVEN FASTER: data loading is also externally performed (FUTUREWORK).
+    #   This allows for chunks to be stored on disk and retrieved by any compute engine, either
+    #   using the same backend, a different backend, or using PET's existing computational stack
+    #   (xarray + dask + numpy). The important take-away here is the separation of concern allows
+    #   for flexiblity and portability.
+    # ---
+    NUM_WORKERS = 1
+    NUM_CHUNKS = 5
+
     try:
         multiprocessing.set_start_method("forkserver")
         print("Start method set to 'forkserver'")
     except RuntimeError as e:
         print(f"Could not set start method: {e}")
 
-    # For windows/mac you may need to change this to spawn but not guarenteed to work
-    # NOTE: the inner functions in the package already set the context, but its good to do
-    # regardless.
-    # run this in mainguard so it doesn't get regenerated.
     ds_input = _mock_dataset()
     ds_output1 = run_example(
-        ds_input, use_real=False, backend="zig", num_workers=1, num_chunks=5
+        ds_input,
+        use_real=False,
+        backend="zig",
+        num_workers=NUM_CHUNKS,
+        num_chunks=NUM_CHUNKS,
     )
+    # NOTE: second run can be a bit faster as it likely does some caching, so actual times (not
+    # shown) can be much slower (depends). This part isn't for speed/memory benchmarking reasons
+    # rather for comparing outputs are equal.
     ds_output2 = run_example(
-        ds_input, use_real=False, backend="numpy", num_workers=1, num_chunks=5
+        ds_input,
+        use_real=False,
+        backend="numpy",
+        num_workers=NUM_WORKERS,
+        num_chunks=NUM_CHUNKS,
     )
+
     import numpy as np
 
+    # to check equivilence mostly for random
     print(np.allclose(ds_output1.varA, ds_output2.varA))
     print(np.allclose(ds_output1.varB, ds_output2.varB))
     print(np.allclose(ds_output1.varC, ds_output2.varC))
+
+    # for manual inspection
     print(ds_output1.varC)
     print(ds_output2.varC)
