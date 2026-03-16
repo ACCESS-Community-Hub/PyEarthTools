@@ -24,10 +24,12 @@ class PetInputDataType(StrEnum):
 
 
 class PetDataset:
+    _dummyvarname = "dummy_varname"
+
     def __init__(
         self,
         arraylike: PetDataArrayLike,
-        dummy_varname="_dummyvarname",  # used for xarray dataarrays and numpy arrays
+        dummy_varname="dummy_varname",  # used for xarray dataarrays and numpy arrays
         dimnames: list[str] = None,  # used only for numpy arrays
     ):
         """
@@ -37,6 +39,7 @@ class PetDataset:
         `dimnames` is only relevant for numpy - and only if using name-based indexing for retrieving
         e.g. time dimension
         """
+        self._dummyvarname = dummy_varname
         self.raw_type = PetInputDataType.UNKNOWN
         self.ds = self.from_arrlike(arraylike, dummy_varname, dimnames)
         self.return_raw_result = True

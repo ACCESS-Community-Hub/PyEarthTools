@@ -1,6 +1,7 @@
 """
 Compile cffi code and put them in the include directory
 """
+
 from cffi import FFI
 import sys
 import os
@@ -8,9 +9,11 @@ import os
 
 _zig_c_declarations = """
 float median_of_three(float, float, float);
+void median_of_three_nd(int, int[], int, float[], int, float[], int);
 """
-_zig_c_libname="libpersistence_zig"
+_zig_c_libname = "libpersistence_zig"
 _include_libdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "lib")
+
 
 def compile_zig():
     # cffi
@@ -24,7 +27,7 @@ def compile_zig():
         _zig_c_declarations,
         libraries=["persistence_zig"],
         library_dirs=[_include_libdir],
-        extra_link_args=[f"-Wl,-rpath={_include_libdir}"]
+        extra_link_args=[f"-Wl,-rpath={_include_libdir}"],
     )
     ffibuilder.compile(verbose=True)
 

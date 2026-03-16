@@ -40,10 +40,10 @@ class PersistenceBackendType(StrEnum):
     """
 
     C = "c"
-    C_ZIG = "zig"
     NUMBA = "numba"
     NUMPY = "numpy"
     RUST = "rust"
+    ZIG = "zig"
     UNKNOWN = auto()
 
     def check_support(self):
@@ -58,6 +58,8 @@ class PersistenceBackendType(StrEnum):
         """
         match self:
             case PersistenceBackendType.NUMPY:
+                return
+            case PersistenceBackendType.ZIG:
                 return
             case _:
                 raise NotImplementedError(

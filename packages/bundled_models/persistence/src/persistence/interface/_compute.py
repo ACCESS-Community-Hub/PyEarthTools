@@ -7,12 +7,13 @@ from contextlib import contextmanager
 from typing import Union, Generator
 from collections import namedtuple
 
+import warnings
 import numpy as np
 import xarray as xr
 
 from persistence.interface.types import PetDataArrayLike
 from persistence.methods._impute import SimpleImpute
-from persistence.methods._median import _median_of_three_numpy
+from persistence.methods._median import _median_of_three_numpy, _median_of_three_zig
 from persistence.interface._metadata import PersistenceMetadata
 from persistence.interface._method import PersistenceMethod
 from persistence.interface._chunker import (
@@ -134,13 +135,31 @@ class PersistenceComputePool:
     @staticmethod
     def _job_wrapper(chunk: PersistenceDataChunk) -> ChunkResult:
         """
-        This wrapper needs to be static, as we may not want the state info of
-        this class to propagate.
+        This wrapper needs to be static, as we may not want the state info of this class to
+        propagate.
+
+        NOTE: multiprocessing is actually quite heavy it requires:
+        1. passing the heavy pointer to the input chunk
+        2. passing the entire data via shared memory back to the main thread.
+
+        FUTUREWORK:
+            A lighter weight way of doing this is to write to disk directly:
+            - This needs to happen anyway and workers can write independently of one another.
+            - The joining process is not strictly required, because...
+            - The purpose of persistence models is to compare arrays at particular time instances.
+            - The arrays being stored in separate chunked files, does not go against the above
+              requirement, especially with an efficient loader. Meaning joins can be avoided.
         """
-        return ChunkResult(
-            array=PersistenceCompute(chunk.arr_chunk, chunk.metadata).compute(),
-            slice_dims=chunk.slice_dims,
+        # force load with arr_chunk.values
+        arr_persist = chunk.arr_chunk.values
+
+        # using reduced slice dims here since its the result
+        result = ChunkResult(
+            array=PersistenceCompute(arr_persist, chunk.metadata).compute(),
+            slice_dims=chunk.slice_dims_reduced,
         )
+
+        return result
 
     def map_and_join_chunks(self) -> xr.DataArray:
         """
@@ -173,7 +192,19 @@ class PersistenceComputePool:
         ]
         arr_res = np.empty(shape_res)
 
-        if self.metadata.num_workers <= 1:
+        # workers must be less than or equal to chunks and must not oversubscribe to cpu
+        num_workers = min(self.metadata.num_workers, self.chunk_info.num_chunks)
+        num_workers = min(num_workers, multiprocessing.cpu_count())
+        if num_workers != self.metadata.num_workers:
+            warnings.warn(
+                UserWarning(
+                    f"Changed requested workers to: num_workers={num_workers}, "
+                    "either insufficient threads on this machine OR num_chunks is too small."
+                    "This is done to prevent oversubscription of CPU."
+                )
+            )
+
+        if num_workers <= 1:
             # loop through instead
             for chunk in iter(self.chunk_generator):
                 res_chunk = PersistenceComputePool._job_wrapper(chunk)
@@ -182,7 +213,7 @@ class PersistenceComputePool:
             # dispatch chunks to workers
             # TODO: forkserver does/may not work with windows/mac, unless main-guarded
             with concurrent.futures.ProcessPoolExecutor(
-                self.metadata.num_workers,
+                num_workers,
                 mp_context=multiprocessing.get_context("forkserver"),
             ) as pp_exec:
                 results = pp_exec.map(
@@ -202,16 +233,30 @@ class PersistenceCompute:
     arr: PetDataArrayLike
     metadata: PersistenceMetadata
 
+    def _raise_unimplemented_method(self):
+        """
+        Specific error: method has not been implemented for a specific backend
+        """
+        raise NotImplementedError(
+            f"PersistenceCompute: compute method {self.metadata.method} not implemented (backend={self.metadata.backend})"
+        )
+
+    def _raise_unimplemented_backend(self):
+        """
+        Generic error: method has not been implemented for any backend
+        """
+        raise NotImplementedError(
+            f"PersistenceCompute: backend type {self.metadata.backend} not implemented"
+        )
+
     def _method_impl(self, arr: np.ndarray) -> np.ndarray:
         match self.metadata.backend:
             case PersistenceBackendType.NUMPY:
                 return self._method_impl_numpy(arr)
-            case PersistenceBackendType.NUMBA:
-                return self._method_impl_numba(arr)
-            case PersistenceBackendType.RUST:
-                return self._method_impl_rust(arr)
+            case PersistenceBackendType.ZIG:
+                return self._method_impl_zig(arr)
             case _:
-                raise NotImplementedError("PersistenceCompute: Unknown backend")
+                self._raise_unimplemented_backend()
 
     def _method_impl_numpy(self, arr: np.ndarray) -> np.ndarray:
         match self.metadata.method:
@@ -220,15 +265,16 @@ class PersistenceCompute:
             case PersistenceMethod.MOST_RECENT:
                 raise NotImplementedError("TODO")
             case _:
-                raise NotImplementedError(
-                    f"PersistenceCompute: compute method {self.method} has not been implemented"
-                )
+                self._raise_unimplemented_method()
 
-    def _method_impl_numba(self, arr: np.ndarray) -> np.ndarray:
-        raise NotImplementedError("numba backend is not supported")
-
-    def _method_impl_rust(self, arr: np.ndarray) -> np.ndarray:
-        raise NotImplementedError("rust backend is not supported")
+    def _method_impl_zig(self, arr: np.ndarray) -> np.ndarray:
+        match self.metadata.method:
+            case PersistenceMethod.MEDIAN_OF_THREE:
+                return _median_of_three_zig(arr, self.metadata.idx_time_dim)
+            case PersistenceMethod.MOST_RECENT:
+                raise NotImplementedError("TODO")
+            case _:
+                self._raise_unimplemented_method()
 
     def _slice_time(self, arr: np.ndarray) -> np.ndarray:
         """

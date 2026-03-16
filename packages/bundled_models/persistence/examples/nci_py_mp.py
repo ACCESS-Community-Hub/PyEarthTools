@@ -78,7 +78,7 @@ def _mock_dataset():
     return ds_mock
 
 
-def run_example(ds_input, use_real=True):
+def run_example(ds_input, use_real=True, num_workers=1, num_chunks=1):
     # TODO: use library directly under main guard
     print("Example: python multiprocessing on nci.")
     print("---")
@@ -125,9 +125,9 @@ def run_example(ds_input, use_real=True):
         ds_output = persistence_impl.predict(
             ds_input,
             idx_time_dim=list(ds_input.dims).index("time"),
-            num_workers=1,
+            num_workers=num_workers,
             # 20 chunks/2 workers => 10% of the data is loaded at any given time (assuming optimal chunking)
-            num_chunks=1,
+            num_chunks=num_chunks,
             method="median_of_three",
             simple_impute=False,
             backend_type="numpy",
@@ -145,9 +145,12 @@ def run_example(ds_input, use_real=True):
 if __name__ == "__main__":
     import multiprocessing
 
-    # For windows/mac you may need to change this to spawn but not guarenteed to work
-    # NOTE: the inner functions in the package already set the context, but its good to do
-    # regardless.
-    # run this in mainguard so it doesn't get regenerated.
+    # CAUTION: windows/mac - this may not work, use num_workers=1 instead
+    try:
+        multiprocessing.set_start_method("forkserver")
+        print("Start method set to 'forkserver'")
+    except RuntimeError as e:
+        print(f"Could not set start method: {e}")
+
     ds_input = _mock_dataset()
-    run_example(ds_input, use_real=False)
+    run_example(ds_input, use_real=False, num_workers=1, num_chunks=1)

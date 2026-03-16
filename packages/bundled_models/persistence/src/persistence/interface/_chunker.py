@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import copy
 import math
 import numpy as np
 import xarray as xr
@@ -56,6 +57,9 @@ class PersistenceDataChunk:
 
     # list containing slices of each dimension that make up the chunk
     slice_dims: list[slice]
+
+    # reduced dimensions expected from the output (reduced)
+    slice_dims_reduced: list[slice]
 
 
 @dataclass
@@ -393,6 +397,19 @@ class PersistenceChunker:
         This generator generally would be fed into a multiprocessing worker pool in conjunction with
         a method to process each chunk.
         """
+        # chunksize = 1, early return
+        if (
+            self.chunk_info.num_chunks == 1
+            or self.chunk_info.size_chunk >= self.da.size
+        ):
+            # select everything for both input and result
+            slice_dims = [slice(None)] * len(self.da.shape)
+            slice_dims_reduced = slice_dims
+            yield PersistenceDataChunk(
+                self.da, self.metadata, slice_dims, slice_dims_reduced
+            )
+            return
+
         # TODO: add a fast return for the special case when time is the only dimension.
         shape_notime = list(self.da.shape)
         shape_notime[self.metadata.idx_time_dim] = 1
@@ -404,8 +421,14 @@ class PersistenceChunker:
             arr_chunk = self.da.isel(dict_slice_dims)
 
             # pass chunk to caller
+            slice_dims = list(dict_slice_dims.values())
+            slice_dims_reduced = copy.deepcopy(slice_dims)
+            slice_dims_reduced[self.metadata.idx_time_dim] = slice(None, None, None)
             yield PersistenceDataChunk(
-                arr_chunk, self.metadata, list(dict_slice_dims.values())
+                arr_chunk,
+                self.metadata,
+                slice_dims,
+                slice_dims_reduced,
             )
 
             # increment index and break if overflow is detected.

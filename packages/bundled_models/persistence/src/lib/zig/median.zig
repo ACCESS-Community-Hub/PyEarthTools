@@ -15,11 +15,12 @@ const nanf32 = std.math.nan(f32);
 //     arr_out: pointer to n-dimensional pre-allocated output
 //     len_out: length of output array
 // ----------------------------------------------------------------------------
-fn medianofthree_split_nd(
+pub fn medianofthree_split_nd(
     idx_time: i32,
     shape: [*]i32,
     len_shape: i32,
     arr_in: [*]f32,
+    len_in: i32,
     arr_out: [*]f32,
     len_out: i32,
 ) void {
@@ -42,6 +43,7 @@ fn medianofthree_split_nd(
 
     // safety
     std.debug.assert(@as(usize, @intCast(len_out)) == len_chunk * len_outer);
+    std.debug.assert(@as(usize, @intCast(len_in)) == shape[@as(usize, @intCast(idx_time))] * len_out);
 
     for (0..len_outer) |i| {
         // ---
