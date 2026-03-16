@@ -191,8 +191,6 @@ if __name__ == "__main__":
     import multiprocessing
 
     # ---
-    # CAUTION: windows/mac - see WHEN IN DOUBT below, except it applies ALMOST ALWAYS.
-    # ---
     # Notes:
     # - WHEN IN DOUBT: set num_chunks = 1 and num_workers = 1
     #
@@ -210,6 +208,8 @@ if __name__ == "__main__":
     #   using the same backend, a different backend, or using PET's existing computational stack
     #   (xarray + dask + numpy). The important take-away here is the separation of concern allows
     #   for flexiblity and portability.
+    #
+    # CAUTION: windows/mac - see WHEN IN DOUBT above, except it applies ALMOST ALWAYS.
     # ---
     NUM_WORKERS = 1
     NUM_CHUNKS = 5
