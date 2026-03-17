@@ -76,6 +76,8 @@ xarray = ">=2026.1.0,<2027"
 meson = ">=1.10.1,<2"
 cffi = ">=2.0.0,<3"
 setuptools = ">=82.0.1,<83"
+pip = ">=26.0.1,<27"
+jupyter = ">=1.1.1,<2"
 
 [tool.pixi.feature.testing.dependencies]
 pytest = ">=9.0.2,<10"

@@ -212,7 +212,7 @@ if __name__ == "__main__":
     # CAUTION: windows/mac - see WHEN IN DOUBT above, except it applies ALMOST ALWAYS.
     # ---
     NUM_WORKERS = 1
-    NUM_CHUNKS = 5
+    NUM_CHUNKS = 1
 
     try:
         multiprocessing.set_start_method("forkserver")
@@ -225,7 +225,7 @@ if __name__ == "__main__":
         ds_input,
         use_real=False,
         backend="zig",
-        num_workers=NUM_CHUNKS,
+        num_workers=NUM_WORKERS,
         num_chunks=NUM_CHUNKS,
     )
     # NOTE: second run can be a bit faster as it likely does some caching, so actual times (not
