@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+from itertools import accumulate
 from typing import Optional, Any
 
 import numpy as np
@@ -23,8 +23,6 @@ from pyearthtools.pipeline.branching.join import Joiner
 class Stack(Joiner):
     """
     Stack a tuple of np.ndarray's
-
-    Currently cannot undo this operation
     """
 
     _override_interface = ["Delayed", "Serial"]
@@ -40,14 +38,16 @@ class Stack(Joiner):
         return np.stack(sample, self.axis)  # type: ignore
 
     def unjoin(self, sample: Any) -> tuple:
-        return super().unjoin(sample)
+        """Unstacks a stacked sample"""
+        # np.stack(..., axis=None) is equivalent to np.stack(..., axis=0)
+        axis = self.axis if self.axis is not None else 0
+        # move the stacked axis to the zeroth axis and convert to tuple
+        return tuple(np.moveaxis(sample, axis, 0))
 
 
 class VStack(Joiner):
     """
     Vertically Stack a tuple of np.ndarray's
-
-    Currently cannot undo this operation
     """
 
     _override_interface = ["Delayed", "Serial"]
@@ -56,22 +56,23 @@ class VStack(Joiner):
     def __init__(self):
         super().__init__()
         self.record_initialisation()
+        self.offsets = None  # stores the vertical offset where each joined array is
 
     def join(self, sample: tuple[Any, ...]) -> np.ndarray:
         """Join sample"""
+        # stores
+        self.offsets = tuple(accumulate(arr.shape[0] for arr in sample[:-1]))
         return np.vstack(
             sample,
         )  # type: ignore
 
     def unjoin(self, sample: Any) -> tuple:
-        return super().unjoin(sample)
+        return tuple(np.vsplit(sample, self.offsets))
 
 
 class HStack(Joiner):
     """
     Horizontally Stack a tuple of np.ndarray's
-
-    Currently cannot undo this operation
     """
 
     _override_interface = ["Delayed", "Serial"]
@@ -80,22 +81,22 @@ class HStack(Joiner):
     def __init__(self):
         super().__init__()
         self.record_initialisation()
+        self.offsets = None
 
     def join(self, sample: tuple[Any, ...]) -> np.ndarray:
         """Join sample"""
+        self.offsets = tuple(accumulate(arr.shape[1] for arr in sample[:-1]))
         return np.hstack(
             sample,
         )  # type: ignore
 
     def unjoin(self, sample: Any) -> tuple:
-        return super().unjoin(sample)
+        return tuple(np.hsplit(sample, self.offsets))
 
 
 class Concatenate(Joiner):
     """
     Concatenate a tuple of np.ndarray's
-
-    Currently cannot undo this operation
     """
 
     _override_interface = ["Delayed", "Serial"]
@@ -105,10 +106,12 @@ class Concatenate(Joiner):
         super().__init__()
         self.record_initialisation()
         self.axis = axis
+        self.offsets = None
 
     def join(self, sample: tuple[Any, ...]) -> np.ndarray:
         """Join sample"""
+        self.offsets = tuple(accumulate(arr.shape[self.axis] for arr in sample[:-1]))
         return np.concatenate(sample, self.axis)  # type: ignore
 
     def unjoin(self, sample: Any) -> tuple:
-        return super().unjoin(sample)
+        return tuple(np.split(sample, self.offsets, axis=self.axis))
