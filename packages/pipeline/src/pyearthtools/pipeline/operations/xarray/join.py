@@ -27,7 +27,7 @@ class Merge(Joiner):
     """
     Merge a tuple of xarray object's.
 
-    Currently cannot undo this operation
+    Currently can only undo this operation with xr.Dataset and xr.DataArray inputs.
     """
 
     _override_interface = "Serial"
@@ -36,13 +36,26 @@ class Merge(Joiner):
         super().__init__()
         self.record_initialisation()
         self._merge_kwargs = merge_kwargs
+        self._input_structure: list[tuple[Union[str, list[str]], dict]] = []
 
     def join(self, sample: tuple[Union[xr.Dataset, xr.DataArray], ...]) -> xr.Dataset:
         """Join sample"""
+        self._input_structure = [
+            (item.name, item.attrs) if isinstance(item, xr.DataArray) else (list(item.data_vars), item.attrs)
+            for item in sample
+        ]
         return xr.merge(sample, **(self._merge_kwargs or {}))
 
-    def unjoin(self, sample: Any) -> tuple:
-        return super().unjoin(sample)
+    def unjoin(self, sample: xr.Dataset) -> tuple:
+        result = []
+        for keys, attrs in self._input_structure:
+            if isinstance(keys, str):
+                da = sample[keys]
+                da.attrs = attrs
+                result.append(da)
+            else:
+                result.append(xr.Dataset({k: sample[k] for k in keys}, attrs=attrs))
+        return tuple(result)
 
 
 class LatLonInterpolate(Joiner):
