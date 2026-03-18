@@ -12,100 +12,57 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyearthtools.pipeline.operations.dask import join
+from functools import partial
+
+from pyearthtools.pipeline.operations.dask.join import Stack, VStack, HStack, Concatenate
 
 import dask.array as da
 import numpy as np
 import pytest
 
 
-def test_stacks():
-    """Tests that join.Stack reproduces da.stack behaviour."""
-
-    numpy_arrays = (
-        da.array(range(6)).reshape((2, 3)),
-        da.array(range(6, 12)).reshape((2, 3)),
-    )
-
-    for stack_axis in range(3):
-        stack = join.Stack(axis=stack_axis)
-        result = stack.join(numpy_arrays)
-        expected = da.stack(numpy_arrays, axis=stack_axis)
-        assert np.array_equal(
-            result.compute(), expected.compute()
-        ), f"Stack(axis={stack_axis}).join() did not reproduce da.stack"
-        unjoined_result = stack.unjoin(result)
-        assert isinstance(
-            unjoined_result, tuple
-        ), f"Stack(axis={stack_axis}).unjoin() did not unjoin the input sample into tuples."
-        for arr_undo, arr in zip(unjoined_result, numpy_arrays, strict=True):
-            assert np.array_equal(
-                arr_undo.compute(), arr.compute()
-            ), f"Stack(axis={stack_axis}).unjoin() did not return original arrays"
+def _arrays(*shapes):
+    """Create dask arrays with given shapes whose elements are sequential integers."""
+    offset = 0
+    result = []
+    for shape in shapes:
+        size = int(np.prod(shape))
+        result.append(da.array(range(offset, offset + size)).reshape(shape))
+        offset += size  # offset ensures next array has different contents
+    return tuple(result)
 
 
-@pytest.fixture
-def concat_array_data():
-    return (
-        da.array(range(6)),
-        da.array(range(6, 18)),
-    )
-
-
+# this parameterizations passes in the joiner class to test, with an appropriate axis as needed.
+# It compares the joined result to an equivalent dask function, partially initialised with axis as needed.
+# The shape of the input array passed to the test is adjusted based on the joiner.
 @pytest.mark.parametrize(
-    ("joiner", "equiv_np_op", "input_shapes"),
-    (
-        (join.VStack, da.vstack, ((1, 3, 2), (2, 3, 2))),
-        (join.HStack, da.hstack, ((3, 1, 2), (3, 2, 2))),
-    ),
+    ("joiner", "equiv_op", "input_arrays"),
+    [
+        pytest.param(Stack(axis=0), partial(da.stack, axis=0), _arrays((2, 3), (2, 3)), id="Stack-axis0"),
+        pytest.param(Stack(axis=1), partial(da.stack, axis=1), _arrays((2, 3), (2, 3)), id="Stack-axis1"),
+        pytest.param(Stack(axis=2), partial(da.stack, axis=2), _arrays((2, 3), (2, 3)), id="Stack-axis2"),
+        pytest.param(VStack(), da.vstack, _arrays((1, 3, 2), (2, 3, 2)), id="VStack"),
+        pytest.param(HStack(), da.hstack, _arrays((3, 1, 2), (3, 2, 2)), id="HStack"),
+        pytest.param(
+            Concatenate(axis=0), partial(da.concatenate, axis=0), _arrays((1, 3, 2), (2, 3, 2)), id="Concatenate-axis0"
+        ),
+        pytest.param(
+            Concatenate(axis=1), partial(da.concatenate, axis=1), _arrays((3, 1, 2), (3, 2, 2)), id="Concatenate-axis1"
+        ),
+        pytest.param(
+            Concatenate(axis=2), partial(da.concatenate, axis=2), _arrays((3, 2, 1), (3, 2, 2)), id="Concatenate-axis2"
+        ),
+    ],
 )
-def test_vstack(joiner, equiv_np_op, input_shapes, concat_array_data):
-    """Tests that join.XStack reproduces da.xstack behaviour."""
+def test_join(joiner, equiv_op, input_arrays):
+    """Tests that joiners reproduce their dask equivalents and are reversible."""
+    name = type(joiner).__name__
 
-    input_arrays = tuple(arr.reshape(shape) for arr, shape in zip(concat_array_data, input_shapes))
+    result = joiner.join(input_arrays)
+    expected = equiv_op(input_arrays)
+    assert np.array_equal(result.compute(), expected.compute()), f"{name}.join() did not reproduce expected behaviour."
 
-    stack = joiner()
-    result = stack.join(input_arrays)
-    expected = equiv_np_op(input_arrays)
-    assert np.array_equal(
-        result.compute(), expected.compute()
-    ), f"{joiner.__name__}.join() did not reproduce {equiv_np_op.__name__} behaviour."
-    unjoined_result = stack.unjoin(result)
-    assert isinstance(
-        unjoined_result, tuple
-    ), f"{joiner.__name__}.unjoin() did not unjoin the input sample into tuples."
-    for arr_undo, arr in zip(unjoined_result, input_arrays, strict=True):
-        assert np.array_equal(
-            arr_undo.compute(), arr.compute()
-        ), f"{joiner.__name__}.unjoin() did not return original arrays."
-
-
-@pytest.mark.parametrize(
-    ("concat_axis", "input_shapes"),
-    (
-        (0, ((1, 3, 2), (2, 3, 2))),
-        (1, ((3, 1, 2), (3, 2, 2))),
-        (2, ((3, 2, 1), (3, 2, 2))),
-    ),
-)
-def test_concatenate(concat_axis, input_shapes, concat_array_data):
-    """Tests that join.Concatenate reproduces da.concatenate behaviour."""
-
-    input_arrays = tuple(arr.reshape(shape) for arr, shape in zip(concat_array_data, input_shapes))
-
-    stack = join.Concatenate(axis=concat_axis)
-    result = stack.join(input_arrays)
-    expected = da.concatenate(input_arrays, axis=concat_axis)
-    assert np.array_equal(
-        result.compute(), expected.compute()
-    ), f"Concatenate(axis={concat_axis}) did not reproduce da.concatenate behaviour."
-    unjoined_result = stack.unjoin(result)
-    assert isinstance(
-        unjoined_result, tuple
-    ), f"Concatenate(axis={concat_axis}).unjoin() did not unjoin the input sample into tuples."
-    for arr_undo, arr in zip(unjoined_result, input_arrays, strict=True):
-        assert np.array_equal(
-            arr_undo.compute(),
-            arr.compute(),
-            f"Concatenate(axis={concat_axis}).unjoin() did not return original arrays.",
-        )
+    unjoined = joiner.unjoin(result)
+    assert isinstance(unjoined, tuple), f"{name}.unjoin() did not return a tuple."
+    for arr_undo, arr in zip(unjoined, input_arrays, strict=True):
+        assert np.array_equal(arr_undo.compute(), arr.compute()), f"{name}.unjoin() did not return original arrays."
