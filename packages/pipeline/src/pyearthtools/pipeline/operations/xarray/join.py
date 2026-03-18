@@ -81,9 +81,14 @@ class LatLonInterpolate(Joiner):
     ):
         super().__init__()
 
-        self.raise_if_dimensions_wrong(reference_dataset)
-
         self.record_initialisation()
+
+        if reference_dataset is None and reference_index is None:
+            raise ValueError("No reference dataset or reference index set")
+        elif reference_dataset is not None and reference_index is not None:
+            raise ValueError("Only one of reference_dataset or reference_index should be set")
+        elif reference_dataset:
+            self.raise_if_dimensions_wrong(reference_dataset)
         self.reference_dataset = reference_dataset
         self.reference_index = reference_index
         self.interpolation_method = interpolation_method
