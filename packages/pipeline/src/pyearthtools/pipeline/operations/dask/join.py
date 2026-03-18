@@ -15,6 +15,7 @@
 
 # type: ignore[reportPrivateImportUsage]
 
+from itertools import accumulate
 from typing import Optional, Any
 
 import dask.array as da
@@ -26,14 +27,12 @@ from pyearthtools.pipeline.operations.dask.dask import DaskOperation
 class Stack(Joiner, DaskOperation):
     """
     Stack a tuple of da.Array's
-
-    Currently cannot undo this operation
     """
 
     _override_interface = ["Serial"]
     _numpy_counterpart = "join.Stack"
 
-    def __init__(self, axis: Optional[int] = None):
+    def __init__(self, axis: Optional[int] = 0):
         super().__init__()
         self.record_initialisation()
         self.axis = axis
@@ -43,14 +42,14 @@ class Stack(Joiner, DaskOperation):
         return da.stack(sample, self.axis)  # type: ignore
 
     def unjoin(self, sample: Any) -> tuple:
-        return super().unjoin(sample)
+        """Unstacks a stacked sample"""
+        # move the stacked axis to the zeroth axis and convert to tuple
+        return tuple(da.moveaxis(sample, self.axis, 0))
 
 
 class VStack(Joiner, DaskOperation):
     """
     Vertically Stack a tuple of da.Array's
-
-    Currently cannot undo this operation
     """
 
     _override_interface = ["Serial"]
@@ -59,22 +58,24 @@ class VStack(Joiner, DaskOperation):
     def __init__(self):
         super().__init__()
         self.record_initialisation()
+        self.offsets = None
 
     def join(self, sample: tuple[Any, ...]) -> da.Array:
         """Join sample"""
+        self.offsets = tuple(accumulate(arr.shape[0] for arr in sample[:-1]))
         return da.vstack(
             sample,
         )  # type: ignore
 
     def unjoin(self, sample: Any) -> tuple:
-        return super().unjoin(sample)
+        start = (0,) + self.offsets
+        ends = self.offsets + (sample.shape[0],)
+        return tuple(sample[start:end] for start, end in zip(start, ends, strict=True))
 
 
 class HStack(Joiner, DaskOperation):
     """
     Horizontally Stack a tuple of da.Array's
-
-    Currently cannot undo this operation
     """
 
     _override_interface = ["Serial"]
@@ -83,22 +84,24 @@ class HStack(Joiner, DaskOperation):
     def __init__(self):
         super().__init__()
         self.record_initialisation()
+        self.offsets = None
 
     def join(self, sample: tuple[Any, ...]) -> da.Array:
         """Join sample"""
+        self.offsets = tuple(accumulate(arr.shape[1] for arr in sample[:-1]))
         return da.hstack(
             sample,
         )  # type: ignore
 
     def unjoin(self, sample: Any) -> tuple:
-        return super().unjoin(sample)
+        start = (0,) + self.offsets
+        ends = self.offsets + (sample.shape[1],)
+        return tuple(sample[:, start:end, ...] for start, end in zip(start, ends, strict=True))
 
 
 class Concatenate(Joiner, DaskOperation):
     """
     Concatenate a tuple of da.Array's
-
-    Currently cannot undo this operation
     """
 
     _override_interface = ["Serial"]
@@ -108,10 +111,14 @@ class Concatenate(Joiner, DaskOperation):
         super().__init__()
         self.record_initialisation()
         self.axis = axis
+        self.offsets = None
 
     def join(self, sample: tuple[Any, ...]) -> da.Array:
         """Join sample"""
+        self.offsets = tuple(accumulate(arr.shape[self.axis] for arr in sample[:-1]))
         return da.concatenate(sample, self.axis)  # type: ignore
 
     def unjoin(self, sample: Any) -> tuple:
-        return super().unjoin(sample)
+        start = (0,) + self.offsets
+        ends = self.offsets + (sample.shape[self.axis],)
+        return tuple(da.take(sample, slice(start, end), self.axis) for start, end in zip(start, ends, strict=True))
