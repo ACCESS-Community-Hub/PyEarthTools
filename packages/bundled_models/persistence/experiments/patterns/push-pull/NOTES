@@ -1,0 +1,2 @@
+worker = server = performs an action => needs to be active before client requests get accepted.
+manager = client = requests an action => needs to wait for server to be active before sending requests.
