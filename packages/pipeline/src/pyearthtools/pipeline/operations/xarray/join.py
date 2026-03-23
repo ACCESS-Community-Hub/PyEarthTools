@@ -67,6 +67,8 @@ class LatLonInterpolate(Joiner):
 
     It assumed the dimensions 'latitude', 'longitude', 'time', and 'level' will
     be present. 'lat' or 'lon' may also be used for convenience.
+
+    Currently cannot undo this operation. Raises NotImplementedError if undo is attempted.
     """
 
     _override_interface = "Serial"
@@ -172,6 +174,8 @@ class GeospatialTimeSeriesMerge(Joiner):
 
     This joiner is more strict about the merging and interpolating, and also
     raises more informative error messages when it runs into trouble.
+
+    Currently cannot undo this operation. Raises NotImplementedError if undo is attempted.
     """
 
     _override_interface = "Serial"
@@ -238,7 +242,7 @@ class InterpLike(Joiner):
     """
     Merge a tuple of xarray object's.
 
-    Currently cannot undo this operation
+    Currently cannot undo this operation. Raises NotImplementedError if undo is attempted.
     """
 
     _override_interface = "Serial"
@@ -280,7 +284,7 @@ class Concatenate(Joiner):
     """
     Concatenate a tuple of xarray object's
 
-    Currently cannot undo this operation
+    Currently cannot undo this operation. Unjoining a sample returns the same sample.
     """
 
     _override_interface = "Serial"
