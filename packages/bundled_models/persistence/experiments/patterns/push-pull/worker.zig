@@ -305,37 +305,44 @@ const Controller = struct {
     }
 
     fn run_stm(self: *Controller) !void {
-        while (true) {
+        const cycles_ms = 10; // wait before reconnecting when forced to stop
+        var cycles: u32 = 0; // unused because blocking, only useful when we are doing proper polling
+        while (true) : (cycles += 1) {
+            // blocking
             var maybe_msg = czmq.zstr_recv(self.sock_c.ptr_sock_pull);
-
+            // received message => process
             if (maybe_msg) |msg| {
                 const action = try ClientAction.init_from_str(msg);
                 switch (action) {
-                    // if controller state is requested, check or connect,
-                    // reply
+                    // controller state was requested
                     .controller_state => {
+                        // container state is being checked => wake up
+                        cycles = 0;
+                        std.debug.print("CLIENT(recv): check controller state.\n", .{});
+                        // reconnect to socket if not still connected
                         self.sock_c.connect_push_sock();
                         if (self.sock_c.ptr_sock_push) |_| {
+                            // non-blocking
                             _ = czmq.zstr_send(self.sock_c.ptr_sock_push, self.state_c.to_str());
                         }
                         czmq.zstr_free(&maybe_msg);
                     },
-                    // stop instantly
+                    // client wants to stop the controller
                     .controller_end => {
-                        std.debug.print("CLIENT REQUEST: stopping controller.", .{});
+                        std.debug.print("CLIENT(recv): stop controller.\n", .{});
                         self.state_c = .controller_stopped;
                         if (self.sock_c.ptr_sock_push) |_| {
+                            // non-blocking
                             _ = czmq.zstr_send(self.sock_c.ptr_sock_push, self.state_c.to_str());
                         }
                         czmq.zstr_free(&maybe_msg);
-                        break;
                     },
                     else => {
                         return WorkerError.NotImplemented;
                     },
                 }
             }
-            czmq.zclock_sleep(100);
+            czmq.zclock_sleep(cycles_ms);
         }
     }
 
@@ -438,6 +445,29 @@ const Task = struct {
     }
 };
 
+// This should run on a separate thread
+fn __test_worker_controller_stm(a: *std.mem.Allocator) void {
+    var c = Controller.init(a, 1);
+    defer c.deinit();
+    c.run_stm() catch {};
+}
+
+pub fn main() !void {
+    // TODO: replace with actual workflow
+    var arena: std.heap.ArenaAllocator = .init(std.heap.page_allocator);
+    defer arena.deinit();
+    var a = arena.allocator();
+    // --- start worker ---
+    // sorker will have its pull socket (@), but not push - until the first
+    // status message is received.
+    const t_worker = try std.Thread.spawn(
+        .{ .allocator = a },
+        __test_worker_controller_stm,
+        .{&a},
+    );
+    t_worker.join();
+}
+
 test "task state" {
     var t = Task.init(10);
     std.debug.print("t.state = {s}\n", .{t.state.to_str()});
@@ -459,22 +489,13 @@ test "controller tasks" {
     );
 }
 
-// This should run on a separate thread
-fn __test_worker_controller_stm() void {
-    var a = std.testing.allocator;
-    var c = Controller.init(&a, 1);
-    defer c.deinit();
-    c.run_stm() catch {};
-}
-
 test "controller status check" {
-    const a = std.testing.allocator;
 
     // --- start worker ---
     // sorker will have its pull socket (@), but not push - until the first
     // status message is received.
     const t_worker = try std.Thread.spawn(
-        .{ .allocator = a },
+        .{ .allocator = std.testing.allocator },
         __test_worker_controller_stm,
         .{},
     );
