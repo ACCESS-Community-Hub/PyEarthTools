@@ -1,71 +1,26 @@
 """
-Runs persistence model on the data loaded from the pipeline. Chunks the input data from the pipeline
-and uses multiprocessing (if specified to do so).
+Runs persistence model on the data loaded from the pipeline. Chunks the input data from the pipeline.
 
-Persistence potentially needs to be computed on the fly. Depending on the persistence method, and
-model it is being compared against, the computation may require ingestion of a reasonable amount of
-historical data.
-
-The common use-case is to offload the data loading to something at a higher level (pet-pipeline).
-
-This module can't control the loading process, instead what it controls is the way in which the
-chunks are indexed, so that they can be _processed_ (CPU not IO) efficiently.
-
-Examples of what can be done:
-    - choice of backend (e.g. numba/rust etc., defaulting to numpy) - wip currently only numpy is
-      supported
-
-    - choice of number of chunks and workers for python to slice data into multiple workers.
-      (embarassingly parallel)
-
-    - choice of persistence method
-
-    - flexiblity in how the input array/slab is provided, currently supports:
-        - numpy array (<--- almost any hypercube datastructure can be converted to this)
-        - xarray dataset
-        - xarray dataarray
-
-CAUTION:
-
-    Due to the way data is stored and loaded, multiprocessing may sometimes be necessary but should
-    be used with caution. Some tips, when in doubt just set the workers to 1, but you may still
-    chunk the data if required due to memory issues.
-
-    Again, the chunking here is not to do with loading, its to do with efficient processing.
-    Assumedly the data is already chunked as it is loaded via some other framework. The chunking
-    applied here is on top of that to further sub-slice things to take into account the need to
-    ingest a large amount of data for aggregation computations.
+TODO: use threads instead of processes.
 
 ANTIPATTERNS (for developers):
 
-    - do not chunk over time (except for specific exceptions)
+    - do not chunk over time, on-the-fly (except for specific exceptions). Data is expected to
+      arrive already pre-bounded to a specific dimensional extent. Any chunking here is done on top
+      of that
 
-    - do not use external multiprocessing/threading like dask
+    - do not assume the use of threads will "just work (TM)" if you have to, force threads to 1 if
+      its an issue.
 
-    - do not use multiprocessing IF the compute backend already does it efficiently, UNLESS we are
-      IO bound.
-
-    - do not use threading. IO bound issues should be resolved at a higher level because persistence
-      methods (currently) have no control over how the data is loaded - actually this is the same
-      for everything in PET that delegates data loading to the pipeline.
-
-    - do not implemnent methods with heavy parametric statical inference or methods that are aware
-      of the "meaning" of orthogonal dimensions in the hypercube other than "time".
-
-    - do not do any overly clever chunk/worker optimization - this is the user's responsiblity
+    - do not share data between threads when it is not required. If you have to share data you MUST
+      include barriers appropriately to prevent race conditions and deadlocks.
 
     - do not assume this will be called as a library (but can be if the OS allows it and its been
       tested sufficiently).
 
-IMPORTANT:
-
-    The "proper" way to run this module is a standalone process/script. But it _may_ work as part of
-    a script/pipeline _if_ the underling OS supports it. See the executor pool defined in
-    `interface._compute` and the main guard at the bottom.
-
 FUTUREWORK:
 
-    - Add the ability to bypass python completely for data loading.
+    - Add the ability to bypass python completely for data loading. (see examples for a zmq example)
 
         - Current architecture expects data to be lazily loaded from python but eagerly computed by
           the backend, which may still be python or could be something like rust or C.
@@ -93,7 +48,7 @@ from persistence.interface import (
 from persistence.config.dask import _set_synchronous_dask
 
 
-def predict(
+def fit(
     arr: PetDataArrayLike,
     idx_time_dim: int,
     num_workers: int = None,

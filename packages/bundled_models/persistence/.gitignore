@@ -3,3 +3,4 @@
 .pixi/*
 !.pixi/config.toml
 report.xml
+worker
