@@ -48,7 +48,7 @@ from persistence.interface import (
 from persistence.config.dask import _set_synchronous_dask
 
 
-def fit(
+def predict(
     arr: PetDataArrayLike,
     idx_time_dim: int,
     num_workers: int = None,
