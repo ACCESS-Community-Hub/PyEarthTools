@@ -211,16 +211,33 @@ class PersistenceComputePool:
                 arr_res[*res_chunk.slice_dims] = res_chunk.array
         else:
             # dispatch chunks to workers
-            # TODO: forkserver does/may not work with windows/mac, unless main-guarded
-            with concurrent.futures.ProcessPoolExecutor(
-                num_workers,
-                mp_context=multiprocessing.get_context("forkserver"),
-            ) as pp_exec:
-                results = pp_exec.map(
+            with concurrent.futures.ThreadPoolExecutor(
+                max_workers=num_workers,
+            ) as th_exec:
+                results = th_exec.map(
                     PersistenceComputePool._job_wrapper, iter(self.chunk_generator)
                 )
                 for res_chunk in iter(results):
                     arr_res[*res_chunk.slice_dims] = res_chunk.array
+
+            # --- process pool implementation ---
+            # This is commented out for now due to issues with portability.
+            # - may not work on windows/mac
+            # - requires main guard
+            # - python threading is far more compatible with arbitrary devices
+            # - only really required for something like HPC, where python threading may not be
+            #   optimized for compute cores.
+            # ---
+            # with concurrent.futures.ProcessPoolExecutor(
+            #     num_workers,
+            #     mp_context=multiprocessing.get_context("forkserver"),
+            # ) as pp_exec:
+            #     results = pp_exec.map(
+            #         PersistenceComputePool._job_wrapper, iter(self.chunk_generator)
+            #     )
+            #     for res_chunk in iter(results):
+            #         arr_res[*res_chunk.slice_dims] = res_chunk.array
+            # ---
 
         da_res = xr.DataArray(arr_res, dims=self.chunk_info.dim_names)
 

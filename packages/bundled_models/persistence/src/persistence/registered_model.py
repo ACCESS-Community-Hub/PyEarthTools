@@ -2,23 +2,47 @@
 Register persistence model in zoo
 
 Here a PhantomPredictor is used as a proxy for Predictor. A persistence model is a _light_
-predictor. A persistence model is a _ligh_ model.
+predictor. A persistence model is a _light_ model.
 
 _Light_ here implies that the model only needs the reference to the data pipeline and some
 "Metadata" about the persistence model. The predictor only needs to run the "predict" function under
-the assumption that the datapipeline ingested as part of the model _must_ be invertible or an
+the assumption that the datapipeline ingested as part of the model MUST be invertible or an
 equivilent consistent inversion be provided to all predictors running aside the prediction pipeline
 (if any).
 """
 
+import copy
 import dataclasses
-import functools
 import datetime
+import functools
+import typing
+import warnings
+
+import xarray as xr
+
 import pyearthtools.training as pet_train
 import pyearthtools.pipeline as pet_pipe
-import typing
+import pyearthtools.zoo
+
+from persistence import persistence_impl
+
 
 Prediction = typing.Any
+
+WARN_PIPELINE_NO_MULTIPLE_DATAINPUT = (
+    "PersistencePredictor.predict: "
+    "Retrieved data has more than one element, make sure to concatenate it if this is "
+    "unintentional. Concatenation is going to performed automatically over the specified time "
+    "dimension, this may slow things down."
+)
+ERROR_PIPELINE_INVALID_TYPE_DATAINPUT = (
+    "PersistencePredictor.predict: "
+    "Pipeline did NOT retrieve a xr.Dataset. This is a critical failure."
+)
+ERROR_PREDICT_INVALID_TYPE_VARNAMES = (
+    "PersistencePredictor.predict: "
+    "in `predict` Variables (`varnames`) MUST be a list of strings."
+)
 
 
 class PhantomPredictor:
@@ -38,12 +62,12 @@ class PhantomPredictor:
 
         With no bounds in what they can actually encompass.
 
+        ```
         >>> p = PersistencePredictor(PhantomPredictor)
         >>> assert isinstance(p, Predictor)
         ... # Note that if we get past this initialization was successful
         >>> arr_in = np.array(...)
         >>> arr_out: Prediction = p.predict(arr_in)
-
         ```
         """
 
@@ -67,7 +91,7 @@ class PhantomPredictor:
 
 
 class PhantomModel:
-    def get_model(*args, **kwargs) -> PhantomModel:
+    def get_model(*args, **kwargs) -> "PhantomModel":
         """
         INTERNAL ONLY - this is aimed at developers not users
 
@@ -114,54 +138,7 @@ class PhantomModel:
 # The above IS a hack, but a necessary evil barring a big refactor.
 # ---
 pet_train.Predictor.register(PhantomPredictor)
-pet_train.Model.register(PhantomModel)
-
-
-# ---
-# IMPORTANT: models DO NOT need to be defined like this. But where they fit the mould exactly, they
-# SHUOLD be defined like this, i.e. a static model with prediction capability ingrained.
-#
-# Usually this dependency would be reversed, because a model is pre-defined, in persistence the
-# model does not exist until the user provides data and the method to compute it.
-#
-# Therefore, as far as persistence models are concerned you can just directly use the
-# PersistencePredictor if you are using this as a library.
-#
-# TLDR;
-# 1. this is just yet another namespacing issue from legacy code;
-# 2. Persistence is a special case where models are predictors.
-#
-# RM => RegisteredModel as per usual
-# ---
-@dataclasses.dataclass(frozen=True)
-@pyearthtools.zoo.register("Development/Persistence", exists="ignore")
-class PersistenceRM(PhantomModel, PhantomPredictor):
-    """
-    This is the main entry point to the registered model that computes persistence. There is a
-    caveat here. Even though this is the main entry point, this is mainly for consistency. It is
-    completely interchangeable with using the PersistencePredictor directly which has a richer
-    documentation.
-
-    See: `PersistencePredictor` for a more detailed information on the arguments.
-
-    This is just a compatiblity layer to adhere to registered models.
-    """
-
-    _name = "Development/Persistence"
-
-    # TODO: if there are docstrings issue, the user should just be referred to PersistencePredictor
-    def get_model(self) -> "PersistenceModel":
-        """
-        NOTE: usually this returns "data" that a external predictor can use, but a persistence
-        model's representation of data is itself. So contrived as it looks, this is an accurate
-        definition. But as specified in PhantomModel this part of the contract while, MUST be
-        defined, _DOES NOT NEED_ to be used.
-
-        This part of the code was written _after_ the PhantomModel, so if you are wondering why that
-        part of the contract exists, this is why.
-        """
-        # TODO: ensure this is a "view" not a copy, it most likely is a view.
-        return self
+pet_train.ModelWrapper.register(PhantomModel)
 
 
 @dataclasses.dataclass
@@ -223,29 +200,31 @@ class PersistencePredictor(PhantomPredictor):
                         also supported as an experimental option).
     """
 
+    _: dataclasses.KW_ONLY
+
     pipeline: pet_pipe.Pipeline
     method: str
     dimname_time: str
-
-    _: KW_ONLY
-
     num_threads: int = 1
     num_chunks: int = 1
     simple_impute: bool = True
     backend_type: str = "numpy"
 
     # NOTE: not caching this yet, since there's no guarentee that this class is frozen.
-    def indexofdim_time(self) -> int:
-        return list(ds_input.dims).index(dimname_time)
+    def indexofdim_time(self, ds_input) -> int:
+        return list(ds_input.dims).index(self.dimname_time)
 
     def predict(
-        self, var_names: list[str], dt_base: datetime.datetime | str
+        self,
+        dt_base: datetime.datetime | str,
+        var_names: list[str],
     ) -> Prediction:
         """
         A predictor can only be used if it has a predict() method - this is part of the contract
 
-            var_names: the variable names/keys to predict
+        Args
             dt_base: the base time to use for prediction
+            var_names: the variable names/keys to predict
         """
         # ----------------------------------
         # --- FULL external-backend flow ---
@@ -261,38 +240,47 @@ class PersistencePredictor(PhantomPredictor):
         # ------------------------------------
         # (with optional backend flow)
         # get data instance from pipeline (assume that entries are pre-concatted)
-        ds = pipeline[dt_base]
+        ds = self.pipeline[dt_base]
 
         # --- perform checks ---
         # ds should ALWAYS be a dataset if we are using the pipeline
         if not isinstance(ds, xr.Dataset):
-            raise TypeError(
-                "PersistencePredictor: Pipeline did NOT retrieve a xr.Dataset. This is a critical failure."
-            )
+            if isinstance(ds, list) or isinstance(ds, tuple):
+                if len(ds) == 1:
+                    ds = ds[0]
+                else:
+                    warnings.warn(WARN_PIPELINE_NO_MULTIPLE_DATAINPUT)
+                    ds = xr.concat(ds, dim=self.dimname_time)
+            else:
+                raise TypeError(ERROR_PIPELINE_INVALID_TYPE_DATAINPUT)
+
+        # make allowance for a single string and lift to list
+        if isinstance(var_names, str):
+            var_names = [var_names]
 
         if not isinstance(var_names, list) or any(
             map(lambda v: not isinstance(v, str), var_names)
         ):
-            raise TypeError("PersistencePredictor: var_names MUST be a list of strings")
+            raise TypeError(ERROR_PREDICT_INVALID_TYPE_VARNAMES)
 
         # --- extract variables ---
         # select variables of interest
         # TODO: not sure if this the best way to select a view
-        ds_input = ds[[var_names]]
+        ds_input = ds[var_names]
 
         # --- cache coordinates to reintroduce post compute ---
         coords_out = copy.deepcopy(ds_input.coords)
         # persistence model only returns a single time index
-        del coords_out[dimname_time]
+        del coords_out[self.dimname_time]
 
         # --- run prediction ---
         # TODO num_workers -> num_threads
         ds_prediction = persistence_impl.predict(
             ds_input,
-            idx_time_dim=self.indexofdim_time(),
+            idx_time_dim=self.indexofdim_time(ds_input),
             num_workers=self.num_threads,
             num_chunks=self.num_chunks,
-            method="median_of_three",
+            method=self.method,
             simple_impute=self.simple_impute,
             backend_type=self.backend_type,
         )
@@ -303,7 +291,54 @@ class PersistencePredictor(PhantomPredictor):
         return ds_prediction
 
 
-if _name__ == "__main__":
+# ---
+# IMPORTANT: models DO NOT need to be defined like this. But where they fit the mould exactly, they
+# SHUOLD be defined like this, i.e. a static model with prediction capability ingrained.
+#
+# Usually this dependency would be reversed, because a model is pre-defined, in persistence the
+# model does not exist until the user provides data and the method to compute it.
+#
+# Therefore, as far as persistence models are concerned you can just directly use the
+# PersistencePredictor if you are using this as a library.
+#
+# TLDR;
+# 1. this is just yet another namespacing issue from legacy code;
+# 2. Persistence is a special case where models are predictors.
+#
+# RM => RegisteredModel as per usual
+# ---
+@pyearthtools.zoo.register("Development/Persistence", exists="ignore")
+@dataclasses.dataclass
+class PersistenceRM(PhantomModel, PersistencePredictor):
+    """
+    This is the main entry point to the registered model that computes persistence. There is a
+    caveat here. Even though this is the main entry point, this is mainly for consistency. It is
+    completely interchangeable with using the PersistencePredictor directly which has a richer
+    documentation.
+
+    See: `PersistencePredictor` for a more detailed information on the arguments.
+
+    This is just a compatiblity layer to adhere to registered models.
+    """
+
+    _name = "Development/Persistence"
+
+    # TODO: if there are docstrings issue, the user should just be referred to PersistencePredictor
+    def get_model(self) -> "PhantomModel":
+        """
+        NOTE: usually this returns "data" that a external predictor can use, but a persistence
+        model's representation of data is itself. So contrived as it looks, this is an accurate
+        definition. But as specified in PhantomModel this part of the contract while, MUST be
+        defined, _DOES NOT NEED_ to be used.
+
+        This part of the code was written _after_ the PhantomModel, so if you are wondering why that
+        part of the contract exists, this is why.
+        """
+        # TODO: ensure this is a "view" not a copy, it most likely is a view.
+        return self
+
+
+if __name__ == "__main__":
     predictor = PhantomPredictor()
     model = PhantomModel()
     # Quick test of impersonation - this should never fail
