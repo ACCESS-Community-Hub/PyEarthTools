@@ -700,6 +700,10 @@ class Pipeline(_Pipeline, Index):
             except PipelineFilterException:
                 continue
 
+            except Exception as exc:
+                if type(exc) in self._exceptions_to_ignore:
+                    continue
+
             try:
                 if isinstance(sample, iterators.IterateResults):
                     for sub_sample in sample.iterate_over_object():
