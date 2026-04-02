@@ -71,6 +71,8 @@ def open_dataset(
              return a dictionary of {path difference: dataset}.
     """
 
+    # import pudb; pudb.set_trace()
+
     def get_config(mf: bool = False):
         open_kwargs = copy.copy(pyearthtools.utils.config.get("data.open.xarray"))
         if mf:
@@ -80,11 +82,28 @@ def open_dataset(
 
     if isinstance(location, (tuple, list)):
         try:
+
+
+                # open_kwargs['chunks'] = None
+                # # open_kwargs['compat'] = 'override'
+                # open_kwargs['combine_attrs'] = 'override'
+                # open_kwargs['data_vars'] = 'minimal'
+                # open_kwargs['parallel'] = False
+
+            open_kwargs = get_config(True)
+
+            open_kwargs['chunks'] = None
+            open_kwargs['compat'] = 'override'
+            open_kwargs['coords'] = 'minimal'
+            open_kwargs['combine_attrs'] = 'override'
+            open_kwargs['engine'] = 'h5netcdf'
+            open_kwargs['data_vars'] = 'minimal'
+            open_kwargs['parallel'] = False            
+
             return xr.open_mfdataset(
                 filter_files(location),
                 decode_timedelta=True,  # TODO: should we raise a warning? It seems to be required for almost all our data.
-                compat="override",
-                **get_config(True),
+                **open_kwargs,
             )
 
         except xr.MergeError as e:

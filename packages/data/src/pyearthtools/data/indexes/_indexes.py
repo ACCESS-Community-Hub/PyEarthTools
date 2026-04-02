@@ -130,6 +130,7 @@ class FileSystemIndex(Index, metaclass=ABCMeta):
             (Any):
                 Loaded data
         """
+
         return open_files(files, **kwargs)
 
     def search(self, *args, **kwargs) -> Path | list[str | Path] | dict[str, str | Path]:
@@ -200,7 +201,16 @@ class FileSystemIndex(Index, metaclass=ABCMeta):
                 Loaded Data
         """
         try:
-            return self.load(self.search(*args), **kwargs)
+            load_index = self.search(*args)
+
+            cache = getattr(self, 'object_cache', {})
+            cached_result = cache.get(load_index, None)
+            result = cached_result or self.load(load_index, **kwargs)
+
+            if getattr(self, 'cache_last_used', True):
+                self.object_cache = {load_index: result}
+
+            return result
         except Exception as e:
             raise DataNotFoundError(f"Data with args: {str(args)} could not be found.") from e
 

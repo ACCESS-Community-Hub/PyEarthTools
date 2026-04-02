@@ -322,20 +322,29 @@ def _mf_series(
     open_kwargs.update(pyearthtools.utils.config.get("data.open.xarray_mf"))
     open_kwargs.update(kwargs)
 
-    try:
-        full_ds = xr.open_mfdataset(
-            list(set(dataset_paths)),
-            **open_kwargs,
-        )
-    except NotImplementedError:
-        # Work around a bug/gap in xarray for loading NetCDF4 files and autochunking
+    # try:
+    open_kwargs['chunks'] = None
+    open_kwargs['compat'] = 'override'
+    open_kwargs['coords'] = 'minimal'
+    open_kwargs['engine'] = 'h5netcdf'
+    open_kwargs['combine_attrs'] = 'override'
+    open_kwargs['data_vars'] = 'minimal'
+    open_kwargs['parallel'] = False
 
-        open_kwargs.pop("chunks")
+    full_ds = xr.open_mfdataset(
+        list(set(dataset_paths)),
+        **open_kwargs,
+    )
 
-        full_ds = xr.open_mfdataset(
-            list(set(dataset_paths)),
-            **open_kwargs,
-        )
+    # except NotImplementedError:
+    #     # Work around a bug/gap in xarray for loading NetCDF4 files and autochunking
+
+    #     open_kwargs.pop("chunks")
+
+    #     full_ds = xr.open_mfdataset(
+    #         list(set(dataset_paths)),
+    #         **open_kwargs,
+    #     )
 
     # full_ds = xr.merge(
     #     [

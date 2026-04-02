@@ -105,6 +105,7 @@ class Himawari(ArchiveIndex):
         file_regex: str = FILE_REGEX,
         data_interval: tuple[int, str] = (10, "m"),
         transforms: Transform | TransformCollection | None = None,
+        cache_last_used=True,
     ):
         """
         Setup Satellite Indexer
@@ -118,6 +119,8 @@ class Himawari(ArchiveIndex):
                 Override for data resolution. Defaults to (10, "m").
             transforms (Transform | TransformCollection, optional):
                 Base Transforms to apply. Defaults to TransformCollection().
+            cache_last_used:
+                Will retain the last-loaded file in memory for possible re-use
         """
         check_project(project_code="rv74")
 
@@ -127,7 +130,12 @@ class Himawari(ArchiveIndex):
         self.file_regex = file_regex
 
         base_transform = pyearthtools.data.transforms.variables.Trim(variables) + (transforms or TransformCollection())
-        super().__init__(transforms=base_transform, data_interval=data_interval or (10, "m"))
+        if cache_last_used:
+            self.object_cache = {}
+        
+        super().__init__(transforms=base_transform, 
+                         data_interval=data_interval or (10, "m"),
+                         cache_last_used=True)
         self.record_initialisation()
 
     def filesystem(
