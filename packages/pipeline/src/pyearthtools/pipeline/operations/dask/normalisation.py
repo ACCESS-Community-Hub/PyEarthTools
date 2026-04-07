@@ -65,11 +65,11 @@ class daskNormalisation(DaskOperation):
 
     @abstractmethod
     def normalise(self, sample: da.Array) -> da.Array:
-        return sample
+        pass  # pragma: no cover # cannot test abstract methods
 
     @abstractmethod
     def denormalise(self, sample: da.Array) -> da.Array:
-        return sample
+        pass  # pragma: no cover # cannot test abstract methods
 
     def expand(self, factor, sample):
         if not self._expand:
