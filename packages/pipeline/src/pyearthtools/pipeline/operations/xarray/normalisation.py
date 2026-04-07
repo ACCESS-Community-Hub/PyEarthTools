@@ -171,7 +171,7 @@ class Deviation(xarrayNormalisation):
         super().__init__()
         self.record_initialisation()
 
-        if debug:
+        if debug:  # pragma: no cover
             import pdb
 
             pdb.set_trace()

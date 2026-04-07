@@ -12,8 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyearthtools.pipeline.operations.xarray.normalisation import Anomaly, Deviation, Division, Evaluated
+from pyearthtools.pipeline.operations.xarray.normalisation import (
+    Anomaly,
+    Deviation,
+    Division,
+    SingleValueDivision,
+    Evaluated,
+    MagicNorm,
+)
 
+import os
 import numpy as np
 import xarray as xr
 import pytest
@@ -21,13 +29,6 @@ import pytest
 
 def _write_data(file_path, data, dims=None):
     "Helper function to save numpy data as an xarray Dataset"
-    if dims is None:
-        if isinstance(data, np.ndarray) and data.ndim == 2:
-            dims = ["x", "y"]
-        elif isinstance(data, np.ndarray) and data.ndim == 1:
-            dims = ["x"]  # Default, might need to be overridden by tests
-        else:
-            dims = []
 
     da = xr.DataArray(data, dims=dims, name="data")
     ds = xr.Dataset({"data": da})
@@ -64,8 +65,6 @@ def test_Anomaly(sample, tmp_path, mean_data, dims, expected):
 
     if isinstance(sample, xr.DataArray) and isinstance(result, xr.Dataset):
         expected_xr = sample.to_dataset(name=sample.name or "data").copy(data={sample.name or "data": expected})
-    elif isinstance(sample, xr.DataArray):
-        expected_xr = sample.copy(data=expected)
     else:
         expected_xr = sample.copy(deep=True)
         expected_xr["data"] = (["x", "y"], expected)
@@ -88,7 +87,8 @@ def test_Anomaly(sample, tmp_path, mean_data, dims, expected):
         (np.array(range(6, 12)).reshape(3, 2), ["x", "y"], -6 / (0.1 * np.array(range(7, 13)).reshape(3, 2))),
     ),
 )
-def test_Deviation(sample, tmp_path, mean_data, dims, expected):
+@pytest.mark.parametrize("input_type", ["file", "dataset", "dataarray"])
+def test_Deviation(sample, tmp_path, mean_data, dims, expected, input_type):
     "Tests the Deviation normalisation class."
 
     mean_file_path = tmp_path / "mean.nc"
@@ -96,7 +96,17 @@ def test_Deviation(sample, tmp_path, mean_data, dims, expected):
     _write_data(file_path=mean_file_path, data=mean_data, dims=dims)
     _write_data(file_path=stdev_file_path, data=0.1 * (mean_data + 1), dims=dims)  # +1 to avoid divide by 0
 
-    a = Deviation(mean=mean_file_path, deviation=stdev_file_path)
+    if input_type == "file":
+        mean_val = mean_file_path
+        stdev_val = stdev_file_path
+    elif input_type == "dataset":
+        mean_val = xr.open_dataset(mean_file_path)
+        stdev_val = xr.open_dataset(stdev_file_path)
+    elif input_type == "dataarray":
+        mean_val = xr.open_dataset(mean_file_path)["data"]
+        stdev_val = xr.open_dataset(stdev_file_path)["data"]
+
+    a = Deviation(mean=mean_val, deviation=stdev_val)
 
     result = a.apply_func(sample)
 
@@ -115,6 +125,29 @@ def test_Deviation(sample, tmp_path, mean_data, dims, expected):
         expected_reversed = sample.to_dataset(name=sample.name or "data")
     else:
         expected_reversed = sample
+    xr.testing.assert_allclose(result_reversed, expected_reversed)
+
+
+def test_Deviation_float(sample):
+    "Tests the Deviation normalisation class with float inputs."
+    mean_val = 2.0
+    stdev_val = 0.5
+    expected = (np.array(range(6)).reshape(3, 2) - mean_val) / stdev_val
+
+    a = Deviation(mean=mean_val, deviation=stdev_val)
+
+    result = a.apply_func(sample)
+
+    if isinstance(sample, xr.DataArray):
+        expected_xr = sample.copy(data=expected)
+    else:
+        expected_xr = sample.copy(deep=True)
+        expected_xr["data"] = (["x", "y"], expected)
+
+    xr.testing.assert_allclose(result, expected_xr)
+
+    result_reversed = a.undo_func(result)
+    expected_reversed = sample
     xr.testing.assert_allclose(result_reversed, expected_reversed)
 
 
@@ -138,8 +171,6 @@ def test_Division(sample, tmp_path, div_data, dims, expected):
 
     if isinstance(sample, xr.DataArray) and isinstance(result, xr.Dataset):
         expected_xr = sample.to_dataset(name=sample.name or "data").copy(data={sample.name or "data": expected})
-    elif isinstance(sample, xr.DataArray):
-        expected_xr = sample.copy(data=expected)
     else:
         expected_xr = sample.copy(deep=True)
         expected_xr["data"] = (["x", "y"], expected)
@@ -152,6 +183,110 @@ def test_Division(sample, tmp_path, div_data, dims, expected):
     else:
         expected_reversed = sample
     xr.testing.assert_allclose(result_reversed, expected_reversed)
+
+
+def test_SingleValueDivision(sample):
+    "Tests the SingleValueDivision normalisation class."
+    div_val = 2.0
+    expected = np.array(range(6)).reshape(3, 2) / div_val
+    a = SingleValueDivision(division_factor=div_val)
+
+    result = a.apply_func(sample)
+
+    if isinstance(sample, xr.DataArray):
+        expected_xr = sample.copy(data=expected)
+    else:
+        expected_xr = sample.copy(deep=True)
+        expected_xr["data"] = (["x", "y"], expected)
+
+    xr.testing.assert_allclose(result, expected_xr)
+
+    result_reversed = a.undo_func(result)
+    expected_reversed = sample
+    xr.testing.assert_allclose(result_reversed, expected_reversed)
+
+
+def test_MagicNorm(sample, tmp_path):
+    "Tests the MagicNorm normalisation class."
+    # Use 2 samples to have a non-zero std
+    samples_needed = 2
+    m = MagicNorm(cache_dir=tmp_path, samples_needed=samples_needed)
+
+    # First sample
+    s1 = sample
+    # Second sample (different values to avoid 0 std)
+    s2 = sample + 10
+
+    # Pass enough samples to fix the norms
+    _ = m.apply_func(s1)
+    _ = m.apply_func(s2)
+
+    # Verify files created
+    assert os.path.exists(tmp_path / "magic_means.nc")
+    assert os.path.exists(tmp_path / "magic_std.nc")
+
+    # Verify loaded in next instance
+    m2 = MagicNorm(cache_dir=tmp_path, samples_needed=samples_needed)
+    assert m2.mean is not None
+    assert m2.deviation is not None
+
+    # Calculate expected
+    combined = xr.concat([s1, s2], dim="samples")
+    expected_mean = combined.mean()
+    expected_std = combined.std()
+
+    # m2.mean is always a Dataset
+    if isinstance(sample, xr.DataArray):
+        xr.testing.assert_allclose(m2.mean["data"], expected_mean)
+        xr.testing.assert_allclose(m2.deviation["data"], expected_std)
+    else:
+        xr.testing.assert_allclose(m2.mean, expected_mean)
+        xr.testing.assert_allclose(m2.deviation, expected_std)
+
+    # Now verify identity with fixed norms
+    res1_final = m.apply_func(s1)
+    res1_undo = m.undo_func(res1_final)
+
+    expected_reversed = sample
+    xr.testing.assert_allclose(res1_undo, expected_reversed)
+
+
+def test_MagicNorm_caching(sample, tmp_path):
+    "Tests the caching behavior of MagicNorm."
+    samples_needed = 2
+    m = MagicNorm(cache_dir=tmp_path, samples_needed=samples_needed)
+
+    # Pass enough samples to trigger caching
+    _ = m.apply_func(sample)
+    _ = m.apply_func(sample + 10)
+
+    # Verify files created
+    assert os.path.exists(tmp_path / "magic_means.nc")
+    assert os.path.exists(tmp_path / "magic_std.nc")
+
+    # Initialize a NEW instance with the same cache_dir
+    m_new = MagicNorm(cache_dir=tmp_path, samples_needed=100)  # samples_needed should be ignored because files exist
+
+    # Verify values loaded
+    assert m_new.mean is not None
+    assert m_new.deviation is not None
+
+    if isinstance(sample, xr.DataArray):
+        xr.testing.assert_allclose(m_new.mean["data"], m.mean)
+        xr.testing.assert_allclose(m_new.deviation["data"], m.deviation)
+    else:
+        xr.testing.assert_allclose(m_new.mean, m.mean)
+        xr.testing.assert_allclose(m_new.deviation, m.deviation)
+
+    # Verify it can normalise using the cached values
+    res = m_new.apply_func(sample)
+    res_orig = m.apply_func(sample)
+
+    if isinstance(sample, xr.DataArray) and isinstance(res, xr.Dataset):
+        res_orig_cmp = res_orig.to_dataset(name=sample.name or "data")
+    else:
+        res_orig_cmp = res_orig
+    xr.testing.assert_allclose(res, res_orig_cmp)
 
 
 @pytest.mark.parametrize(
@@ -190,3 +325,52 @@ def test_Evaluated(sample, tmp_path, norm_str, denorm_str, kwargs, expected):
     else:
         expected_reversed = sample
     xr.testing.assert_allclose(result_reverse, expected_reversed)
+
+
+def test_MagicNorm_early_return(sample, tmp_path):
+    "Tests the early return branch (line 116) in MagicNorm.update_norms."
+    m = MagicNorm(cache_dir=tmp_path, samples_needed=1)
+
+    # First sample - calculates norms
+    _ = m.apply_func(sample)
+
+    # Assert sample_count is exactly 1
+    assert m.sample_count == 1
+
+    # Call update_norms explicitly with a second sample
+    m.update_norms(sample + 10)
+
+    # sample_count should still be 1 because update_norms returns early
+    assert m.sample_count == 1
+
+
+def test_MagicNorm_multithreading_simulation(sample, tmp_path):
+    "Tests the os.path.exists branches (lines 121 and 135) in MagicNorm.update_norms simulating multithreading."
+    m1 = MagicNorm(cache_dir=tmp_path, samples_needed=2)
+
+    # Pass 1 sample to m1
+    _ = m1.apply_func(sample)
+    assert m1.sample_count == 1
+
+    # Initialize m2 which will reach the cache threshold and write files
+    m2 = MagicNorm(cache_dir=tmp_path, samples_needed=2)
+    _ = m2.apply_func(sample)
+    _ = m2.apply_func(sample + 10)
+
+    # The cache files are now created by m2
+    assert os.path.exists(tmp_path / "magic_means.nc")
+
+    # Now call apply_func on m1 with a new sample. This calls m1.update_norms(sample + 20).
+    # Inside m1.update_norms, it will find the files and load them instead of appending and recalculating.
+    _ = m1.apply_func(sample + 20)
+
+    # Verify m1 loaded the cache
+    assert m1.mean is not None
+    assert m1.deviation is not None
+
+    if isinstance(sample, xr.DataArray):
+        xr.testing.assert_allclose(m1.mean["data"], m2.mean)
+        xr.testing.assert_allclose(m1.deviation["data"], m2.deviation)
+    else:
+        xr.testing.assert_allclose(m1.mean, m2.mean)
+        xr.testing.assert_allclose(m1.deviation, m2.deviation)
