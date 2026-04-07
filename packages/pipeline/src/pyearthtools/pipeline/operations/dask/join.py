@@ -32,7 +32,7 @@ class Stack(Joiner, DaskOperation):
     _override_interface = ["Serial"]
     _numpy_counterpart = "join.Stack"
 
-    def __init__(self, axis: Optional[int] = 0):
+    def __init__(self, axis: Optional[int] = None):
         super().__init__()
         self.record_initialisation()
         self.axis = axis
