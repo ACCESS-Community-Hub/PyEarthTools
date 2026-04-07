@@ -53,11 +53,11 @@ class xarrayNormalisation(Operation):
 
     @abstractmethod
     def normalise(self, sample: T) -> T:
-        return sample
+        pass  # pragma: no cover # cannot test abstract methods
 
     @abstractmethod
     def denormalise(self, sample: T) -> T:
-        return sample
+        pass  # pragma: no cover # cannot test abstract methods
 
 
 class Anomaly(xarrayNormalisation):
