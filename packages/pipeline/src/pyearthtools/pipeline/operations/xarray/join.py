@@ -27,7 +27,7 @@ class Merge(Joiner):
     """
     Merge a tuple of xarray object's.
 
-    Currently cannot undo this operation
+    Currently can only undo this operation with xr.Dataset and xr.DataArray inputs.
     """
 
     _override_interface = "Serial"
@@ -36,13 +36,26 @@ class Merge(Joiner):
         super().__init__()
         self.record_initialisation()
         self._merge_kwargs = merge_kwargs
+        self._input_structure: list[tuple[Union[str, list[str]], dict]] = []
 
     def join(self, sample: tuple[Union[xr.Dataset, xr.DataArray], ...]) -> xr.Dataset:
         """Join sample"""
+        self._input_structure = [
+            (item.name, item.attrs) if isinstance(item, xr.DataArray) else (list(item.data_vars), item.attrs)
+            for item in sample
+        ]
         return xr.merge(sample, **(self._merge_kwargs or {}))
 
-    def unjoin(self, sample: Any) -> tuple:
-        return super().unjoin(sample)
+    def unjoin(self, sample: xr.Dataset) -> tuple:
+        result = []
+        for keys, attrs in self._input_structure:
+            if isinstance(keys, str):
+                da = sample[keys]
+                da.attrs = attrs
+                result.append(da)
+            else:
+                result.append(xr.Dataset({k: sample[k] for k in keys}, attrs=attrs))
+        return tuple(result)
 
 
 class LatLonInterpolate(Joiner):
@@ -54,6 +67,8 @@ class LatLonInterpolate(Joiner):
 
     It assumed the dimensions 'latitude', 'longitude', 'time', and 'level' will
     be present. 'lat' or 'lon' may also be used for convenience.
+
+    Currently cannot undo this operation. Raises NotImplementedError if undo is attempted.
     """
 
     _override_interface = "Serial"
@@ -68,9 +83,14 @@ class LatLonInterpolate(Joiner):
     ):
         super().__init__()
 
-        self.raise_if_dimensions_wrong(reference_dataset)
-
         self.record_initialisation()
+
+        if reference_dataset is None and reference_index is None:
+            raise ValueError("No reference dataset or reference index set")
+        elif reference_dataset is not None and reference_index is not None:
+            raise ValueError("Only one of reference_dataset or reference_index should be set")
+        elif reference_dataset:
+            self.raise_if_dimensions_wrong(reference_dataset)
         self.reference_dataset = reference_dataset
         self.reference_index = reference_index
         self.interpolation_method = interpolation_method
@@ -154,6 +174,8 @@ class GeospatialTimeSeriesMerge(Joiner):
 
     This joiner is more strict about the merging and interpolating, and also
     raises more informative error messages when it runs into trouble.
+
+    Currently cannot undo this operation. Raises NotImplementedError if undo is attempted.
     """
 
     _override_interface = "Serial"
@@ -220,7 +242,7 @@ class InterpLike(Joiner):
     """
     Merge a tuple of xarray object's.
 
-    Currently cannot undo this operation
+    Currently cannot undo this operation. Raises NotImplementedError if undo is attempted.
     """
 
     _override_interface = "Serial"
@@ -262,7 +284,7 @@ class Concatenate(Joiner):
     """
     Concatenate a tuple of xarray object's
 
-    Currently cannot undo this operation
+    Currently cannot undo this operation. Unjoining a sample returns the same sample.
     """
 
     _override_interface = "Serial"
