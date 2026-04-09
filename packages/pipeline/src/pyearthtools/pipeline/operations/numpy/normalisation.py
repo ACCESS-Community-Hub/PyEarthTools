@@ -60,11 +60,11 @@ class numpyNormalisation(Operation):
 
     @abstractmethod
     def normalise(self, sample: np.ndarray) -> np.ndarray:
-        return sample
+        pass  # pragma: no cover # cannot test abstract methods
 
     @abstractmethod
     def denormalise(self, sample: np.ndarray) -> np.ndarray:
-        return sample
+        pass  # pragma: no cover # cannot test abstract methods
 
     def expand(self, factor, sample):
         if not self._expand:

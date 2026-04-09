@@ -53,11 +53,11 @@ class xarrayNormalisation(Operation):
 
     @abstractmethod
     def normalise(self, sample: T) -> T:
-        return sample
+        pass  # pragma: no cover # cannot test abstract methods
 
     @abstractmethod
     def denormalise(self, sample: T) -> T:
-        return sample
+        pass  # pragma: no cover # cannot test abstract methods
 
 
 class Anomaly(xarrayNormalisation):
@@ -171,7 +171,7 @@ class Deviation(xarrayNormalisation):
         super().__init__()
         self.record_initialisation()
 
-        if debug:
+        if debug:  # pragma: no cover
             import pdb
 
             pdb.set_trace()
