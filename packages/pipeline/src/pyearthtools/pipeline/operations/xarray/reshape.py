@@ -214,7 +214,8 @@ class CoordinateExpand(Operation):
         self._coordinate = coordinate
 
     def apply_func(self, dataset: xr.Dataset) -> xr.Dataset | xr.DataArray:
-        dataset = type(dataset)(dataset)
+        # dataset = type(dataset)(dataset)  # this is the problem line
+        dataset = dataset.copy()
 
         for coord in self._coordinate:
             dtype = dataset.attrs.get(f"{coord}-dtype", "int32")

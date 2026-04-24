@@ -82,4 +82,4 @@ license:
 message: If you use this software, please cite it using the metadata from this file.
 title: "PyEarthTools: Machine learning for Earth system science"
 type: software
-version: 0.5.1
+version: 0.6.0
