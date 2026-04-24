@@ -41,10 +41,10 @@ Generative AI tools can be helpful, but contributors must be transparent about u
 6.	All contributions must adhere to the [code of conduct]([https://github.com/nci/scores/blob/develop/CODE_OF_CONDUCT.md](https://github.com/ACCESS-Community-Hub/PyEarthTools?tab=coc-ov-file)).
 7.	Given that generative tools are evolving rapidly, this policy will likely be adjusted over time.
 
-[1] https://joss.readthedocs.io/en/latest/policies.html#ai-usage-policy  
-[2] https://www.ametsoc.org/ams/publications/ethical-guidelines-and-ams-policies/author-disclosure-and-obligations/  
-[3] https://www.egu.eu/news/1031/statement-on-the-use-of-ai-based-tools-for-the-presentation-and-publication-of-research-results-in-earth-planetary-and-space-science/  
-[4] https://rmets.onlinelibrary.wiley.com/hub/ai-policy  
+[1] https://joss.readthedocs.io/en/latest/policies.html#ai-usage-policy
+[2] https://www.ametsoc.org/ams/publications/ethical-guidelines-and-ams-policies/author-disclosure-and-obligations/
+[3] https://www.egu.eu/news/1031/statement-on-the-use-of-ai-based-tools-for-the-presentation-and-publication-of-research-results-in-earth-planetary-and-space-science/
+[4] https://rmets.onlinelibrary.wiley.com/hub/ai-policy
 
 
 ## Contributor Recognition in Zenodo

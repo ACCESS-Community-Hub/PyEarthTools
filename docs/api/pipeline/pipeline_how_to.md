@@ -10,7 +10,7 @@ It is somewhat similar to an IterableDataset in PyTorch, or a DataLoader in PyTo
 
 For more information, please see:
 
-- [Introduction to data pipelines](project:/notebooks/tutorial/Data_Pipelines.ipynb) 
+- [Introduction to data pipelines](project:/notebooks/tutorial/Data_Pipelines.ipynb)
 - [Working with Multiple Data Sources](project:/notebooks/tutorial/MultipleSources.ipynb)
 - [The pipeline API tutorials](project:/notebooks/Gallery.md#Deep-Dive---The-Pipeline-Module) in the tutorial gallery
 - The [pyearthtools.pipeline](pipeline_index.md) API documentation index

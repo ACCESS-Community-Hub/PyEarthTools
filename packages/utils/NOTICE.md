@@ -5,4 +5,3 @@ The file config.py in various modules contains code taken from https://github.co
 The file packages/utils/src/pyearthtools/utils/initialisation/init_parsing.py contains code from https://github.com/Lightning-AI/pytorch-lightning, released under the Apache 2.0 license, with copyright attributed to the Lightning AI team.
 
 The file packages/utils/src/pyearthtools/utils/parsing/init_parsing.py contains code from https://github.com/Lightning-AI/pytorch-lightning, released under the Apache 2.0 license, with copyright attributed to the Lightning AI team.
-

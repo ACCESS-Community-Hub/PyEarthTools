@@ -18,11 +18,11 @@ Please review your pull request for the following steps. Feel free to delete any
  - [ ] If no generative AI was used, then tick this box
 
 Alternatively, if generative AI was used, then confirm you have:
- 
+
  - [ ] Attributed any generative AI (such as GitHub Copilot) that was used in this PR. See [our contributing guide](https://github.com/ACCESS-Community-Hub/PyEarthTools?tab=contributing-ov-file#generative-ai-usage) for more information.
  - [ ] Included the name and version of the tool or system in the pull request
  - [ ] Described the scope of that use
 
-Finally, 
+Finally,
 
  - [ ] Mark the PR as ready to review. Note - we encourage you to ask for feedback at the outset or at any time during the work.
