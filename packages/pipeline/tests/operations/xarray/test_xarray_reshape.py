@@ -120,7 +120,7 @@ def test_CoordinateFlatten_skip_missing():
 def test_undo_CoordinateFlatten():
 
     import sys
-    print(sys.getrecursionlimit())
+    print(f"Recursion limit set to {str(sys.getrecursionlimit())}")
 
     f = reshape.CoordinateFlatten(["height"])
     f_output = f.apply(SIMPLE_DS2)
