@@ -1,9 +1,9 @@
 # Bundled Models Index
 
-Unlike the other directories in the 'packages' directory of PyEarthTools, the "bundled_models" directory does not itself contain a "bundled models" Python package. Rather, it contains multiple model packages in separate directories. Each of these bundled models **is** a Python package. As such, "bundled_models" is not itself installable. This page will provide an index table for each bundled model. 
+Unlike the other directories in the 'packages' directory of PyEarthTools, the "bundled_models" directory does not itself contain a "bundled models" Python package. Rather, it contains multiple model packages in separate directories. Each of these bundled models **is** a Python package. As such, "bundled_models" is not itself installable. This page will provide an index table for each bundled model.
 
 At the current time, the following bundled models are available:
- - [FourCastNeXt by Guo et al. (2024).](https://doi.org/10.48550/arXiv.2401.05584) 
+ - [FourCastNeXt by Guo et al. (2024).](https://doi.org/10.48550/arXiv.2401.05584)
  - [LUCIE by Guan et al. (2025).](https://doi.org/10.48550/arXiv.2405.16297)
 
 Bundled models also have configuration files in addition to the the Python code. Each yaml file is also included in the table for the bundled model.

@@ -12,10 +12,10 @@
 |![](https://pyearthtools.readthedocs.io/en/latest/_images/notebooks_demo_FourCastNeXt_Inference_9_1.png)<br>A weather prediction from a model trained with PyEarthTools.|![](https://pyearthtools.readthedocs.io/en/latest/_images/notebooks_tutorial_Working_with_Climate_Data_14_2.svg)<br>A data processing flow composed for working with climate data.|
 |:-:|:-:|
 
-Source Code: [github.com/ACCESS-Community-Hub/PyEarthTools](https://github.com/ACCESS-Community-Hub/PyEarthTools)  
-Documentation: [pyearthtools.readthedocs.io](https://pyearthtools.readthedocs.io)  
-Tutorial Gallery: [available here](https://pyearthtools.readthedocs.io/en/latest/notebooks/Gallery.html)  
-New Users Guide: [available here](https://pyearthtools.readthedocs.io/en/latest/newuser.html)  
+Source Code: [github.com/ACCESS-Community-Hub/PyEarthTools](https://github.com/ACCESS-Community-Hub/PyEarthTools)
+Documentation: [pyearthtools.readthedocs.io](https://pyearthtools.readthedocs.io)
+Tutorial Gallery: [available here](https://pyearthtools.readthedocs.io/en/latest/notebooks/Gallery.html)
+New Users Guide: [available here](https://pyearthtools.readthedocs.io/en/latest/newuser.html)
 
 **If you use `PyEarthTools` for your work or a publication, [please cite our work](https://pyearthtools.readthedocs.io/en/latest/#citing-pyearthtools).**
 
@@ -59,8 +59,8 @@ PyEarthTools is a Python framework containing modules for:
  - training ML models and managing experiments;
  - performing inference with ML models;
  - and evaluating ML models (coming soon).
- 
- PyEarthTools runs effectively on HPC (supercomputers), cloud, workstations and laptops. 
+
+ PyEarthTools runs effectively on HPC (supercomputers), cloud, workstations and laptops.
 
 ## Overview of the Packages within PyEarthTools
 

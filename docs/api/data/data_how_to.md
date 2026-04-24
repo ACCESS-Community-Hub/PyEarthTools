@@ -4,7 +4,7 @@ The PyEarthTools [Data API](/api/data/data_index.md) provides Data Accessors, wh
 
 They handle the nuances of how the data set is stored and organised, such as how to walk the filesystem, how to match a user query to the files on disk, and how to subset the requested variables out of the data structure. They may also handle any transformations which are needed to the raw data, such as file compression.
 
-A more detailed how-to guide will be written in future describing how to use the various classes in the data module. 
+A more detailed how-to guide will be written in future describing how to use the various classes in the data module.
 
 For a general overview and examples of how to make use some of the data module's functionality, see:
 
