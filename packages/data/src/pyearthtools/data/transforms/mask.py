@@ -108,7 +108,6 @@ class UnderlyingMaskTransform(Transform):
         operator_package = np
         if isinstance(data, (xr.Dataset, xr.DataArray)):
             operator_package = xr
-            # data = type(data)(data)  # type: ignore
             data = data.copy()
             if search_data is not None:
                 # search_data = type(search_data)(search_data)  # type: ignore
