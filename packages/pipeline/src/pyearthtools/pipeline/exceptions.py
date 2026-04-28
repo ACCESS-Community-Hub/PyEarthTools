@@ -102,9 +102,6 @@ class ExceptionIgnoreContext:
 
     def __exit__(self, exc_type, exc_val, traceback):
 
-        # if exc_type:
-        #     import pudb; pudb.set_trace()
-
         if exc_type in self._exceptions:
             self._count += 1
             self._messages.append(str(exc_val))
