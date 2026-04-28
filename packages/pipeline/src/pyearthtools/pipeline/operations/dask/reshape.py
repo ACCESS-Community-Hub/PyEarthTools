@@ -238,22 +238,24 @@ class Flattener:
             raise RuntimeError("Shape not set, therefore cannot undo")
 
         def _unflatten(data, shape):
-            while len(data.shape) > len(shape):
-                shape = (data[-len(shape)], *shape)
+            # while len(data.shape) > len(shape):
+            #     shape = (data[-len(shape)], *shape)
             return data.reshape(shape)
 
         if self.flatten_dims is None:
             raise RuntimeError("`flatten_dims` was not set, and this set hasn't been used. Cannot Unflatten.")
 
         data_shape = data.shape
-        parsed_shape = data_shape[: -1 * min(1, (self.flatten_dims - 1))] if len(data_shape) > 1 else data_shape
+        # parsed_shape = data_shape[: -1 * min(1, (self.flatten_dims - 1))] if len(data_shape) > 1 else data_shape
+        parsed_shape = data_shape[:-1] if len(data_shape) > 1 else []
         attempts = [
             (*parsed_shape, *self._unflattenshape),
         ]
 
         if self.shape_attempt:
             shape_attempt = self._configure_shape_attempt()
-            if shape_attempt:
+            # if self.shape_attempt is truthy then shape_attempt is always truthy.
+            if shape_attempt:  # pragma: no cover
                 attempts.append((*parsed_shape, *shape_attempt[-1 * self.flatten_dims :]))  # type: ignore
 
         for attemp in attempts:
@@ -330,7 +332,7 @@ class Flatten(DaskOperation):
         """
         super().__init__(
             split_tuples=False,
-            recognised_types=dict(apply=(da.Array,), undo=(da.Array, np.ndarray)),
+            recognised_types=dict(apply=(da.Array, tuple), undo=(da.Array, np.ndarray, tuple)),
         )
         self.record_initialisation()
 
