@@ -27,7 +27,7 @@ from typing import Any
 import warnings
 
 import pyearthtools.zoo
-from pyearthtools.zoo.commands import utils as command_utils
+from pyearthtools.zoo.commands import _cmd_utils as command_utils
 from pyearthtools.zoo import utils, exceptions
 from pyearthtools.zoo.register import dynamic_import
 

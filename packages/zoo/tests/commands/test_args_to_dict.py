@@ -14,6 +14,8 @@
 
 import pytest
 
+from pyearthtools.zoo import commands
+
 tests = [
     (("--test", "value"), {"test": "value"}),  # Single argument
     (
@@ -37,28 +39,24 @@ tests = [
 
 @pytest.mark.parametrize("args, result", tests)
 def test_parse_args_to_dict(args, result):
-    from pyearthtools.zoo.commands import utils
-
-    assert utils.parse_args_to_dict(*args) == result
+    assert commands._cmd_utils.parse_args_to_dict(*args) == result
 
 
 @pytest.mark.parametrize("args, result", tests)
 def test_get_keyword_from_ctx(args, result):
-    from pyearthtools.zoo.commands import utils
     import click
 
     class FakeContext(click.Context):
         def __init__(self, args):
             self.args = args
 
-    assert utils.get_keyword_from_ctx(FakeContext(args)) == result
+    assert commands._cmd_utils.get_keyword_from_ctx(FakeContext(args)) == result
 
 
 @pytest.mark.parametrize("args, result", tests)
 def test_parse_str_to_dict(args, result):
-    from pyearthtools.zoo.commands import utils
 
-    assert utils.parse_str_to_dict(" ".join(args)) == result
+    assert commands._cmd_utils.parse_str_to_dict(" ".join(args)) == result
 
 
 @pytest.mark.parametrize(
@@ -72,7 +70,6 @@ def test_parse_str_to_dict(args, result):
     ],
 )
 def test_parse_args_to_dict_fail(args):
-    from pyearthtools.zoo.commands import utils
 
     with pytest.raises(KeyError):
-        utils.parse_args_to_dict(*args)
+        commands._cmd_utils.parse_args_to_dict(*args)

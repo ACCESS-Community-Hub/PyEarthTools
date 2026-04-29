@@ -34,7 +34,8 @@ import logging
 import click
 
 import pyearthtools.zoo
-from pyearthtools.zoo.commands import utils as command_utils
+
+from . import _cmd_utils as command_utils
 from pyearthtools.zoo.utils import AvailableModels
 
 available_models = AvailableModels()
@@ -62,6 +63,10 @@ def entry_point(debug, info):
 
 @entry_point.command("models", help="Print available models.")
 def models():
+    list_models()
+
+
+def list_models():
     from pyearthtools.zoo.register import dynamic_import
 
     dynamic_import()
@@ -73,6 +78,7 @@ def models():
 
     print(_models)
     print("(Specify category with a '/' seperation.)")
+
     sys.exit(0)
 
 
@@ -116,7 +122,11 @@ HELP_STR = f"""
     default=None,
     help="Override for config path",
 )
-def run_predict(
+def run_predict():
+    cmd_run_predict()
+
+
+def cmd_run_predict(
     ctx,
     model: str,
     time: str,
@@ -126,9 +136,6 @@ def run_predict(
     config_path: str,
 ):
     ctx_kwargs = command_utils.get_keyword_from_ctx(ctx)
-
-    if "data" in ctx_kwargs:
-        raise ValueError("data has been deprecated as an argument for `predict`, use `data`.")
 
     predictions = pyearthtools.zoo.predict(
         model,
@@ -200,7 +207,11 @@ INTERACTIVE_HELP_STR = f"""
     default=None,
     help="Override for config path",
 )
-def interactive(
+def interactive():
+    cmd_interactive()
+
+
+def cmd_interactive(
     ctx,
     model: str,
     time: str,
@@ -277,6 +288,10 @@ DATA_HELP_STR = f"""
     help="Override for config path",
 )
 def data(ctx, model, time, pipeline, data_cache, config_path: str | Path):
+    cmd_data(ctx, model, time, pipeline, data_cache, config_path)
+
+
+def cmd_data(ctx, model, time, pipeline, data_cache, config_path: str | Path):
     ctx_kwargs = command_utils.get_keyword_from_ctx(ctx)
     _ = pyearthtools.zoo.data(model, time, pipeline, data_cache, config_path=config_path, **ctx_kwargs)
 
