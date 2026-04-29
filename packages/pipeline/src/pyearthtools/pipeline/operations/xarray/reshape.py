@@ -23,7 +23,6 @@ from pyearthtools.data.transforms.coordinates import Drop
 from pyearthtools.pipeline.operation import Operation
 
 from pyearthtools.data.transforms.attributes import SetType
-from pyearthtools.utils.decorators import BackwardsCompatibility
 
 T = TypeVar("T", xr.Dataset, xr.DataArray)
 
@@ -185,11 +184,7 @@ class CoordinateFlatten(Operation):
         return new_ds
 
     def undo_func(self, ds):
-        return pyearthtools.pipeline.operations.xarray.reshape.coordinate_expand(self._coordinate)(ds)
-
-
-@BackwardsCompatibility(CoordinateFlatten)
-def coordinate_flatten(*args, **kwargs) -> Operation: ...
+        return pyearthtools.pipeline.operations.xarray.reshape.CoordinateExpand(self._coordinate)(ds)
 
 
 class CoordinateExpand(Operation):
@@ -242,8 +237,4 @@ class CoordinateExpand(Operation):
         return dataset
 
     def undo_func(self, ds):
-        return pyearthtools.pipeline.operations.xarray.reshape.coordinate_flatten(self._coordinate)(ds)
-
-
-@BackwardsCompatibility(CoordinateExpand)
-def coordinate_expand(*args, **kwargs) -> Operation: ...
+        return pyearthtools.pipeline.operations.xarray.reshape.CoordinateFlatten(self._coordinate)(ds)

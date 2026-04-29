@@ -16,7 +16,6 @@
 from __future__ import annotations
 
 import functools
-import warnings
 from typing import Any, Callable, TypeVar
 
 C = TypeVar("C", bound=Callable[..., Any])
@@ -92,35 +91,3 @@ def alias_arguments(**aliases: str | list[str]) -> Callable[[C], C]:
         return wrapper
 
     return internal_function
-
-
-def BackwardsCompatibility(new_func: C) -> Callable[[C], C]:
-    """
-    Allows for the renaming of a functionality, and subsequent backwards compatilbility.
-
-    Will warn about deprecation on use.
-
-    Args:
-        new_func:
-            New function to point to instead
-
-    Example:
-        >>> def new_func(): # New function name
-            ...
-        >>> @BackwardsCompatibility(new_func)
-        >>> def old_func(*a, **kw):
-            ...
-
-    """
-
-    def decorator(func: C) -> C:
-        def wrapped(*args, **kwargs):
-            warnings.warn(
-                f"{func.__name__} has been removed in favour of {new_func.__name__}, please switch over.",
-                DeprecationWarning,
-            )
-            return new_func(*args, **kwargs)
-
-        return wrapped
-
-    return decorator
