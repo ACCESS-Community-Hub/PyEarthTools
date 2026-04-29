@@ -238,4 +238,3 @@ class CoordinateExpand(Operation):
 
     def undo_func(self, ds):
         return pyearthtools.pipeline.operations.xarray.reshape.CoordinateFlatten(self._coordinate)(ds)
-

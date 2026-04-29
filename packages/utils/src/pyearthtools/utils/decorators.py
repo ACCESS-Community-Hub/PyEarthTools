@@ -16,7 +16,6 @@
 from __future__ import annotations
 
 import functools
-import warnings
 from typing import Any, Callable, TypeVar
 
 C = TypeVar("C", bound=Callable[..., Any])
@@ -92,5 +91,3 @@ def alias_arguments(**aliases: str | list[str]) -> Callable[[C], C]:
         return wrapper
 
     return internal_function
-
-
