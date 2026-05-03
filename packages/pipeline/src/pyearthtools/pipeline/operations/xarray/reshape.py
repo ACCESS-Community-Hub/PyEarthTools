@@ -141,9 +141,7 @@ class CoordinateFlatten(Operation):
         self._skip_missing = skip_missing
 
     def apply_func(self, dataset: xr.Dataset) -> xr.Dataset:
-        discovered_coord = list(set(self._coordinate).intersection(set(dataset.coords)))
-
-        if len(discovered_coord) == 0:
+        if self._coordinate not in dataset.coords:
             if self._skip_missing:
                 return dataset
 
@@ -152,7 +150,7 @@ class CoordinateFlatten(Operation):
                 "Set 'skip_missing' to True to skip this."
             )
 
-        discovered_coord = str(discovered_coord[0])
+        discovered_coord = self._coordinate
 
         coords = dataset.coords
         new_ds = xr.Dataset(coords={co: v for co, v in coords.items() if not co == discovered_coord})
@@ -178,7 +176,7 @@ class CoordinateFlatten(Operation):
 
                     selected = dataset[var].sel(**{discovered_coord: coord_val})  # type: ignore
                     selected = selected.drop_vars(discovered_coord)  # type: ignore
-                    selected.attrs.update(**{discovered_coord: coord_val})
+                    selected.attrs.update(**{str(discovered_coord): coord_val})
 
                     new_ds[f"{var}{coord_val}"] = selected
         return new_ds
