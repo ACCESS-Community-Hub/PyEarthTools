@@ -114,7 +114,15 @@ class ZarrIndex(DataFileSystemIndex):
         super().__init__(transforms=transforms or TransformCollection(), **kwargs)
         self.record_initialisation()
 
-        self._store = parse_path(store)
+        try:
+            # if we pass in a an fsspec style URL, we don't want the path checker mangling the path into a pathlib object, it needs to be passed as is to xarray
+            # longer term fix need to consider how parse path should correctly handle fsspec paths, this is a temporary expedience.
+            if kwargs['remote']:
+                self._store = store
+            else:
+                self._store = parse_path(store)
+        except KeyError:
+            self._store = parse_path(store)
 
         self._variables = variables
         self._template = template
