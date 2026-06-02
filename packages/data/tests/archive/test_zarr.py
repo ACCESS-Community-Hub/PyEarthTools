@@ -46,7 +46,7 @@ def test_remote_archive(tmp_path):
     correct_path = "gs://my.url/Test.zarr"
     zarr_archive = pyearthtools.data.archive.ZarrIndex(correct_path, remote=True)
 
-    assert type(zarr_archive._store) == str
+    assert type(zarr_archive._store) is str
     assert zarr_archive._store == correct_path
 
 
@@ -56,7 +56,7 @@ def test_local_archive(tmp_path):
     correct_path = pathlib.Path(str(tmp_path / "Test.zarr"))
     zarr_archive = pyearthtools.data.archive.ZarrIndex(tmp_path / "Test.zarr", remote=False)
 
-    assert type(zarr_archive._store) == type(pathlib.Path("."))
+    assert type(zarr_archive._store) is type(pathlib.Path("."))
     assert zarr_archive._store == correct_path
 
 
