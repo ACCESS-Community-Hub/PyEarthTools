@@ -78,6 +78,7 @@ class ZarrIndex(DataFileSystemIndex):
         transforms: Transform | TransformCollection | None = None,
         open_kwargs: dict[str, Any] | None = None,
         save_kwargs: dict[str, Any] | None = None,
+        remote: bool = False,
         **kwargs,
     ):
         """
@@ -109,12 +110,19 @@ class ZarrIndex(DataFileSystemIndex):
                 Kwargs to use when saving the zarr archive.
                 See https://docs.xarray.dev/en/latest/generated/xarray.Dataset.to_zarr.html
                 Defaults to None.
+            remote (bool):
+                If this flag is set, then the store variable is an fsspec style URL to a remote Zarr store, so will not be treated like a local path.
         """
 
         super().__init__(transforms=transforms or TransformCollection(), **kwargs)
         self.record_initialisation()
 
-        self._store = parse_path(store)
+        # if we pass in a an fsspec style URL, we don't want the path checker mangling the path into a pathlib object, it needs to be passed as is to xarray
+        # longer term fix need to consider how parse path should correctly handle fsspec paths, this is a temporary expedience.
+        if remote:
+            self._store = store
+        else:
+            self._store = parse_path(store)
 
         self._variables = variables
         self._template = template
