@@ -18,6 +18,7 @@ import pytest
 
 import pathlib
 
+
 @pytest.mark.xfail
 def test_create(tmp_path):
     zarr_archive = pyearthtools.data.archive.ZarrIndex(tmp_path / "Test.zarr")
@@ -38,23 +39,26 @@ def test_combine_two_steps(tmp_path):
 
     assert len(zarr_archive().time.values) == 2
 
+
 @pytest.mark.xfail
 def test_remote_archive(tmp_path):
     # test whether fsspec style path is correctly handled by zarr index class
-    correct_path = 'gs://my.url/Test.zarr'
+    correct_path = "gs://my.url/Test.zarr"
     zarr_archive = pyearthtools.data.archive.ZarrIndex(correct_path, remote=True)
 
     assert type(zarr_archive._store) == str
-    assert (zarr_archive._store == correct_path)
+    assert zarr_archive._store == correct_path
+
 
 @pytest.mark.xfail
 def test_local_archive(tmp_path):
     # test whether local style path is correctly handled by zarr index class
     correct_path = pathlib.Path(str(tmp_path / "Test.zarr"))
     zarr_archive = pyearthtools.data.archive.ZarrIndex(tmp_path / "Test.zarr", remote=False)
-    
-    assert type(zarr_archive._store) == type(pathlib.Path('.'))
-    assert (zarr_archive._store == correct_path)
+
+    assert type(zarr_archive._store) == type(pathlib.Path("."))
+    assert zarr_archive._store == correct_path
+
 
 @pytest.mark.xfail
 def test_create_template(tmp_path):
