@@ -59,7 +59,6 @@ class SimpleModel(InitialisationRecordingMixin, metaclass=ABCMeta):
         Perform a single prediction based either on a pipeline or a single sample
         """
 
-
 class ModelWrapper(InitialisationRecordingMixin, metaclass=ABCMeta):
     """
     Base Model Wrapper
