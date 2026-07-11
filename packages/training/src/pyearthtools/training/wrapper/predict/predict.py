@@ -23,7 +23,7 @@ from abc import ABCMeta
 from pyearthtools.utils.initialisation import InitialisationRecordingMixin
 
 from pyearthtools.pipeline.controller import Pipeline
-from pyearthtools.training.wrapper.wrapper import ModelWrapper
+from pyearthtools.training.wrapper import ModelWrapper
 
 
 class Predictor(InitialisationRecordingMixin, metaclass=ABCMeta):

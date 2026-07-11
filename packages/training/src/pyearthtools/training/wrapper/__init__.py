@@ -16,7 +16,7 @@
 # ruff: noqa: F401
 
 
-from pyearthtools.training.wrapper.wrapper import ModelWrapper
+from pyearthtools.training.wrapper._wrapper import ModelWrapper, SimpleModel
 
 from pyearthtools.training.wrapper import predict, train, utils
 
@@ -35,7 +35,7 @@ try:
 except (ImportError, ModuleNotFoundError):
     LIGHTNING_IMPORTED = False
 
-__all__ = ["ModelWrapper", "predict", "train", "utils", "TrainingWrapper", "Predictor"]
+__all__ = ["ModelWrapper", "SimpleModel", "predict", "train", "utils", "TrainingWrapper", "Predictor"]
 
 if ONNX_IMPORTED:
     __all__.append("onnx")

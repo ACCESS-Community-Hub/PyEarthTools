@@ -172,6 +172,9 @@ src/mypy.txt
 *.sublime-project
 *.sublime-workspace
 
+# Zed Editor
+.zed
+
 # Ignore .DS_Store files
 .DS_Store
 

@@ -29,7 +29,7 @@ import logging
 from pyearthtools.data.time import TimeDelta, Petdt, TimeRange
 
 from pyearthtools.pipeline.controller import Pipeline
-from pyearthtools.training.wrapper.wrapper import ModelWrapper
+from pyearthtools.training.wrapper import ModelWrapper
 from pyearthtools.training.wrapper.predict.predict import Predictor
 
 from pyearthtools.training.manage import Variables
