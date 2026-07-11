@@ -142,7 +142,7 @@ def open_dataset(
         return open_dataset(location, **kwargs)
 
 
-NETCDF_FILE_EXTENSONS = [".nc", ".netcdf"]
+NETCDF_FILE_EXTENSONS = [".nc", ".netcdf", ".nc4"]
 ZARR_FILE_EXTENSONS = [".zarr"]
 NUMPY_EXTENSIONS = [".npy", ".np", ".numpy"]
 CSV_EXTENSIONS = [".csv"]

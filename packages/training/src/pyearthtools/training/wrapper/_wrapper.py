@@ -22,6 +22,46 @@ from pyearthtools.pipeline import Pipeline
 from pyearthtools.training.data import PipelineDataModule
 
 
+class SimpleModel(InitialisationRecordingMixin, metaclass=ABCMeta):
+    '''
+    The SimpleModel base wrapper removes assumptions from the primary model wrapper class.
+    This provides a simpler on-ramp for early-stage model development, without imposing
+    as many requirements on the developer for comprehensive functionality.
+
+    It also allows the direct use of a single Pipeline, without requiring a 
+    train/validate split to be defined, avoiding the need for a PipelineDataModule.
+
+    New users may wish to start here before implementing the full ModelWrapper class.
+    '''
+
+    def __init__(
+        self,
+    ):
+        """
+        Construct Base model wrapper
+
+        `model` will not be recorded in the initialisation by default, set `_record_model` to change
+        this behaviour.
+        """
+
+        pass
+
+    @abstractmethod
+    def fit(self, pipeline, epochs=1):
+        '''
+        Perform a single epoch 'fit' operation based on walking the pipeline
+        '''
+        pass
+
+    @abstractmethod
+    def predict(self, pipeline, query=None):
+        '''
+        Perform a single prediction based either on a pipeline or a single sample
+        '''
+
+        
+
+
 class ModelWrapper(InitialisationRecordingMixin, metaclass=ABCMeta):
     """
     Base Model Wrapper
