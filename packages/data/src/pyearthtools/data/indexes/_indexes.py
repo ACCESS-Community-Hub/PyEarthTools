@@ -203,11 +203,11 @@ class FileSystemIndex(Index, metaclass=ABCMeta):
 
             load_index = self.search(*args)
 
-            cache = getattr(self, 'object_cache', {})
+            cache = getattr(self, "object_cache", {})
             cached_result = cache.get(str(load_index), None)
             result = cached_result or self.load(load_index, **kwargs)
 
-            if getattr(self, 'cache_last_used', True):
+            if getattr(self, "cache_last_used", True):
                 self.object_cache = {str(load_index): result}
 
             return result
