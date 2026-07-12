@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 
-from pyearthtools.training.wrapper.wrapper import ModelWrapper
+from pyearthtools.training.wrapper import ModelWrapper
 
 
 class TrainingWrapper(ModelWrapper):
