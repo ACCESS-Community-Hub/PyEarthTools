@@ -141,7 +141,13 @@ class CoordinateFlatten(Operation):
         self._skip_missing = skip_missing
 
     def apply_func(self, dataset: xr.Dataset) -> xr.Dataset:
-        discovered_coord = list(set(self._coordinate).intersection(set(dataset.coords)))
+
+        if isinstance(self._coordinate, str):
+            coordinate_set = set([self._coordinate])
+        else:
+            coordinate_set = set(self._coordinate)
+
+        discovered_coord = list(coordinate_set.intersection(set(dataset.coords)))
 
         if len(discovered_coord) == 0:
             if self._skip_missing:
