@@ -76,7 +76,7 @@ At the moment, data is confined to geospatial netcdf sources.
     ```
 """
 
-__version__ = "0.6.1"
+__version__ = "0.6.2"
 
 import warnings as __python_warnings
 

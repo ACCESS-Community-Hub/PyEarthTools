@@ -17,8 +17,8 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "pyearthtools-pipeline>=0.6.1",
-    "pyearthtools-utils>=0.6.1",
+    "pyearthtools-pipeline>=0.6.2",
+    "pyearthtools-utils>=0.6.2",
     "einops",
     "scikit-learn",
     "scipy",
