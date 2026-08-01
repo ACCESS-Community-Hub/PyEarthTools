@@ -88,6 +88,8 @@ def check_resolution(bands: list[str]):
 class Himawari(ArchiveIndex):
     """Index into Himawari 8/9 satellite data"""
 
+    project_code="rv74"
+
     @property
     def _desc_(self):
         return {
