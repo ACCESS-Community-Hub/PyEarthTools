@@ -35,6 +35,8 @@ More archives can be added by wrapping a class with [register_archive][pyearthto
 
 """
 
+import pyearthtools.data
+
 from pyearthtools.data.archive.extensions import (
     register_archive,
     set_root_directory,
@@ -43,6 +45,8 @@ from pyearthtools.data.archive.extensions import (
 )
 from pyearthtools.data.archive.root import set_root, reset_root, config_root
 from pyearthtools.data.archive.zarr import ZarrIndex, ZarrTimeIndex
+
+import sys
 
 
 __all__ = [
@@ -56,3 +60,25 @@ __all__ = [
     "ZarrIndex",
     "ZarrTimeIndex",
 ]
+
+def print_indexes():
+    current_module = sys.modules[__name__]
+    for obj_name in dir(current_module):
+
+        obj_reference = getattr(current_module, obj_name)
+
+        if isinstance(obj_reference, type):
+            if issubclass(obj_reference, pyearthtools.data.indexes.Index):
+                print(f'{obj_reference} is a registered Index in the archive as {__name__}.{obj_name}')
+
+def get_indexes():
+
+    current_module = sys.modules[__name__]
+    for obj_name in dir(current_module):
+
+        obj_reference = getattr(current_module, obj_name)
+
+        if isinstance(obj_reference, type):
+            if issubclass(obj_reference, pyearthtools.data.indexes.Index):
+                yield obj_reference
+                
