@@ -18,8 +18,8 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-    "pyearthtools-utils>=0.6.2",
-    "pyearthtools-data>=0.6.2",
+    "pyearthtools-utils>=0.6.3",
+    "pyearthtools-data>=0.6.3",
     "xarray",
     "pandas",
     "graphviz",

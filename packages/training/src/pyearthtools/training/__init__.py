@@ -26,7 +26,7 @@ from pyearthtools.training import logger as _
 from pyearthtools.training.dataindex import MLDataIndex
 from pyearthtools.training.wrapper import *  # type: ignore # noqa: F403
 
-__version__ = "0.6.2"
+__version__ = "0.6.3"
 
 # try:
 #     from pyearthtools.training import modules

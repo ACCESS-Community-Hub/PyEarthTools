@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyearthtools-bundled-lucie"
-version = "0.6.2"
+version = "0.6.3"
 description = "LUCIE Bundled Model"
 readme = "README.md"
 requires-python = ">=3.11, <3.14"
