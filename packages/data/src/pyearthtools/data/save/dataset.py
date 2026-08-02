@@ -25,7 +25,7 @@ import pyearthtools.utils
 from pyearthtools.data.indexes import FileSystemIndex
 from pyearthtools.data.save.save_utils import ManageFiles
 
-VALID_EXTENSIONS = [".nc", ".netcdf"]
+VALID_EXTENSIONS = [".nc", ".netcdf", ".nc4"]
 DATASET_TIMEOUT = 60
 
 

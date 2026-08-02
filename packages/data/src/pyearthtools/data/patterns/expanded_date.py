@@ -40,7 +40,7 @@ from pyearthtools.utils.decorators import classproperty
 
 DIRECTORY_PATTERN = "{ROOT_DIR}/{FILE_DATE}/{FILE}"
 FILE_PATTERN = "{prefix}{time}{extension}"
-DEFAULT_EXTENSION = pyearthtools.utils.config.get("data.patterns.default_extension", ".pyearthtools")
+DEFAULT_EXTENSION = pyearthtools.utils.config.get("data.patterns.default_extension", ".nc")
 
 
 def parse_time_str(time, directory: bool = False, delimiter: str | tuple | list = "") -> str:
