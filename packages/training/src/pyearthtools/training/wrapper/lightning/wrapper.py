@@ -25,7 +25,7 @@ from pyearthtools.data.utils import parse_path
 
 from pyearthtools.pipeline.controller import Pipeline
 from pyearthtools.training.data.lightning import PipelineLightningDataModule
-from pyearthtools.training.wrapper.wrapper import ModelWrapper
+from pyearthtools.training.wrapper import ModelWrapper
 
 
 class LightningWrapper(ModelWrapper):

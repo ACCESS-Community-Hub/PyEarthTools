@@ -21,3 +21,4 @@ Pytorch Lighting Wrappers
 
 from pyearthtools.training.wrapper.lightning.predict import LightingPrediction as Predict
 from pyearthtools.training.wrapper.lightning.train import LightingTraining as Train
+from pyearthtools.training.wrapper.lightning.train import LightingTraining

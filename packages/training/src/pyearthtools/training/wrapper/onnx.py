@@ -23,7 +23,7 @@ import onnxruntime as ort
 
 from pyearthtools.pipeline.controller import Pipeline
 
-from pyearthtools.training.wrapper.wrapper import ModelWrapper
+from pyearthtools.training.wrapper import ModelWrapper
 from pyearthtools.training.data.datamodule import PipelineDataModule
 
 

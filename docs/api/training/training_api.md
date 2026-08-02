@@ -39,16 +39,6 @@
     :members:
 .. autoclass:: pyearthtools.training.wrapper.Predictor
 
-.. autoclass:: pyearthtools.training.wrapper.lightning.Predict
-    :members:
-.. autoclass:: pyearthtools.training.wrapper.lightning.predict.LoggingContext
-    :members:
-.. autoclass:: pyearthtools.training.wrapper.lightning.Train
-    :members:
-.. autofunction:: pyearthtools.training.wrapper.lightning.train.get_logger
-.. autofunction:: pyearthtools.training.wrapper.lightning.train.make_callback
-.. autoclass:: pyearthtools.training.wrapper.lightning.wrapper.LightningWrapper
-
 .. autoclass:: pyearthtools.training.wrapper.predict.TimeSeriesPredictor
     :members:
 .. autoclass:: pyearthtools.training.wrapper.predict.TimeSeriesAutoRecurrentPredictor
@@ -61,4 +51,19 @@
 .. autoclass:: pyearthtools.training.wrapper.onnx.ONNXWrapper
     :members:
 
+```
+
+## `training.wrapper.lightning`
+```{eval-rst}
+.. autoclass:: pyearthtools.training.wrapper.lightning.Predict
+    :members:
+.. autoclass:: pyearthtools.training.wrapper.lightning.predict.LoggingContext
+    :members:
+.. autoclass:: pyearthtools.training.wrapper.lightning.Train
+    :members:
+.. autoclass:: pyearthtools.training.wrapper.lightning.LightingTraining
+    :members:    
+.. autofunction:: pyearthtools.training.wrapper.lightning.train.get_logger
+.. autofunction:: pyearthtools.training.wrapper.lightning.train.make_callback
+.. autoclass:: pyearthtools.training.wrapper.lightning.wrapper.LightningWrapper
 ```
