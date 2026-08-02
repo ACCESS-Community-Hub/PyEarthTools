@@ -23,6 +23,8 @@ from glob import glob
 from pathlib import Path
 import os
 
+from functools import lru_cache
+
 
 import pyearthtools.data
 from pyearthtools.data import Petdt, TimeDelta
@@ -131,6 +133,12 @@ class Himawari(ArchiveIndex):
         base_transform = pyearthtools.data.transforms.variables.Trim(variables) + (transforms or TransformCollection())
         super().__init__(transforms=base_transform, data_interval=data_interval or (10, "m"))
         self.record_initialisation()
+
+    @lru_cache(maxsize=10)
+    def load(self, files, **kwargs):
+
+        # Super here is probably FileSystemIndex
+        return super().load(files, **kwargs)
 
     def filesystem(
         self,
