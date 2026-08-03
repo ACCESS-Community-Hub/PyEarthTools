@@ -81,15 +81,18 @@ PyEarthTools comprises multiple sub-packages which can be used individually or t
 
 If you use PyEarthTools for your work, we would appreciate you citing our software as below:
 
-Leeuwenburg, T., Cook, H., Rio, M., Hobeichi, S., Miller, J., Mason, G., Ramanathan, N., Pill, J., Haddad, S., Stassen, C., de Burgh-Day, C., Holmes, R., Potokina, M., Bogacheva, J., James, M., & Sullivan, B. (2025). PyEarthTools: Machine learning for Earth system science (0.5.1). Zenodo. https://doi.org/10.5281/zenodo.17544431
+
+Leeuwenburg, T., Cook, H., Rio, M., Hobeichi, S., Yang, E., Miller, J., Mason, G., Ramanathan, N., Pill, J., Haddad, S., Stassen, C., de Burgh-Day, C., Holmes, R., Potokina, M., Bogacheva, J., James, M., Sullivan, B., Hoffmann, L.& Pegios, M. (2026). PyEarthTools: Machine learning for Earth system science (Version 0.6.2) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.21758778
+
 
 BibTeX:
 ```
-@software{leeuwenburg_2025_17544431,
+@software{leeuwenburg_2026_21758778,
   author       = {Leeuwenburg, Tennessee and
                   Cook, Harrison and
                   Rio, Maxime and
                   Hobeichi, Sanaa and
+                  Yang, Edward and
                   Miller, Joel and
                   Mason, Gemma and
                   Ramanathan, Nikeeth and
@@ -101,15 +104,16 @@ BibTeX:
                   Potokina, Margarita and
                   Bogacheva, Jenya and
                   James, Matthew and
-                  Sullivan, Ben},
-  title        = {PyEarthTools: Machine learning for Earth system
-                   science
-                  },
-  month        = nov,
-  year         = 2025,
+                  Sullivan, Ben and
+                  Hoffmann, Luke and
+                  Pegios, Michael},
+  title        = {PyEarthTools: Machine learning for Earth system science},
+  month        = aug,
+  year         = 2026,
   publisher    = {Zenodo},
-  version      = {0.5.1},
-  doi          = {10.5281/zenodo.17544431},
-  url          = {https://doi.org/10.5281/zenodo.17544431},
+  version      = {0.6.2},
+  doi          = {10.5281/zenodo.21758778},
+  url          = {https://doi.org/10.5281/zenodo.21758778},
 }
+
 ```
