@@ -553,8 +553,41 @@ class Pipeline(_Pipeline, Index):
 
         # Apply each pipeline step to the sample, starting from the latest source
         for step in self.steps[step_index + 1 :]:
-            if not isinstance(step, (Pipeline, PipelineStep, Transform, TransformCollection)):
-                raise TypeError(f"When iterating through pipeline steps, found a {type(step)} which cannot be parsed.")
+            if isinstance(step, PipelineIndex):
+                # A PipelineIndex appearing after the data-source position means the
+                # steps list contains two PipelineIndex objects (e.g. two TemporalWindow
+                # instances).  Only the last one (found by _get_initial_sample's reverse
+                # search) acts as the source; any earlier one would need an idx to
+                # re-retrieve data, which __getitem__ does not support at this point in
+                # the execution path.  Raise a clear error rather than silently
+                # mis-applying the step.
+                raise TypeError(
+                    f"Pipeline.__getitem__ encountered a {type(step).__name__} "
+                    f"({type(step)}) after the data-source position in the step list. "
+                    "Only one PipelineIndex per pipeline is supported: it must be the "
+                    "last step that acts as the data source (found by the reverse search "
+                    "in _get_initial_sample). "
+                    "If you need to chain two PipelineIndex objects, nest the first "
+                    "pipeline (containing the accessor and first PipelineIndex) inside "
+                    "a second Pipeline, then attach the second PipelineIndex to that."
+                )
+            if not isinstance(
+                step,
+                (
+                    Pipeline,
+                    PipelineStep,
+                    Operation,
+                    Transform,
+                    TransformCollection,
+                    pyearthtools.pipeline.branching.PipelineBranchPoint,
+                ),
+            ):
+                raise TypeError(
+                    f"Pipeline.__getitem__ encountered a {type(step)} in the step list "
+                    "after the data-source position, which cannot be applied to a sample. "
+                    "Steps after the data source must be PipelineStep, Operation, "
+                    "Transform, TransformCollection, Pipeline, or PipelineBranchPoint."
+                )
             LOG.debug(f"Apply step upon sample: {step.__class__.__qualname__}")
 
             if isinstance(step, Pipeline):
@@ -562,6 +595,10 @@ class Pipeline(_Pipeline, Index):
             elif isinstance(step, pyearthtools.pipeline.branching.PipelineBranchPoint):
                 with pyearthtools.utils.context.ChangeValue(step, "_current_idx", idx):
                     sample = step.apply(sample)
+            elif isinstance(step, PipelineStep):
+                sample = step.run(sample)
+            elif isinstance(step, Operation):
+                sample = step.apply(sample)
             else:
                 sample = step(sample)  # type: ignore
 
@@ -579,11 +616,32 @@ class Pipeline(_Pipeline, Index):
 
     def apply(self, sample):
         """
-        Apply pipeline to `sample`
+        Apply pipeline to `sample`.
 
-        `Pipeline` should only consist of `PipelineStep`'s and `Transforms`, as `Indexes` cannot be applied,
+        Runs each step in the pipeline against an already-retrieved data sample.
+        Steps must be one of: PipelineStep, Operation, Pipeline, Transform,
+        TransformCollection, or PipelineBranchPoint.
+
+        PipelineIndex steps (e.g. TemporalWindow, SequenceRetrieval) cannot be
+        applied via this method because they operate on an *index* (such as a date
+        string) to retrieve data, not on an existing sample.  If your pipeline
+        contains a PipelineIndex, use ``pipeline[idx]`` instead of
+        ``pipeline.apply(sample)``.  PipelineIndex steps are handled automatically
+        by ``__getitem__`` via ``_get_initial_sample``'s reverse search.
         """
         for step in self.steps:
+            if isinstance(step, PipelineIndex):
+                raise TypeError(
+                    f"Pipeline.apply() encountered a {type(step).__name__} "
+                    f"({type(step)}) which cannot be applied to an existing sample. "
+                    f"{type(step).__name__} is a PipelineIndex: it retrieves data from "
+                    "an index (e.g. a date string) and has no meaningful behaviour when "
+                    "called on an already-retrieved sample. "
+                    "Use pipeline[idx] instead of pipeline.apply(sample) when your "
+                    "pipeline contains a PipelineIndex step such as TemporalWindow or "
+                    "SequenceRetrieval. pipeline[idx] handles PipelineIndex steps "
+                    "automatically via _get_initial_sample."
+                )
             if not isinstance(
                 step,
                 (
@@ -595,7 +653,12 @@ class Pipeline(_Pipeline, Index):
                     pyearthtools.pipeline.branching.PipelineBranchPoint,
                 ),
             ):
-                raise TypeError(f"When iterating through pipeline steps, found a {type(step)} which cannot be parsed.")
+                raise TypeError(
+                    f"Pipeline.apply() encountered a {type(step)} in the step list "
+                    "which cannot be applied to a sample. "
+                    "Steps must be PipelineStep, Operation, Transform, "
+                    "TransformCollection, Pipeline, or PipelineBranchPoint."
+                )
             if isinstance(step, Pipeline):
                 sample = step.apply(sample)  # type: ignore
             elif isinstance(step, PipelineStep):
