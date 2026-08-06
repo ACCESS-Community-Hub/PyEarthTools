@@ -1,0 +1,13 @@
+[workspace]
+authors = ["Nikeeth Ramanathan <nikeeth.ramanathan@gmail.com>"]
+channels = ["conda-forge"]
+name = "push-pull"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = ">=3.14.3,<3.15"
+pyzmq = ">=27.1.0,<28"
+ruff = ">=0.15.7,<0.16"
