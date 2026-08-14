@@ -18,6 +18,8 @@
 
 from pyearthtools.training.wrapper._wrapper import ModelWrapper, SimpleModel
 
+from pyearthtools.training.wrapper._simply import SimpleAutoEncoder #Changed to add the SimpleAutoEncoder classs
+
 from pyearthtools.training.wrapper import predict, train, utils
 
 from pyearthtools.training.wrapper.train import TrainingWrapper
