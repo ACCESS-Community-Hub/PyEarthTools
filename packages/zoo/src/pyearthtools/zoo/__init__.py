@@ -87,7 +87,7 @@ from pyearthtools.zoo.warnings import AccessorRegistrationWarning
 
 Models = utils.AvailableModels()
 
-from pyearthtools.zoo.commands import commands  # pylint: disable=C0413 # noqa: E402
+from pyearthtools.zoo import commands  # pylint: disable=C0413 # noqa: E402
 from pyearthtools.zoo.predict import (  # pylint: disable=C0413  # noqa: E402
     data,
     interactive,

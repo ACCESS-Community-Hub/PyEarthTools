@@ -16,7 +16,7 @@
 `pyearthtools.zoo` commands.
 """
 
-from pyearthtools.zoo.commands import utils, commands
-from pyearthtools.zoo.commands.commands import entry_point
+# CLI entry point for 'pet' as defined in pyproject.toml for zoo
+from ._commands import entry_point
 
-__all__ = ["utils", "commands", "entry_point"]
+__all__ = ["entry_point"]
