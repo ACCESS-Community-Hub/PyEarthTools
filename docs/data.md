@@ -40,6 +40,20 @@ The package `site_archive_nci` (which is present in some of the tutorials) is th
 
 Additionally, you can explore the [geonetwork](https://geonetwork.nci.org.au/geonetwork/srv/eng/catalog.search#/home) to find additional data sets of interest which you might like to utilise by writing a custom PyEarthTools data accessor.
 
+### Accessing CMIP6 climate model data from the cloud
+
+The package `site_archive_pangeo` (in `packages/third_party/pangeo_site_archive`) reads CMIP6 model output from the [Pangeo CMIP6 cloud archive](https://pangeo-data.github.io/pangeo-cmip6-cloud/accessing_data.html) on Google Cloud. No account, download or HPC access is needed; the data is opened lazily, so only the times you request are transferred.
+
+```python
+import pyearthtools.data
+from site_archive_pangeo import PangeoCMIP6
+
+index = PangeoCMIP6(["tas", "pr"], source_id="CanESM5", experiment_id="historical")
+ds = index.retrieve(pyearthtools.data.Petdt("2000-01"))
+```
+
+Each variable is looked up in the Pangeo catalogue and the newest version is used. If a variable exists on several grids, pass `grid_label` to choose one. Scalar coordinates that differ between variables (for example `height`, which is 2 m for `tas` but 10 m for `uas`) are dropped when the variables are combined.
+
 ### Connecting PyEarthTools to a new dataset in any HPC facility by coding a new data accessor
 
 For on-disk data access, you will need to create a new accessor based on the [`pyearthtools.data.ArchiveIndex`](project:./api/data/data_api.md#pyearthtools.data.indexes.ArchiveIndex) class (or [`pyearthtools.data.Index`](project:./api/data/data_api.md#pyearthtools.data.indexes.Index) for some use cases). Additional instructions for this still need to be written. In the meantime, refer to the [NCI site archive source code](https://github.com/ACCESS-Community-Hub/PyEarthTools/tree/develop/packages/nci_site_archive) for examples.

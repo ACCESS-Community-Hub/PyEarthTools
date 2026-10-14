@@ -1,0 +1,8 @@
+activity_id,institution_id,source_id,experiment_id,member_id,table_id,variable_id,grid_label,zstore,dcpp_init_year,version
+CMIP,TEST-INST,TEST-MODEL,historical,r1i1p1f1,Amon,tas,gn,gs://test-bucket/tas/gn/v20190101/,,20190101
+CMIP,TEST-INST,TEST-MODEL,historical,r1i1p1f1,Amon,tas,gn,gs://test-bucket/tas/gn/v20200101/,,20200101
+CMIP,TEST-INST,TEST-MODEL,historical,r1i1p1f1,Amon,pr,gn,gs://test-bucket/pr/gn/v20190101/,,20190101
+CMIP,TEST-INST,TEST-MODEL,historical,r1i1p1f1,Amon,psl,gn,gs://test-bucket/psl/gn/v20190101/,,20190101
+CMIP,TEST-INST,TEST-MODEL,historical,r1i1p1f1,Amon,psl,gr,gs://test-bucket/psl/gr/v20190101/,,20190101
+ScenarioMIP,TEST-INST,TEST-MODEL,ssp585,r1i1p1f1,Amon,tas,gn,gs://test-bucket/ssp/tas/gn/v20190101/,,20190101
+CMIP,TEST-INST,TEST-MODEL,historical,r1i1p1f1,Amon,uas,gn,gs://test-bucket/uas/gn/v20190101/,,20190101
