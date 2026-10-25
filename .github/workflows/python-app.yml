@@ -40,7 +40,7 @@ jobs:
         pip install -e packages/bundled_models/fourcastnext
         pip install -e .[test]
 
-        pytest -m="not noci" --cov=packages/data --cov=packages/utils --cov=packages/pipeline --cov=packages/training --cov=packages/zoo --cov=packages/bundled_models/fourcastnext --ignore=packages/nci_site_archive
+        pytest -m="not noci" --cov=packages/data --cov=packages/utils --cov=packages/pipeline --cov=packages/training --cov=packages/zoo --cov=packages/bundled_models/fourcastnext --cov=packages/third_party/pangeo_site_archive --ignore=packages/nci_site_archive
     - name: Coveralls GitHub Action
       uses: coverallsapp/github-action@v2.3.0
       with:

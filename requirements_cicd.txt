@@ -5,4 +5,5 @@
 -e packages/tutorial
 -e packages/zoo
 -e packages/bundled_models/fourcastnext
+-e packages/third_party/pangeo_site_archive
 -e .[test]
