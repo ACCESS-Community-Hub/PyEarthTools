@@ -180,3 +180,4 @@ src/mypy.txt
 
 .ruff_cache/
 temp_dir/
+docs/notebooks/data/pangeo_cmip6_training/

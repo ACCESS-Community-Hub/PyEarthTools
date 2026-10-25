@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61", "setuptools-scm>=8.0"]
+
+[project]
+name = "PyEarthTools-archive-Pangeo"
+description = "PyEarthTools archive for the Pangeo CMIP6 analysis-ready, cloud-optimised (ARCO) data"
+requires-python = ">=3.11, <3.14"
+keywords = ["pyearthtools", "cmip6", "pangeo", "zarr", "climate"]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+  "pyearthtools-data>=0.6.3",
+  "pandas",
+  "xarray",
+  "zarr",
+  "gcsfs",
+]
+dynamic = ["version", "readme"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "pytest-cov", "black==26.3.1", "ruff"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.md"], content-type = "text/markdown"}
+
+[project.urls]
+homepage = "https://pyearthtools.readthedocs.io/en/latest/"
+documentation = "https://pyearthtools.readthedocs.io/en/latest/"
+repository = "https://github.com/ACCESS-Community-Hub/PyEarthTools"
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 120
