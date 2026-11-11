@@ -1,1 +1,0 @@
-xarray.merge([xarray.open_dataset(path1, ** open_args ) for path1 in  args[0]()])
