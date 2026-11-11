@@ -62,10 +62,10 @@ __all__ = [
 
 
 def print_indexes(show_projects: bool):
-    """
+    '''
     Args:
         show_projects: if true, show project codes (if applicable to the Index).
-    """
+    '''
     current_module = sys.modules[__name__]
     for obj_name in dir(current_module):
 
@@ -73,10 +73,10 @@ def print_indexes(show_projects: bool):
 
         if isinstance(obj_reference, type):
             if issubclass(obj_reference, pyearthtools.data.indexes.Index):
-                project_code = getattr(obj_reference, "project_code", None)
+                project_code = getattr(obj_reference, 'project_code', None)
                 print(f"{obj_reference} is a registered Index in the archive as {__name__}.{obj_name}")
                 if project_code and show_projects:
-                    print(f"{obj_reference} requires access to {project_code}")
+                    print(f'{obj_reference} requires access to {project_code}')
 
 
 def get_indexes():
