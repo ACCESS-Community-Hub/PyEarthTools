@@ -31,18 +31,33 @@ class MOGlobal10km(ArchiveIndex):
     Data Accessor for accessing Met Office data through the AWS Sustainable Data initiative.
     """
 
+    DATASET_NAME = 'Met Office Global Deterministic 10km forecast'
     MO_GLOBAL_AWS_DIR_TEMPLATE = "{root_dir}/{vt_str}"
     MO_GLOBAL_FNAME_TEMPLATE = "{vt_str}-PT0000H00M-{var_name}.nc"
+    LICENSE_NAME='CC BY-SA'
+    LICENSE_URL='https://creativecommons.org/licenses/by-sa/4.0/deed.en'
 
     def __init__(
         self,
         variables: list[str],
+        license_ok: bool = False,
         *,
         transforms: Transform | TransformCollection | None = None,
     ):
         """
         Init function for Met Office Global 10km model accessor class.
         """
+        
+        if not license_ok:
+            print('LICENSE WARNING: You have not accepted the license by passing in the license_OK=True '
+                  'flag to the object constrcutor to indicate you accept the data license. This ' 
+                  f'{MOGlobal10km.DATASET_NAME} data is under British Crown Copyright, licensed for use under '
+                  f'the {MOGlobal10km.LICENSE_NAME} license. Please read the license terms at '
+                  f'{MOGlobal10km.LICENSE_URL} to check your use of the data is in accordance with the data license. '
+                  'Pass the license_ok=True argument to the object constructor to not see this message in future' )
+        else:
+            print(f'Data license accepted for {MOGlobal10km.DATASET_NAME}')
+
         self._variables = variables
         self._open_args = {
             "engine": "h5netcdf",  #
