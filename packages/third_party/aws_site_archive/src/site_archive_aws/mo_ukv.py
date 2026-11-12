@@ -32,12 +32,11 @@ class MOUKV(ArchiveIndex):
     Info page: https://registry.opendata.aws/met-office-uk-deterministic/
     """
 
-    DATASET_NAME = 'Met Office UK Deterministic (UKV) 2km forecast'
+    DATASET_NAME = "Met Office UK Deterministic (UKV) 2km forecast"
     MO_UKV_AWS_DIR_TEMPLATE = "{root_dir}/{vt_str}"
     MO_UKV_FNAME_TEMPLATE = "{vt_str}-PT0000H00M-{var_name}.nc"
-    LICENSE_NAME='CC BY-SA'
-    LICENSE_URL='https://creativecommons.org/licenses/by-sa/4.0/deed.en'
-    
+    LICENSE_NAME = "CC BY-SA"
+    LICENSE_URL = "https://creativecommons.org/licenses/by-sa/4.0/deed.en"
 
     def __init__(
         self,
@@ -51,15 +50,17 @@ class MOUKV(ArchiveIndex):
         """
 
         if not license_ok:
-            print('LICENSE WARNING: You have not accepted the license by passing in the license_OK=True '
-                  f'flag to the object constrcutor to indicate you accept the data license. This {MOUKV.DATASET_NAME} '
-                  'data is under British Crown Copyright, licensed for use under '
-                  f'the {MOUKV.LICENSE_NAME} license. Please read the license terms at {MOUKV.LICENSE_URL} to check '
-                  'your use of the data is in accordance with the data license. Pass the license_ok=True argument '
-                  'to the object constructor to not see this message in future' )
+            print(
+                "LICENSE WARNING: You have not accepted the license by passing in the license_OK=True "
+                f"flag to the object constrcutor to indicate you accept the data license. This {MOUKV.DATASET_NAME} "
+                "data is under British Crown Copyright, licensed for use under "
+                f"the {MOUKV.LICENSE_NAME} license. Please read the license terms at {MOUKV.LICENSE_URL} to check "
+                "your use of the data is in accordance with the data license. Pass the license_ok=True argument "
+                "to the object constructor to not see this message in future"
+            )
         else:
-            print(f'Data license accepted for {MOUKV.DATASET_NAME}')
-                  
+            print(f"Data license accepted for {MOUKV.DATASET_NAME}")
+
         self._variables = variables
 
         self._open_args = {

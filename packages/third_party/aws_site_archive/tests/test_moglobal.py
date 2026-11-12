@@ -63,6 +63,7 @@ def test_moglobal_load():
     # check the size of the data loaded
     assert moglobal_ds["air_temperature"].shape == (1, 37, 1920, 2560)
 
+
 @pytest.mark.xfail(raises=pyearthtools.data.DataNotFoundError)
 def test_moglobal_novar():
     """
