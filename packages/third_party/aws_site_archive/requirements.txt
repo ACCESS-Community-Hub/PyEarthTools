@@ -1,0 +1,22 @@
+# Core AWS/cloud access dependencies
+s3fs>=2024.1.0
+fsspec>=2024.1.0
+
+# Data reading
+xarray>=2024.1.0
+zarr>=2.16.0
+cfgrib>=0.9.10
+eccodes>=1.6.0
+
+# Scientific stack
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.11.0
+
+# Visualisation
+matplotlib>=3.7.0
+cartopy>=0.22.0
+
+# PyEarthTools core
+pyearthtools-data>=0.1.0
+

@@ -48,7 +48,6 @@ from pyearthtools.data.archive.zarr import ZarrIndex, ZarrTimeIndex
 
 import sys
 
-
 __all__ = [
     "set_root",
     "reset_root",

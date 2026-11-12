@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=61", "setuptools-scm>=8.0"]
+
+[project]
+name = "PyEarthTools-archive-AWS"
+description = "PyEarthTools archive for Met Office and partner datasets available via the AWS Sustainable Data Initiative (ASDI)"
+requires-python = ">=3.11, <3.14"
+keywords = ["pyearthtools", "aws", "met-office", "nwp", "weather"]
+maintainers = [
+  {email = "stephen.haddad@metoffice.gov.uk", name = "Stephen Haddad"}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+]
+dependencies = [
+  "pyearthtools-data>=0.1.0",
+  # AWS / cloud access
+  "s3fs>=2024.1.0",
+  "fsspec>=2024.1.0",
+  ]
+  
+dynamic = ["version", "readme"]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.0",
+  "pytest-cov",
+  "black",
+  "isort",
+  "mypy",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.md"], content-type = "text/markdown"}
+
+[project.urls]
+homepage = "https://pyearthtools.readthedocs.io/en/latest/"
+documentation = "https://pyearthtools.readthedocs.io/en/latest/"
+repository = "https://github.com/ACCESS-Community-Hub/PyEarthTools"
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 120
+
+[tool.mypy]
+warn_return_any = true
+warn_unused_configs = true

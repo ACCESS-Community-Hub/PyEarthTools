@@ -1,0 +1,19 @@
+# Install base requirements first
+-r requirements.txt
+
+# Development and testing
+pytest>=7.0
+pytest-cov
+black>=23.0
+isort>=5.12
+mypy>=1.0
+
+# Notebook execution
+jupyter>=1.0
+nbformat>=5.0
+nbconvert>=7.0
+
+# AWS SageMaker (optional, for running examples on SageMaker)
+sagemaker>=2.200.0
+boto3>=1.34.0
+
